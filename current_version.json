@@ -1,9 +1,9 @@
 {
-  "version": "v1.0.1",
+  "version": "v1.0.0",
   "notes": "Initial release",
   "platforms": {
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRY2pYazFCejVvd0R2aXJBUWd1dEZYNURIOVA2ejU1ZExnUml6WVFqYjl3d2dVSlFGOWNUdlh5S3l2aHV1dzVyYm5oYytJaWhTL2dFS2g5S3lLQjJLc2pYRVUra2MvQ3dJPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzEwNTk3ODM2CWZpbGU6S2lraXRhbiBUcmFuc2xhdG9yXzEuMC4wX3g2NF9lbi1VUy5tc2kuemlwCmpVUmZmTWFqNEFXcHlrdDBURXNXQjJlUGpXNmxJa1BUTGcxY3BPdkkvc1NsTjl2SER5dWZBb3JjRHJQZ3hqZ3hxczVnRGkwV0tocUNqZXViVXM0UURRPT0K",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRY2pYazFCejVvd0toWjhDTHdSTWRiRjE5SERybER4MzFEV1kzSS8vSWJaQUdFVFRia3VBd0RCemZSVWNzREQvQm5iYVBsSXZRdkVPMk5LN2R2TEQ0UFhUN1NvRVo0U0FjPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzEwNjAxNjk4CWZpbGU6S2lraXRhbiBUcmFuc2xhdG9yXzEuMC4wX3g2NC1zZXR1cC5uc2lzLnppcAo3Yk16RlZuZnkvYjBoNUJqRzNaOGNjRkQrbnBxOGRjSWRQeWFkZmtzMFVwcGdkc0FYT3huclJXaU9HTEhBZndCditMZ0Z0Nk1jWmtTb0U4cG1xZGhDdz09Cg==",
       "url": "https://github.com/yusufozmen01/kikitan-translator/releases/download/v1.0.0/Kikitan.Translator_1.0.0_x64-setup.nsis.zip"
     }
   }
