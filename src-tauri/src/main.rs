@@ -59,13 +59,6 @@ fn kill_ovr() {
 
 #[tauri::command]
 fn send_ovr(data: String) {
-    let mut clipboard = Clipboard::new().unwrap();
-    let prev_text = clipboard.get_text().unwrap();
-
-    clipboard.set_text(&data).unwrap();
-
     let mut enigo = Enigo::new();
-    enigo.key_sequence_parse("{+CTRL}V{-CTRL}");
-
-    clipboard.set_text(&prev_text).unwrap();
+    enigo.key_sequence(&data);
 }

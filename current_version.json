@@ -1,10 +1,10 @@
 {
-  "version": "v1.0.1",
-  "notes": "Initial release",
+  "version": "v1.0.2",
+  "notes": "Fixed false positive",
   "platforms": {
     "windows-x86_64": {
       "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRY2pYazFCejVvd1BnN2tPSjVNbk92VUV0ZmxhLy94dXJ0bTIzWk9BZXAvdDNvdDYxYWlidncwZVZWcEduUTNhRmJhbzVURWN3QkZSNlY3Qnd3V1VyUHpSRDJEM2hvYmdvPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzEwNjA0Mjc1CWZpbGU6S2lraXRhbiBUcmFuc2xhdG9yXzEuMC4xX3g2NC1zZXR1cC5uc2lzLnppcApiNE5mZ2RKUk8rdVd0c0U5ZytEZ2ptYVRMQ3c3RU9JSGExdWo1SFRRZU1Ca04wYVQ0UE5HOXJYTzBDUFBMRkRKK0NpTi91d3VyY2wvcWxlbXlkWmtEUT09Cg==",
-      "url": "https://github.com/yusufozmen01/kikitan-translator/releases/download/v1.0.1/Kikitan.Translator_1.0.1_x64-setup.nsis.zip"
+      "url": "https://github.com/yusufozmen01/kikitan-translator/releases/download/v1.0.2/Kikitan.Translator_1.0.2_x64-setup.nsis.zip"
     }
   }
 }
