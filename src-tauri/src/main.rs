@@ -1,7 +1,6 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use arboard::Clipboard;
 use rosc::encoder;
 use rosc::{OscMessage, OscPacket, OscType};
 use std::net::{Ipv4Addr, UdpSocket};
