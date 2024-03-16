@@ -9,23 +9,25 @@ var sr = null
 const lang = ["en-US", "en-UK", "ja-JP", "tr"]
 const GOOGLE_SCRIPTS_URL = "https://script.google.com/macros/s/AKfycbyJAqvnM48iCprE_YyNnb03F0yG3fipQCgy_AEWjZI_bk6uSy6zyrfa9CQasHEw_dwJew/exec"
 
+function calculateMinWaitTime(text) {
+    if ((escape(text).length / 3) < 25) return 0;
+
+    return (escape(text).length / 3) * 25 // in ms
+}
+
 export default function Kikitan(ovr, vrc, translator) {
     const [detecting, setDetecting] = React.useState(true)
     const [translated, setTranslated] = React.useState("")
     const [detection, setDetection] = React.useState("")
     const [sourceLanguage, setSourceLanguage] = React.useState(typeof window !== 'undefined' ? localStorage.getItem("sourceLanguage") == null ? 2 : parseInt(localStorage.getItem("sourceLanguage")) : 2)
     const [targetLanguage, setTargetLanguage] = React.useState(typeof window !== 'undefined' ? localStorage.getItem("targetLanguage") == null ? 0 : parseInt(localStorage.getItem("targetLanguage")) : 0)
-    const [detectionTimeout, setDetectionTimeout] = React.useState(null)
-    
+    const [detectionQueue, setDetectionQueue] = React.useState([])
+    const [updateQueue, setUpdateQueue] = React.useState(false)
+
     React.useEffect(() => {
-        if (detectionTimeout != null) clearTimeout(detectionTimeout)
-
-        setDetectionTimeout(setTimeout(() => {
-            setDetecting(false)
-
-            return
-        }, 5000))
-    }, [detection])
+        const new_queue = detectionQueue.slice(1)
+        setDetectionQueue(new_queue)
+    }, [updateQueue])
 
     React.useEffect(() => {
         sr = new window.webkitSpeechRecognition();
@@ -33,26 +35,71 @@ export default function Kikitan(ovr, vrc, translator) {
         sr.maxAlternatives = 1
         sr.continuous = true,
 
-        sr.onend = () => {
-            console.log("Recognizer stopped. Restarting recognizer...")
-            setTimeout(() => {
-                try {
-                    sr.start()
-                } catch { }
-
-                console.log("Recognizer restarted!")
-            }, 200)
-        }
+            sr.onend = () => {
+                setTimeout(() => {
+                    try {
+                        sr.start()
+                    } catch { }
+                }, 200)
+            }
 
         sr.onresult = (res => {
             if (res.results[res.results.length - 1][0].transcript.trim().length == 0) return;
 
-            setDetection(res.results[res.results.length - 1][0].transcript)
+            setDetection(res.results[res.results.length - 1][0].transcript.trim())
             setDetecting(!res.results[res.results.length - 1].isFinal)
         })
 
-        sr.start()
+        sr.start();
     }, [])
+
+    React.useEffect(() => {
+        (async () => {
+            if (detectionQueue.length == 0) return;
+
+            const next = detectionQueue[0];
+
+            let final = ""
+
+            invoke("send_typing", {})
+
+            switch (translator) {
+                case 0:
+                    try {
+                        const res = await fetch(GOOGLE_SCRIPTS_URL + `?text=${next}&source=${lang[sourceLanguage]}&target=${lang[targetLanguage]}`)
+                        final = unescape(await res.text()).trim()
+
+                        invoke("send_message", { msg: `${final} (${next})` })
+
+                        setTranslated(text)
+
+                    } catch {
+                        setTranslated(false)
+                    }
+
+                    break;
+                case 1:
+                    try {
+                        const res = await (await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${lang[sourceLanguage]}&tl=${lang[targetLanguage]}&dt=t&dt=bd&dj=1&q=${next.replaceAll("%", "%25")}`)).json()
+
+                        final = unescape(res.sentences[0].trans)
+
+                        for (let i = 1; i < res.sentences.length; i++) {
+                            final += " " + unescape(res.sentences[i].trans)
+                        }
+
+                        invoke("send_message", { msg: `${final} (${next})` })
+
+                        setTranslated(final)
+                    } catch { }
+
+                    break;
+            }
+
+            await new Promise(r => setTimeout(r, calculateMinWaitTime(final)));
+            setUpdateQueue(!updateQueue)
+        })();
+    }, [detectionQueue[0]])
 
     React.useEffect(() => {
         sr.lang = lang[sourceLanguage]
@@ -79,57 +126,18 @@ export default function Kikitan(ovr, vrc, translator) {
     }, [targetLanguage])
 
     React.useEffect(() => {
-        if (!detecting && detection.trim() != "") {
-            if (detectionTimeout != null) clearTimeout(detectionTimeout)
+        if (!detecting && detection.length != 0) {
             if (ovr) {
-                invoke("send_ovr", { data: detection.trim() }).then(() => console.log("Sent to ovr!"));
+                invoke("send_ovr", { data: detection })
 
                 return;
             }
 
-            if (!vrc) return;
-
-            invoke("send_typing", {}).then(() => console.log("Sent writing message packet!"))
-
-            switch (translator) {
-                case 0:
-                    (async () => {
-                        try {
-                            const res = await fetch(GOOGLE_SCRIPTS_URL + `?text=${detection}&source=${lang[sourceLanguage]}&target=${lang[targetLanguage]}`)
-                            const text = unescape(await res.text()).trim()
-
-                            invoke("send_message", { msg: `${text} (${detection.trim()})` }).then(() => console.log("Sent message!"))
-
-                            setTranslated(text)
-
-                        } catch {
-                            setTranslated(false)
-                         }
-                    })();
-
-                    break;
-                case 1:
-                    (async () => {
-                        try {
-                            const res = await(await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${lang[sourceLanguage]}&tl=${lang[targetLanguage]}&dt=t&dt=bd&dj=1&q=${detection.trim().replaceAll("%", "%25")}`)).json()
-                            console.log(res)
-                            
-                            let final = unescape(res.sentences[0].trans)
-
-                            for (let i = 1; i < res.sentences.length; i++) {
-                                final += " " + unescape(res.sentences[i].trans)
-                            }
-                            
-                            invoke("send_message", { msg: `${final} (${detection.trim()})` }).then(() => console.log("Sent message!"))
-
-                            setTranslated(final)
-                        } catch { }
-                    })();
-
-                    break;
+            if (vrc) {
+                setDetectionQueue([...detectionQueue, detection])
             }
         }
-    }, [detecting])
+    }, [detecting, detection])
 
     return <>
         <div className="flex align-middle">
