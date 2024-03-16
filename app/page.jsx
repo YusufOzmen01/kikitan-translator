@@ -10,6 +10,12 @@ import Typography from '@mui/material/Typography';
 import { Select, MenuItem, Switch } from '@mui/material';
 import { invoke } from '@tauri-apps/api/tauri'
 
+import {
+  checkUpdate,
+  installUpdate,
+  onUpdaterEvent,
+} from '@tauri-apps/api/updater'
+
 function App() {
   const [translator, setTranslator] = React.useState(typeof window !== 'undefined' ? localStorage.getItem("translator") == null ? 0 : parseInt(localStorage.getItem("translator")) : null)
   const [ovr, setOvr] = React.useState(false)
