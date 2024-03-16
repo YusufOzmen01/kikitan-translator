@@ -1,6 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use arboard::Clipboard;
 use rosc::encoder;
 use rosc::{OscMessage, OscPacket, OscType};
 use std::net::{Ipv4Addr, UdpSocket};
@@ -58,7 +59,13 @@ fn kill_ovr() {
 
 #[tauri::command]
 fn send_ovr(data: String) {
-    let mut enigo = Enigo::new();
+    let mut clipboard = Clipboard::new().unwrap();
+    let prev_text = clipboard.get_text().unwrap();
 
-    enigo.key_sequence(&data);
+    clipboard.set_text(&data).unwrap();
+
+    let mut enigo = Enigo::new();
+    enigo.key_sequence("{+CTRL}V{-CTRL}");
+
+    clipboard.set_text(&prev_text).unwrap();
 }
