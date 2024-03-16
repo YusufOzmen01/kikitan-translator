@@ -65,7 +65,7 @@ fn send_ovr(data: String) {
     clipboard.set_text(&data).unwrap();
 
     let mut enigo = Enigo::new();
-    enigo.key_sequence("{+CTRL}V{-CTRL}");
+    enigo.key_sequence_parse("{+CTRL}V{-CTRL}");
 
     clipboard.set_text(&prev_text).unwrap();
 }

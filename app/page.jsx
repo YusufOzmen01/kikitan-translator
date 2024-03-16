@@ -24,6 +24,8 @@ function App() {
 
   React.useEffect(() => {
     localStorage.setItem("translator", translator)
+
+    checkUpdate().then(s => console.log(s))
   }, [translator])
 
   return (
