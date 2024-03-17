@@ -1,7 +1,7 @@
 export const langSource = [
     { name: "English (United States)", code: "en-US" },
     { name: "English (United Kingdom)", code: "en-UK" },
-    { name: "日本語 (Japanese)", code: "jp" },
+    { name: "日本語 (Japanese)", code: "ja" },
     { name: "العربية (Arabic)", code: "ar" },
     { name: "عربي (Arabic)", code: "ar" },
     { name: "Հայերեն (Armenian)", code: "hy" },
@@ -59,7 +59,7 @@ export const langSource = [
 
 export const langTo = [
     { name: "English", code: "en" },
-    { name: "日本語 (Japanese)", code: "jp" },
+    { name: "日本語 (Japanese)", code: "ja" },
     { name: "العربية (Arabic)", code: "ar" },
     { name: "عربي (Arabic)", code: "ar" },
     { name: "Հայերեն (Armenian)", code: "hy" },
