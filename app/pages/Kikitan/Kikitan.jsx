@@ -42,6 +42,8 @@ export default function Kikitan(ovr, vrc, translator) {
             }, 200)
         }
 
+        sr.onerror = console.log
+
         sr.onresult = (res => {
             if (res.results[res.results.length - 1][0].transcript.trim().length == 0) return;
 
@@ -98,7 +100,7 @@ export default function Kikitan(ovr, vrc, translator) {
     }, [detectionQueue[0]])
 
     React.useEffect(() => {
-        sr.lang = sourceLanguage[sourceLanguage]
+        sr.lang = langSource[sourceLanguage]
 
         if ((sourceLanguage == 0 || sourceLanguage == 1) && targetLanguage == 0) {
             setTargetLanguage(2)
