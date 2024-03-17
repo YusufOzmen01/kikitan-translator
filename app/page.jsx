@@ -2,19 +2,14 @@
 
 import * as React from 'react';
 
-import Kikitan from "./pages/Kikitan"
+import Kikitan from "./pages/Kikitan/Kikitan"
 
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import { Select, MenuItem, Switch } from '@mui/material';
-import { invoke } from '@tauri-apps/api/tauri'
 
-import {
-  checkUpdate,
-  installUpdate,
-  onUpdaterEvent,
-} from '@tauri-apps/api/updater'
+import { invoke } from '@tauri-apps/api/tauri'
 
 function App() {
   const [translator, setTranslator] = React.useState(typeof window !== 'undefined' ? localStorage.getItem("translator") == null ? 0 : parseInt(localStorage.getItem("translator")) : null)
@@ -24,8 +19,6 @@ function App() {
 
   React.useEffect(() => {
     localStorage.setItem("translator", translator)
-
-    checkUpdate().then(s => console.log(s))
   }, [translator])
 
   return (
@@ -82,11 +75,10 @@ function App() {
               }} variant='outlined' className="ml-4" value={translator} onChange={(e) => {
                 setTranslator(e.target.value)
               }}>
-                <MenuItem value={0}>Google ML (Slow)</MenuItem>
-                <MenuItem value={1}>Google Translate (Fast)</MenuItem>
+                <MenuItem value={0}>Google Scripts</MenuItem>
+                <MenuItem value={1}>Google Translate</MenuItem>
               </Select>
             </div>
-
           </Toolbar>
         </AppBar>
         <div className='flex flex-1 items-center align-middle flex-col mt-16'>
