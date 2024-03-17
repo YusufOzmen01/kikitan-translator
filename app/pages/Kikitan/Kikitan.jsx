@@ -65,7 +65,7 @@ export default function Kikitan(ovr, vrc, translator) {
 
             switch (translator) {
                 case 0:
-                    translateGS(next, lang[sourceLanguage], lang[targetLanguage])
+                    translateGS(next, langSource[sourceLanguage].code, langTo[targetLanguage].code)
                         .then(final => {
                             invoke("send_message", { msg: `${final} (${next})` })
 
@@ -78,18 +78,16 @@ export default function Kikitan(ovr, vrc, translator) {
 
                     break;
                 case 1:
-                    try {
-                        translateGT(next, lang[sourceLanguage], lang[targetLanguage])
-                            .then(final => {
-                                invoke("send_message", { msg: `${final} (${next})` })
+                    translateGT(next, langSource[sourceLanguage].code, langTo[targetLanguage].code)
+                        .then(final => {
+                            invoke("send_message", { msg: `${final} (${next})` })
 
-                                text = final
+                            text = final
 
-                                setTranslated(final)
-                            }).catch(e => {
-                                setTranslated(e)
-                            })
-                    } catch { }
+                            setTranslated(final)
+                        }).catch(e => {
+                            setTranslated(e)
+                        })
 
                     break;
             }
@@ -100,11 +98,11 @@ export default function Kikitan(ovr, vrc, translator) {
     }, [detectionQueue[0]])
 
     React.useEffect(() => {
-        sr.lang = langSource[sourceLanguage]
+        sr.lang = langSource[sourceLanguage].code
 
         if ((sourceLanguage == 0 || sourceLanguage == 1) && targetLanguage == 0) {
             setTargetLanguage(2)
-        } else if (sourceLanguage-1 == targetLanguage) {
+        } else if (sourceLanguage - 1 == targetLanguage) {
             setTargetLanguage(0)
         }
 
@@ -116,7 +114,7 @@ export default function Kikitan(ovr, vrc, translator) {
     React.useEffect(() => {
         if ((sourceLanguage == 0 || sourceLanguage == 1) && targetLanguage == 0) {
             setSourceLanguage(2)
-        } else if (sourceLanguage-1 == targetLanguage) {
+        } else if (sourceLanguage - 1 == targetLanguage) {
             setSourceLanguage(0)
         }
 
