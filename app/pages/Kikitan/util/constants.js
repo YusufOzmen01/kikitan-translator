@@ -116,5 +116,5 @@ export const langTo = [
 ]
 
 export function calculateMinWaitTime(text) {
-    return (escape(text).length / 6) * 25 // in ms
+    return (escape(text).length / 3) * 30 // in ms
 }
