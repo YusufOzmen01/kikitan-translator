@@ -4,10 +4,20 @@ import * as React from 'react';
 
 import Kikitan from "./pages/Kikitan/Kikitan"
 
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import { Select, MenuItem, Switch } from '@mui/material';
+import { 
+  AppBar, 
+  Toolbar, 
+  Typography, 
+  Select, 
+  MenuItem, 
+  Switch, 
+  Button,
+  IconButton
+} from '@mui/material';
+
+import { 
+  Settings
+} from '@mui/icons-material';
 
 import { invoke } from '@tauri-apps/api/tauri'
 
@@ -72,12 +82,20 @@ function App() {
                 '& .MuiSvgIcon-root': {
                   color: 'white'
                 }
-              }} variant='outlined' className="ml-4" value={translator} onChange={(e) => {
+              }} variant='outlined' className="ml-4 mr-2" value={translator} onChange={(e) => {
                 setTranslator(e.target.value)
               }}>
                 <MenuItem value={0}>Google Scripts</MenuItem>
                 <MenuItem value={1}>Google Translate</MenuItem>
               </Select>
+              <IconButton sx={{
+                color: 'white',
+                '& .MuiSvgIcon-root': {
+                  color: 'white'
+                }
+              }} >
+                <Settings />
+              </IconButton>
             </div>
           </Toolbar>
         </AppBar>
