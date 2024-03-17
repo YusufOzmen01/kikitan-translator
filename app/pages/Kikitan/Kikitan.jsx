@@ -147,12 +147,12 @@ export default function Kikitan(ovr, vrc, translator) {
         <div className="flex align-middle mt-8">
             <Select className="mr-4" value={sourceLanguage} onChange={(e) => setSourceLanguage(e.target.value)}>
                 {langSource.map((element, i) => {
-                    return <MenuItem value={i}>{element.name}</MenuItem>
+                    return <MenuItem key={element.code} value={i}>{element.name}</MenuItem>
                 })}
             </Select>
             <Select className="ml-4" value={targetLanguage} onChange={(e) => setTargetLanguage(e.target.value)}>
                 {langTo.map((element, i) => {
-                    return <MenuItem value={i}>{element.name}</MenuItem>
+                    return <MenuItem key={element.code} value={i}>{element.name}</MenuItem>
                 })}
             </Select>
         </div>
