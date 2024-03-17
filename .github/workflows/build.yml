@@ -1,0 +1,57 @@
+ame: App Builder
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+jobs:
+  release:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [windows-latest]
+        include:
+          - os: windows-latest
+            rust_target: x86_64-pc-windows-msvc
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # for projects that use labels and PRs,
+      # try https://github.com/mikepenz/release-changelog-builder-action instead
+      # TODO: use API to collect commit messages
+
+      - name: Node.js setup
+        uses: actions/setup-node@v3
+        # NOTE: enterprise developers may hard code a version
+        with:
+          node-version: latest
+          # node-version-file: '.nvmrc'
+
+      - name: Install Rust (Stable)
+        run:
+          curl https://sh.rustup.rs -sSf | sh -s -- -y
+
+      - name: Install dependencies (ubuntu only)
+        if: matrix.platform == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev webkit2gtk-4.0 libappindicator3-dev librsvg2-dev patchelf
+      - name: Install app dependencies and build web
+        # NOTE: include yarn build if frontend has build script
+        run: yarn install --frozen-lockfile # && yarn build
+
+      - name: Build the app
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+        with:
+          # tauri-action replaces \_\_VERSION\_\_ with the app version
+          tagName: ${{ github.ref_name }}
+          releaseName: "Kikitan Translator v__VERSION__"
+          releaseDraft: true
+          prerelease: false

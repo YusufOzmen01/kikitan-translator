@@ -55,7 +55,7 @@
     "updater": {
       "active": true,
       "endpoints": [
-        "https://raw.githubusercontent.com/YusufOzmen01/kikitan-translator/main/current_version.json"
+        "https://gist.githubusercontent.com/YusufOzmen01/2739ef70ee7f4e60add7e5d87a4c745b/raw"
       ],
       "dialog": true,
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEMwNjgzRTA3MzU3OThEMUMKUldRY2pYazFCejVvd1B2Y0k5YUtOTENTQzZUZlZ3Mk4rcXUxY2dUUGkrMmZLUHlUclYzUk5idngK",
