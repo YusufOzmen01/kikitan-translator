@@ -4,7 +4,7 @@
 ### 言語の違いに関係なく、お互いを理解するために作られたVRChatの翻訳アプリ。
 
 - **VRChat翻訳:** Google ScriptsのMLベースの翻訳APIおよびGoogle翻訳のサポート (DeepL、ChatGPT、Bingのサポートは近日公開予定)
-- **SteamVR音声テキスト入力 (日本語と併用すると壊れる場合があります):** アプリが受信した音声認識データを使用して、SteamVRでデスクトップに焦点を当てながらA/Yボタンを押すことで、アプリが話した内容を画面に入力できます。
+- **SteamVR音声テキスト入力 (日本語と併用すると壊れる場合があります):** SteamVRでデスクトップに焦点を当てながらA/Yボタンを押すことで、画面上に音声でテキスト入力ができます。
 
 ## 使い方
 [Kikitan Translatorをダウンロード](https://github.com/YusufOzmen01/kikitan-translator/releases)
@@ -28,12 +28,7 @@ npm run tauri build
 
 # ライセンス
 
-Kikitan Translatorはフリーソフトウェアです：あなたはそれを再配布したり、変更したりできます
-これは、GNU一般公衆利用許諾契約の条件の下で、
-Free Software Foundationによって公開されています。許諾されるバージョン3、または
-（あなたの選択により）以降のバージョン。
+Kikitan Translator はフリー ソフトウェアです。
+Free Software Foundation が発行する GNU General Public License の条件 (バージョン 3 のライセンス、または (お客様の選択によって) それ以降のバージョン) に基づいて再配布や改変が可能です。
 
-Kikitan Translatorは、有用であることを願っていますが、
-いかなる保証もありません。黙示された保証もありません。
-特定の目的への商品性や適合性もありません。 [詳細については、
-GNU一般公衆利用許諾契約書をご覧ください。](https://www.gnu.org/licenses/gpl-3.0.ja.html)
+Kikitan Translatorは、有用であることを願って配布していますが、いかなる保証もありません。商品性や特定の目的への適合性についての暗黙の保証もありません。[詳細については、GNU一般公衆利用許諾契約書をご覧ください](https://www.gnu.org/licenses/gpl-3.0.ja.html)
