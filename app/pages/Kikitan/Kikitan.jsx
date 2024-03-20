@@ -65,7 +65,7 @@ export default function Kikitan(ovr, vrc, translator) {
             switch (translator) {
                 case 0:
                     try {
-                        let text = translateGS(next, langSource[sourceLanguage].code, langTo[targetLanguage].code)
+                        let text = await translateGS(next, langSource[sourceLanguage].code, langTo[targetLanguage].code)
 
                         setTranslated(text)
                         invoke("send_message", { msg: `${text} (${next})` })
