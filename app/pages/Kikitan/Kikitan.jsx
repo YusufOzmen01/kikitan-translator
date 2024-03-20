@@ -59,41 +59,41 @@ export default function Kikitan(ovr, vrc, translator) {
             if (detectionQueue.length == 0) return;
 
             const next = detectionQueue[0];
-            let text = ""
 
             invoke("send_typing", {})
 
             switch (translator) {
                 case 0:
-                    translateGS(next, langSource[sourceLanguage].code, langTo[targetLanguage].code)
-                        .then(final => {
-                            invoke("send_message", { msg: `${final} (${next})` })
+                    try {
+                        let text = translateGS(next, langSource[sourceLanguage].code, langTo[targetLanguage].code)
 
-                            text = final
-
-                            setTranslated(final)
-                        }).catch(e => {
-                            setTranslated(e)
-                        })
+                        setTranslated(text)
+                        invoke("send_message", { msg: `${text} (${next})` })
+                        
+                        await new Promise(r => setTimeout(r, calculateMinWaitTime(text)));
+                        setUpdateQueue(!updateQueue)
+                    } catch {
+                        setTranslated("ERR_GOOGLE_TRANSLATE")
+                    }
 
                     break;
                 case 1:
-                    translateGT(next, langSource[sourceLanguage].code, langTo[targetLanguage].code)
-                        .then(final => {
-                            invoke("send_message", { msg: `${final} (${next})` })
+                    try {
+                        let text = await translateGT(next, langSource[sourceLanguage].code, langTo[targetLanguage].code)
 
-                            text = final
+                        setTranslated(text)
+                        invoke("send_message", { msg: `${text} (${next})` })
 
-                            setTranslated(final)
-                        }).catch(e => {
-                            setTranslated(e)
-                        })
+                        console.log(calculateMinWaitTime(text))
+
+                        await new Promise(r => setTimeout(r, calculateMinWaitTime(text)));
+                        setUpdateQueue(!updateQueue)
+                    } catch {
+                        setTranslated("ERR_GOOGLE_TRANSLATE")
+                    }
 
                     break;
-            }
-
-            await new Promise(r => setTimeout(r, calculateMinWaitTime(text)));
-            setUpdateQueue(!updateQueue)
+            }  
         })();
     }, [detectionQueue[0]])
 
@@ -101,7 +101,7 @@ export default function Kikitan(ovr, vrc, translator) {
         sr.lang = langSource[sourceLanguage].code
 
         if ((sourceLanguage == 0 || sourceLanguage == 1) && targetLanguage == 0) {
-            setTargetLanguage(2)
+            setTargetLanguage(1)
         } else if (sourceLanguage - 1 == targetLanguage) {
             setTargetLanguage(0)
         }
