@@ -45,7 +45,7 @@ function App() {
             <div className={'transition-all z-10 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute'}>
               <div className='flex flex-col justify-between  w-10/12 h-5/6 outline outline-2 outline-white rounded bg-white'>
                 <div className='relative mt-2 ml-2 mr-2 h-64'>
-                  <div className={'absolute inset-0 transition-all flex justify-center  ease-in-out ' + (quickstartPage == 0 ? "opacity-100" : "opacity-0")}>
+                  <div className={'absolute inset-0 transition-all flex justify-center  ease-in-out ' + (quickstartPage == 0 ? "opacity-100" : "opacity-0 pointer-events-none")}>
                     <div className='absolute mt-2 flex flex-col items-center'>
                       <p className='text-xl bold text-center'>{quickstartLanguageJapanese ? "OSCを有効にしてください！" : "Make sure to enable OSC!"}</p>
                       {quickstartPage == 0 &&
@@ -56,7 +56,7 @@ function App() {
                     </div>
                   </div>
 
-                  <div className={'absolute inset-0 transition-all flex flex-col items-center justify-center ease-in-out ' + (quickstartPage == 1 ? "opacity-100" : "opacity-0")}>
+                  <div className={'absolute inset-0 transition-all flex flex-col items-center justify-center ease-in-out ' + (quickstartPage == 1 ? "opacity-100" : "opacity-0 pointer-events-none")}>
                     <div className='mt-2 mb-4'>
                       <p className='text-xl bold text-center'>{quickstartLanguageJapanese ? "Windowsのデフォルトマイクの設定を確認してください！" : "Check your Windows default microphone settings!"}</p>
                       <p className='text-lg mt-20 text-center'>
@@ -70,7 +70,7 @@ function App() {
                     <Button disabled={quickstartPage != 1} className={'w-96 '} variant='contained' startIcon={<Settings />} onClick={async () => { await new Command("open-windows-audio-settings", ["Start", "ms-settings:sound"]).spawn() }}>{quickstartLanguageJapanese ? "Windowsのオーディオ設定を開く" : "Open Windows Audio Settings"}</Button>
                   </div>
 
-                  <div className={'absolute inset-0 transition-all flex justify-center  ease-in-out ' + (quickstartPage == 2 ? "opacity-100" : "opacity-0")}>
+                  <div className={'absolute inset-0 transition-all flex justify-center  ease-in-out ' + (quickstartPage == 2 ? "opacity-100" : "opacity-0 pointer-events-none")}>
                     <div className='absolute mt-2 flex flex-col items-center'>
                       <p className='text-xl bold text-center'>{quickstartLanguageJapanese ? "SteamVR STT (音声からテキストへ) の使用方法" : "How to use SteamVR STT (Speech to Text)"}</p>
                       {quickstartPage == 2 &&
@@ -81,7 +81,7 @@ function App() {
                     </div>
                   </div>
 
-                  <div className={'absolute inset-0 transition-all space-y-2 flex flex-col items-center justify-center ease-in-out ' + (quickstartPage == 3 ? "opacity-100" : "opacity-0")}>
+                  <div className={'absolute inset-0 transition-all space-y-2 flex flex-col items-center justify-center ease-in-out ' + (quickstartPage == 3 ? "opacity-100" : "opacity-0 pointer-events-none")}>
                     <div className='mt-4 mb-4'>
                       <p className='text-xl mt-8 bold text-center'>{quickstartLanguageJapanese ? "Kikitanをご利用いただき、ありがとうございます！" : "Thank you for using Kikitan!"}</p>
                       <p className='text-lg mt-20 text-center'>
