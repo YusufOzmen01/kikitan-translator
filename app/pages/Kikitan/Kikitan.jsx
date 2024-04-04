@@ -2,10 +2,11 @@
 
 import * as React from "react"
 
-import { Select, MenuItem, Button } from "@mui/material"
+import { Select, MenuItem, Button, IconButton } from "@mui/material"
 
 import XIcon from '@mui/icons-material/X';
 import GitHubIcon from '@mui/icons-material/GitHub';
+import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 
 import { invoke } from '@tauri-apps/api/tauri'
 import { open } from '@tauri-apps/api/shell'
@@ -143,14 +144,25 @@ export default function Kikitan(ovr, vrc, translator) {
                 <div className={`mr-16 w-96 h-48 outline outline-2 outline-slate-400 rounded-md font-bold text-center ${detecting ? "text-slate-700 italic" : "text-black"}`}>
                     <p className="align-middle">{detection}</p>
                 </div>
-                <div className="flex justify-around">
-                    <Select className="mt-4 ml-auto mr-16" value={sourceLanguage} onChange={(e) => setSourceLanguage(e.target.value)}>
+                <div className="flex">
+                    <Select className="mt-4 ml-auto h-14" value={sourceLanguage} onChange={(e) => setSourceLanguage(e.target.value)}>
                         {langSource.map((element, i) => {
                             return <MenuItem key={element.code} value={i}>{element.name}</MenuItem>
                         })}
                     </Select>
+                    <div className="mt-7">
+                        <Button onClick={() => {
+                            let old = sourceLanguage
+                            
+                            setSourceLanguage(targetLanguage == 0 ? 0 : targetLanguage + 1)
+                            setTargetLanguage((old == 0) || (old == 1) ? 0 : old - 1)
+                        }}>
+                            <SwapHorizIcon />
+                        </Button>
+                    </div>
                 </div>
             </div>
+
             <div>
                 <div className="w-96 h-48 outline outline-2 outline-slate-400 rounded-md text-black font-bold text-center">
                     <p className="align-middle">{translated}</p>
