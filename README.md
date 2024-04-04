@@ -1,13 +1,13 @@
 # Kikitan Translator
 [English](https://github.com/YusufOzmen01/kikitan-translator)/[日本語](https://github.com/YusufOzmen01/kikitan-translator/blob/main/README_jp.md)
 
+## [Download Kikitan Translator](https://github.com/yusufozmen01/kikitan-translator/releases/download/latest/Kikitan.Translator_x64-setup.exe)
+
 ### A VRChat translator built for helping you and the person/people you're talking with to understand each other regardles of language differences.
 
 - **VRChat Translation:** Support for Google Scripts' ML Based Translation api and Google Translate (support for DeepL, ChatGPT and Bing soon)
 - **SteamVR Speech to Text Input (MIGHT BREAK WITH JAPANESE):** Using the speech recognition data that the app received, you can hold your A/Y button while focused on your desktop in SteamVR to let the app type whatever you said to the screen.
 
-## Get Started
-[Download Kikitan Translator]([#](https://github.com/YusufOzmen01/kikitan-translator/releases))
 
 ## How to build
 

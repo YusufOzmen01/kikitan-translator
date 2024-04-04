@@ -18,7 +18,17 @@
         ]
       },
       "shell": {
-        "open": true
+        "all": true,
+        "execute": true,
+        "sidecar": true,
+        "open": true,
+        "scope": [
+          {
+            "name": "open-windows-audio-settings",
+            "cmd": "powershell",
+            "args": ["Start", "ms-settings:sound"]
+          }
+        ]
       }
     },
     "bundle": {
