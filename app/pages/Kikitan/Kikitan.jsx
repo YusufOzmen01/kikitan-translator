@@ -2,9 +2,13 @@
 
 import * as React from "react"
 
-import { Select, MenuItem } from "@mui/material"
+import { Select, MenuItem, Button } from "@mui/material"
+
+import XIcon from '@mui/icons-material/X';
+import GitHubIcon from '@mui/icons-material/GitHub';
 
 import { invoke } from '@tauri-apps/api/tauri'
+import { open } from '@tauri-apps/api/shell'
 
 import { calculateMinWaitTime, langSource, langTo } from "./util/constants"
 import { default as translateGS } from './translators/google_scripts';
@@ -69,11 +73,11 @@ export default function Kikitan(ovr, vrc, translator) {
 
                         setTranslated(text)
                         invoke("send_message", { msg: `${text} (${next})` })
-                        
+
                         await new Promise(r => setTimeout(r, calculateMinWaitTime(text)));
                         setUpdateQueue(!updateQueue)
                     } catch {
-                        setTranslated("ERR_GOOGLE_TRANSLATE")
+                        setTranslated("ERR_GOOGLE_SCRIPT")
                     }
 
                     break;
@@ -84,8 +88,6 @@ export default function Kikitan(ovr, vrc, translator) {
                         setTranslated(text)
                         invoke("send_message", { msg: `${text} (${next})` })
 
-                        console.log(calculateMinWaitTime(text))
-
                         await new Promise(r => setTimeout(r, calculateMinWaitTime(text)));
                         setUpdateQueue(!updateQueue)
                     } catch {
@@ -93,7 +95,7 @@ export default function Kikitan(ovr, vrc, translator) {
                     }
 
                     break;
-            }  
+            }
         })();
     }, [detectionQueue[0]])
 
@@ -137,24 +139,36 @@ export default function Kikitan(ovr, vrc, translator) {
 
     return <>
         <div className="flex align-middle">
-            <div className={`mr-16 w-96 h-48 outline outline-2 outline-slate-400 rounded-md font-bold text-center ${detecting ? "text-slate-700 italic" : "text-black"}`}>
-                <p className="align-middle">{detection}</p>
+            <div>
+                <div className={`mr-16 w-96 h-48 outline outline-2 outline-slate-400 rounded-md font-bold text-center ${detecting ? "text-slate-700 italic" : "text-black"}`}>
+                    <p className="align-middle">{detection}</p>
+                </div>
+                <div className="flex justify-around">
+                    <Select className="mt-4 ml-auto mr-16" value={sourceLanguage} onChange={(e) => setSourceLanguage(e.target.value)}>
+                        {langSource.map((element, i) => {
+                            return <MenuItem key={element.code} value={i}>{element.name}</MenuItem>
+                        })}
+                    </Select>
+                </div>
             </div>
-            <div className="w-96 h-48 outline outline-2 outline-slate-400 rounded-md text-black font-bold text-center">
-                <p className="align-middle">{translated}</p>
+            <div>
+                <div className="w-96 h-48 outline outline-2 outline-slate-400 rounded-md text-black font-bold text-center">
+                    <p className="align-middle">{translated}</p>
+                </div>
+                <div>
+                    <Select className="mt-4" value={targetLanguage} onChange={(e) => setTargetLanguage(e.target.value)}>
+                        {langTo.map((element, i) => {
+                            return <MenuItem key={element.code} value={i}>{element.name}</MenuItem>
+                        })}
+                    </Select>
+                </div>
             </div>
         </div>
-        <div className="flex align-middle mt-8">
-            <Select className="mr-4" value={sourceLanguage} onChange={(e) => setSourceLanguage(e.target.value)}>
-                {langSource.map((element, i) => {
-                    return <MenuItem key={element.code} value={i}>{element.name}</MenuItem>
-                })}
-            </Select>
-            <Select className="ml-4" value={targetLanguage} onChange={(e) => setTargetLanguage(e.target.value)}>
-                {langTo.map((element, i) => {
-                    return <MenuItem key={element.code} value={i}>{element.name}</MenuItem>
-                })}
-            </Select>
+        <div className="align-middle mt-2">
+            <div className="mt-14 flex space-x-2">
+                <Button variant="contained" size="small" className="h-8" onClick={() => { open("https://twitter.com/marquina_osu") }}><XIcon fontSize="small" /></Button>
+                <Button variant="contained" size="small" className="h-8" onClick={() => { open("https://github.com/YusufOzmen01/kikitan-translator") }}><GitHubIcon fontSize="small" /></Button>
+            </div>
         </div>
     </>
 }

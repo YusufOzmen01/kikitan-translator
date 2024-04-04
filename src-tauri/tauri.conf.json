@@ -16,6 +16,9 @@
         "scope": [
           "$RESOURCE/*"
         ]
+      },
+      "shell": {
+        "open": true
       }
     },
     "bundle": {
