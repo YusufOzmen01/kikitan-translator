@@ -3,7 +3,7 @@
     "notes": "Fixed minimum wait time algorithm",
     "platforms": {
         "windows-x86_64": {
-            "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRY2pYazFCejVvd0F2L0FHMXNqNStFWWZDbFExUXorQ2U3bEwvWXBLbUNzNkI4M3RwZjh3QkI1djVFT2hKd1M3akNrZmNFNDI2dmFEeUU3VTlXTm5hbnlRREZEeU83TFFJPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzEwOTQ0ODAwCWZpbGU6S2lraXRhbiBUcmFuc2xhdG9yXzEuMC41X3g2NC1zZXR1cC5uc2lzLnppcApwaUpoSmtqWmRzbEpNZWQ3YWVuL0pEU3IyVDZIcEFBZFB1ZktESEladVdLeHhyUlBYQXBTYUttUk45eEhqWlA1QlZBbk1kMktVMkt4ZXBXMDM0NzJDdz09Cg==",
+            "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRY2pYazFCejVvd0t0REVhTE1VVEc5YWRrMHo5UVV2N2gveFJjVktHdGdLZVMzaGx5dzQ3dFh5a01NUHN4c2JYQkhZQ2VVOHMzMUFYVnJodlBBd0Y0bE5iNHlCdVQ1R3dzPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzEwOTQ2MzkzCWZpbGU6S2lraXRhbiBUcmFuc2xhdG9yXzEuMC41X3g2NC1zZXR1cC5uc2lzLnppcAp6UXFtTWh3dHRwaDE3ZnlWZkdlZDNneDBOR3dnNTJRSEJyUkRKS1ZPcDk0UlpyWThzNFBqWVMzYTJUdkZDNWVndDQ3eHRGSHF5cVpEREtMYjNsQ1JBdz09Cg==",
             "url": "https://github.com/yusufozmen01/kikitan-translator/releases/download/v1.0.5/Kikitan.Translator_1.0.5_x64-setup.nsis.zip"
         }
     }
