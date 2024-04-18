@@ -36,14 +36,21 @@ function App() {
   const [quickstartLanguageJapanese, setQuickstartLanguageJapanese] = React.useState(true)
   const [transcriptionMode, setTranscriptionMode] = React.useState(typeof window !== 'undefined' ? localStorage.getItem("transcriptionMode") == null ? 0 : parseInt(localStorage.getItem("transcriptionMode")) : 0)
   const [steamVRReady, setSteamVRReady] = React.useState(false)
+  const [loaded, setLoaded] = React.useState(false)
 
   React.useEffect(() => {
     localStorage.setItem("transcriptionMode", transcriptionMode)
   }, [transcriptionMode])
 
+  React.useEffect(() => {
+    setTimeout(() => {
+      setLoaded(true)
+    }, 2000)
+  }, [])
+
   return (
     <>
-      <div className={`relative transition-all duration-500 ${typeof window.localStorage === 'undefined' ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
+      <div className={`relative transition-all duration-500 ${!loaded ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
         {showQuickstart &&
           <div className={'transition-all z-10 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute'}>
             <div className='flex flex-col justify-between  w-10/12 h-5/6 outline outline-2 outline-white rounded bg-white'>
