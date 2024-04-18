@@ -31,7 +31,7 @@ function App() {
   const [ovr, setOvr] = React.useState(false)
   const [ovrSr, setOvrSr] = React.useState(false)
   const [vrc, setVrc] = React.useState(true)
-  const [showQuickstart, setShowQuickstart] = React.useState(typeof window !== 'undefined' ? localStorage.getItem("quickstart") == null ? true : false : true)
+  const [showQuickstart, setShowQuickstart] = React.useState(typeof window !== 'undefined' ? localStorage.getItem("quickstartMenu") == null ? true : false : true)
   const [quickstartPage, setQuickstartPage] = React.useState(0)
   const [quickstartLanguageJapanese, setQuickstartLanguageJapanese] = React.useState(true)
   const [transcriptionMode, setTranscriptionMode] = React.useState(typeof window !== 'undefined' ? localStorage.getItem("transcriptionMode") == null ? 0 : parseInt(localStorage.getItem("transcriptionMode")) : 0)
