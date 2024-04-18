@@ -87,23 +87,13 @@ namespace Kikitan_OVR
                 switch (_evt.eventType)
                 {
                     case 200:
-                        if (_evt.data.controller.button == 1)
-                        {
-                            // Send recognition on request to Kikitan
-                            Console.WriteLine("SR ON!");
-
-                            Send("SRON");
-                        }
+                        Console.WriteLine("SR ON!");
+                        Send("SRON");
 
                         break;
                     case 201:
-                        if (_evt.data.controller.button == 1)
-                        {
-                            // Send recognition off request to Kikitan
-                            Console.WriteLine("SR OFF!");
-
-                            Send("SROFF");
-                        }
+                        Console.WriteLine("SR OFF!");
+                        Send("SROFF");
 
                         break;
                     default:
