@@ -6,14 +6,12 @@ use rosc::{OscMessage, OscPacket, OscType};
 use std::net::{Ipv4Addr, UdpSocket};
 use std::os::windows::process::CommandExt;
 use std::process::Command;
-use enigo::Enigo;
-use enigo::KeyboardControllable;
 
 fn main() {
     Command::new("taskkill").arg("/F").arg("/IM").arg("Kikitan OVR.exe").creation_flags(0x08000000_u32).spawn().unwrap();
 
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![send_typing, send_message, start_ovr, kill_ovr, send_ovr])
+        .invoke_handler(tauri::generate_handler![send_typing, send_message, start_ovr, kill_ovr])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
@@ -54,10 +52,4 @@ fn start_ovr(handle: tauri::AppHandle) {
 #[tauri::command]
 fn kill_ovr() {
     Command::new("taskkill").arg("/F").arg("/IM").arg("Kikitan OVR.exe").creation_flags(0x08000000_u32).spawn().unwrap();
-}
-
-#[tauri::command]
-fn send_ovr(data: String) {
-    let mut enigo = Enigo::new();
-    enigo.key_sequence(&data);
 }
