@@ -17,7 +17,7 @@ import { default as translateGT } from './translators/google_translate';
 
 var sr = null
 
-export default function Kikitan(ovr, vrc, translator) {
+export default function Kikitan(ovr, vrc, translator, transcriptionMode, ws) {
     const [detecting, setDetecting] = React.useState(true)
     const [detection, setDetection] = React.useState("")
     const [detectionQueue, setDetectionQueue] = React.useState([])
@@ -50,8 +50,10 @@ export default function Kikitan(ovr, vrc, translator) {
         sr.onerror = console.log
 
         sr.onresult = (res => {
-            if (res.results[res.results.length - 1][0].transcript.trim().length == 0) return;
+            if (transcriptionMode == 1) invoke("send_typing", {})
 
+            if (res.results[res.results.length - 1][0].transcript.trim().length == 0) return;
+            
             setDetection(res.results[res.results.length - 1][0].transcript.trim())
             setDetecting(!res.results[res.results.length - 1].isFinal)
         })
@@ -125,15 +127,25 @@ export default function Kikitan(ovr, vrc, translator) {
     }, [targetLanguage])
 
     React.useEffect(() => {
+        localStorage.setItem("transcriptionMode", transcriptionMode)
+    }, [transcriptionMode])
+
+    React.useEffect(() => {
         if (!detecting && detection.length != 0) {
             if (ovr) {
-                invoke("send_ovr", { data: detection })
+                if (ws != null) ws.send(`send-${detection}`)
 
                 return;
             }
 
             if (vrc) {
-                setDetectionQueue([...detectionQueue, detection])
+                if (transcriptionMode == 0) {
+                    setDetectionQueue([...detectionQueue, detection])
+
+                    return 
+                }
+
+                invoke("send_message", { msg: detection })
             }
         }
     }, [detecting, detection])

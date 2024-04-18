@@ -24,6 +24,8 @@ import {
 import { invoke } from '@tauri-apps/api/tauri'
 import { Command, open } from '@tauri-apps/api/shell'
 
+let ws = null
+
 function App() {
   const [translator, setTranslator] = React.useState(typeof window !== 'undefined' ? localStorage.getItem("translator") == null ? 0 : parseInt(localStorage.getItem("translator")) : null)
   const [ovr, setOvr] = React.useState(false)
@@ -32,10 +34,15 @@ function App() {
   const [showQuickstart, setShowQuickstart] = React.useState(typeof window !== 'undefined' ? localStorage.getItem("quickstart") == null ? true : false : true)
   const [quickstartPage, setQuickstartPage] = React.useState(0)
   const [quickstartLanguageJapanese, setQuickstartLanguageJapanese] = React.useState(true)
+  const [transcriptionMode, setTranscriptionMode] = React.useState(typeof window !== 'undefined' ? localStorage.getItem("transcriptionMode") == null ? 0 : parseInt(localStorage.getItem("transcriptionMode")) : 0)
 
   React.useEffect(() => {
     localStorage.setItem("translator", translator)
   }, [translator])
+
+  React.useEffect(() => {
+    localStorage.setItem("transcriptionMode", transcriptionMode)
+  }, [transcriptionMode])
 
   return (
     translator == null ? <></> :
@@ -72,7 +79,7 @@ function App() {
 
                   <div className={'absolute inset-0 transition-all flex justify-center  ease-in-out ' + (quickstartPage == 2 ? "opacity-100" : "opacity-0 pointer-events-none")}>
                     <div className='absolute mt-2 flex flex-col items-center'>
-                      <p className='text-xl bold text-center'>{quickstartLanguageJapanese ? "SteamVR STT (音声からテキストへ) の使用方法" : "How to use SteamVR STT (Speech to Text)"}</p>
+                      <p className='text-xl bold text-center'>{quickstartLanguageJapanese ? "[VRのみ] SteamVR STT (音声からテキストへ) の使用方法" : "[VR ONLY] How to use SteamVR STT (Speech to Text)"}</p>
                       {quickstartPage == 2 &&
                         <video width={480} autoPlay loop className='mt-4'>
                           <source src="/STEAMVR.mp4" type="video/mp4"></source>
@@ -81,7 +88,21 @@ function App() {
                     </div>
                   </div>
 
-                  <div className={'absolute inset-0 transition-all space-y-2 flex flex-col items-center justify-center ease-in-out ' + (quickstartPage == 3 ? "opacity-100" : "opacity-0 pointer-events-none")}>
+                  <div className={'absolute inset-0 transition-all flex justify-center  ease-in-out ' + (quickstartPage == 3 ? "opacity-100" : "opacity-0 pointer-events-none")}>
+                    <div className='absolute mt-2 flex flex-col items-center'>
+                      <p className='text-xl bold text-center'>{quickstartLanguageJapanese ? "モードの選択" : "Mode selection"}</p>
+                      <img className='mt-4' src="https://i.imgur.com/SQ5ju5r.png" width={240} />
+                      <p className='text-lg mt-20 text-center'>
+                        {quickstartLanguageJapanese ?
+                          "ここからモードを変更できます。 翻訳では、発言内容とその翻訳の両方が VRChat に送信されます。 文字起こしでは、話した内容のみが VRChat に送信されます。"
+                          :
+                          "You can change the mode from here. Translation sends both what is said and its translation to VRChat. With transcription, only what is said is sent to VRChat."
+                        }
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className={'absolute inset-0 transition-all space-y-2 flex flex-col items-center justify-center ease-in-out ' + (quickstartPage == 4 ? "opacity-100" : "opacity-0 pointer-events-none")}>
                     <div className='mt-4 mb-4'>
                       <p className='text-xl mt-8 bold text-center'>{quickstartLanguageJapanese ? "Kikitanをご利用いただき、ありがとうございます！" : "Thank you for using Kikitan!"}</p>
                       <p className='text-lg mt-20 text-center'>
@@ -92,14 +113,14 @@ function App() {
                         }
                       </p>
                     </div>
-                    <Button disabled={quickstartPage != 3} className={'w-70 '} variant='contained' startIcon={< GitHub />} onClick={async () => { open("https://github.com/YusufOzmen01/kikitan-translator") }}>{quickstartLanguageJapanese ? "プロジェクトリポジトリを開く" : "Open the project repository"}</Button>
-                    <Button disabled={quickstartPage != 3} className={'w-48 '} variant='contained' onClick={async () => { setShowQuickstart(false); window.localStorage.setItem("quickstart", true) }}>{quickstartLanguageJapanese ? "メニューを閉じる" : "Close the Menu"}</Button>
+                    <Button disabled={quickstartPage != 4} className={'w-70 '} variant='contained' startIcon={< GitHub />} onClick={async () => { open("https://github.com/YusufOzmen01/kikitan-translator") }}>{quickstartLanguageJapanese ? "プロジェクトリポジトリを開く" : "Open the project repository"}</Button>
+                    <Button disabled={quickstartPage != 4} className={'w-48 '} variant='contained' onClick={async () => { setShowQuickstart(false); window.localStorage.setItem("quickstart", true) }}>{quickstartLanguageJapanese ? "メニューを閉じる" : "Close the Menu"}</Button>
                   </div>
                 </div>
                 <div className='mb-2 flex justify-center space-x-4'>
                   <Button variant='contained' disabled={quickstartPage == 0} onClick={() => { setQuickstartPage(quickstartPage - 1) }}>{quickstartLanguageJapanese ? "前" : "Previous"}</Button>
                   <Button onClick={() => { setQuickstartLanguageJapanese(!quickstartLanguageJapanese) }}>{!quickstartLanguageJapanese ? "日本語" : "English"}</Button>
-                  <Button variant='contained' disabled={quickstartPage > 2} onClick={() => { setQuickstartPage(quickstartPage + 1) }}>{quickstartLanguageJapanese ? "次" : "Next"}</Button>
+                  <Button variant='contained' disabled={quickstartPage > 3} onClick={() => { setQuickstartPage(quickstartPage + 1) }}>{quickstartLanguageJapanese ? "次" : "Next"}</Button>
                 </div>
               </div>
             </div>
@@ -125,7 +146,7 @@ function App() {
                         console.log("Starting ovr...")
 
                         setTimeout(() => {
-                          let ws = new WebSocket("ws://127.0.0.1/ovr")
+                          ws = new WebSocket("ws://127.0.0.1/ovr")
                           ws.onopen = () => {
                             console.log("OVR connection opened!")
                           }
@@ -152,11 +173,13 @@ function App() {
                     '& .MuiSvgIcon-root': {
                       color: 'white'
                     }
-                  }} variant='outlined' className="ml-4 mr-2" value={translator} onChange={(e) => {
-                    setTranslator(e.target.value)
+                  }} variant='outlined' className="ml-4 mr-2" value={transcriptionMode} onChange={(e) => {
+                    setTranscriptionMode(e.target.value)
+
+                    setTimeout(() => {window.location.reload()}, 100)
                   }}>
-                    <MenuItem value={0}>Google Scripts</MenuItem>
-                    <MenuItem value={1}>Google Translate</MenuItem>
+                    <MenuItem value={0}>{"Translate (翻訳ボ)"}</MenuItem>
+                    <MenuItem value={1}>{"Transcribe (文字起こしボ)"}</MenuItem>
                   </Select>
                   <IconButton sx={{
                     color: 'white',
@@ -170,7 +193,7 @@ function App() {
               </Toolbar>
             </AppBar>
             <div className='flex flex-1 items-center align-middle flex-col mt-16'>
-              {Kikitan(ovrSr, vrc, translator)}
+              {Kikitan(ovrSr, vrc, 1, transcriptionMode, ws)}
             </div>
           </div>
         </div>
