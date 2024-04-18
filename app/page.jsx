@@ -117,7 +117,7 @@ function App() {
                     </p>
                   </div>
                   <Button disabled={quickstartPage != 4} className={'w-70 '} variant='contained' startIcon={< GitHub />} onClick={async () => { open("https://github.com/YusufOzmen01/kikitan-translator") }}>{quickstartLanguageJapanese ? "プロジェクトリポジトリを開く" : "Open the project repository"}</Button>
-                  <Button disabled={quickstartPage != 4} className={'w-48 '} variant='contained' onClick={async () => { setShowQuickstart(false); window.localStorage.setItem("quickstart", true) }}>{quickstartLanguageJapanese ? "メニューを閉じる" : "Close the Menu"}</Button>
+                  <Button disabled={quickstartPage != 4} className={'w-48 '} variant='contained' onClick={async () => { setShowQuickstart(false); window.localStorage.setItem("quickstartMenu", true) }}>{quickstartLanguageJapanese ? "メニューを閉じる" : "Close the Menu"}</Button>
                 </div>
               </div>
               <div className='mb-2 flex justify-center space-x-4'>
