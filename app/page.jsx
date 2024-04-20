@@ -187,8 +187,8 @@ function App() {
 
                   setTimeout(() => { window.location.reload() }, 100)
                 }}>
-                  <MenuItem value={0}>{"Translate (翻訳ボ)"}</MenuItem>
-                  <MenuItem value={1}>{"Transcribe (文字起こしボ)"}</MenuItem>
+                  <MenuItem value={0}>{"Translate (翻訳)"}</MenuItem>
+                  <MenuItem value={1}>{"Transcribe (文字起こし)"}</MenuItem>
                 </Select>
                 <IconButton sx={{
                   color: 'white',
