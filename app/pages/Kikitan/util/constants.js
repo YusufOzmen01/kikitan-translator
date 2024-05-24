@@ -59,6 +59,7 @@ export const langSource = [
 
 export const langTo = [
     { name: "English", code: "en" },
+    { name: "English", code: "en" },
     { name: "日本語 (Japanese)", code: "ja" },
     { name: "العربية (Arabic)", code: "ar" },
     { name: "عربي (Arabic)", code: "ar" },
@@ -115,6 +116,6 @@ export const langTo = [
     { name: "Tiếng Việt (Vietnamese)", code: "vi" },
 ]
 
-export function calculateMinWaitTime(text) {
-    return (escape(text).length / 3) * 60 // in ms
+export function calculateMinWaitTime(text, speed) {
+    return (escape(text).length / 3) * speed // in ms
 }
