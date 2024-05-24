@@ -17,7 +17,7 @@ fn main() {
 }
 
 #[tauri::command]
-fn send_typing() {
+fn send_typing(address: String, port: String) {
     let sock = UdpSocket::bind((Ipv4Addr::UNSPECIFIED, 0)).unwrap();
     let msg_buf = encoder::encode(&OscPacket::Message(OscMessage {
         addr: "/chatbox/typing".to_string(),
@@ -25,11 +25,11 @@ fn send_typing() {
     }))
     .unwrap();
 
-    sock.send_to(&msg_buf, "127.0.0.1:9000").unwrap();
+    sock.send_to(&msg_buf, address + ":" + &port).unwrap();
 }
 
 #[tauri::command]
-fn send_message(msg: String) {
+fn send_message(msg: String, address: String, port: String) {
     let sock = UdpSocket::bind((Ipv4Addr::UNSPECIFIED, 0)).unwrap();
     let msg_buf = encoder::encode(&OscPacket::Message(OscMessage {
         addr: "/chatbox/input".to_string(),
@@ -37,7 +37,7 @@ fn send_message(msg: String) {
     }))
     .unwrap();
 
-    sock.send_to(&msg_buf, "127.0.0.1:9000").unwrap();
+    sock.send_to(&msg_buf, address + ":" + &port).unwrap();
 }
 
 #[tauri::command]

@@ -2,7 +2,7 @@
 
 import * as React from "react"
 
-import { Select, MenuItem, Button, IconButton } from "@mui/material"
+import { Select, MenuItem, Button } from "@mui/material"
 
 import XIcon from '@mui/icons-material/X';
 import GitHubIcon from '@mui/icons-material/GitHub';
@@ -12,20 +12,20 @@ import { invoke } from '@tauri-apps/api/tauri'
 import { open } from '@tauri-apps/api/shell'
 
 import { calculateMinWaitTime, langSource, langTo } from "./util/constants"
-import { default as translateGS } from './translators/google_scripts';
 import { default as translateGT } from './translators/google_translate';
 
 var sr = null
+var sr_timeout = null
 
-export default function Kikitan(ovr, vrc, translator, transcriptionMode, ws) {
+export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws }) {
     const [detecting, setDetecting] = React.useState(true)
     const [detection, setDetection] = React.useState("")
     const [detectionQueue, setDetectionQueue] = React.useState([])
     const [translated, setTranslated] = React.useState("")
     const [updateQueue, setUpdateQueue] = React.useState(false)
 
-    const [sourceLanguage, setSourceLanguage] = React.useState(typeof window !== 'undefined' ? localStorage.getItem("sourceLanguage") == null ? 2 : parseInt(localStorage.getItem("sourceLanguage")) : 2)
-    const [targetLanguage, setTargetLanguage] = React.useState(typeof window !== 'undefined' ? localStorage.getItem("targetLanguage") == null ? 0 : parseInt(localStorage.getItem("targetLanguage")) : 0)
+    const [sourceLanguage, setSourceLanguage] = React.useState(config.source_language)
+    const [targetLanguage, setTargetLanguage] = React.useState(config.target_language)
 
     React.useEffect(() => {
         const new_queue = detectionQueue.slice(1)
@@ -35,12 +35,13 @@ export default function Kikitan(ovr, vrc, translator, transcriptionMode, ws) {
 
     React.useEffect(() => {
         sr = new window.webkitSpeechRecognition();
+        sr.lang = langSource[sourceLanguage].code
         sr.interimResults = true
         sr.maxAlternatives = 1
         sr.continuous = true
 
         sr.onend = () => {
-            setTimeout(() => {
+            sr_timeout = setTimeout(() => {
                 try {
                     sr.start()
                 } catch { }
@@ -50,16 +51,17 @@ export default function Kikitan(ovr, vrc, translator, transcriptionMode, ws) {
         sr.onerror = console.log
 
         sr.onresult = (res => {
-            if (transcriptionMode == 1) invoke("send_typing", {})
+            if (!sr_on) return;
+            if (config.mode == 1 || config.vrchat_settings.send_typing_while_talking) invoke("send_typing", {})
 
             if (res.results[res.results.length - 1][0].transcript.trim().length == 0) return;
-            
+
             setDetection(res.results[res.results.length - 1][0].transcript.trim())
             setDetecting(!res.results[res.results.length - 1].isFinal)
         })
 
         sr.start();
-    }, [])
+    }, [sr_on])
 
     React.useEffect(() => {
         (async () => {
@@ -69,29 +71,16 @@ export default function Kikitan(ovr, vrc, translator, transcriptionMode, ws) {
 
             invoke("send_typing", {})
 
-            switch (translator) {
+            switch (config.translator) {
                 case 0:
-                    try {
-                        let text = await translateGS(next, langSource[sourceLanguage].code, langTo[targetLanguage].code)
-
-                        setTranslated(text)
-                        invoke("send_message", { msg: `${text} (${next})` })
-
-                        await new Promise(r => setTimeout(r, calculateMinWaitTime(text)));
-                        setUpdateQueue(!updateQueue)
-                    } catch {
-                        setTranslated("ERR_GOOGLE_SCRIPT")
-                    }
-
-                    break;
-                case 1:
                     try {
                         let text = await translateGT(next, langSource[sourceLanguage].code, langTo[targetLanguage].code)
 
                         setTranslated(text)
-                        invoke("send_message", { msg: `${text} (${next})` })
+                        console.log( config.vrchat_settings.osc_address)
+                        invoke("send_message", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}`, msg: config.vrchat_settings.translation_first ? `${text} (${next})` : `${next} (${text})` })
 
-                        await new Promise(r => setTimeout(r, calculateMinWaitTime(text)));
+                        await new Promise(r => setTimeout(r, calculateMinWaitTime(text, config.vrchat_settings.chatbox_update_speed)));
                         setUpdateQueue(!updateQueue)
                     } catch {
                         setTranslated("ERR_GOOGLE_TRANSLATE")
@@ -103,49 +92,21 @@ export default function Kikitan(ovr, vrc, translator, transcriptionMode, ws) {
     }, [detectionQueue[0]])
 
     React.useEffect(() => {
-        sr.lang = langSource[sourceLanguage].code
-
-        if ((sourceLanguage == 0 || sourceLanguage == 1) && targetLanguage == 0) {
-            setTargetLanguage(1)
-        } else if (sourceLanguage - 1 == targetLanguage) {
-            setTargetLanguage(0)
-        }
-
-        localStorage.setItem("sourceLanguage", sourceLanguage)
-
-        sr.stop()
-    }, [sourceLanguage])
-
-    React.useEffect(() => {
-        if ((sourceLanguage == 0 || sourceLanguage == 1) && targetLanguage == 0) {
-            setSourceLanguage(2)
-        } else if (sourceLanguage - 1 == targetLanguage) {
-            setSourceLanguage(0)
-        }
-
-        localStorage.setItem("targetLanguage", targetLanguage)
-    }, [targetLanguage])
-
-    React.useEffect(() => {
-        localStorage.setItem("transcriptionMode", transcriptionMode)
-    }, [transcriptionMode])
-
-    React.useEffect(() => {
         if (!detecting && detection.length != 0) {
             if (ovr) {
-                if (ws != null) ws.send(`send-${detection}`)
+                if (ws != null) ws.send(`send-${langSource[sourceLanguage].code == "ja" ? detection.replaceAll("？", "") : detection}`)
 
                 return;
             }
 
             if (vrc) {
-                if (transcriptionMode == 0) {
-                    setDetectionQueue([...detectionQueue, detection])
+                if (config.mode == 0) {
+                    setDetectionQueue([...detectionQueue, langSource[sourceLanguage].code == "ja" && config.japanese_omit_questionmark ? detection.replaceAll("？", "") : detection])
 
-                    return 
+                    return
                 }
 
-                invoke("send_message", { msg: detection })
+                invoke("send_message", { msg: langSource[sourceLanguage].code == "ja" && config.japanese_omit_questionmark ? detection.replaceAll("？", "") : detection })
             }
         }
     }, [detecting, detection])
@@ -157,17 +118,29 @@ export default function Kikitan(ovr, vrc, translator, transcriptionMode, ws) {
                     <p className="align-middle">{detection}</p>
                 </div>
                 <div className="flex">
-                    <Select className="mt-4 ml-auto h-14" value={sourceLanguage} onChange={(e) => setSourceLanguage(e.target.value)}>
+                    <Select className="mt-4 ml-auto h-14" value={sourceLanguage} onChange={(e) => {
+                        sr.lang = langSource[e.target.value].code
+                        sr.stop()
+
+                        setSourceLanguage(e.target.value)
+                        setConfig({ ...config, source_language: e.target.value })
+                    }}>
                         {langSource.map((element, i) => {
                             return <MenuItem key={element.code} value={i}>{element.name}</MenuItem>
                         })}
                     </Select>
                     <div className="mt-7">
                         <Button onClick={() => {
-                            let old = sourceLanguage
-                            
-                            setSourceLanguage(targetLanguage == 0 ? 0 : targetLanguage + 1)
-                            setTargetLanguage((old == 0) || (old == 1) ? 0 : old - 1)
+                            let old_t = (sourceLanguage == 0) || (sourceLanguage == 1) ? 0 : sourceLanguage
+                            let old_s = targetLanguage
+
+                            sr.lang = langSource[old_s].code
+                            sr.stop()
+
+                            setTargetLanguage(old_t)
+                            setSourceLanguage(old_s)
+
+                            setConfig({ ...config, source_language: old_s, target_language: old_t })
                         }}>
                             <SwapHorizIcon />
                         </Button>
@@ -180,10 +153,27 @@ export default function Kikitan(ovr, vrc, translator, transcriptionMode, ws) {
                     <p className="align-middle">{translated}</p>
                 </div>
                 <div>
-                    <Select className="mt-4" value={targetLanguage} onChange={(e) => setTargetLanguage(e.target.value)}>
-                        {langTo.map((element, i) => {
-                            return <MenuItem key={element.code} value={i}>{element.name}</MenuItem>
-                        })}
+                    <Select className="mt-4" value={targetLanguage} onChange={(e) => {
+                        setTargetLanguage(e.target.value)
+                        setConfig({ ...config, target_language: e.target.value })
+                    }}>
+                        {(() => {
+                            let m = langTo.map((element, i) => {
+                                return {
+                                    e: element,
+                                    i
+                                }
+                            })
+
+                            m = m.filter((element, i) => {
+                                return m.findIndex((e) => e.e.code == element.e.code) == i
+                            })
+
+                            return m.map((element) => {
+                                return <MenuItem key={element.e.code} value={element.i}>{element.e.name}</MenuItem>
+                            })
+                                
+                        })()}
                     </Select>
                 </div>
             </div>

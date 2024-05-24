@@ -12,8 +12,7 @@ import {
   MenuItem,
   Switch,
   Button,
-  IconButton,
-  CircularProgress
+  IconButton
 } from '@mui/material';
 
 import {
@@ -25,6 +24,10 @@ import {
 import { invoke } from '@tauri-apps/api/tauri'
 import { Command, open } from '@tauri-apps/api/shell'
 
+import SettingsPage from './pages/Kikitan/Settings';
+
+import { DEFAULT_CONFIG, load_config, update_config } from './pages/Kikitan/util/config';
+
 let ws = null
 
 function App() {
@@ -34,16 +37,18 @@ function App() {
   const [showQuickstart, setShowQuickstart] = React.useState(typeof window !== 'undefined' ? localStorage.getItem("quickstartMenu") == null ? true : false : true)
   const [quickstartPage, setQuickstartPage] = React.useState(0)
   const [quickstartLanguageJapanese, setQuickstartLanguageJapanese] = React.useState(true)
-  const [transcriptionMode, setTranscriptionMode] = React.useState(typeof window !== 'undefined' ? localStorage.getItem("transcriptionMode") == null ? 0 : parseInt(localStorage.getItem("transcriptionMode")) : 0)
+  const [config, setConfig] = React.useState(DEFAULT_CONFIG)
   const [steamVRReady, setSteamVRReady] = React.useState(false)
   const [loaded, setLoaded] = React.useState(false)
+  const [settingsVisible, setSettingsVisible] = React.useState(false)
 
   React.useEffect(() => {
-    localStorage.setItem("transcriptionMode", transcriptionMode)
-  }, [transcriptionMode])
+    if (loaded) update_config(config)
+  }, [config])
 
   React.useEffect(() => {
     setTimeout(() => {
+      setConfig({ ...load_config() })
       setLoaded(true)
     }, 2000)
   }, [])
@@ -128,6 +133,13 @@ function App() {
             </div>
           </div>
         }
+
+        <div className={'transition-all z-20 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (settingsVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
+          <div className='flex flex-col justify-between  w-10/12 h-5/6 outline outline-2 outline-white rounded bg-white'>
+            <SettingsPage config={config} setConfig={setConfig} closeCallback={() => setSettingsVisible(false)} />
+          </div>
+        </div>
+
         <div className="flex flex-col h-screen z-0">
           <AppBar position="static">
             <Toolbar>
@@ -182,8 +194,8 @@ function App() {
                   '& .MuiSvgIcon-root': {
                     color: 'white'
                   }
-                }} variant='outlined' className="ml-4 mr-2" value={transcriptionMode} onChange={(e) => {
-                  setTranscriptionMode(e.target.value)
+                }} variant='outlined' className="ml-4 mr-2" value={config.mode} onChange={(e) => {
+                  setConfig({ ...config, mode: e.target.value })
 
                   setTimeout(() => { window.location.reload() }, 100)
                 }}>
@@ -198,11 +210,19 @@ function App() {
                 }} onClick={() => { setShowQuickstart(true); setQuickstartPage(0) }}>
                   <Help />
                 </IconButton>
+                <IconButton sx={{
+                  color: 'white',
+                  '& .MuiSvgIcon-root': {
+                    color: 'white'
+                  }
+                }} onClick={() => { setSettingsVisible(true) }}>
+                  <Settings />
+                </IconButton>
               </div>
             </Toolbar>
           </AppBar>
           <div className='flex flex-1 items-center align-middle flex-col mt-16'>
-            {Kikitan(ovrSr, vrc, 1, transcriptionMode, ws)}
+            {loaded && <Kikitan sr_on={!settingsVisible && !showQuickstart} ovr={ovrSr} vrc={vrc} config={config} setConfig={setConfig} ws={ws}></Kikitan>}
           </div>
         </div>
       </div>
