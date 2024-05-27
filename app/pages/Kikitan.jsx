@@ -11,8 +11,8 @@ import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import { invoke } from '@tauri-apps/api/tauri'
 import { open } from '@tauri-apps/api/shell'
 
-import { calculateMinWaitTime, langSource, langTo } from "./util/constants"
-import { default as translateGT } from './translators/google_translate';
+import { calculateMinWaitTime, langSource, langTo } from "../util/constants"
+import { default as translateGT } from '../translators/google_translate';
 
 var sr = null
 var sr_timeout = null
@@ -77,7 +77,7 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws }) {
                         let text = await translateGT(next, langSource[sourceLanguage].code, langTo[targetLanguage].code)
 
                         setTranslated(text)
-                        console.log( config.vrchat_settings.osc_address)
+
                         invoke("send_message", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}`, msg: config.vrchat_settings.translation_first ? `${text} (${next})` : `${next} (${text})` })
 
                         await new Promise(r => setTimeout(r, calculateMinWaitTime(text, config.vrchat_settings.chatbox_update_speed)));
@@ -101,12 +101,12 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws }) {
 
             if (vrc) {
                 if (config.mode == 0) {
-                    setDetectionQueue([...detectionQueue, langSource[sourceLanguage].code == "ja" && config.japanese_omit_questionmark ? detection.replaceAll("？", "") : detection])
+                    setDetectionQueue([...detectionQueue, (langSource[sourceLanguage].code == "ja" && config.language_settings.japanese_omit_questionmark) ? detection.replaceAll("？", "") : detection])
 
                     return
                 }
 
-                invoke("send_message", { msg: langSource[sourceLanguage].code == "ja" && config.japanese_omit_questionmark ? detection.replaceAll("？", "") : detection })
+                invoke("send_message", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}`, msg: (langSource[sourceLanguage].code == "ja" && config.language_settings.japanese_omit_questionmark) ? detection.replaceAll("？", "") : detection })
             }
         }
     }, [detecting, detection])
