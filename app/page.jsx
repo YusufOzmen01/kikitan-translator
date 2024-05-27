@@ -49,7 +49,8 @@ function App() {
   const [config, setConfig] = React.useState(DEFAULT_CONFIG)
   const [version, setVersion] = React.useState("")
 
-  const [changelogText, setChangelogText] = React.useState("")
+  const [changelogTextEN, setChangelogTextEN] = React.useState("")
+  const [changelogTextJP, setChangelogTextJP] = React.useState("")
 
   const [loaded, setLoaded] = React.useState(false)
 
@@ -58,8 +59,12 @@ function App() {
   }, [config])
 
   React.useEffect(() => {
-    fetch("/CHANGELOG.md").then((res) => res.text()).then((text) => {
-      setChangelogText(text)
+    fetch("/CHANGELOG_EN.md").then((res) => res.text()).then((text) => {
+      setChangelogTextEN(text)
+    })
+
+    fetch("/CHANGELOG_JP.md").then((res) => res.text()).then((text) => {
+      setChangelogTextJP(text)
     })
 
     setTimeout(() => {
@@ -67,7 +72,7 @@ function App() {
         setVersion(version)
         setChangelogsVisible(localStorage.getItem("changelogsViewed") != version)
   
-        localStorage.setItem("changelogsViewed", version)
+        setTimeout(() => localStorage.setItem("changelogsViewed", version), 1000)
       })
 
       setConfig({ ...load_config() })
@@ -150,7 +155,7 @@ function App() {
               </div>
               <div className='mb-2 flex justify-center space-x-4'>
                 <Button variant='contained' disabled={quickstartPage == 0} onClick={() => { setQuickstartPage(quickstartPage - 1) }}>{quickstartLanguageJapanese ? "前" : "Previous"}</Button>
-                <Button onClick={() => { setQuickstartLanguageJapanese(!quickstartLanguageJapanese) }}>{!quickstartLanguageJapanese ? "日本語" : "English"}</Button>
+                <Button variant='contained' onClick={() => { setQuickstartLanguageJapanese(!quickstartLanguageJapanese) }}>{!quickstartLanguageJapanese ? "日本語" : "English"}</Button>
                 <Button variant='contained' disabled={quickstartPage > 3} onClick={() => { setQuickstartPage(quickstartPage + 1) }}>{quickstartLanguageJapanese ? "次" : "Next"}</Button>
               </div>
             </div>
@@ -165,10 +170,10 @@ function App() {
           </div>
         }
 
-        {!quickstartVisible && changelogsVisible == true &&
+        {!quickstartVisible && changelogsVisible &&
           <div className={'transition-all z-20 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (changelogsVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
             <div className='flex flex-col justify-between  w-10/12 h-5/6 outline outline-2 outline-white rounded bg-white'>
-              <Changelogs version={version} changelogText={changelogText} closeCallback={() => setChangelogsVisible(false)} />
+              <Changelogs version={version} changelogTextEnglish={changelogTextEN} changelogTextJapanese={changelogTextJP} closeCallback={() => setChangelogsVisible(false)} />
             </div>
           </div>
         }
