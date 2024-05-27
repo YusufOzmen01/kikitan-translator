@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import Kikitan from "./pages/Kikitan/Kikitan"
+import Kikitan from "./pages/Kikitan"
 
 import {
   AppBar,
@@ -24,31 +24,54 @@ import {
 import { invoke } from '@tauri-apps/api/tauri'
 import { Command, open } from '@tauri-apps/api/shell'
 
-import SettingsPage from './pages/Kikitan/Settings';
+import SettingsPage from './pages/Settings';
 
-import { DEFAULT_CONFIG, load_config, update_config } from './pages/Kikitan/util/config';
+import { DEFAULT_CONFIG, load_config, update_config } from './util/config';
+import { getVersion } from '@tauri-apps/api/app';
+import Changelogs from './pages/Changelogs';
 
 let ws = null
 
 function App() {
   const [ovr, setOvr] = React.useState(false)
-  const [ovrSr, setOvrSr] = React.useState(false)
+  const [ovrSpeechRecognition, setOvrSpeechRecognition] = React.useState(false)
+  const [steamVRReady, setSteamVRReady] = React.useState(false)
+
   const [vrc, setVrc] = React.useState(true)
-  const [showQuickstart, setShowQuickstart] = React.useState(typeof window !== 'undefined' ? localStorage.getItem("quickstartMenu") == null ? true : false : true)
+
+  const [quickstartVisible, setQuickstartVisible] = React.useState(typeof window !== 'undefined' ? localStorage.getItem("quickstartMenu") == null ? true : false : true)
+  const [changelogsVisible, setChangelogsVisible] = React.useState(null)
+  const [settingsVisible, setSettingsVisible] = React.useState(false)
+
   const [quickstartPage, setQuickstartPage] = React.useState(0)
   const [quickstartLanguageJapanese, setQuickstartLanguageJapanese] = React.useState(true)
+
   const [config, setConfig] = React.useState(DEFAULT_CONFIG)
-  const [steamVRReady, setSteamVRReady] = React.useState(false)
+  const [version, setVersion] = React.useState("")
+
+  const [changelogText, setChangelogText] = React.useState("")
+
   const [loaded, setLoaded] = React.useState(false)
-  const [settingsVisible, setSettingsVisible] = React.useState(false)
 
   React.useEffect(() => {
     if (loaded) update_config(config)
   }, [config])
 
   React.useEffect(() => {
+    fetch("/CHANGELOG.md").then((res) => res.text()).then((text) => {
+      setChangelogText(text)
+    })
+
     setTimeout(() => {
+      getVersion().then((version) => {
+        setVersion(version)
+        setChangelogsVisible(localStorage.getItem("changelogsViewed") != version)
+  
+        localStorage.setItem("changelogsViewed", version)
+      })
+
       setConfig({ ...load_config() })
+
       setLoaded(true)
     }, 2000)
   }, [])
@@ -56,7 +79,7 @@ function App() {
   return (
     <>
       <div className={`relative transition-all duration-500 ${!loaded ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
-        {showQuickstart &&
+        {quickstartVisible &&
           <div className={'transition-all z-10 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute'}>
             <div className='flex flex-col justify-between  w-10/12 h-5/6 outline outline-2 outline-white rounded bg-white'>
               <div className='relative mt-2 ml-2 mr-2 h-64'>
@@ -115,14 +138,14 @@ function App() {
                     <p className='text-xl mt-8 bold text-center'>{quickstartLanguageJapanese ? "Kikitanをご利用いただき、ありがとうございます！" : "Thank you for using Kikitan!"}</p>
                     <p className='text-lg mt-20 text-center'>
                       {quickstartLanguageJapanese ?
-                        "Kikitanはオープンソースプロジェクトです。ご自由に貢献したり、フォークしたり、自分のアイデアを活かしたりしてください！プロジェクトへのいかなる助けも本当に感謝します！"
+                        "キキタンはオープンソースプロジェクトです！このプロジェクトへのどんな支援も感謝します！"
                         :
-                        "Kikitan is an open source project. Feel free to contribute, fork and do your own stuff on it! I would really appreciate any help on the project!"
+                        "Kikitan is an open source project! Any support for this project would be appreciated!"
                       }
                     </p>
                   </div>
                   <Button disabled={quickstartPage != 4} className={'w-70 '} variant='contained' startIcon={< GitHub />} onClick={async () => { open("https://github.com/YusufOzmen01/kikitan-translator") }}>{quickstartLanguageJapanese ? "プロジェクトリポジトリを開く" : "Open the project repository"}</Button>
-                  <Button disabled={quickstartPage != 4} className={'w-48 '} variant='contained' onClick={async () => { setShowQuickstart(false); window.localStorage.setItem("quickstartMenu", true) }}>{quickstartLanguageJapanese ? "メニューを閉じる" : "Close the Menu"}</Button>
+                  <Button disabled={quickstartPage != 4} className={'w-48 '} variant='contained' onClick={async () => { setQuickstartVisible(false); window.localStorage.setItem("quickstartMenu", true) }}>{quickstartLanguageJapanese ? "メニューを閉じる" : "Close the Menu"}</Button>
                 </div>
               </div>
               <div className='mb-2 flex justify-center space-x-4'>
@@ -134,11 +157,21 @@ function App() {
           </div>
         }
 
-        <div className={'transition-all z-20 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (settingsVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
-          <div className='flex flex-col justify-between  w-10/12 h-5/6 outline outline-2 outline-white rounded bg-white'>
-            <SettingsPage config={config} setConfig={setConfig} closeCallback={() => setSettingsVisible(false)} />
+        {settingsVisible &&
+          <div className={'transition-all z-20 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (settingsVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
+            <div className='flex flex-col justify-between  w-10/12 h-5/6 outline outline-2 outline-white rounded bg-white'>
+              <SettingsPage config={config} setConfig={setConfig} closeCallback={() => setSettingsVisible(false)} />
+            </div>
           </div>
-        </div>
+        }
+
+        {!quickstartVisible && changelogsVisible == true &&
+          <div className={'transition-all z-20 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (changelogsVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
+            <div className='flex flex-col justify-between  w-10/12 h-5/6 outline outline-2 outline-white rounded bg-white'>
+              <Changelogs version={version} changelogText={changelogText} closeCallback={() => setChangelogsVisible(false)} />
+            </div>
+          </div>
+        }
 
         <div className="flex flex-col h-screen z-0">
           <AppBar position="static">
@@ -169,7 +202,7 @@ function App() {
                         }
 
                         ws.onmessage = (e) => {
-                          setOvrSr(e.data == "SRON" ? true : e.data == "SROFF" ? false : ovrSr)
+                          setOvrSpeechRecognition(e.data == "SRON" ? true : e.data == "SROFF" ? false : ovrSpeechRecognition)
                         }
 
                         ws.onerror = (e) => {
@@ -207,7 +240,7 @@ function App() {
                   '& .MuiSvgIcon-root': {
                     color: 'white'
                   }
-                }} onClick={() => { setShowQuickstart(true); setQuickstartPage(0) }}>
+                }} onClick={() => { setQuickstartVisible(true); setQuickstartPage(0) }}>
                   <Help />
                 </IconButton>
                 <IconButton sx={{
@@ -222,7 +255,7 @@ function App() {
             </Toolbar>
           </AppBar>
           <div className='flex flex-1 items-center align-middle flex-col mt-16'>
-            {loaded && <Kikitan sr_on={!settingsVisible && !showQuickstart} ovr={ovrSr} vrc={vrc} config={config} setConfig={setConfig} ws={ws}></Kikitan>}
+            {loaded && <Kikitan sr_on={!settingsVisible && !quickstartVisible} ovr={ovrSpeechRecognition} vrc={vrc} config={config} setConfig={setConfig} ws={ws}></Kikitan>}
           </div>
         </div>
       </div>

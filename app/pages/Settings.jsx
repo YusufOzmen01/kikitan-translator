@@ -10,7 +10,7 @@ import {
     Close,
     History
 } from '@mui/icons-material';
-import { DEFAULT_CONFIG, speed_presets } from "./util/config";
+import { DEFAULT_CONFIG, speed_presets } from "../util/config";
 
 function CustomTabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -67,7 +67,7 @@ export default function Settings({ closeCallback, config, setConfig }) {
                                 japanese_omit_questionmark: e.target.checked
                             }
                         })
-                    }} />} label="(Japanese/日本語) Omit the trailing question mark (末尾の疑問符を省略)" />
+                    }} />} label="(Japanese/日本語) Omit the trailing question mark (文末の疑問符を省略)" />
                 </FormGroup>
             </CustomTabPanel>
             <CustomTabPanel className="flex" value={page} index={1}>
@@ -80,7 +80,7 @@ export default function Settings({ closeCallback, config, setConfig }) {
                                 translation_first: e.target.checked
                             }
                         })
-                    }} />} label="Translation first (最初に翻訳)" />
+                    }} />} label="Translation first (最初に翻訳文を表示)" />
                     <FormControlLabel control={<Checkbox checked={config.vrchat_settings.send_typing_while_talking} onChange={(e) => {
                         setConfig({
                             ...config,

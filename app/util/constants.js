@@ -1,6 +1,10 @@
 export const langSource = [
     { name: "English (United States)", code: "en-US" },
     { name: "English (United Kingdom)", code: "en-UK" },
+    { name: "English (Australia)", code: "en-AU" },
+    { name: "English (India)", code: "en-IN" },
+    { name: "English (New Zealand)", code: "en-NZ" },
+    { name: "English (South Africa)", code: "en-ZA" },
     { name: "日本語 (Japanese)", code: "ja" },
     { name: "العربية (Arabic)", code: "ar" },
     { name: "عربي (Arabic)", code: "ar" },
@@ -57,7 +61,13 @@ export const langSource = [
     { name: "Tiếng Việt (Vietnamese)", code: "vi" },
 ];
 
+// The reason there are multiple englishes 
+// is to have the same length as langSource
 export const langTo = [
+    { name: "English", code: "en" },
+    { name: "English", code: "en" },
+    { name: "English", code: "en" },
+    { name: "English", code: "en" },
     { name: "English", code: "en" },
     { name: "English", code: "en" },
     { name: "日本語 (Japanese)", code: "ja" },
