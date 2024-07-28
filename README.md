@@ -5,8 +5,8 @@
 
 ### A VRChat translator built for helping you and the person/people you're talking with to understand each other regardles of language differences.
 
-- **VRChat Translation:** Support for Google Scripts' ML Based Translation api and Google Translate (support for DeepL, ChatGPT and Bing soon)
-- **SteamVR Speech to Text Input (MIGHT BREAK WITH JAPANESE):** Using the speech recognition data that the app received, you can hold your A/Y button while focused on your desktop in SteamVR to let the app type whatever you said to the screen.
+- **VRChat Translation:** Support for using Google Translate (support for DeepL, ChatGPT and Bing soon)
+- **SteamVR Speech to Text Input:** Using the speech recognition data that the app received, you can hold your A/Y button while focused on your desktop in SteamVR to let the app type whatever you said to the screen.
 
 
 ## How to build
