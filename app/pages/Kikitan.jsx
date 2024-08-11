@@ -4,9 +4,12 @@ import * as React from "react"
 
 import { Select, MenuItem, Button } from "@mui/material"
 
-import XIcon from '@mui/icons-material/X';
-import GitHubIcon from '@mui/icons-material/GitHub';
-import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
+import {
+    X as XIcon,
+    GitHub as GitHubIcon,
+    SwapHoriz as SwapHorizIcon,
+    Favorite as FavoriteIcon
+} from '@mui/icons-material';
 
 import { invoke } from '@tauri-apps/api/tauri'
 import { open } from '@tauri-apps/api/shell'
@@ -15,25 +18,24 @@ import { calculateMinWaitTime, langSource, langTo } from "../util/constants"
 import { default as translateGT } from '../translators/google_translate';
 
 var sr = null
-var sr_timeout = null
 
 export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws }) {
     const [detecting, setDetecting] = React.useState(true)
     const [detection, setDetection] = React.useState("")
     const [detectionQueue, setDetectionQueue] = React.useState([])
     const [translated, setTranslated] = React.useState("")
-    const [updateQueue, setUpdateQueue] = React.useState(false)
 
     const [sourceLanguage, setSourceLanguage] = React.useState(config.source_language)
     const [targetLanguage, setTargetLanguage] = React.useState(config.target_language)
 
-    const [tick, setTick] = React.useState(false)
+    const [restartSRTick, setRestartSRTick] = React.useState(false)
+    const [updateQueueTick, setupdateQueueTick] = React.useState(false)
 
     React.useEffect(() => {
         const new_queue = detectionQueue.slice(1)
 
         setDetectionQueue(new_queue)
-    }, [updateQueue])
+    }, [updateQueueTick])
 
     React.useEffect(() => {
         if (sr_on) {
@@ -43,9 +45,9 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws }) {
         }
 
         setTimeout(() => {
-            setTick(!tick)
+            setRestartSRTick(!restartSRTick)
         }, 200)
-    }, [tick])
+    }, [restartSRTick])
 
     React.useEffect(() => {
         sr = new window.webkitSpeechRecognition();
@@ -53,14 +55,6 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws }) {
         sr.interimResults = true
         sr.maxAlternatives = 1
         sr.continuous = true
-
-        sr.onend = () => {
-            sr_timeout = setTimeout(() => {
-                try {
-                    sr.start()
-                } catch { }
-            }, 200)
-        }
 
         sr.onerror = console.log
 
@@ -76,7 +70,7 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws }) {
 
         sr.start();
 
-        setTick(!tick)
+        setRestartSRTick(!restartSRTick)
     }, [sr_on])
 
     React.useEffect(() => {
@@ -97,9 +91,9 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws }) {
                         invoke("send_message", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}`, msg: config.vrchat_settings.translation_first ? `${text} (${next})` : `${next} (${text})` })
 
                         await new Promise(r => setTimeout(r, calculateMinWaitTime(text, config.vrchat_settings.chatbox_update_speed)));
-                        setUpdateQueue(!updateQueue)
+                        setupdateQueueTickTick(!updateQueueTick)
                     } catch {
-                        setTranslated("ERR_GOOGLE_TRANSLATE")
+                        setTranslated("Unable to translate. Maybe google translate is not accessible?")
                     }
 
                     break;
@@ -197,6 +191,7 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws }) {
         <div className="align-middle mt-2">
             <div className="mt-14 flex space-x-2">
                 <Button variant="contained" size="small" className="h-8" onClick={() => { open("https://twitter.com/marquina_osu") }}><XIcon fontSize="small" /></Button>
+                <Button variant="contained" size="small" className="h-8" onClick={() => { open("https://github.com/sponsors/YusufOzmen01") }}><FavoriteIcon fontSize="small" /></Button>
                 <Button variant="contained" size="small" className="h-8" onClick={() => { open("https://github.com/YusufOzmen01/kikitan-translator") }}><GitHubIcon fontSize="small" /></Button>
             </div>
         </div>
