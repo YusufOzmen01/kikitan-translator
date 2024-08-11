@@ -91,7 +91,7 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws }) {
                         invoke("send_message", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}`, msg: config.vrchat_settings.translation_first ? `${text} (${next})` : `${next} (${text})` })
 
                         await new Promise(r => setTimeout(r, calculateMinWaitTime(text, config.vrchat_settings.chatbox_update_speed)));
-                        setUpdateQueueTickTick(!updateQueueTick)
+                        setUpdateQueueTick(!updateQueueTick)
                     } catch {
                         setTranslated("Unable to translate. Maybe google translate is not accessible?")
                     }
