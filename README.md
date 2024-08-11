@@ -1,6 +1,6 @@
 # Kikitan Translator
 <div align="center">
-<a href="https://github.com/YusufOzmen01/kikitan-translator">English</a>/<a href="https://github.com/YusufOzmen01/kikitan-translator/blob/main/README_jp.md">日本語</a><br>
+<a href="https://github.com/YusufOzmen01/kikitan-translator">English</a>/<a href="https://github.com/YusufOzmen01/kikitan-translator/blob/main/README_jp.md">日本語</a>
 
 <img src="https://i.imgur.com/RQlgF0N.png" />
 <a href="https://github.com/yusufozmen01/kikitan-translator/releases/latest/download/Kikitan.Translator_x64-setup.exe">
