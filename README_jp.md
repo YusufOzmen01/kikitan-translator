@@ -4,7 +4,7 @@
 
 <img src="https://i.imgur.com/RQlgF0N.png" />
 <a href="https://github.com/yusufozmen01/kikitan-translator/releases/latest/download/Kikitan.Translator_x64-setup.exe">
-<img src="https://i.imgur.com/50XNWwG.png)" alt="drawing" width="150" align="center">
+<img src="https://i.imgur.com/23HiS2g.png" alt="drawing" width="150" align="center">
 </a>
 </div>
 
