@@ -1,7 +1,7 @@
 # Kikitan Translator
 [English](https://github.com/YusufOzmen01/kikitan-translator)/[日本語](https://github.com/YusufOzmen01/kikitan-translator/blob/main/README_jp.md)
 
-[<img src="https://i.imgur.com/dC3XcKV.png)" alt="drawing" width="150"/>](https://github.com/yusufozmen01/kikitan-translator/releases/download/latest/Kikitan.Translator_x64-setup.exe)
+[<img src="https://i.imgur.com/dC3XcKV.png)" alt="drawing" width="150"/>](https://github.com/yusufozmen01/kikitan-translator/releases/latest/download/Kikitan.Translator_x64-setup.exe)
 
 ### 言語の違いに関係なく、お互いを理解するために作られたVRChatの翻訳アプリ。
 
