@@ -27,7 +27,4 @@ npm run tauri build
 
 # ライセンス
 
-Kikitan Translator はフリー ソフトウェアです。
-Free Software Foundation が発行する GNU General Public License の条件 (バージョン 3 のライセンス、または (お客様の選択によって) それ以降のバージョン) に基づいて再配布や改変が可能です。
-
-Kikitan Translatorは、有用であることを願って配布していますが、いかなる保証もありません。商品性や特定の目的への適合性についての暗黙の保証もありません。[詳細については、GNU一般公衆利用許諾契約書をご覧ください](https://www.gnu.org/licenses/gpl-3.0.ja.html)
+[詳細については LICENSE.md をご確認ください。](https://github.com/YusufOzmen01/kikitan-translator/blob/main/LICENSE.md)
