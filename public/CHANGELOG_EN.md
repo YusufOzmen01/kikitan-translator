@@ -1,7 +1,11 @@
-**New Settings Menu**
-• Added a settings menu to configure most of the configurable settings in Kikitan.
-• Added OSC IP address and port settings. This will let you use Kikitan in Quest Standalone (just enter your Quest's local IP address)
+**Language Updates**
+• Removed languages that are not available through the Web Speech API
+• Added a variety of different Spanish dialects
+
+**UI Updates**
+• New Icon
+• Changed SteamVR STT to SteamVR Connection (for an upcoming SteamVR overlay update)
 
 **General Updates**
-• Added new english accents
-• Small UI changes and general bug fixes
+• Potentially fixed a bug where upon other applications using the microphone, the recognition would stop until the app is restarted
+• Cleaned up the code a bit
