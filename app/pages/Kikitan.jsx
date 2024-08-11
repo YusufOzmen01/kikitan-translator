@@ -29,7 +29,7 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws }) {
     const [targetLanguage, setTargetLanguage] = React.useState(config.target_language)
 
     const [restartSRTick, setRestartSRTick] = React.useState(false)
-    const [updateQueueTick, setupdateQueueTick] = React.useState(false)
+    const [updateQueueTick, setUpdateQueueTick] = React.useState(false)
 
     React.useEffect(() => {
         const new_queue = detectionQueue.slice(1)
@@ -91,7 +91,7 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws }) {
                         invoke("send_message", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}`, msg: config.vrchat_settings.translation_first ? `${text} (${next})` : `${next} (${text})` })
 
                         await new Promise(r => setTimeout(r, calculateMinWaitTime(text, config.vrchat_settings.chatbox_update_speed)));
-                        setupdateQueueTickTick(!updateQueueTick)
+                        setUpdateQueueTickTick(!updateQueueTick)
                     } catch {
                         setTranslated("Unable to translate. Maybe google translate is not accessible?")
                     }

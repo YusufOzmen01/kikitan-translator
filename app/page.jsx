@@ -207,7 +207,17 @@ function App() {
                         }
 
                         ws.onmessage = (e) => {
-                          setOvrSpeechRecognition(e.data == "SRON" ? true : e.data == "SROFF" ? false : ovrSpeechRecognition)
+                          if (e.data == "SRON" || e.data == "SROFF") {
+                            setOvrSpeechRecognition(e.data == "SRON" ? true : e.data == "SROFF" ? false : ovrSpeechRecognition)
+
+                            return
+                          }
+
+                          let param = e.data.split(" ")
+                          let key = param[0]
+                          let value = param[1]
+
+                          update_config({ ...config, [key]: value })
                         }
 
                         ws.onerror = (e) => {
