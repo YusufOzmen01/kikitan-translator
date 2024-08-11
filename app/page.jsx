@@ -190,7 +190,7 @@ function App() {
                 <Switch color='secondary' className="ml-4 mr-2" checked={vrc} defaultChecked onChange={(e) => {
                   setVrc(e.target.checked)
                 }} />
-                <p className='mt-2'>SteamVR STT</p>
+                <p className='mt-2'>SteamVR Connection</p>
                 <Switch color='secondary' disabled={ovr && !steamVRReady} className="ml-4" checked={ovr} defaultChecked onChange={(e) => {
                   setOvr(e.target.checked)
 
