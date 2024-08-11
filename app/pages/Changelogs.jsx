@@ -27,7 +27,7 @@ export default function Changelogs({ closeCallback, changelogTextEnglish, change
                 <h1 className="ml-4 mt-1 text-2xl font-semibold">{isJapanese ? `v${version}の変更履歴` : `Changelog for v${version}`}</h1>
             </Box>
 
-            <Markdown remarkPlugins={[remarkGfm]} className="text-lg mt-10 ml-8 w-11/12 whitespace-pre text-wrap">{isJapanese ? changelogTextJapanese : changelogTextEnglish}</Markdown>
+            <Markdown remarkPlugins={[remarkGfm]} className="text-lg mt-4 ml-8 w-11/12 max-h-80 whitespace-pre text-wrap overflow-y-scroll">{isJapanese ? changelogTextJapanese : changelogTextEnglish}</Markdown>
         </Box>
     </>
 }
