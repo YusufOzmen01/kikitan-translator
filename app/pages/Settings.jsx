@@ -49,13 +49,13 @@ export default function Settings({ closeCallback, config, setConfig }) {
     return <>
         <Box sx={{ width: '100%' }}>
             <Box className="flex" sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                <IconButton className="ml-2 mr-2" onClick={() => { closeCallback() }}>
+                    <Close />
+                </IconButton>
                 <Tabs value={page} onChange={handleChange}>
                     <Tab label="Language Settings (言語設定)" {...a11yProps(0)} />
                     <Tab label="VRChat Settings (VRChat設定)" {...a11yProps(1)} />
                 </Tabs>
-                <IconButton className="ml-auto mr-2" onClick={() => { closeCallback() }}>
-                    <Close />
-                </IconButton>
             </Box>
             <CustomTabPanel className="flex" value={page} index={0}>
                 <FormGroup>

@@ -27,11 +27,25 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws }) {
     const [sourceLanguage, setSourceLanguage] = React.useState(config.source_language)
     const [targetLanguage, setTargetLanguage] = React.useState(config.target_language)
 
+    const [tick, setTick] = React.useState(false)
+
     React.useEffect(() => {
         const new_queue = detectionQueue.slice(1)
 
         setDetectionQueue(new_queue)
     }, [updateQueue])
+
+    React.useEffect(() => {
+        if (sr_on) {
+            try {
+                sr.start()
+            } catch { }
+        }
+
+        setTimeout(() => {
+            setTick(!tick)
+        }, 200)
+    }, [tick])
 
     React.useEffect(() => {
         sr = new window.webkitSpeechRecognition();
@@ -61,6 +75,8 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws }) {
         })
 
         sr.start();
+
+        setTick(!tick)
     }, [sr_on])
 
     React.useEffect(() => {
