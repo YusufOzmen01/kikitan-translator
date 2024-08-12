@@ -21,6 +21,7 @@ var sr = null
 
 export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws }) {
     const [detecting, setDetecting] = React.useState(true)
+    const [lastDetection, setLastDetection] = React.useState(0)
     const [detection, setDetection] = React.useState("")
     const [detectionQueue, setDetectionQueue] = React.useState([])
     const [translated, setTranslated] = React.useState("")
@@ -38,9 +39,11 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws }) {
     }, [updateQueueTick])
 
     React.useEffect(() => {
-        if (sr_on) {
+        if (sr_on && lastDetection != 0 && Date.now() - lastDetection > 10000) {
             try {
                 sr.start()
+
+                setLastDetection(Date.now())
             } catch { }
         }
 
@@ -66,6 +69,8 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws }) {
 
             setDetection(res.results[res.results.length - 1][0].transcript.trim())
             setDetecting(!res.results[res.results.length - 1].isFinal)
+
+            setLastDetection(Date.now())
         })
 
         sr.start();
