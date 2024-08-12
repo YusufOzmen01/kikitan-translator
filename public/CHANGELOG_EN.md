@@ -1,11 +1,3 @@
-**Language Updates**
-• Removed languages that are not available through the Web Speech API
-• Added a variety of different Spanish dialects
-
-**UI Updates**
-• New Icon
-• Changed SteamVR STT to SteamVR Connection (for an upcoming SteamVR overlay update)
-
 **General Updates**
-• Potentially fixed a bug where upon other applications using the microphone, the recognition would stop until the app is restarted
-• Cleaned up the code a bit
+• Fixed a bug where if they updated from 1.0.9 and the languages they were using are outside of the current list of languages (in terms of index value), it would crash the application.
+• Fixed a potential bug where it would spam restarting recognition too much that it breaks recognition
