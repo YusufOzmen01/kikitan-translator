@@ -27,6 +27,7 @@ import { Command, open } from '@tauri-apps/api/shell'
 import SettingsPage from './pages/Settings';
 
 import { DEFAULT_CONFIG, load_config, update_config } from './util/config';
+import { langSource, langTo } from './util/constants';
 import { getVersion } from '@tauri-apps/api/app';
 import Changelogs from './pages/Changelogs';
 
@@ -75,7 +76,7 @@ function App() {
         setTimeout(() => localStorage.setItem("changelogsViewed", version), 1000)
       })
 
-      setConfig({ ...load_config() })
+      setConfig({ ...load_config(), source_language: config.source_language >= langSource.length ? 0 : config.source_language, target_language: config.target_language >= langTo.length ? 0 : config.target_language })
 
       setLoaded(true)
     }, 2000)
