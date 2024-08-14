@@ -26,7 +26,7 @@ cd kikitan-translator
 npm run tauri dev
 
 # to build
-# make sure to change the publickey inside of tauri.conf.json and assign TAURI_PRIVATE_KEY and TAURI_KEY_PASSWORD environment variables (you can look up on how to generate those in tauri's wiki)
+# make sure to change the publickey inside of tauri.conf.json and assign TAURI_SIGNING_PRIVATE_KEY and TAURI_KEY_PASSWORD environment variables (you can look up on how to generate those in tauri's wiki)
 
 npm run tauri build
 ```

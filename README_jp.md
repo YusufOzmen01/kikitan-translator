@@ -25,7 +25,7 @@ cd kikitan-translator
 npm run tauri dev
 
 # ビルドする場合
-# tauri.conf.json内のpublickeyを変更し、TAURI_PRIVATE_KEYとTAURI_KEY_PASSWORD環境変数を割り当てることを確認してください（これらの生成方法についてはtauriのwikiを参照してください）
+# tauri.conf.json内のpublickeyを変更し、TAURI_PRIVATE_KEYとTAURI_SIGNING_PRIVATE_KEY環境変数を割り当てることを確認してください（これらの生成方法についてはtauriのwikiを参照してください）
 
 npm run tauri build
 ```
