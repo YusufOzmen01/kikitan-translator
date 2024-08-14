@@ -5,8 +5,8 @@ export const speed_presets = {
 }
 
 export const DEFAULT_CONFIG = {
-    source_language: 2,
-    target_language: 0,
+    source_language: 0,
+    target_language: 6,
     translator: 0,
     mode: 0,
     language_settings: {
