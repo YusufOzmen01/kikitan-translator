@@ -8,7 +8,8 @@ import {
     X as XIcon,
     GitHub as GitHubIcon,
     SwapHoriz as SwapHorizIcon,
-    Favorite as FavoriteIcon
+    Favorite as FavoriteIcon,
+    KeyboardVoice as KeyboardVoiceIcon
 } from '@mui/icons-material';
 
 import { invoke } from '@tauri-apps/api/tauri'
@@ -19,38 +20,41 @@ import { default as translateGT } from '../translators/google_translate';
 
 var sr = null
 
+const startSR = () => {
+    setTimeout(() => {
+        sr.start()
+    }, 1000)
+}
+
+const postponseStartSR = () => {
+    setTimeout(() => {
+        sr.start()
+    }, 20000)
+}
+
 export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws }) {
     const [detecting, setDetecting] = React.useState(true)
-    const [lastDetection, setLastDetection] = React.useState(0)
     const [detection, setDetection] = React.useState("")
     const [detectionQueue, setDetectionQueue] = React.useState([])
     const [translated, setTranslated] = React.useState("")
+    const [updateQueue, setUpdateQueue] = React.useState(false)
+    const [defaultMicrophone, setDefaultMicrophone] = React.useState("")
 
     const [sourceLanguage, setSourceLanguage] = React.useState(config.source_language)
     const [targetLanguage, setTargetLanguage] = React.useState(config.target_language)
-
-    const [restartSRTick, setRestartSRTick] = React.useState(false)
-    const [updateQueueTick, setUpdateQueueTick] = React.useState(false)
 
     React.useEffect(() => {
         const new_queue = detectionQueue.slice(1)
 
         setDetectionQueue(new_queue)
-    }, [updateQueueTick])
+    }, [updateQueue])
 
     React.useEffect(() => {
-        if (sr_on && lastDetection != 0 && Date.now() - lastDetection > 10000) {
-            try {
-                sr.start()
+        if (defaultMicrophone == "") return;
 
-                setLastDetection(Date.now())
-            } catch { }
-        }
-
-        setTimeout(() => {
-            setRestartSRTick(!restartSRTick)
-        }, 200)
-    }, [restartSRTick])
+        sr.stop()
+        startSR()
+    }, [defaultMicrophone])
 
     React.useEffect(() => {
         sr = new window.webkitSpeechRecognition();
@@ -59,7 +63,32 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws }) {
         sr.maxAlternatives = 1
         sr.continuous = true
 
-        sr.onerror = console.log
+        sr.onerror = (e) => {
+            console.log(e)
+
+            startSR()
+        }
+
+        sr.onstart = () => {
+            setInterval(() => {
+                navigator.mediaDevices.enumerateDevices()
+                .then(function (devices) {
+                    let def = devices.filter((device) => device.kind == "audioinput")[0].label
+                    def = def.split("(")[1].split(")")[0]
+
+                    setDefaultMicrophone(def)
+                }).catch(function (err) {
+                    console.log(err.name + ": " + err.message);
+                });
+            }, 1000)
+
+            postponseStartSR()
+        }
+        sr.audioend = postponseStartSR
+        sr.onspeechend = postponseStartSR
+        sr.onsoundend = postponseStartSR
+        sr.nomatch = postponseStartSR
+        sr.onend = startSR
 
         sr.onresult = (res => {
             if (!sr_on) return;
@@ -70,12 +99,10 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws }) {
             setDetection(res.results[res.results.length - 1][0].transcript.trim())
             setDetecting(!res.results[res.results.length - 1].isFinal)
 
-            setLastDetection(Date.now())
+            postponseStartSR()
         })
 
         sr.start();
-
-        setRestartSRTick(!restartSRTick)
     }, [sr_on])
 
     React.useEffect(() => {
@@ -96,9 +123,9 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws }) {
                         invoke("send_message", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}`, msg: config.vrchat_settings.translation_first ? `${text} (${next})` : `${next} (${text})` })
 
                         await new Promise(r => setTimeout(r, calculateMinWaitTime(text, config.vrchat_settings.chatbox_update_speed)));
-                        setUpdateQueueTick(!updateQueueTick)
+                        setUpdateQueue(!updateQueue)
                     } catch {
-                        setTranslated("Unable to translate. Maybe google translate is not accessible?")
+                        setTranslated("ERR_GOOGLE_TRANSLATE")
                     }
 
                     break;
@@ -139,6 +166,8 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws }) {
 
                         setSourceLanguage(e.target.value)
                         setConfig({ ...config, source_language: e.target.value })
+
+                        startSR()
                     }}>
                         {langSource.map((element, i) => {
                             return <MenuItem key={element.code} value={i}>{element.name}</MenuItem>
@@ -154,6 +183,8 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws }) {
 
                             setTargetLanguage(old_t)
                             setSourceLanguage(old_s)
+
+                            startSR()
 
                             setConfig({ ...config, source_language: old_s, target_language: old_t })
                         }}>
@@ -187,14 +218,15 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws }) {
                             return m.map((element) => {
                                 return <MenuItem key={element.e.code} value={element.i}>{element.e.name}</MenuItem>
                             })
-                                
+
                         })()}
                     </Select>
                 </div>
             </div>
         </div>
         <div className="align-middle mt-2">
-            <div className="mt-14 flex space-x-2">
+            <p><KeyboardVoiceIcon fontSize="small" /> {defaultMicrophone}</p>
+            <div className="mt-8 flex space-x-2">
                 <Button variant="contained" size="small" className="h-8" onClick={() => { open("https://twitter.com/marquina_osu") }}><XIcon fontSize="small" /></Button>
                 <Button variant="contained" size="small" className="h-8" onClick={() => { open("https://github.com/sponsors/YusufOzmen01") }}><FavoriteIcon fontSize="small" /></Button>
                 <Button variant="contained" size="small" className="h-8" onClick={() => { open("https://github.com/YusufOzmen01/kikitan-translator") }}><GitHubIcon fontSize="small" /></Button>

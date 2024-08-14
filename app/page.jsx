@@ -76,7 +76,12 @@ function App() {
         setTimeout(() => localStorage.setItem("changelogsViewed", version), 1000)
       })
 
-      setConfig({ ...load_config(), source_language: config.source_language >= langSource.length ? 0 : config.source_language, target_language: config.target_language >= langTo.length ? 0 : config.target_language })
+      const cfg = load_config()
+
+      setConfig({ ...cfg, 
+        source_language: cfg.source_language >= langSource.length ? 0 : cfg.source_language, 
+        target_language: cfg.target_language >= langTo.length ? 0 : cfg.target_language 
+      })
 
       setLoaded(true)
     }, 2000)
