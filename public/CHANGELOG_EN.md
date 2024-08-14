@@ -1,3 +1,5 @@
 **General Updates**
-• Fixed a bug where if they updated from 1.0.9 and the languages they were using are outside of the current list of languages (in terms of index value), it would crash the application.
-• Fixed a potential bug where it would spam restarting recognition too much that it breaks recognition
+• Migrated to Tauri v2
+• Updated the speech recognition service's restarting logic
+• Added a current microphone indicator (click on it to open up audio settings)
+• Fixed config defaulting to English (Australian) to English (now it's English (United States) to Japanese)
