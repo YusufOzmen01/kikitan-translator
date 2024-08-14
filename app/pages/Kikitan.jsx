@@ -12,8 +12,8 @@ import {
     KeyboardVoice as KeyboardVoiceIcon
 } from '@mui/icons-material';
 
-import { invoke } from '@tauri-apps/api/tauri'
-import { open } from '@tauri-apps/api/shell'
+import { invoke } from '@tauri-apps/api/core'
+import { open, Command } from '@tauri-apps/plugin-shell'
 
 import { calculateMinWaitTime, langSource, langTo } from "../util/constants"
 import { default as translateGT } from '../translators/google_translate';
@@ -39,9 +39,24 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws }) {
     const [translated, setTranslated] = React.useState("")
     const [updateQueue, setUpdateQueue] = React.useState(false)
     const [defaultMicrophone, setDefaultMicrophone] = React.useState("")
+    const [lastDefaultMicrophone, setLastDefaultMicrophone] = React.useState("")
 
     const [sourceLanguage, setSourceLanguage] = React.useState(config.source_language)
     const [targetLanguage, setTargetLanguage] = React.useState(config.target_language)
+
+    React.useEffect(() => {
+        setInterval(() => {
+            navigator.mediaDevices.enumerateDevices()
+            .then(function (devices) {
+                let def = devices.filter((device) => device.kind == "audioinput")[0].label
+                def = def.split("(")[1].split(")")[0]
+
+                setDefaultMicrophone(def)
+            }).catch(function (err) {
+                console.log(err.name + ": " + err.message);
+            });
+        }, 1000)
+    }, [])
 
     React.useEffect(() => {
         const new_queue = detectionQueue.slice(1)
@@ -51,9 +66,19 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws }) {
 
     React.useEffect(() => {
         if (defaultMicrophone == "") return;
+        console.log("Default microphone is not empty")
 
-        sr.stop()
-        startSR()
+        if (lastDefaultMicrophone == "") {
+            setLastDefaultMicrophone(defaultMicrophone)
+
+            return;
+        }
+
+        console.log("Last default microphone is not empty")
+
+        if (lastDefaultMicrophone == defaultMicrophone) return;
+
+        window.location.reload()
     }, [defaultMicrophone])
 
     React.useEffect(() => {
@@ -69,21 +94,7 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws }) {
             startSR()
         }
 
-        sr.onstart = () => {
-            setInterval(() => {
-                navigator.mediaDevices.enumerateDevices()
-                .then(function (devices) {
-                    let def = devices.filter((device) => device.kind == "audioinput")[0].label
-                    def = def.split("(")[1].split(")")[0]
-
-                    setDefaultMicrophone(def)
-                }).catch(function (err) {
-                    console.log(err.name + ": " + err.message);
-                });
-            }, 1000)
-
-            postponseStartSR()
-        }
+        sr.onstart = postponseStartSR
         sr.audioend = postponseStartSR
         sr.onspeechend = postponseStartSR
         sr.onsoundend = postponseStartSR
@@ -124,7 +135,9 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws }) {
 
                         await new Promise(r => setTimeout(r, calculateMinWaitTime(text, config.vrchat_settings.chatbox_update_speed)));
                         setUpdateQueue(!updateQueue)
-                    } catch {
+                    } catch (e) {
+                        console.log(e)
+
                         setTranslated("ERR_GOOGLE_TRANSLATE")
                     }
 
@@ -225,7 +238,11 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws }) {
             </div>
         </div>
         <div className="align-middle mt-2">
-            <p><KeyboardVoiceIcon fontSize="small" /> {defaultMicrophone}</p>
+            <KeyboardVoiceIcon fontSize="small" /><a className=" text-blue-700"  href="" onClick={(e) => {
+                e.preventDefault()
+
+                invoke("show_windows_audio_settings")
+            }}>{defaultMicrophone}</a>
             <div className="mt-8 flex space-x-2">
                 <Button variant="contained" size="small" className="h-8" onClick={() => { open("https://twitter.com/marquina_osu") }}><XIcon fontSize="small" /></Button>
                 <Button variant="contained" size="small" className="h-8" onClick={() => { open("https://github.com/sponsors/YusufOzmen01") }}><FavoriteIcon fontSize="small" /></Button>

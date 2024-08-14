@@ -3,79 +3,57 @@
   "build": {
     "beforeBuildCommand": "npm run build",
     "beforeDevCommand": "npm run dev",
-    "devPath": "http://localhost:3000",
-    "distDir": "../out"
+    "frontendDist": "../out",
+    "devUrl": "http://localhost:3000"
   },
-  "package": {
-    "productName": "Kikitan Translator",
-    "version": "1.0.12"
-  },
-  "tauri": {
-    "allowlist": {
-      "fs": {
-        "scope": [
-          "$RESOURCE/*"
-        ]
-      },
-      "shell": {
-        "all": true,
-        "execute": true,
-        "sidecar": true,
-        "open": true,
-        "scope": [
-          {
-            "name": "open-windows-audio-settings",
-            "cmd": "powershell",
-            "args": ["Start", "ms-settings:sound"]
-          }
-        ]
-      }
+  "bundle": {
+    "active": true,
+    "category": "DeveloperTool",
+    "copyright": "",
+    "targets": "all",
+    "externalBin": [],
+    "icon": [
+      "icons/kikitan.ico"
+    ],
+    "windows": {
+      "certificateThumbprint": null,
+      "digestAlgorithm": "sha256",
+      "timestampUrl": ""
     },
-    "bundle": {
-      "active": true,
-      "category": "DeveloperTool",
-      "copyright": "",
+    "longDescription": "",
+    "macOS": {
+      "entitlements": null,
+      "exceptionDomain": "",
+      "frameworks": [],
+      "providerShortName": null,
+      "signingIdentity": null
+    },
+    "resources": [
+      "ovr/*"
+    ],
+    "shortDescription": "",
+    "linux": {
       "deb": {
         "depends": []
-      },
-      "externalBin": [],
-      "icon": [
-        "icons/kikitan.ico"
-      ],
-      "identifier": "com.github.yusufozmen01.kikitan",
-      "longDescription": "",
-      "macOS": {
-        "entitlements": null,
-        "exceptionDomain": "",
-        "frameworks": [],
-        "providerShortName": null,
-        "signingIdentity": null
-      },
-      "resources": [
-        "ovr/*"
-      ],
-      "shortDescription": "",
-      "targets": "all",
-      "windows": {
-        "certificateThumbprint": null,
-        "digestAlgorithm": "sha256",
-        "timestampUrl": ""
       }
     },
-    "security": {
-      "csp": null
-    },
+    "createUpdaterArtifacts": "v1Compatible"
+  },
+  "productName": "Kikitan Translator",
+  "version": "1.0.12",
+  "identifier": "com.github.yusufozmen01.kikitan",
+  "plugins": {
     "updater": {
-      "active": true,
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEMwNjgzRTA3MzU3OThEMUMKUldRY2pYazFCejVvd1B2Y0k5YUtOTENTQzZUZlZ3Mk4rcXUxY2dUUGkrMmZLUHlUclYzUk5idngK",
       "endpoints": [
         "https://gist.githubusercontent.com/YusufOzmen01/2739ef70ee7f4e60add7e5d87a4c745b/raw"
       ],
-      "dialog": true,
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEMwNjgzRTA3MzU3OThEMUMKUldRY2pYazFCejVvd1B2Y0k5YUtOTENTQzZUZlZ3Mk4rcXUxY2dUUGkrMmZLUHlUclYzUk5idngK",
       "windows": {
         "installMode": "passive"
       }
-    },
+    }
+  },
+  "app": {
     "windows": [
       {
         "fullscreen": false,
@@ -84,6 +62,9 @@
         "title": "Kikitan Translator",
         "width": 900
       }
-    ]
+    ],
+    "security": {
+      "csp": null
+    }
   }
 }

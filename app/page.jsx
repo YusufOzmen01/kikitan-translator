@@ -21,8 +21,8 @@ import {
   Settings
 } from '@mui/icons-material';
 
-import { invoke } from '@tauri-apps/api/tauri'
-import { Command, open } from '@tauri-apps/api/shell'
+import { invoke } from '@tauri-apps/api/core'
+import { open } from '@tauri-apps/plugin-shell'
 
 import SettingsPage from './pages/Settings';
 
@@ -32,6 +32,9 @@ import { getVersion } from '@tauri-apps/api/app';
 import Changelogs from './pages/Changelogs';
 
 let ws = null
+invoke("enable_microphone", {})
+  .then((res) => console.log(res))
+  .catch((err) => console.error(err))
 
 function App() {
   const [ovr, setOvr] = React.useState(false)
@@ -116,7 +119,7 @@ function App() {
                       }
                     </p>
                   </div>
-                  <Button disabled={quickstartPage != 1} className={'w-96 '} variant='contained' startIcon={<Settings />} onClick={async () => { await new Command("open-windows-audio-settings", ["Start", "ms-settings:sound"]).spawn() }}>{quickstartLanguageJapanese ? "Windowsのオーディオ設定を開く" : "Open Windows Audio Settings"}</Button>
+                  <Button disabled={quickstartPage != 1} className={'w-96 '} variant='contained' startIcon={<Settings />} onClick={() => { invoke("show_windows_audio_settings") }}>{quickstartLanguageJapanese ? "Windowsのオーディオ設定を開く" : "Open Windows Audio Settings"}</Button>
                 </div>
 
                 <div className={'absolute inset-0 transition-all flex justify-center  ease-in-out ' + (quickstartPage == 2 ? "opacity-100" : "opacity-0 pointer-events-none")}>
