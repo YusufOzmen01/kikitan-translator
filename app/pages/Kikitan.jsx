@@ -125,24 +125,30 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws, lang }
 
             invoke("send_typing", {})
 
-            switch (config.translator) {
-                case 0:
-                    try {
-                        let text = await translateGT(next, langSource[sourceLanguage].code, langTo[targetLanguage].code)
+            let count = 3;
 
-                        setTranslated(text)
+            while (count > 0) {
+                switch (config.translator) {
+                    case 0:
+                        try {
+                            let text = await translateGT(next, langSource[sourceLanguage].code, langTo[targetLanguage].code)
+    
+                            setTranslated(text)
+    
+                            invoke("send_message", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}`, msg: config.vrchat_settings.translation_first ? `${text} (${next})` : `${next} (${text})` })
+    
+                            await new Promise(r => setTimeout(r, calculateMinWaitTime(text, config.vrchat_settings.chatbox_update_speed)));
+                            setUpdateQueue(!updateQueue)
 
-                        invoke("send_message", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}`, msg: config.vrchat_settings.translation_first ? `${text} (${next})` : `${next} (${text})` })
-
-                        await new Promise(r => setTimeout(r, calculateMinWaitTime(text, config.vrchat_settings.chatbox_update_speed)));
-                        setUpdateQueue(!updateQueue)
-                    } catch (e) {
-                        console.log(e)
-
-                        setTranslated("ERR_GOOGLE_TRANSLATE")
-                    }
-
-                    break;
+                            count = 0
+                        } catch (e) {
+                            console.log(e)
+    
+                            count--
+                        }
+    
+                        break;
+                }
             }
         })();
     }, [detectionQueue[0]])
