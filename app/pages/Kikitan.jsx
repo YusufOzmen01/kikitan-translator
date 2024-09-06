@@ -13,7 +13,8 @@ import {
 } from '@mui/icons-material';
 
 import { invoke } from '@tauri-apps/api/core'
-import { open, Command } from '@tauri-apps/plugin-shell'
+import { open } from '@tauri-apps/plugin-shell'
+import { localization } from "../util/localization";
 
 import { calculateMinWaitTime, langSource, langTo } from "../util/constants"
 import { default as translateGT } from '../translators/google_translate';
@@ -22,17 +23,21 @@ var sr = null
 
 const startSR = () => {
     setTimeout(() => {
-        sr.start()
+        try {
+            sr.start()
+        } catch {}
     }, 1000)
 }
 
 const postponseStartSR = () => {
     setTimeout(() => {
-        sr.start()
+        try {
+            sr.start()
+        } catch {}
     }, 20000)
 }
 
-export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws }) {
+export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws, lang }) {
     const [detecting, setDetecting] = React.useState(true)
     const [detection, setDetection] = React.useState("")
     const [detectionQueue, setDetectionQueue] = React.useState([])
@@ -94,11 +99,7 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws }) {
             startSR()
         }
 
-        sr.onstart = postponseStartSR
-        sr.audioend = postponseStartSR
-        sr.onspeechend = postponseStartSR
-        sr.onsoundend = postponseStartSR
-        sr.nomatch = postponseStartSR
+        sr.nomatch = startSR
         sr.onend = startSR
 
         sr.onresult = (res => {
@@ -245,7 +246,7 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws }) {
             }}>{defaultMicrophone}</a>
             <div className="mt-8 flex space-x-2">
                 <Button variant="contained" size="small" className="h-8" onClick={() => { open("https://twitter.com/marquina_osu") }}><XIcon fontSize="small" /></Button>
-                <Button variant="contained" size="small" className="h-8" onClick={() => { open("https://github.com/sponsors/YusufOzmen01") }}><FavoriteIcon fontSize="small" /></Button>
+                <Button variant="contained" size="small" className="h-8" onClick={() => { open("https://buymeacoffee.com/sergiomarquina") }}><FavoriteIcon fontSize="small" /></Button>
                 <Button variant="contained" size="small" className="h-8" onClick={() => { open("https://github.com/YusufOzmen01/kikitan-translator") }}><GitHubIcon fontSize="small" /></Button>
             </div>
         </div>

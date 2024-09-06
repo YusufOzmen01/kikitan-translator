@@ -12,6 +12,8 @@ import {
 } from '@mui/icons-material';
 import { DEFAULT_CONFIG, speed_presets } from "../util/config";
 
+import { localization } from "../util/localization";
+
 function CustomTabPanel(props) {
     const { children, value, index, ...other } = props;
 
@@ -39,7 +41,7 @@ function a11yProps(index) {
     };
 }
 
-export default function Settings({ closeCallback, config, setConfig }) {
+export default function Settings({ closeCallback, config, setConfig, lang }) {
     const [page, setPage] = React.useState(0);
 
     const handleChange = (event, newValue) => {
@@ -53,8 +55,8 @@ export default function Settings({ closeCallback, config, setConfig }) {
                     <Close />
                 </IconButton>
                 <Tabs value={page} onChange={handleChange}>
-                    <Tab label="Language Settings (言語設定)" {...a11yProps(0)} />
-                    <Tab label="VRChat Settings (VRChat設定)" {...a11yProps(1)} />
+                    <Tab label={localization.language_settings[lang]} {...a11yProps(0)} />
+                    <Tab label={localization.vrchat_settings[lang]} {...a11yProps(1)} />
                 </Tabs>
             </Box>
             <CustomTabPanel className="flex" value={page} index={0}>
@@ -67,7 +69,7 @@ export default function Settings({ closeCallback, config, setConfig }) {
                                 japanese_omit_questionmark: e.target.checked
                             }
                         })
-                    }} />} label="(Japanese/日本語) Omit the trailing question mark (文末の疑問符を省略)" />
+                    }} />} label={localization.omit_questionmark[lang]} />
                 </FormGroup>
             </CustomTabPanel>
             <CustomTabPanel className="flex" value={page} index={1}>
@@ -80,7 +82,7 @@ export default function Settings({ closeCallback, config, setConfig }) {
                                 translation_first: e.target.checked
                             }
                         })
-                    }} />} label="Translation first (最初に翻訳文を表示)" />
+                    }} />} label={localization.translation_first[lang]} />
                     <FormControlLabel control={<Checkbox checked={config.vrchat_settings.send_typing_while_talking} onChange={(e) => {
                         setConfig({
                             ...config,
@@ -89,9 +91,18 @@ export default function Settings({ closeCallback, config, setConfig }) {
                                 send_typing_while_talking: e.target.checked
                             }
                         })
-                    }} />} label="Send typing status while talking (会話中に入力ステータスを送信する)" />
+                    }} />} label={localization.send_typing_while_talking[lang]} />
+                    {/* <FormControlLabel control={<Checkbox checked={config.vrchat_settings.dont_send_when_muted} onChange={(e) => {
+                        setConfig({
+                            ...config,
+                            vrchat_settings: {
+                                ...config.vrchat_settings,
+                                dont_send_when_muted: e.target.checked
+                            }
+                        })
+                    }} />} label={localization.dont_send_when_muted[lang]} /> */}
                     <div className="flex">
-                        <TextField className="mt-2 w-48" value={config.vrchat_settings.osc_address} id="outlined-basic" label="OSC Address (OSCアドレス)" variant="outlined" onChange={(e) => {
+                        <TextField className="mt-2 w-48" value={config.vrchat_settings.osc_address} id="outlined-basic" label={localization.osc_address[lang]} variant="outlined" onChange={(e) => {
                             setConfig({
                                 ...config,
                                 vrchat_settings: {
@@ -100,7 +111,7 @@ export default function Settings({ closeCallback, config, setConfig }) {
                                 }
                             })
                         }} />
-                        <TextField className="ml-2 mt-2 w-48" value={config.vrchat_settings.osc_port} id="outlined-basic" label="OSC Port (OSCポート)" variant="outlined" type="number" onChange={(e) => {
+                        <TextField className="ml-2 mt-2 w-48" value={config.vrchat_settings.osc_port} id="outlined-basic" label={localization.osc_port[lang]} variant="outlined" type="number" onChange={(e) => {
                             setConfig({
                                 ...config,
                                 vrchat_settings: {
@@ -125,7 +136,7 @@ export default function Settings({ closeCallback, config, setConfig }) {
                             <History />
                         </IconButton>
                     </div>
-                    <p className="mt-2">Chatbox Update Speed (チャットボックス更新速度)</p>
+                    <p className="mt-2">{localization.chatbox_update_speed[lang]}</p>
                     <Select className="mt-0 w-48" value={config.vrchat_settings.chatbox_update_speed} onChange={(e) => {
                         setConfig({
                             ...config,
@@ -135,9 +146,9 @@ export default function Settings({ closeCallback, config, setConfig }) {
                             }
                         })
                     }} >
-                        <MenuItem value={speed_presets.slow}>Slow (スロー)</MenuItem>
-                        <MenuItem value={speed_presets.medium}>Medium (中)</MenuItem>
-                        <MenuItem value={speed_presets.fast}>Fast (高速)</MenuItem>
+                        <MenuItem value={speed_presets.slow}>{localization.slow[lang]}</MenuItem>
+                        <MenuItem value={speed_presets.medium}>{localization.medium[lang]}</MenuItem>
+                        <MenuItem value={speed_presets.fast}>{localization.fast[lang]}</MenuItem>
                     </Select>
                 </FormGroup>
             </CustomTabPanel>
