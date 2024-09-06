@@ -32,8 +32,6 @@ import { langSource, langTo } from './util/constants';
 import { getVersion } from '@tauri-apps/api/app';
 import Changelogs from './pages/Changelogs';
 
-import * as motion from "framer-motion/client"
-
 import { localization } from './util/localization';
 
 let ws = null
@@ -58,8 +56,6 @@ function App() {
   const [version, setVersion] = React.useState("")
   const [lang, setLang] = React.useState("")
 
-  const [changelogText, setChangelogText] = React.useState("")
-
   const [loaded, setLoaded] = React.useState(false)
 
   React.useEffect(() => {
@@ -67,10 +63,6 @@ function App() {
   }, [config])
 
   React.useEffect(() => {
-    fetch("/CHANGELOG.md").then((res) => res.text()).then((text) => {
-      setChangelogText(text)
-    })
-
     setTimeout(() => {
       getVersion().then((version) => {
         setVersion(version)
@@ -80,10 +72,10 @@ function App() {
       })
 
       const cfg = load_config()
-
-      setLang(localStorage.getItem("lang"))
-      setQuickstartVisible(localStorage.getItem("quickstartMenu") == null || localStorage.getItem("lang") == null)
-      setLang("en")
+      const language = localStorage.getItem("lang")
+      
+      setQuickstartVisible(localStorage.getItem("quickstartMenu") == null || language == null)
+      setLang(language == null ? "en" : language)
 
       setConfig({
         ...cfg,
@@ -92,7 +84,7 @@ function App() {
       })
 
       setLoaded(true)
-    }, 2000)
+    }, 3000)
   }, [])
 
   return (
@@ -162,8 +154,16 @@ function App() {
                 <div className={'absolute inset-0 transition-all flex justify-center  ease-in-out ' + (quickstartPage == 4 ? "opacity-100" : "opacity-0 pointer-events-none")}>
                   <div className='absolute mt-2 flex flex-col items-center'>
                     <p className='text-xl bold text-center'>{localization.mode_selection[lang]}</p>
-                    <img className='mt-4' src="https://i.imgur.com/SQ5ju5r.png" width={240} />
-                    <p className='text-lg mt-20 text-center'>{localization.mode_selection_details[lang]}</p>
+                    <img className='mt-4 w-[384px]' src={
+                      {
+                        en: "https://i.imgur.com/2OHmEcT.png",
+                        jp: "https://i.imgur.com/yTqbY4c.png",
+                        cn: "https://i.imgur.com/iByKH4k.png",
+                        kr: "https://i.imgur.com/Gr6UpXO.png",
+                        tr: "https://i.imgur.com/1we8FT4.png"
+                      }[lang]
+                    } width={240} />
+                    <p className='text-lg mt-4 text-center'>{localization.mode_selection_details[lang]}</p>
                   </div>
                 </div>
 
@@ -173,7 +173,7 @@ function App() {
                     <p className='text-lg mt-20 text-center'>{localization.thank_you_details[lang]}</p>
                   </div>
                   <Button disabled={quickstartPage != 5} className={'w-70 '} variant='contained' startIcon={< GitHub />} onClick={async () => { open("https://github.com/YusufOzmen01/kikitan-translator") }}>{localization.open_repo[lang]}</Button>
-                  <Button disabled={quickstartPage != 5} className={'w-48 '} variant='contained' onClick={async () => { setQuickstartVisible(false); window.localStorage.setItem("quickstartMenu", true) }}>{localization.close_menu[lang]}</Button>
+                  <Button disabled={quickstartPage != 5} className={'w-48 '} variant='contained' onClick={async () => { setQuickstartVisible(false); window.localStorage.setItem("quickstartMenu", true); localStorage.setItem("lang", lang) }}>{localization.close_menu[lang]}</Button>
                 </div>
               </div>
               <div className='mb-2 flex justify-center space-x-4'>
@@ -195,7 +195,7 @@ function App() {
         {!quickstartVisible && changelogsVisible &&
           <div className={'transition-all z-20 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (changelogsVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
             <div className='flex flex-col justify-between  w-10/12 h-5/6 outline outline-2 outline-white rounded bg-white'>
-              <Changelogs version={version} changelog={changelogText} closeCallback={() => setChangelogsVisible(false)} />
+              <Changelogs lang={lang} closeCallback={() => setChangelogsVisible(false)} />
             </div>
           </div>
         }

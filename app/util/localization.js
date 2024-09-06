@@ -27,5 +27,6 @@ export const localization = {
     fast: { en: "Fast", jp: "速い", cn: "快", kr: "빠름", tr: "Hızlı" },
     osc_address: { en: "OSC Address", jp: "OSC アドレス", cn: "OSC 地址", kr: "OSC 주소", tr: "OSC Adresi" },
     osc_port: { en: "OSC Port", jp: "OSC ポート", cn: "OSC 端口", kr: "OSC 포트", tr: "OSC Portu" },
-    dont_send_when_muted: { en: "Don't send chatbox messages when muted (Only translation mode)", jp: "ミュート時にチャットボックスメッセージを送信しない（翻訳モードのみ）", cn: "静音时不发送聊天框消息（仅限翻译模式）", kr: "음소거 상태에서 채팅박스 메시지를 보내지 않음 (번역 모드 전용)", tr: "Sessizken sohbet kutusu mesajları gönderme (Sadece çeviri modu)" }
+    dont_send_when_muted: { en: "Don't send chatbox messages when muted (Only translation mode)", jp: "ミュート時にチャットボックスメッセージを送信しない（翻訳モードのみ）", cn: "静音时不发送聊天框消息（仅限翻译模式）", kr: "음소거 상태에서 채팅박스 메시지를 보내지 않음 (번역 모드 전용)", tr: "Sessizken sohbet kutusu mesajları gönderme (Sadece çeviri modu)" },
+    changelogs: { en: "Changelogs", jp: "変更履歴", cn: "更新日志", kr: "변경 사항", tr: "Değişiklikler" },
 };
