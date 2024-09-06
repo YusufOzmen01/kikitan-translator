@@ -32,7 +32,16 @@ import { langSource, langTo } from './util/constants';
 import { getVersion } from '@tauri-apps/api/app';
 import Changelogs from './pages/Changelogs';
 
+import { check } from '@tauri-apps/plugin-updater';
+import { relaunch } from '@tauri-apps/plugin-process';
+
 import { localization } from './util/localization';
+
+const update = await check();
+update.downloadAndInstall().then(() => {
+  
+  relaunch()
+});
 
 let ws = null
 invoke("enable_microphone", {})
