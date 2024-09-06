@@ -16,6 +16,7 @@ export const DEFAULT_CONFIG = {
         translation_first: true,
         send_typing_while_talking: false,
         chatbox_update_speed: speed_presets.slow,
+        dont_send_when_muted: true,
         osc_address: "127.0.0.1",
         osc_port: 9000
     }
