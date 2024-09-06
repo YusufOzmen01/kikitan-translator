@@ -1,0 +1,148 @@
+@import url("https://fonts.googleapis.com/css2?family=Satoshi:wght@100;400;500&display=swap");
+
+:root {
+  --ch: 5vw; /* Carousel height. */
+  --tt: 1500ms; /* Transition time */
+  --pt: 0ms; /* Pause time */
+  --at: calc((var(--tt) + var(--pt)) * 5); /* Total animation time */
+}
+
+.carousel-container {
+  height: calc(var(--ch));
+  overflow: hidden;
+}
+
+.carousel-item {
+  line-height: var(--ch);
+}
+
+.carousel-item:first-child {
+  animation:
+    slide-in 0.7s cubic-bezier(0.76, 0.07, 0.36, 0.78) 0ms forwards,
+    anim var(--at) cubic-bezier(0.13, 0.56, 0.5, 0.97) 2000ms infinite;
+}
+
+@keyframes anim {
+  0% {
+    margin-top: 0;
+  }
+  3%,
+  17% {
+    margin-top: calc(var(--ch) * -1);
+  }
+  20%,
+  34% {
+    margin-top: calc(var(--ch) * -2);
+  }
+  37%,
+  51% {
+    margin-top: calc(var(--ch) * -3);
+  }
+  54%,
+  68% {
+    margin-top: calc(var(--ch) * -4);
+  }
+  71%,
+  100% {
+    margin-top: calc(var(--ch) * -5);
+  }
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes reveal-line {
+  0% {
+    background-position: 0 100%;
+  }
+  100% {
+    background-position: 0 0;
+  }
+}
+
+@keyframes slide-in {
+  0% {
+    opacity: 1;
+    transform: translateX(62%);
+    clip-path: inset(0 50% 0 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0%);
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+.vertical-line {
+  margin: 0 4vw;
+  margin-right: 7vw;
+  transform: translate(-50%, -50%);
+  width: 1.4px;
+  height: 17vw;
+  transform: rotate(13deg);
+  background: linear-gradient(
+    to bottom,
+    #ffffff,
+    #ffffff 50%,
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 0) 50%
+  );
+  background-size: 100% 200%;
+  background-position: 0 100%;
+  animation: reveal-line 0.7s cubic-bezier(0.64, 0.08, 0.36, 0.81) forwards;
+  animation-delay: 0;
+}
+
+.fade-in {
+  animation: fade-in 1.23s cubic-bezier(0.59, 0.1, 0.39, 0.74) forwards;
+}
+
+.reveal-line {
+  animation: reveal-line 0.7s cubic-bezier(0.64, 0.08, 0.36, 0.81) forwards;
+}
+
+.slide-in {
+  animation: slide-in 0.7s cubic-bezier(0.76, 0.07, 0.36, 0.78) forwards;
+}
+
+#who-are-we {
+  width: 80%;
+  overflow: hidden;
+  margin: auto;
+  margin-bottom: 8vw;
+}
+
+.who-are-we-text {
+  font-size: 4vw;
+}
+.who-are-we {
+  opacity: 0;
+  animation: slide-in 0.7s cubic-bezier(0.76, 0.07, 0.36, 0.78) forwards;
+  animation-delay: 250ms;
+}
+
+.glass-texts {
+  opacity: 0;
+  animation: fade-in 1.23s cubic-bezier(0.59, 0.1, 0.39, 0.74) forwards;
+  animation-delay: 500ms;
+}
+
+@media screen and (max-width: 768px) {
+  .who-are-we-section {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .who-are-we-section .glass-text-section {
+    width: 100vw;
+    margin-top: 2rem;
+  }
+  :root {
+    --ch: 10vw; /* Carousel height. */
+  }
+}

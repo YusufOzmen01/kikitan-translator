@@ -21,13 +21,16 @@
     "@tauri-apps/plugin-shell": "^2.0.0-rc.0",
     "@tauri-apps/plugin-updater": "^2.0.0-rc.0",
     "axios": "^1.6.7",
+    "clsx": "^2.1.1",
     "cors": "^2.8.5",
     "express": "^4.18.3",
+    "framer-motion": "^11.5.4",
     "next": "14.1.0",
     "react": "^18",
     "react-dom": "^18",
     "react-markdown": "^9.0.1",
-    "remark-gfm": "^4.0.0"
+    "remark-gfm": "^4.0.0",
+    "tailwind-merge": "^2.5.2"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2.0.0-rc.3",
