@@ -25,11 +25,14 @@ import { invoke } from '@tauri-apps/api/core'
 import { open } from '@tauri-apps/plugin-shell'
 
 import SettingsPage from './pages/Settings';
+import Scroll from "./components/Scroll"
 
 import { DEFAULT_CONFIG, load_config, update_config } from './util/config';
 import { langSource, langTo } from './util/constants';
 import { getVersion } from '@tauri-apps/api/app';
 import Changelogs from './pages/Changelogs';
+
+import * as motion from "framer-motion/client"
 
 import { localization } from './util/localization';
 
@@ -79,7 +82,8 @@ function App() {
       const cfg = load_config()
 
       setLang(localStorage.getItem("lang"))
-      setQuickstartVisible(localStorage.getItem("quickstartMenu") == null|| localStorage.getItem("lang") == null)
+      setQuickstartVisible(localStorage.getItem("quickstartMenu") == null || localStorage.getItem("lang") == null)
+      setLang("en")
 
       setConfig({
         ...cfg,
@@ -99,25 +103,29 @@ function App() {
             <div className='flex flex-col justify-between  w-10/12 h-5/6 outline outline-2 outline-white rounded bg-white'>
               <div className='relative mt-2 ml-2 mr-2 h-64'>
                 <div className={'absolute inset-0 transition-all flex justify-center ease-in-out ' + (quickstartPage == 0 ? "opacity-100" : "opacity-0 pointer-events-none")}>
-                  <div className='absolute mt-44 flex flex-row items-center'>
-                  <Translate className='mr-8' />
-                    <Select sx={{
-                      color: 'black',
-                      '& .MuiSvgIcon-root': {
-                        color: 'black'
-                      }
-                    }} variant='outlined' className="mt-auto mr-8" value={lang} onChange={(e) => {
-                      setLang(e.target.value)
+                  <div className='absolute mt-28 flex flex-col items-center'>
+                    <Scroll></Scroll>
 
-                      console.log(lang)
-                    }}>
-                      
-                      <MenuItem value={"en"}>English</MenuItem>
-                      <MenuItem value={"jp"}>日本語</MenuItem>
-                      <MenuItem value={"cn"}>中文</MenuItem>
-                      <MenuItem value={"kr"}>한국어</MenuItem>
-                      <MenuItem value={"tr"}>Türkçe</MenuItem>
-                    </Select>
+                    <div className='mt-16 absolute flex flex-row items-center'>
+                      <Translate className='mr-8' />
+                      <Select sx={{
+                        color: 'black',
+                        '& .MuiSvgIcon-root': {
+                          color: 'black'
+                        }
+                      }} variant='outlined' className="mt-auto mr-8" value={lang} onChange={(e) => {
+                        setLang(e.target.value)
+
+                        console.log(lang)
+                      }}>
+
+                        <MenuItem value={"en"}>English</MenuItem>
+                        <MenuItem value={"jp"}>日本語</MenuItem>
+                        <MenuItem value={"cn"}>中文</MenuItem>
+                        <MenuItem value={"kr"}>한국어</MenuItem>
+                        <MenuItem value={"tr"}>Türkçe</MenuItem>
+                      </Select>
+                    </div>
                   </div>
                 </div>
 
@@ -169,7 +177,7 @@ function App() {
                 </div>
               </div>
               <div className='mb-2 flex justify-center space-x-4'>
-                <Button variant='contained' disabled={quickstartPage <= 1} onClick={() => { setQuickstartPage(quickstartPage - 1) }}>{localization.previous[lang]}</Button>
+                <Button variant='contained' disabled={quickstartPage == 0} onClick={() => { setQuickstartPage(quickstartPage - 1) }}>{localization.previous[lang]}</Button>
                 <Button className='ml-4' variant='contained' disabled={quickstartPage > 4} onClick={() => { setQuickstartPage(quickstartPage + 1) }}>{localization.next[lang]}</Button>
               </div>
             </div>

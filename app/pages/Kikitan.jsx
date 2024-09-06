@@ -99,7 +99,7 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws, lang }
             startSR()
         }
 
-        sr.nomatch = startSR
+        sr.onnomatch = startSR
         sr.onend = startSR
 
         sr.onresult = (res => {
