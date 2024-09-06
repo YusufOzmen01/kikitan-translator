@@ -190,7 +190,7 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws, lang }
                         startSR()
                     }}>
                         {langSource.map((element, i) => {
-                            return <MenuItem key={element.code} value={i}>{element.name}</MenuItem>
+                            return <MenuItem key={element.code} value={i}>{element.name[lang]}</MenuItem>
                         })}
                     </Select>
                     <div className="mt-7">
@@ -236,7 +236,7 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws, lang }
                             })
 
                             return m.map((element) => {
-                                return <MenuItem key={element.e.code} value={element.i}>{element.e.name}</MenuItem>
+                                return <MenuItem key={element.e.code} value={element.i}>{element.e.name[lang]}</MenuItem>
                             })
 
                         })()}
