@@ -37,10 +37,10 @@ import { relaunch } from '@tauri-apps/plugin-process';
 
 import { localization } from './util/localization';
 
-const update = await check();
-update.downloadAndInstall().then(() => {
-  
-  relaunch()
+check().then((update) => {
+  update.downloadAndInstall().then(() => {
+    relaunch()
+  });
 });
 
 let ws = null
