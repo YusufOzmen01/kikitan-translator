@@ -17,10 +17,8 @@ import {
 
 import {
   GitHub,
-  Help,
   Settings,
-  Translate,
-  ArrowForward
+  Translate
 } from '@mui/icons-material';
 
 import { invoke } from '@tauri-apps/api/core'
@@ -117,6 +115,7 @@ function App() {
                       <MenuItem value={"en"}>English</MenuItem>
                       <MenuItem value={"jp"}>日本語</MenuItem>
                       <MenuItem value={"cn"}>中文</MenuItem>
+                      <MenuItem value={"kr"}>한국어</MenuItem>
                       <MenuItem value={"tr"}>Türkçe</MenuItem>
                     </Select>
                   </div>
@@ -271,7 +270,7 @@ function App() {
                     color: 'white'
                   }
                 }} onClick={() => { setQuickstartVisible(true); setQuickstartPage(0) }}>
-                  <Help />
+                  <Translate />
                 </IconButton>
                 <IconButton sx={{
                   color: 'white',
