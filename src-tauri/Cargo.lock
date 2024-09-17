@@ -74,8 +74,6 @@ dependencies = [
  "tauri-plugin-fs",
  "tauri-plugin-shell",
  "tauri-plugin-updater",
- "webview2-com",
- "windows 0.57.0",
 ]
 
 [[package]]

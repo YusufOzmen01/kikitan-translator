@@ -1,5 +1,3 @@
-'use client'
-
 import * as React from "react"
 
 import { Select, MenuItem, Button } from "@mui/material"
@@ -14,7 +12,6 @@ import {
 
 import { invoke } from '@tauri-apps/api/core'
 import { open } from '@tauri-apps/plugin-shell'
-import { localization } from "../util/localization";
 
 import { calculateMinWaitTime, Lang, langSource, langTo } from "../util/constants"
 import { default as translateGT } from '../translators/google_translate';
@@ -167,19 +164,19 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws, lang }
     React.useEffect(() => {
         if (!detecting && detection.length != 0) {
             if (ovr) {
-                if (ws != null) ws.send(`send-${langSource[sourceLanguage].code == "ja" ? detection.replaceAll("？", "") : detection}`)
+                if (ws != null) ws.send(`send-${langSource[sourceLanguage].code == "ja" ? detection.replace("？/g", "") : detection}`)
 
                 return;
             }
 
             if (vrc) {
                 if (config.mode == 0) {
-                    setDetectionQueue([...detectionQueue, (langSource[sourceLanguage].code == "ja" && config.language_settings.japanese_omit_questionmark) ? detection.replaceAll("？", "") : detection])
+                    setDetectionQueue([...detectionQueue, (langSource[sourceLanguage].code == "ja" && config.language_settings.japanese_omit_questionmark) ? detection.replace("？/g", "") : detection])
 
                     return
                 }
 
-                invoke("send_message", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}`, msg: (langSource[sourceLanguage].code == "ja" && config.language_settings.japanese_omit_questionmark) ? detection.replaceAll("？", "") : detection })
+                invoke("send_message", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}`, msg: (langSource[sourceLanguage].code == "ja" && config.language_settings.japanese_omit_questionmark) ? detection.replace("？/g", "") : detection })
             }
         }
     }, [detecting, detection])

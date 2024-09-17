@@ -1,5 +1,3 @@
-'use client'
-
 import * as React from 'react';
 
 import Kikitan from "./pages/Kikitan"
@@ -44,9 +42,6 @@ check().then((update) => {
 });
 
 let ws: WebSocket | null = null
-invoke("enable_microphone", {})
-  .then((res) => console.log(res))
-  .catch((err) => console.error(err))
 
 function App() {
   const [ovr, setOvr] = React.useState(false)
@@ -72,28 +67,26 @@ function App() {
   }, [config])
 
   React.useEffect(() => {
-    setTimeout(() => {
-      getVersion().then((version) => {
-        setVersion(version)
-        setChangelogsVisible(localStorage.getItem("changelogsViewed") != version)
+    getVersion().then((version) => {
+      setVersion(version)
+      setChangelogsVisible(localStorage.getItem("changelogsViewed") != version)
 
-        setTimeout(() => localStorage.setItem("changelogsViewed", version), 1000)
-      })
+      setTimeout(() => localStorage.setItem("changelogsViewed", version), 1000)
+    })
 
-      const cfg = load_config()
-      const language = localStorage.getItem("lang") as Lang | null
-      
-      setQuickstartVisible(localStorage.getItem("quickstartMenu") == null || language == null)
-      setLang(language == null ? "en" : language)
+    const cfg = load_config()
+    const language = localStorage.getItem("lang") as Lang | null
+    
+    setQuickstartVisible(localStorage.getItem("quickstartMenu") == null || language == null)
+    setLang(language == null ? "en" : language)
 
-      setConfig({
-        ...cfg,
-        source_language: cfg.source_language >= langSource.length ? 0 : cfg.source_language,
-        target_language: cfg.target_language >= langTo.length ? 0 : cfg.target_language
-      })
+    setConfig({
+      ...cfg,
+      source_language: cfg.source_language >= langSource.length ? 0 : cfg.source_language,
+      target_language: cfg.target_language >= langTo.length ? 0 : cfg.target_language
+    })
 
-      setLoaded(true)
-    }, 3000)
+    setTimeout(() => setLoaded(true), 300)
   }, [])
 
   return (
@@ -218,11 +211,11 @@ function App() {
 
               <div className='flex'>
                 <p className='mt-2'>VRChat OSC</p>
-                <Switch color='secondary' className="ml-4 mr-2" checked={vrc} defaultChecked onChange={(e) => {
+                <Switch color='secondary' className="ml-4 mr-2" checked={vrc} onChange={(e) => {
                   setVrc(e.target.checked)
                 }} />
                 <p className='mt-2'>{localization.steamvr_connection[lang!]}</p>
-                <Switch color='secondary' disabled={ovr && !steamVRReady} className="ml-4" checked={ovr} defaultChecked onChange={(e) => {
+                <Switch color='secondary' disabled={ovr && !steamVRReady} className="ml-4" checked={ovr} onChange={(e) => {
                   setOvr(e.target.checked)
 
                   if (e.target.checked) {
@@ -275,8 +268,9 @@ function App() {
                   }
                 }} variant='outlined' className="ml-4 mr-2" value={config.mode} onChange={(e) => {
                   setConfig({ ...config, mode: parseInt(e.target.value.toString()) })
+                  setTimeout(() => { setLoaded(false) }, 100)
 
-                  setTimeout(() => { window.location.reload() }, 100)
+                  setTimeout(() => { window.location.reload() }, 300)
                 }}>
                   <MenuItem value={0}>{localization.translation[lang!]}</MenuItem>
                   <MenuItem value={1}>{localization.transcription[lang!]}</MenuItem>

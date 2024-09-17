@@ -8,13 +8,6 @@ use std::os::windows::process::CommandExt;
 use std::process::Command;
 use tauri::Manager;
 
-use webview2_com::Microsoft::Web::WebView2::Win32::{
-    ICoreWebView2Profile4, ICoreWebView2_13, COREWEBVIEW2_PERMISSION_KIND_MICROPHONE,
-    COREWEBVIEW2_PERMISSION_STATE_ALLOW,
-};
-
-use windows::core::{Interface, PCWSTR};
-
 fn main() {
     Command::new("taskkill")
         .arg("/F")
@@ -33,7 +26,6 @@ fn main() {
             send_message,
             start_ovr,
             kill_ovr,
-            enable_microphone,
             show_windows_audio_settings
         ])
         .run(tauri::generate_context!())
@@ -96,30 +88,5 @@ fn kill_ovr() {
         .arg("Kikitan OVR.exe")
         .creation_flags(0x08000000_u32)
         .spawn()
-        .unwrap();
-}
-
-#[tauri::command]
-fn enable_microphone(origin: &str, app: tauri::AppHandle) {
-    let webview = app.get_webview_window("main").unwrap();
-    let mut origin = origin.to_string();
-    origin.push('\0');
-    let origin = origin.encode_utf16().collect::<Vec<u16>>();
-    webview
-        .with_webview(move |webview| unsafe {
-            let core = webview.controller().CoreWebView2().unwrap();
-            let core = Interface::cast::<ICoreWebView2_13>(&core).unwrap();
-            let profile = core.Profile().unwrap();
-            let profile = Interface::cast::<ICoreWebView2Profile4>(&profile).unwrap();
-            let origin = PCWSTR::from_raw(origin.as_ptr());
-            profile
-                .SetPermissionState(
-                    COREWEBVIEW2_PERMISSION_KIND_MICROPHONE,
-                    origin,
-                    COREWEBVIEW2_PERMISSION_STATE_ALLOW,
-                    None,
-                )
-                .unwrap();
-        })
         .unwrap();
 }

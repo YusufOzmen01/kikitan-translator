@@ -21,8 +21,6 @@ tauri = { version = "2.0.0-rc", features = [] }
 rosc = "0.10.1"
 tauri-plugin-shell = "2.0.0-rc.0"
 tauri-plugin-fs = "2.0.0-rc.0"
-webview2-com = "0.31.0"
-windows = "0.57.0"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem and the built-in dev server is disabled.
