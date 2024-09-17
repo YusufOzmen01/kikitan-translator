@@ -16,24 +16,8 @@ import { open } from '@tauri-apps/plugin-shell'
 import { calculateMinWaitTime, Lang, langSource, langTo } from "../util/constants"
 import { default as translateGT } from '../translators/google_translate';
 import { Config } from "../util/config";
-
-var sr: SpeechRecognition | null = null
-
-const startSR = () => {
-    setTimeout(() => {
-        try {
-            sr?.start()
-        } catch {}
-    }, 1000)
-}
-
-const postponseStartSR = () => {
-    setTimeout(() => {
-        try {
-            sr?.start()
-        } catch {}
-    }, 20000)
-}
+import { Recognizer } from "../recognizers/recognizer";
+import { WebSpeech } from "../recognizers/WebSpeech";
 
 type KikitanProps = {
     sr_on: boolean;
@@ -44,6 +28,8 @@ type KikitanProps = {
     ws: WebSocket | null;
     lang: Lang;
 }
+
+let sr: Recognizer | null = null;
 
 export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws, lang }: KikitanProps) {
     const [detecting, setDetecting] = React.useState(true)
@@ -95,34 +81,23 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws, lang }
     }, [defaultMicrophone])
 
     React.useEffect(() => {
-        sr = new window.webkitSpeechRecognition();
-        sr.lang = langSource[sourceLanguage].code
-        sr.interimResults = true
-        sr.maxAlternatives = 1
-        sr.continuous = true
+        if (sr == null) {
+            sr = new WebSpeech(langSource[sourceLanguage].code)
 
-        sr.onerror = (e) => {
-            console.log(e)
-
-            startSR()
+            sr.onResult((result: string, isFinal: boolean) => {
+                if (!sr_on) return;
+                if (config.mode == 1 || config.vrchat_settings.send_typing_while_talking) invoke("send_typing", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}` })
+    
+                setDetection(result)
+                setDetecting(!isFinal)
+            })
         }
-
-        sr.onnomatch = startSR
-        sr.onend = startSR
-
-        sr.onresult = (res => {
-            if (!sr_on) return;
-            if (config.mode == 1 || config.vrchat_settings.send_typing_while_talking) invoke("send_typing", {})
-
-            if (res.results[res.results.length - 1][0].transcript.trim().length == 0) return;
-
-            setDetection(res.results[res.results.length - 1][0].transcript.trim())
-            setDetecting(!res.results[res.results.length - 1].isFinal)
-
-            postponseStartSR()
-        })
-
-        sr.start();
+        
+        if (sr_on) {
+            sr.start()
+        } else {
+            sr.stop()
+        }
     }, [sr_on])
 
     React.useEffect(() => {
@@ -131,7 +106,7 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws, lang }
 
             const next = detectionQueue[0];
 
-            invoke("send_typing", {})
+            invoke("send_typing", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}` })
 
             let count = 3;
 
@@ -191,14 +166,11 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws, lang }
                     <Select className="mt-4 ml-auto h-14" value={sourceLanguage} onChange={(e) => {
                         const langIndex = parseInt(e.target.value.toString());
                         if (sr) {
-                            sr.lang = langSource[langIndex].code
-                            sr.stop()
+                            sr.set_lang(langSource[langIndex].code)
                         }
 
                         setSourceLanguage(langIndex)
                         setConfig({ ...config, source_language: langIndex })
-
-                        startSR()
                     }}>
                         {langSource.map((element, i) => {
                             return <MenuItem key={element.code} value={i}>{element.name[lang]}</MenuItem>
@@ -210,14 +182,11 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws, lang }
                             let old_s = targetLanguage
 
                             if (sr) {
-                                sr.lang = langSource[old_s].code
-                                sr.stop()
+                                sr.set_lang(langSource[old_s].code)
                             }
 
                             setTargetLanguage(old_t)
                             setSourceLanguage(old_s)
-
-                            startSR()
 
                             setConfig({ ...config, source_language: old_s, target_language: old_t })
                         }}>
