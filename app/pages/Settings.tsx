@@ -10,11 +10,19 @@ import {
     Close,
     History
 } from '@mui/icons-material';
-import { DEFAULT_CONFIG, speed_presets } from "../util/config";
+import { Config, DEFAULT_CONFIG, speed_presets } from "../util/config";
 
 import { localization } from "../util/localization";
+import { Lang } from "../util/constants";
 
-function CustomTabPanel(props) {
+
+type CustomTabPanelProps = {
+    children: React.ReactNode;
+    value: number;
+    index: number;
+} & React.HTMLAttributes<HTMLDivElement>;
+
+function CustomTabPanel(props: CustomTabPanelProps) {
     const { children, value, index, ...other } = props;
 
     return (
@@ -34,17 +42,24 @@ function CustomTabPanel(props) {
     );
 }
 
-function a11yProps(index) {
+function a11yProps(index: number) {
     return {
         id: `simple-tab-${index}`,
         'aria-controls': `simple-tabpanel-${index}`,
     };
 }
 
-export default function Settings({ closeCallback, config, setConfig, lang }) {
+type SettingsProps = {
+    closeCallback: () => void;
+    config: Config;
+    setConfig: (config: Config) => void;
+    lang: Lang;
+}
+
+export default function Settings({ closeCallback, config, setConfig, lang }: SettingsProps) {
     const [page, setPage] = React.useState(0);
 
-    const handleChange = (event, newValue) => {
+    const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
         setPage(newValue);
     };
 
@@ -116,7 +131,7 @@ export default function Settings({ closeCallback, config, setConfig, lang }) {
                                 ...config,
                                 vrchat_settings: {
                                     ...config.vrchat_settings,
-                                    osc_port: e.target.value
+                                    osc_port: parseInt(e.target.value)
                                 }
                             })
                         }} />
@@ -142,7 +157,7 @@ export default function Settings({ closeCallback, config, setConfig, lang }) {
                             ...config,
                             vrchat_settings: {
                                 ...config.vrchat_settings,
-                                chatbox_update_speed: e.target.value
+                                chatbox_update_speed: parseInt(e.target.value.toString())
                             }
                         })
                     }} >

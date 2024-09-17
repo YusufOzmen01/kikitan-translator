@@ -4,7 +4,25 @@ export const speed_presets = {
     fast: 15
 }
 
-export const DEFAULT_CONFIG = {
+export type Config = {
+    source_language: number,
+    target_language: number,
+    translator: number,
+    mode: number,
+    language_settings: {
+        japanese_omit_questionmark: boolean
+    },
+    vrchat_settings: {
+        translation_first: boolean,
+        send_typing_while_talking: boolean,
+        chatbox_update_speed: number,
+        dont_send_when_muted: boolean,
+        osc_address: string,
+        osc_port: number
+    }
+}
+
+export const DEFAULT_CONFIG: Config = {
     source_language: 0,
     target_language: 6,
     translator: 0,
@@ -22,7 +40,7 @@ export const DEFAULT_CONFIG = {
     }
 }
 
-export function load_config() {
+export function load_config(): Config {
     console.log("loading")
     if (typeof window === "undefined") return DEFAULT_CONFIG
 
@@ -32,6 +50,6 @@ export function load_config() {
     return JSON.parse(val)
 }
 
-export function update_config(config) {
+export function update_config(config: Config) {
     localStorage.setItem("config", JSON.stringify(config))
 }

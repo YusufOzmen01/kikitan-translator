@@ -28,7 +28,7 @@ export const langSource = [
     { name: { en: "Spanish (US)", jp: "スペイン語 (アメリカ)", cn: "西班牙语 (美国)", kr: "스페인어 (미국)", tr: "İspanyolca (ABD)" }, code: "es-US" },
     { name: { en: "Swedish", jp: "スウェーデン語", cn: "瑞典语", kr: "스웨덴어", tr: "İsveççe" }, code: "sv" },
     { name: { en: "Turkish", jp: "トルコ語", cn: "土耳其语", kr: "터키어", tr: "Türkçe" }, code: "tr" }
-];
+] as const;
 
 const english = {
     en: "English",
@@ -100,8 +100,10 @@ export const langTo = [
     { name: { en: "Urdu", jp: "ウルドゥー語", cn: "乌尔都语", kr: "우르두어", tr: "Urduca" }, code: "ur" },
     { name: { en: "Uzbek", jp: "ウズベク語", cn: "乌兹别克语", kr: "우즈베크어", tr: "Özbekçe" }, code: "uz" },
     { name: { en: "Vietnamese", jp: "ベトナム語", cn: "越南语", kr: "베트남어", tr: "Vietnamca" }, code: "vi" }
-];
+] as const;
 
-export function calculateMinWaitTime(text, speed) {
+export type Lang = "en" | "jp" | "cn" | "kr" | "tr";
+
+export function calculateMinWaitTime(text: string, speed: number) {
     return (escape(text).length / 3) * speed // in ms
 }

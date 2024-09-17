@@ -1,0 +1,587 @@
+diff --git a/app/components/Scroll.jsx b/app/components/Scroll.tsx
+similarity index 100%
+rename from app/components/Scroll.jsx
+rename to app/components/Scroll.tsx
+diff --git a/app/layout.js b/app/layout.tsx
+similarity index 77%
+rename from app/layout.js
+rename to app/layout.tsx
+index b0850a1..a85e754 100644
+--- a/app/layout.js
++++ b/app/layout.tsx
+@@ -8,7 +8,9 @@ export const metadata = {
+   description: "Translator for VRC",
+ };
+ 
+-export default function RootLayout({ children }) {
++export default function RootLayout({ children }: Readonly<{
++  children: React.ReactNode;
++}>) {
+   return (
+     <html lang="en">
+       <body className={inter.className}>{children}</body>
+diff --git a/app/page.jsx b/app/page.tsx
+similarity index 92%
+rename from app/page.jsx
+rename to app/page.tsx
+index 69cf8f2..4ba3ee0 100644
+--- a/app/page.jsx
++++ b/app/page.tsx
+@@ -28,7 +28,7 @@ import SettingsPage from './pages/Settings';
+ import Scroll from "./components/Scroll"
+ 
+ import { DEFAULT_CONFIG, load_config, update_config } from './util/config';
+-import { langSource, langTo } from './util/constants';
++import { Lang, langSource, langTo } from './util/constants';
+ import { getVersion } from '@tauri-apps/api/app';
+ import Changelogs from './pages/Changelogs';
+ 
+@@ -38,12 +38,12 @@ import { relaunch } from '@tauri-apps/plugin-process';
+ import { localization } from './util/localization';
+ 
+ check().then((update) => {
+-  update.downloadAndInstall().then(() => {
++  update?.downloadAndInstall().then(() => {
+     relaunch()
+   });
+ });
+ 
+-let ws = null
++let ws: WebSocket | null = null
+ invoke("enable_microphone", {})
+   .then((res) => console.log(res))
+   .catch((err) => console.error(err))
+@@ -56,14 +56,14 @@ function App() {
+   const [vrc, setVrc] = React.useState(true)
+ 
+   const [quickstartVisible, setQuickstartVisible] = React.useState(true)
+-  const [changelogsVisible, setChangelogsVisible] = React.useState(null)
++  const [changelogsVisible, setChangelogsVisible] = React.useState(false)
+   const [settingsVisible, setSettingsVisible] = React.useState(false)
+ 
+   const [quickstartPage, setQuickstartPage] = React.useState(0)
+ 
+   const [config, setConfig] = React.useState(DEFAULT_CONFIG)
+   const [version, setVersion] = React.useState("")
+-  const [lang, setLang] = React.useState("")
++  const [lang, setLang] = React.useState<Lang | null>(null)
+ 
+   const [loaded, setLoaded] = React.useState(false)
+ 
+@@ -81,7 +81,7 @@ function App() {
+       })
+ 
+       const cfg = load_config()
+-      const language = localStorage.getItem("lang")
++      const language = localStorage.getItem("lang") as Lang | null
+       
+       setQuickstartVisible(localStorage.getItem("quickstartMenu") == null || language == null)
+       setLang(language == null ? "en" : language)
+@@ -99,7 +99,7 @@ function App() {
+   return (
+     <>
+       <div className={`relative transition-all duration-500 ${!loaded ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
+-        {quickstartVisible && lang != "" &&
++        {quickstartVisible && lang != null &&
+           <div className={'transition-all z-10 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute'}>
+             <div className='flex flex-col justify-between  w-10/12 h-5/6 outline outline-2 outline-white rounded bg-white'>
+               <div className='relative mt-2 ml-2 mr-2 h-64'>
+@@ -115,7 +115,7 @@ function App() {
+                           color: 'black'
+                         }
+                       }} variant='outlined' className="mt-auto mr-8" value={lang} onChange={(e) => {
+-                        setLang(e.target.value)
++                        setLang(e.target.value as Lang)
+ 
+                         console.log(lang)
+                       }}>
+@@ -182,7 +182,7 @@ function App() {
+                     <p className='text-lg mt-20 text-center'>{localization.thank_you_details[lang]}</p>
+                   </div>
+                   <Button disabled={quickstartPage != 5} className={'w-70 '} variant='contained' startIcon={< GitHub />} onClick={async () => { open("https://github.com/YusufOzmen01/kikitan-translator") }}>{localization.open_repo[lang]}</Button>
+-                  <Button disabled={quickstartPage != 5} className={'w-48 '} variant='contained' onClick={async () => { setQuickstartVisible(false); window.localStorage.setItem("quickstartMenu", true); localStorage.setItem("lang", lang) }}>{localization.close_menu[lang]}</Button>
++                  <Button disabled={quickstartPage != 5} className={'w-48 '} variant='contained' onClick={async () => { setQuickstartVisible(false); window.localStorage.setItem("quickstartMenu", "true"); localStorage.setItem("lang", lang) }}>{localization.close_menu[lang]}</Button>
+                 </div>
+               </div>
+               <div className='mb-2 flex justify-center space-x-4'>
+@@ -196,7 +196,7 @@ function App() {
+         {settingsVisible &&
+           <div className={'transition-all z-20 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (settingsVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
+             <div className='flex flex-col justify-between  w-10/12 h-5/6 outline outline-2 outline-white rounded bg-white'>
+-              <SettingsPage lang={lang} config={config} setConfig={setConfig} closeCallback={() => setSettingsVisible(false)} />
++              <SettingsPage lang={lang!} config={config} setConfig={setConfig} closeCallback={() => setSettingsVisible(false)} />
+             </div>
+           </div>
+         }
+@@ -204,7 +204,7 @@ function App() {
+         {!quickstartVisible && changelogsVisible &&
+           <div className={'transition-all z-20 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (changelogsVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
+             <div className='flex flex-col justify-between  w-10/12 h-5/6 outline outline-2 outline-white rounded bg-white'>
+-              <Changelogs lang={lang} closeCallback={() => setChangelogsVisible(false)} />
++              <Changelogs lang={lang!} closeCallback={() => setChangelogsVisible(false)} />
+             </div>
+           </div>
+         }
+@@ -221,7 +221,7 @@ function App() {
+                 <Switch color='secondary' className="ml-4 mr-2" checked={vrc} defaultChecked onChange={(e) => {
+                   setVrc(e.target.checked)
+                 }} />
+-                <p className='mt-2'>{localization.steamvr_connection[lang]}</p>
++                <p className='mt-2'>{localization.steamvr_connection[lang!]}</p>
+                 <Switch color='secondary' disabled={ovr && !steamVRReady} className="ml-4" checked={ovr} defaultChecked onChange={(e) => {
+                   setOvr(e.target.checked)
+ 
+@@ -274,12 +274,12 @@ function App() {
+                     color: 'white'
+                   }
+                 }} variant='outlined' className="ml-4 mr-2" value={config.mode} onChange={(e) => {
+-                  setConfig({ ...config, mode: e.target.value })
++                  setConfig({ ...config, mode: parseInt(e.target.value.toString()) })
+ 
+                   setTimeout(() => { window.location.reload() }, 100)
+                 }}>
+-                  <MenuItem value={0}>{localization.translation[lang]}</MenuItem>
+-                  <MenuItem value={1}>{localization.transcription[lang]}</MenuItem>
++                  <MenuItem value={0}>{localization.translation[lang!]}</MenuItem>
++                  <MenuItem value={1}>{localization.transcription[lang!]}</MenuItem>
+                 </Select>
+                 <IconButton sx={{
+                   color: 'white',
+@@ -301,7 +301,7 @@ function App() {
+             </Toolbar>
+           </AppBar>
+           <div className='flex flex-1 items-center align-middle flex-col mt-16'>
+-            {loaded && <Kikitan lang={lang} sr_on={!settingsVisible && !quickstartVisible} ovr={ovrSpeechRecognition} vrc={vrc} config={config} setConfig={setConfig} ws={ws}></Kikitan>}
++            {loaded && <Kikitan lang={lang!} sr_on={!settingsVisible && !quickstartVisible} ovr={ovrSpeechRecognition} vrc={vrc} config={config} setConfig={setConfig} ws={ws}></Kikitan>}
+           </div>
+         </div>
+       </div>
+diff --git a/app/pages/Changelogs.jsx b/app/pages/Changelogs.tsx
+similarity index 85%
+rename from app/pages/Changelogs.jsx
+rename to app/pages/Changelogs.tsx
+index f5b3fe1..b97437e 100644
+--- a/app/pages/Changelogs.jsx
++++ b/app/pages/Changelogs.tsx
+@@ -11,8 +11,14 @@ import remarkGfm from 'remark-gfm'
+ import {
+     Close
+ } from '@mui/icons-material';
++import { Lang } from "../util/constants";
+ 
+-export default function Changelogs({ closeCallback, lang }) {
++type ChangelogsProps = {
++    closeCallback: () => void;
++    lang: Lang;
++}
++
++export default function Changelogs({ closeCallback, lang }: ChangelogsProps) {
+     const [changelog, setChangelog] = React.useState("")
+     React.useEffect(() => {
+         fetch(`/changelogs/${lang}.md`).then((res) => res.text()).then((text) => {
+diff --git a/app/pages/Kikitan.jsx b/app/pages/Kikitan.tsx
+similarity index 89%
+rename from app/pages/Kikitan.jsx
+rename to app/pages/Kikitan.tsx
+index c91de14..e88f8f3 100644
+--- a/app/pages/Kikitan.jsx
++++ b/app/pages/Kikitan.tsx
+@@ -16,15 +16,16 @@ import { invoke } from '@tauri-apps/api/core'
+ import { open } from '@tauri-apps/plugin-shell'
+ import { localization } from "../util/localization";
+ 
+-import { calculateMinWaitTime, langSource, langTo } from "../util/constants"
++import { calculateMinWaitTime, Lang, langSource, langTo } from "../util/constants"
+ import { default as translateGT } from '../translators/google_translate';
++import { Config } from "../util/config";
+ 
+-var sr = null
++var sr: SpeechRecognition | null = null
+ 
+ const startSR = () => {
+     setTimeout(() => {
+         try {
+-            sr.start()
++            sr?.start()
+         } catch {}
+     }, 1000)
+ }
+@@ -32,15 +33,25 @@ const startSR = () => {
+ const postponseStartSR = () => {
+     setTimeout(() => {
+         try {
+-            sr.start()
++            sr?.start()
+         } catch {}
+     }, 20000)
+ }
+ 
+-export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws, lang }) {
++type KikitanProps = {
++    sr_on: boolean;
++    ovr: boolean;
++    vrc: boolean;
++    config: Config;
++    setConfig: (config: Config) => void;
++    ws: WebSocket | null;
++    lang: Lang;
++}
++
++export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws, lang }: KikitanProps) {
+     const [detecting, setDetecting] = React.useState(true)
+     const [detection, setDetection] = React.useState("")
+-    const [detectionQueue, setDetectionQueue] = React.useState([])
++    const [detectionQueue, setDetectionQueue] = React.useState<string[]>([])
+     const [translated, setTranslated] = React.useState("")
+     const [updateQueue, setUpdateQueue] = React.useState(false)
+     const [defaultMicrophone, setDefaultMicrophone] = React.useState("")
+@@ -181,11 +192,14 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws, lang }
+                 </div>
+                 <div className="flex">
+                     <Select className="mt-4 ml-auto h-14" value={sourceLanguage} onChange={(e) => {
+-                        sr.lang = langSource[e.target.value].code
+-                        sr.stop()
++                        const langIndex = parseInt(e.target.value.toString());
++                        if (sr) {
++                            sr.lang = langSource[langIndex].code
++                            sr.stop()
++                        }
+ 
+-                        setSourceLanguage(e.target.value)
+-                        setConfig({ ...config, source_language: e.target.value })
++                        setSourceLanguage(langIndex)
++                        setConfig({ ...config, source_language: langIndex })
+ 
+                         startSR()
+                     }}>
+@@ -198,8 +212,10 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws, lang }
+                             let old_t = (sourceLanguage == 0) || (sourceLanguage == 1) ? 0 : sourceLanguage
+                             let old_s = targetLanguage
+ 
+-                            sr.lang = langSource[old_s].code
+-                            sr.stop()
++                            if (sr) {
++                                sr.lang = langSource[old_s].code
++                                sr.stop()
++                            }
+ 
+                             setTargetLanguage(old_t)
+                             setSourceLanguage(old_s)
+@@ -220,8 +236,9 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws, lang }
+                 </div>
+                 <div>
+                     <Select className="mt-4" value={targetLanguage} onChange={(e) => {
+-                        setTargetLanguage(e.target.value)
+-                        setConfig({ ...config, target_language: e.target.value })
++                        const langIndex = parseInt(e.target.value.toString());
++                        setTargetLanguage(langIndex)
++                        setConfig({ ...config, target_language: langIndex })
+                     }}>
+                         {(() => {
+                             let m = langTo.map((element, i) => {
+diff --git a/app/pages/Settings.jsx b/app/pages/Settings.tsx
+similarity index 90%
+rename from app/pages/Settings.jsx
+rename to app/pages/Settings.tsx
+index da80eb0..961d397 100644
+--- a/app/pages/Settings.jsx
++++ b/app/pages/Settings.tsx
+@@ -10,11 +10,19 @@ import {
+     Close,
+     History
+ } from '@mui/icons-material';
+-import { DEFAULT_CONFIG, speed_presets } from "../util/config";
++import { Config, DEFAULT_CONFIG, speed_presets } from "../util/config";
+ 
+ import { localization } from "../util/localization";
++import { Lang } from "../util/constants";
+ 
+-function CustomTabPanel(props) {
++
++type CustomTabPanelProps = {
++    children: React.ReactNode;
++    value: number;
++    index: number;
++} & React.HTMLAttributes<HTMLDivElement>;
++
++function CustomTabPanel(props: CustomTabPanelProps) {
+     const { children, value, index, ...other } = props;
+ 
+     return (
+@@ -34,17 +42,24 @@ function CustomTabPanel(props) {
+     );
+ }
+ 
+-function a11yProps(index) {
++function a11yProps(index: number) {
+     return {
+         id: `simple-tab-${index}`,
+         'aria-controls': `simple-tabpanel-${index}`,
+     };
+ }
+ 
+-export default function Settings({ closeCallback, config, setConfig, lang }) {
++type SettingsProps = {
++    closeCallback: () => void;
++    config: Config;
++    setConfig: (config: Config) => void;
++    lang: Lang;
++}
++
++export default function Settings({ closeCallback, config, setConfig, lang }: SettingsProps) {
+     const [page, setPage] = React.useState(0);
+ 
+-    const handleChange = (event, newValue) => {
++    const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
+         setPage(newValue);
+     };
+ 
+@@ -116,7 +131,7 @@ export default function Settings({ closeCallback, config, setConfig, lang }) {
+                                 ...config,
+                                 vrchat_settings: {
+                                     ...config.vrchat_settings,
+-                                    osc_port: e.target.value
++                                    osc_port: parseInt(e.target.value)
+                                 }
+                             })
+                         }} />
+@@ -142,7 +157,7 @@ export default function Settings({ closeCallback, config, setConfig, lang }) {
+                             ...config,
+                             vrchat_settings: {
+                                 ...config.vrchat_settings,
+-                                chatbox_update_speed: e.target.value
++                                chatbox_update_speed: parseInt(e.target.value.toString())
+                             }
+                         })
+                     }} >
+diff --git a/app/translators/google_translate.js b/app/translators/google_translate.ts
+similarity index 82%
+rename from app/translators/google_translate.js
+rename to app/translators/google_translate.ts
+index 45e133e..f632051 100644
+--- a/app/translators/google_translate.js
++++ b/app/translators/google_translate.ts
+@@ -1,4 +1,4 @@
+-export default async function (text, source, target) {
++export default async function (text: string, source: string, target: string) {
+     const res = await (await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${source}&tl=${target}&dt=t&dt=bd&dj=1&q=${text.replaceAll("%", "%25")}`)).json()
+ 
+     let final = ""
+diff --git a/app/util/constants.js b/app/util/constants.ts
+similarity index 98%
+rename from app/util/constants.js
+rename to app/util/constants.ts
+index 60c58e0..5a7e28c 100644
+--- a/app/util/constants.js
++++ b/app/util/constants.ts
+@@ -28,7 +28,7 @@ export const langSource = [
+     { name: { en: "Spanish (US)", jp: "スペイン語 (アメリカ)", cn: "西班牙语 (美国)", kr: "스페인어 (미국)", tr: "İspanyolca (ABD)" }, code: "es-US" },
+     { name: { en: "Swedish", jp: "スウェーデン語", cn: "瑞典语", kr: "스웨덴어", tr: "İsveççe" }, code: "sv" },
+     { name: { en: "Turkish", jp: "トルコ語", cn: "土耳其语", kr: "터키어", tr: "Türkçe" }, code: "tr" }
+-];
++] as const;
+ 
+ const english = {
+     en: "English",
+@@ -100,8 +100,10 @@ export const langTo = [
+     { name: { en: "Urdu", jp: "ウルドゥー語", cn: "乌尔都语", kr: "우르두어", tr: "Urduca" }, code: "ur" },
+     { name: { en: "Uzbek", jp: "ウズベク語", cn: "乌兹别克语", kr: "우즈베크어", tr: "Özbekçe" }, code: "uz" },
+     { name: { en: "Vietnamese", jp: "ベトナム語", cn: "越南语", kr: "베트남어", tr: "Vietnamca" }, code: "vi" }
+-];
++] as const;
+ 
+-export function calculateMinWaitTime(text, speed) {
++export type Lang = "en" | "jp" | "cn" | "kr" | "tr";
++
++export function calculateMinWaitTime(text: string, speed: number) {
+     return (escape(text).length / 3) * speed // in ms
+ }
+diff --git a/app/util/localization.js b/app/util/localization.ts
+similarity index 100%
+rename from app/util/localization.js
+rename to app/util/localization.ts
+diff --git a/jsconfig.json b/jsconfig.json
+deleted file mode 100644
+index 9c33383..0000000
+--- a/jsconfig.json
++++ /dev/null
+@@ -1,8 +0,0 @@
+-{
+-  "compilerOptions": {
+-    "baseUrl": ".",
+-    "paths": {
+-      "@/*": ["./*"]
+-    }
+-  }
+-}
+diff --git a/package-lock.json b/package-lock.json
+index b69833e..949b732 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -32,12 +32,15 @@
+       },
+       "devDependencies": {
+         "@tauri-apps/cli": "^2.0.0-rc.3",
++        "@types/dom-speech-recognition": "^0.0.4",
++        "@types/node": "^22.5.4",
+         "autoprefixer": "^10.0.1",
+         "eslint": "^8",
+         "eslint-config-next": "14.1.0",
+         "http-server": "^14.1.1",
+         "postcss": "^8",
+-        "tailwindcss": "^3.3.0"
++        "tailwindcss": "^3.3.0",
++        "typescript": "^5.5.4"
+       }
+     },
+     "node_modules/@aashutoshrathi/word-wrap": {
+@@ -1327,6 +1330,13 @@
+         "@types/ms": "*"
+       }
+     },
++    "node_modules/@types/dom-speech-recognition": {
++      "version": "0.0.4",
++      "resolved": "https://registry.npmjs.org/@types/dom-speech-recognition/-/dom-speech-recognition-0.0.4.tgz",
++      "integrity": "sha512-zf2GwV/G6TdaLwpLDcGTIkHnXf8JEf/viMux+khqKQKDa8/8BAUtXXZS563GnvJ4Fg0PBLGAaFf2GekEVSZ6GQ==",
++      "dev": true,
++      "license": "MIT"
++    },
+     "node_modules/@types/estree": {
+       "version": "1.0.5",
+       "resolved": "https://registry.npmjs.org/@types/estree/-/estree-1.0.5.tgz",
+@@ -1367,6 +1377,16 @@
+       "resolved": "https://registry.npmjs.org/@types/ms/-/ms-0.7.34.tgz",
+       "integrity": "sha512-nG96G3Wp6acyAgJqGasjODb+acrI7KltPiRxzHPXnP3NgI28bpQDRv53olbqGXbfcgF5aiiHmO3xpwEpS5Ld9g=="
+     },
++    "node_modules/@types/node": {
++      "version": "22.5.4",
++      "resolved": "https://registry.npmjs.org/@types/node/-/node-22.5.4.tgz",
++      "integrity": "sha512-FDuKUJQm/ju9fT/SeX/6+gBzoPzlVCzfzmGkwKvRHQVxi4BntVbyIwf6a4Xn62mrvndLiml6z/UBXIdEVjQLXg==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "undici-types": "~6.19.2"
++      }
++    },
+     "node_modules/@types/parse-json": {
+       "version": "4.0.2",
+       "resolved": "https://registry.npmjs.org/@types/parse-json/-/parse-json-4.0.2.tgz",
+@@ -7510,11 +7530,11 @@
+       }
+     },
+     "node_modules/typescript": {
+-      "version": "5.3.3",
+-      "resolved": "https://registry.npmjs.org/typescript/-/typescript-5.3.3.tgz",
+-      "integrity": "sha512-pXWcraxM0uxAS+tN0AG/BF2TyqmHO014Z070UsJ+pFvYuRSq8KH8DmWpnbXe0pEPDHXZV3FcAbJkijJ5oNEnWw==",
++      "version": "5.5.4",
++      "resolved": "https://registry.npmjs.org/typescript/-/typescript-5.5.4.tgz",
++      "integrity": "sha512-Mtq29sKDAEYP7aljRgtPOpTvOfbwRWlS6dPRzwjdE+C0R4brX/GUyhHSecbHMFLNBLcJIPt9nl9yG5TZ1weH+Q==",
+       "dev": true,
+-      "peer": true,
++      "license": "Apache-2.0",
+       "bin": {
+         "tsc": "bin/tsc",
+         "tsserver": "bin/tsserver"
+@@ -7538,6 +7558,13 @@
+         "url": "https://github.com/sponsors/ljharb"
+       }
+     },
++    "node_modules/undici-types": {
++      "version": "6.19.8",
++      "resolved": "https://registry.npmjs.org/undici-types/-/undici-types-6.19.8.tgz",
++      "integrity": "sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw==",
++      "dev": true,
++      "license": "MIT"
++    },
+     "node_modules/unified": {
+       "version": "11.0.4",
+       "resolved": "https://registry.npmjs.org/unified/-/unified-11.0.4.tgz",
+diff --git a/package.json b/package.json
+index c3f00ab..7dd1c6d 100644
+--- a/package.json
++++ b/package.json
+@@ -35,11 +35,14 @@
+   },
+   "devDependencies": {
+     "@tauri-apps/cli": "^2.0.0-rc.3",
++    "@types/dom-speech-recognition": "^0.0.4",
++    "@types/node": "^22.5.4",
+     "autoprefixer": "^10.0.1",
+     "eslint": "^8",
+     "eslint-config-next": "14.1.0",
+     "http-server": "^14.1.1",
+     "postcss": "^8",
+-    "tailwindcss": "^3.3.0"
++    "tailwindcss": "^3.3.0",
++    "typescript": "^5.5.4"
+   }
+ }
+diff --git a/tailwind.config.js b/tailwind.config.ts
+similarity index 84%
+rename from tailwind.config.js
+rename to tailwind.config.ts
+index 78ebc4e..4ad1e57 100644
+--- a/tailwind.config.js
++++ b/tailwind.config.ts
+@@ -1,5 +1,6 @@
+-/** @type {import('tailwindcss').Config} */
+-module.exports = {
++import { Config } from "tailwindcss";
++
++export default {
+   content: [
+     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
+     "./components/**/*.{js,ts,jsx,tsx,mdx}",
+@@ -15,4 +16,4 @@ module.exports = {
+     },
+   },
+   plugins: [],
+-};
++} satisfies Config;
+diff --git a/tsconfig.json b/tsconfig.json
+new file mode 100644
+index 0000000..065e935
+--- /dev/null
++++ b/tsconfig.json
+@@ -0,0 +1,40 @@
++{
++  "compilerOptions": {
++    "baseUrl": ".",
++    "paths": {
++      "@/*": [
++        "./*"
++      ]
++    },
++    "lib": [
++      "dom",
++      "dom.iterable",
++      "esnext"
++    ],
++    "allowJs": true,
++    "skipLibCheck": true,
++    "strict": true,
++    "noEmit": true,
++    "esModuleInterop": true,
++    "module": "esnext",
++    "moduleResolution": "bundler",
++    "resolveJsonModule": true,
++    "isolatedModules": true,
++    "jsx": "preserve",
++    "incremental": true,
++    "plugins": [
++      {
++        "name": "next"
++      }
++    ],
++  },
++  "include": [
++    "next-env.d.ts",
++    "**/*.ts",
++    "**/*.tsx",
++    ".next/types/**/*.ts",
++  ],
++  "exclude": [
++    "node_modules"
++  ]
++}
+\ No newline at end of file

@@ -11,8 +11,14 @@ import remarkGfm from 'remark-gfm'
 import {
     Close
 } from '@mui/icons-material';
+import { Lang } from "../util/constants";
 
-export default function Changelogs({ closeCallback, lang }) {
+type ChangelogsProps = {
+    closeCallback: () => void;
+    lang: Lang;
+}
+
+export default function Changelogs({ closeCallback, lang }: ChangelogsProps) {
     const [changelog, setChangelog] = React.useState("")
     React.useEffect(() => {
         fetch(`/changelogs/${lang}.md`).then((res) => res.text()).then((text) => {
