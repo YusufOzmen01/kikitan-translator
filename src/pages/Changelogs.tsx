@@ -1,7 +1,7 @@
 import * as React from "react"
 
 import Box from '@mui/material/Box';
-import { IconButton, Button } from "@mui/material";
+import { IconButton } from "@mui/material";
 
 import { localization } from "../util/localization";
 
