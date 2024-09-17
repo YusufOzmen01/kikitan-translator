@@ -16,15 +16,16 @@ import { invoke } from '@tauri-apps/api/core'
 import { open } from '@tauri-apps/plugin-shell'
 import { localization } from "../util/localization";
 
-import { calculateMinWaitTime, langSource, langTo } from "../util/constants"
+import { calculateMinWaitTime, Lang, langSource, langTo } from "../util/constants"
 import { default as translateGT } from '../translators/google_translate';
+import { Config } from "../util/config";
 
-var sr = null
+var sr: SpeechRecognition | null = null
 
 const startSR = () => {
     setTimeout(() => {
         try {
-            sr.start()
+            sr?.start()
         } catch {}
     }, 1000)
 }
@@ -32,15 +33,25 @@ const startSR = () => {
 const postponseStartSR = () => {
     setTimeout(() => {
         try {
-            sr.start()
+            sr?.start()
         } catch {}
     }, 20000)
 }
 
-export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws, lang }) {
+type KikitanProps = {
+    sr_on: boolean;
+    ovr: boolean;
+    vrc: boolean;
+    config: Config;
+    setConfig: (config: Config) => void;
+    ws: WebSocket | null;
+    lang: Lang;
+}
+
+export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws, lang }: KikitanProps) {
     const [detecting, setDetecting] = React.useState(true)
     const [detection, setDetection] = React.useState("")
-    const [detectionQueue, setDetectionQueue] = React.useState([])
+    const [detectionQueue, setDetectionQueue] = React.useState<string[]>([])
     const [translated, setTranslated] = React.useState("")
     const [updateQueue, setUpdateQueue] = React.useState(false)
     const [defaultMicrophone, setDefaultMicrophone] = React.useState("")
@@ -181,11 +192,14 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws, lang }
                 </div>
                 <div className="flex">
                     <Select className="mt-4 ml-auto h-14" value={sourceLanguage} onChange={(e) => {
-                        sr.lang = langSource[e.target.value].code
-                        sr.stop()
+                        const langIndex = parseInt(e.target.value.toString());
+                        if (sr) {
+                            sr.lang = langSource[langIndex].code
+                            sr.stop()
+                        }
 
-                        setSourceLanguage(e.target.value)
-                        setConfig({ ...config, source_language: e.target.value })
+                        setSourceLanguage(langIndex)
+                        setConfig({ ...config, source_language: langIndex })
 
                         startSR()
                     }}>
@@ -198,8 +212,10 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws, lang }
                             let old_t = (sourceLanguage == 0) || (sourceLanguage == 1) ? 0 : sourceLanguage
                             let old_s = targetLanguage
 
-                            sr.lang = langSource[old_s].code
-                            sr.stop()
+                            if (sr) {
+                                sr.lang = langSource[old_s].code
+                                sr.stop()
+                            }
 
                             setTargetLanguage(old_t)
                             setSourceLanguage(old_s)
@@ -220,8 +236,9 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws, lang }
                 </div>
                 <div>
                     <Select className="mt-4" value={targetLanguage} onChange={(e) => {
-                        setTargetLanguage(e.target.value)
-                        setConfig({ ...config, target_language: e.target.value })
+                        const langIndex = parseInt(e.target.value.toString());
+                        setTargetLanguage(langIndex)
+                        setConfig({ ...config, target_language: langIndex })
                     }}>
                         {(() => {
                             let m = langTo.map((element, i) => {

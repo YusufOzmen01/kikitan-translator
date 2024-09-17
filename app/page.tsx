@@ -28,7 +28,7 @@ import SettingsPage from './pages/Settings';
 import Scroll from "./components/Scroll"
 
 import { DEFAULT_CONFIG, load_config, update_config } from './util/config';
-import { langSource, langTo } from './util/constants';
+import { Lang, langSource, langTo } from './util/constants';
 import { getVersion } from '@tauri-apps/api/app';
 import Changelogs from './pages/Changelogs';
 
@@ -38,12 +38,12 @@ import { relaunch } from '@tauri-apps/plugin-process';
 import { localization } from './util/localization';
 
 check().then((update) => {
-  update.downloadAndInstall().then(() => {
+  update?.downloadAndInstall().then(() => {
     relaunch()
   });
 });
 
-let ws = null
+let ws: WebSocket | null = null
 invoke("enable_microphone", {})
   .then((res) => console.log(res))
   .catch((err) => console.error(err))
@@ -56,14 +56,14 @@ function App() {
   const [vrc, setVrc] = React.useState(true)
 
   const [quickstartVisible, setQuickstartVisible] = React.useState(true)
-  const [changelogsVisible, setChangelogsVisible] = React.useState(null)
+  const [changelogsVisible, setChangelogsVisible] = React.useState(false)
   const [settingsVisible, setSettingsVisible] = React.useState(false)
 
   const [quickstartPage, setQuickstartPage] = React.useState(0)
 
   const [config, setConfig] = React.useState(DEFAULT_CONFIG)
   const [version, setVersion] = React.useState("")
-  const [lang, setLang] = React.useState("")
+  const [lang, setLang] = React.useState<Lang | null>(null)
 
   const [loaded, setLoaded] = React.useState(false)
 
@@ -81,7 +81,7 @@ function App() {
       })
 
       const cfg = load_config()
-      const language = localStorage.getItem("lang")
+      const language = localStorage.getItem("lang") as Lang | null
       
       setQuickstartVisible(localStorage.getItem("quickstartMenu") == null || language == null)
       setLang(language == null ? "en" : language)
@@ -99,7 +99,7 @@ function App() {
   return (
     <>
       <div className={`relative transition-all duration-500 ${!loaded ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
-        {quickstartVisible && lang != "" &&
+        {quickstartVisible && lang != null &&
           <div className={'transition-all z-10 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute'}>
             <div className='flex flex-col justify-between  w-10/12 h-5/6 outline outline-2 outline-white rounded bg-white'>
               <div className='relative mt-2 ml-2 mr-2 h-64'>
@@ -115,7 +115,7 @@ function App() {
                           color: 'black'
                         }
                       }} variant='outlined' className="mt-auto mr-8" value={lang} onChange={(e) => {
-                        setLang(e.target.value)
+                        setLang(e.target.value as Lang)
 
                         console.log(lang)
                       }}>
@@ -182,7 +182,7 @@ function App() {
                     <p className='text-lg mt-20 text-center'>{localization.thank_you_details[lang]}</p>
                   </div>
                   <Button disabled={quickstartPage != 5} className={'w-70 '} variant='contained' startIcon={< GitHub />} onClick={async () => { open("https://github.com/YusufOzmen01/kikitan-translator") }}>{localization.open_repo[lang]}</Button>
-                  <Button disabled={quickstartPage != 5} className={'w-48 '} variant='contained' onClick={async () => { setQuickstartVisible(false); window.localStorage.setItem("quickstartMenu", true); localStorage.setItem("lang", lang) }}>{localization.close_menu[lang]}</Button>
+                  <Button disabled={quickstartPage != 5} className={'w-48 '} variant='contained' onClick={async () => { setQuickstartVisible(false); window.localStorage.setItem("quickstartMenu", "true"); localStorage.setItem("lang", lang) }}>{localization.close_menu[lang]}</Button>
                 </div>
               </div>
               <div className='mb-2 flex justify-center space-x-4'>
@@ -196,7 +196,7 @@ function App() {
         {settingsVisible &&
           <div className={'transition-all z-20 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (settingsVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
             <div className='flex flex-col justify-between  w-10/12 h-5/6 outline outline-2 outline-white rounded bg-white'>
-              <SettingsPage lang={lang} config={config} setConfig={setConfig} closeCallback={() => setSettingsVisible(false)} />
+              <SettingsPage lang={lang!} config={config} setConfig={setConfig} closeCallback={() => setSettingsVisible(false)} />
             </div>
           </div>
         }
@@ -204,7 +204,7 @@ function App() {
         {!quickstartVisible && changelogsVisible &&
           <div className={'transition-all z-20 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (changelogsVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
             <div className='flex flex-col justify-between  w-10/12 h-5/6 outline outline-2 outline-white rounded bg-white'>
-              <Changelogs lang={lang} closeCallback={() => setChangelogsVisible(false)} />
+              <Changelogs lang={lang!} closeCallback={() => setChangelogsVisible(false)} />
             </div>
           </div>
         }
@@ -221,7 +221,7 @@ function App() {
                 <Switch color='secondary' className="ml-4 mr-2" checked={vrc} defaultChecked onChange={(e) => {
                   setVrc(e.target.checked)
                 }} />
-                <p className='mt-2'>{localization.steamvr_connection[lang]}</p>
+                <p className='mt-2'>{localization.steamvr_connection[lang!]}</p>
                 <Switch color='secondary' disabled={ovr && !steamVRReady} className="ml-4" checked={ovr} defaultChecked onChange={(e) => {
                   setOvr(e.target.checked)
 
@@ -274,12 +274,12 @@ function App() {
                     color: 'white'
                   }
                 }} variant='outlined' className="ml-4 mr-2" value={config.mode} onChange={(e) => {
-                  setConfig({ ...config, mode: e.target.value })
+                  setConfig({ ...config, mode: parseInt(e.target.value.toString()) })
 
                   setTimeout(() => { window.location.reload() }, 100)
                 }}>
-                  <MenuItem value={0}>{localization.translation[lang]}</MenuItem>
-                  <MenuItem value={1}>{localization.transcription[lang]}</MenuItem>
+                  <MenuItem value={0}>{localization.translation[lang!]}</MenuItem>
+                  <MenuItem value={1}>{localization.transcription[lang!]}</MenuItem>
                 </Select>
                 <IconButton sx={{
                   color: 'white',
@@ -301,7 +301,7 @@ function App() {
             </Toolbar>
           </AppBar>
           <div className='flex flex-1 items-center align-middle flex-col mt-16'>
-            {loaded && <Kikitan lang={lang} sr_on={!settingsVisible && !quickstartVisible} ovr={ovrSpeechRecognition} vrc={vrc} config={config} setConfig={setConfig} ws={ws}></Kikitan>}
+            {loaded && <Kikitan lang={lang!} sr_on={!settingsVisible && !quickstartVisible} ovr={ovrSpeechRecognition} vrc={vrc} config={config} setConfig={setConfig} ws={ws}></Kikitan>}
           </div>
         </div>
       </div>
