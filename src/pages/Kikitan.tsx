@@ -31,12 +31,15 @@ type KikitanProps = {
 
 let sr: Recognizer | null = null;
 
+let detectionQueue: string[] = []
+let lock = false
+
 export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws, lang }: KikitanProps) {
     const [detecting, setDetecting] = React.useState(true)
+
     const [detection, setDetection] = React.useState("")
-    const [detectionQueue, setDetectionQueue] = React.useState<string[]>([])
     const [translated, setTranslated] = React.useState("")
-    const [updateQueue, setUpdateQueue] = React.useState(false)
+    
     const [defaultMicrophone, setDefaultMicrophone] = React.useState("")
     const [lastDefaultMicrophone, setLastDefaultMicrophone] = React.useState("")
 
@@ -55,13 +58,43 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws, lang }
                 console.log(err.name + ": " + err.message);
             });
         }, 1000)
+
+        setInterval(async () => {
+            if (detectionQueue.length == 0 || lock) return;
+
+            const val = detectionQueue[0]
+            detectionQueue = detectionQueue.slice(1)
+
+            lock = true
+
+            invoke("send_typing", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}` })
+            let count = 3;
+
+            while (count > 0) {
+                switch (config.translator) {
+                    case 0:
+                        try {
+                            let text = await translateGT(val, langSource[sourceLanguage].code, langTo[targetLanguage].code)
+    
+                            setTranslated(text)
+    
+                            invoke("send_message", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}`, msg: config.vrchat_settings.translation_first ? `${text} (${val})` : `${val} (${text})` })
+                            await new Promise(r => setTimeout(r, calculateMinWaitTime(text, config.vrchat_settings.chatbox_update_speed)));
+
+                            count = 0
+                        } catch (e) {
+                            console.log(e)
+    
+                            count--
+                        }
+    
+                        break;
+                }
+            }
+
+            lock = false
+        }, 100)
     }, [])
-
-    React.useEffect(() => {
-        const new_queue = detectionQueue.slice(1)
-
-        setDetectionQueue(new_queue)
-    }, [updateQueue])
 
     React.useEffect(() => {
         if (defaultMicrophone == "") return;
@@ -101,42 +134,6 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws, lang }
     }, [sr_on])
 
     React.useEffect(() => {
-        (async () => {
-            if (detectionQueue.length == 0) return;
-
-            const next = detectionQueue[0];
-
-            invoke("send_typing", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}` })
-
-            let count = 3;
-
-            while (count > 0) {
-                switch (config.translator) {
-                    case 0:
-                        try {
-                            let text = await translateGT(next, langSource[sourceLanguage].code, langTo[targetLanguage].code)
-    
-                            setTranslated(text)
-    
-                            invoke("send_message", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}`, msg: config.vrchat_settings.translation_first ? `${text} (${next})` : `${next} (${text})` })
-    
-                            await new Promise(r => setTimeout(r, calculateMinWaitTime(text, config.vrchat_settings.chatbox_update_speed)));
-                            setUpdateQueue(!updateQueue)
-
-                            count = 0
-                        } catch (e) {
-                            console.log(e)
-    
-                            count--
-                        }
-    
-                        break;
-                }
-            }
-        })();
-    }, [detectionQueue[0]])
-
-    React.useEffect(() => {
         if (!detecting && detection.length != 0) {
             if (ovr) {
                 if (ws != null) ws.send(`send-${langSource[sourceLanguage].code == "ja" ? detection.replace("？/g", "") : detection}`)
@@ -146,7 +143,7 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws, lang }
 
             if (vrc) {
                 if (config.mode == 0) {
-                    setDetectionQueue([...detectionQueue, (langSource[sourceLanguage].code == "ja" && config.language_settings.japanese_omit_questionmark) ? detection.replace("？/g", "") : detection])
+                    detectionQueue = [...detectionQueue, (langSource[sourceLanguage].code == "ja" && config.language_settings.japanese_omit_questionmark) ? detection.replace("？/g", "") : detection]
 
                     return
                 }
