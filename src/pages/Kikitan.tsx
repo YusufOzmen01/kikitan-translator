@@ -55,6 +55,8 @@ export default function Kikitan({ ovr, vrc, config, setConfig, ws, lang }: Kikit
     React.useEffect(() => {
         (async () => {
             if (detectionQueue.length == 0 || lock) return;
+
+            console.log(config.language_settings.english_gender_change_gender)
     
             const val = detectionQueue[0]
             detectionQueue = detectionQueue.slice(1)
@@ -70,11 +72,12 @@ export default function Kikitan({ ovr, vrc, config, setConfig, ws, lang }: Kikit
                         try {
                             let text = await translateGT(val, sourceLanguage, targetLanguage)
     
-                            setTranslated(text)
                             if (config.language_settings.english_gender_change && targetLanguage == "en") {
-                                if (config.language_settings.english_gender_change_gender == 0) text = text.replace("she", "he").replace("She", "He").replace("her", "his").replace("Her", "His").replace("her", "him").replace("Her", "Him")
+                                if (config.language_settings.english_gender_change_gender == 0) text = text.replace("she", "he").replace("She", "He").replace("her", "his").replace("Her", "His")
                                 else text = text.replace("he", "she").replace("He", "She").replace("his", "her").replace("His", "Her").replace("him", "her").replace("Him", "Her")
                             }
+
+                            setTranslated(text)
     
                             invoke("send_message", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}`, msg: config.vrchat_settings.translation_first ? `${text} (${val})` : `${val} (${text})` })
                             await new Promise(r => setTimeout(r, calculateMinWaitTime(text, config.vrchat_settings.chatbox_update_speed)));
@@ -179,8 +182,8 @@ export default function Kikitan({ ovr, vrc, config, setConfig, ws, lang }: Kikit
                     </Select>
                     <div className="mt-7">
                         <Button onClick={() => {
-                            const new_t = sourceLanguage.includes("en-") ? "en" : sourceLanguage
-                            const new_s = targetLanguage == "en" ? "en-US" : targetLanguage
+                            const new_t = sourceLanguage.includes("en-") ? "en" : sourceLanguage.includes("es-") ? "es" : sourceLanguage
+                            const new_s = targetLanguage == "en" ? "en-US" : targetLanguage == "es" ? "es-ES" : targetLanguage
 
                             setTargetLanguage(new_t)
                             setSourceLanguage(new_s)

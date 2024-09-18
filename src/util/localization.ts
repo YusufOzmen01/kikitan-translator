@@ -31,4 +31,5 @@ export const localization = {
     changelogs: { en: "Changelogs", jp: "変更履歴", cn: "更新日志", kr: "변경 사항", tr: "Değişiklikler" },
     english_gender_text: { en: "When translating to English, change the pronoun. (Ex. He is a doctor/She is a doctor). Useful for languages with gender neutral structure.", jp: "変更履歴", cn: "翻译成英语时，请更改代词。（例如：他是医生/她是医生。）这对于性别中立结构的语言很有用。", kr: "영어로 번역할 때, 대명사를 변경하세요. (예: 그는 의사입니다/그녀는 의사입니다.) 성 중립적 구조를 가진 언어에 유용합니다", tr: "İngilizceye çevirirken, zamiri değiştirin. (Ör. O bir doktordur. \"O\" burada kız veya erkek olabilir) Cinsiyet nötr yapıya sahip diller için faydalıdır." },
     gender: { en: "Gender", jp: "性別", cn: "性别", kr: "성별", tr: "Cinsiyet" },
+    updating: { en: "Updating...", jp: "更新中...", cn: "更新中...", kr: "업데이트 중...", tr: "Güncelleniyor..." },
 };

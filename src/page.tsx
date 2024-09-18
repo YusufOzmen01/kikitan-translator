@@ -10,13 +10,14 @@ import {
   MenuItem,
   Switch,
   Button,
-  IconButton
+  IconButton,
+  CircularProgress
 } from '@mui/material';
 
 import {
   GitHub,
   Settings,
-  Translate
+  Translate,
 } from '@mui/icons-material';
 
 import { invoke } from '@tauri-apps/api/core'
@@ -35,12 +36,6 @@ import { relaunch } from '@tauri-apps/plugin-process';
 
 import { localization } from './util/localization';
 
-check().then((update) => {
-  update?.downloadAndInstall().then(() => {
-    relaunch()
-  });
-});
-
 let ws: WebSocket | null = null
 
 function App() {
@@ -53,6 +48,7 @@ function App() {
   const [quickstartVisible, setQuickstartVisible] = React.useState(true)
   const [changelogsVisible, setChangelogsVisible] = React.useState(false)
   const [settingsVisible, setSettingsVisible] = React.useState(false)
+  const [updateVisible, setUpdateVisible] = React.useState(false)
 
   const [quickstartPage, setQuickstartPage] = React.useState(0)
 
@@ -80,7 +76,15 @@ function App() {
 
     setConfig(cfg)
 
-    setTimeout(() => setLoaded(true), 300)
+    check().then((update) => {
+      setUpdateVisible(update != null)
+
+      update?.downloadAndInstall().then(() => {
+        relaunch()
+      });
+    });
+    
+    setTimeout(() => setLoaded(true), 300);
   }, [])
 
   return (
@@ -175,6 +179,17 @@ function App() {
               <div className='mb-2 flex justify-center space-x-4'>
                 <Button variant='contained' disabled={quickstartPage == 0} onClick={() => { setQuickstartPage(quickstartPage - 1) }}>{localization.previous[lang]}</Button>
                 <Button className='ml-4' variant='contained' disabled={quickstartPage > 4} onClick={() => { setQuickstartPage(quickstartPage + 1) }}>{localization.next[lang]}</Button>
+              </div>
+            </div>
+          </div>
+        }
+
+        {updateVisible &&
+          <div className={'transition-all z-20 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (updateVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
+            <div className='flex flex-col justify-center ml-10 w-10/12 h-5/6 outline outline-2 outline-white rounded bg-white'>
+              <div className='flex flex-row justify-center'>
+                <CircularProgress></CircularProgress>
+                <p className='ml-4 text-4xl'>{localization.updating[lang!]}</p>
               </div>
             </div>
           </div>
