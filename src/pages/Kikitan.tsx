@@ -30,7 +30,6 @@ type KikitanProps = {
 }
 
 let sr: Recognizer | null = null;
-
 let detectionQueue: string[] = []
 let lock = false
 
@@ -74,7 +73,7 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws, lang }
                 switch (config.translator) {
                     case 0:
                         try {
-                            let text = await translateGT(val, langSource[sourceLanguage].code, langTo[targetLanguage].code)
+                            const text = await translateGT(val, langSource[sourceLanguage].code, langTo[targetLanguage].code)
     
                             setTranslated(text)
     
@@ -175,8 +174,8 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws, lang }
                     </Select>
                     <div className="mt-7">
                         <Button onClick={() => {
-                            let old_t = (sourceLanguage == 0) || (sourceLanguage == 1) ? 0 : sourceLanguage
-                            let old_s = targetLanguage
+                            const old_t = (sourceLanguage == 0) || (sourceLanguage == 1) ? 0 : sourceLanguage
+                            const old_s = targetLanguage
 
                             if (sr) {
                                 sr.set_lang(langSource[old_s].code)
