@@ -20,7 +20,6 @@ import { Recognizer } from "../recognizers/recognizer";
 import { WebSpeech } from "../recognizers/WebSpeech";
 
 type KikitanProps = {
-    sr_on: boolean;
     ovr: boolean;
     vrc: boolean;
     config: Config;
@@ -33,7 +32,7 @@ let sr: Recognizer | null = null;
 let detectionQueue: string[] = []
 let lock = false
 
-export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws, lang }: KikitanProps) {
+export default function Kikitan({ ovr, vrc, config, setConfig, ws, lang }: KikitanProps) {
     const [detecting, setDetecting] = React.useState(true)
 
     const [detection, setDetection] = React.useState("")
@@ -42,8 +41,62 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws, lang }
     const [defaultMicrophone, setDefaultMicrophone] = React.useState("")
     const [lastDefaultMicrophone, setLastDefaultMicrophone] = React.useState("")
 
+    const [triggerUpdate, setTriggerUpdate] = React.useState(false)
+
     const [sourceLanguage, setSourceLanguage] = React.useState(config.source_language)
     const [targetLanguage, setTargetLanguage] = React.useState(config.target_language)
+
+    React.useEffect(() => { 
+        if (sr) {
+            sr.set_lang(sourceLanguage)
+        }
+    }, [sourceLanguage, targetLanguage])
+
+    React.useEffect(() => {
+        (async () => {
+            if (detectionQueue.length == 0 || lock) return;
+    
+            const val = detectionQueue[0]
+            detectionQueue = detectionQueue.slice(1)
+    
+            lock = true
+    
+            invoke("send_typing", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}` })
+            let count = 3;
+    
+            while (count > 0) {
+                switch (config.translator) {
+                    case 0:
+                        try {
+                            let text = await translateGT(val, sourceLanguage, targetLanguage)
+    
+                            setTranslated(text)
+                            if (config.language_settings.english_gender_change && targetLanguage == "en") {
+                                if (config.language_settings.english_gender_change_gender == 0) text = text.replace("she", "he").replace("She", "He").replace("her", "his").replace("Her", "His").replace("her", "him").replace("Her", "Him")
+                                else text = text.replace("he", "she").replace("He", "She").replace("his", "her").replace("His", "Her").replace("him", "her").replace("Him", "Her")
+                            }
+    
+                            invoke("send_message", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}`, msg: config.vrchat_settings.translation_first ? `${text} (${val})` : `${val} (${text})` })
+                            await new Promise(r => setTimeout(r, calculateMinWaitTime(text, config.vrchat_settings.chatbox_update_speed)));
+    
+                            count = 0
+                        } catch (e) {
+                            console.log(e)
+    
+                            count--
+                        }
+    
+                        break;
+                }
+            }
+    
+            lock = false
+        })();
+
+        setTimeout(() => {
+            setTriggerUpdate(!triggerUpdate)
+        }, 100);
+    }, [triggerUpdate])
 
     React.useEffect(() => {
         setInterval(() => {
@@ -58,41 +111,18 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws, lang }
             });
         }, 1000)
 
-        setInterval(async () => {
-            if (detectionQueue.length == 0 || lock) return;
+        if (sr == null) {
+            sr = new WebSpeech(sourceLanguage)
 
-            const val = detectionQueue[0]
-            detectionQueue = detectionQueue.slice(1)
-
-            lock = true
-
-            invoke("send_typing", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}` })
-            let count = 3;
-
-            while (count > 0) {
-                switch (config.translator) {
-                    case 0:
-                        try {
-                            const text = await translateGT(val, langSource[sourceLanguage].code, langTo[targetLanguage].code)
+            sr.onResult((result: string, isFinal: boolean) => {
+                if (config.mode == 1 || config.vrchat_settings.send_typing_while_talking) invoke("send_typing", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}` })
     
-                            setTranslated(text)
-    
-                            invoke("send_message", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}`, msg: config.vrchat_settings.translation_first ? `${text} (${val})` : `${val} (${text})` })
-                            await new Promise(r => setTimeout(r, calculateMinWaitTime(text, config.vrchat_settings.chatbox_update_speed)));
+                setDetection(result)
+                setDetecting(!isFinal)
+            })
 
-                            count = 0
-                        } catch (e) {
-                            console.log(e)
-    
-                            count--
-                        }
-    
-                        break;
-                }
-            }
-
-            lock = false
-        }, 100)
+            sr.start()
+        }
     }, [])
 
     React.useEffect(() => {
@@ -113,41 +143,21 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws, lang }
     }, [defaultMicrophone])
 
     React.useEffect(() => {
-        if (sr == null) {
-            sr = new WebSpeech(langSource[sourceLanguage].code)
-
-            sr.onResult((result: string, isFinal: boolean) => {
-                if (!sr_on) return;
-                if (config.mode == 1 || config.vrchat_settings.send_typing_while_talking) invoke("send_typing", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}` })
-    
-                setDetection(result)
-                setDetecting(!isFinal)
-            })
-        }
-        
-        if (sr_on) {
-            sr.start()
-        } else {
-            sr.stop()
-        }
-    }, [sr_on])
-
-    React.useEffect(() => {
         if (!detecting && detection.length != 0) {
             if (ovr) {
-                if (ws != null) ws.send(`send-${langSource[sourceLanguage].code == "ja" ? detection.replace("？/g", "") : detection}`)
+                if (ws != null) ws.send(`send-${sourceLanguage == "ja" ? detection.replace("？/g", "") : detection}`)
 
                 return;
             }
 
             if (vrc) {
                 if (config.mode == 0) {
-                    detectionQueue = [...detectionQueue, (langSource[sourceLanguage].code == "ja" && config.language_settings.japanese_omit_questionmark) ? detection.replace("？/g", "") : detection]
+                    detectionQueue = [...detectionQueue, (sourceLanguage == "ja" && config.language_settings.japanese_omit_questionmark) ? detection.replace("？/g", "") : detection]
 
                     return
                 }
 
-                invoke("send_message", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}`, msg: (langSource[sourceLanguage].code == "ja" && config.language_settings.japanese_omit_questionmark) ? detection.replace("？/g", "") : detection })
+                invoke("send_message", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}`, msg: (sourceLanguage == "ja" && config.language_settings.japanese_omit_questionmark) ? detection.replace("？/g", "") : detection })
             }
         }
     }, [detecting, detection])
@@ -160,31 +170,22 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws, lang }
                 </div>
                 <div className="flex">
                     <Select className="mt-4 ml-auto h-14" value={sourceLanguage} onChange={(e) => {
-                        const langIndex = parseInt(e.target.value.toString());
-                        if (sr) {
-                            sr.set_lang(langSource[langIndex].code)
-                        }
-
-                        setSourceLanguage(langIndex)
-                        setConfig({ ...config, source_language: langIndex })
+                        setSourceLanguage(e.target.value)
+                        setConfig({ ...config, source_language: e.target.value })
                     }}>
-                        {langSource.map((element, i) => {
-                            return <MenuItem key={element.code} value={i}>{element.name[lang]}</MenuItem>
+                        {langSource.map((element) => {
+                            return <MenuItem key={element.code} value={element.code}>{element.name[lang]}</MenuItem>
                         })}
                     </Select>
                     <div className="mt-7">
                         <Button onClick={() => {
-                            const old_t = (sourceLanguage == 0) || (sourceLanguage == 1) ? 0 : sourceLanguage
-                            const old_s = targetLanguage
+                            const new_t = sourceLanguage.includes("en-") ? "en" : sourceLanguage
+                            const new_s = targetLanguage == "en" ? "en-US" : targetLanguage
 
-                            if (sr) {
-                                sr.set_lang(langSource[old_s].code)
-                            }
+                            setTargetLanguage(new_t)
+                            setSourceLanguage(new_s)
 
-                            setTargetLanguage(old_t)
-                            setSourceLanguage(old_s)
-
-                            setConfig({ ...config, source_language: old_s, target_language: old_t })
+                            setConfig({ ...config, source_language: new_s, target_language: new_t })
                         }}>
                             <SwapHorizIcon />
                         </Button>
@@ -198,27 +199,13 @@ export default function Kikitan({ sr_on, ovr, vrc, config, setConfig, ws, lang }
                 </div>
                 <div>
                     <Select className="mt-4" value={targetLanguage} onChange={(e) => {
-                        const langIndex = parseInt(e.target.value.toString());
-                        setTargetLanguage(langIndex)
-                        setConfig({ ...config, target_language: langIndex })
+                        setTargetLanguage(e.target.value)
+
+                        setConfig({ ...config, target_language: e.target.value })
                     }}>
-                        {(() => {
-                            let m = langTo.map((element, i) => {
-                                return {
-                                    e: element,
-                                    i
-                                }
-                            })
-
-                            m = m.filter((element, i) => {
-                                return m.findIndex((e) => e.e.code == element.e.code) == i
-                            })
-
-                            return m.map((element) => {
-                                return <MenuItem key={element.e.code} value={element.i}>{element.e.name[lang]}</MenuItem>
-                            })
-
-                        })()}
+                        {langTo.map((element) => {
+                            return <MenuItem key={element.code} value={element.code}>{element.name[lang]}</MenuItem>
+                        })}
                     </Select>
                 </div>
             </div>

@@ -30,23 +30,10 @@ export const langSource = [
     { name: { en: "Turkish", jp: "トルコ語", cn: "土耳其语", kr: "터키어", tr: "Türkçe" }, code: "tr" }
 ] as const;
 
-const english = {
-    en: "English",
-    jp: "英語",
-    cn: "英语",
-    kr: "영어",
-    tr: "İngilizce"
-}
-
 // The reason there are multiple englishes 
 // is to have the same length as langSource
 export const langTo = [
-    { name: english, code: "en" },
-    { name: english, code: "en" },
-    { name: english, code: "en" },
-    { name: english, code: "en" },
-    { name: english, code: "en" },
-    { name: english, code: "en" },
+    { name: { en: "English", jp: "英語", cn: "英语", kr: "영어", tr: "İngilizce" }, code: "en" },
     { name: { en: "Japanese", jp: "日本語", cn: "日语", kr: "일본어", tr: "Japonca" }, code: "ja" },
     { name: { en: "Arabic", jp: "アラビア語", cn: "阿拉伯语", kr: "아랍어", tr: "Arapça" }, code: "ar" },
     { name: { en: "Armenian", jp: "アルメニア語", cn: "亚美尼亚语", kr: "아르메니아어", tr: "Ermenice" }, code: "hy" },
@@ -106,4 +93,12 @@ export type Lang = "en" | "jp" | "cn" | "kr" | "tr";
 
 export function calculateMinWaitTime(text: string, speed: number) {
     return (escape(text).length / 3) * speed // in ms
+}
+
+export function findLangSourceIndex(code: string) {
+    return langSource.findIndex((lang) => lang.code === code)
+}
+
+export function findLangToIndex(code: string) {
+    return langTo.findIndex((lang) => lang.code === code)
 }

@@ -26,7 +26,7 @@ import SettingsPage from './pages/Settings';
 import Scroll from "./components/Scroll"
 
 import { DEFAULT_CONFIG, load_config, update_config } from './util/config';
-import { Lang, langSource, langTo } from './util/constants';
+import { Lang } from './util/constants';
 import { getVersion } from '@tauri-apps/api/app';
 import Changelogs from './pages/Changelogs';
 
@@ -78,11 +78,7 @@ function App() {
     setQuickstartVisible(localStorage.getItem("quickstartMenu") == null || language == null)
     setLang(language == null ? "en" : language)
 
-    setConfig({
-      ...cfg,
-      source_language: cfg.source_language >= langSource.length ? 0 : cfg.source_language,
-      target_language: cfg.target_language >= langTo.length ? 0 : cfg.target_language
-    })
+    setConfig(cfg)
 
     setTimeout(() => setLoaded(true), 300)
   }, [])
@@ -293,7 +289,7 @@ function App() {
             </Toolbar>
           </AppBar>
           <div className='flex flex-1 items-center align-middle flex-col mt-16'>
-            {loaded && <Kikitan lang={lang!} sr_on={!settingsVisible && !quickstartVisible} ovr={ovrSpeechRecognition} vrc={vrc} config={config} setConfig={setConfig} ws={ws}></Kikitan>}
+            {loaded && <Kikitan lang={lang!} ovr={ovrSpeechRecognition} vrc={vrc} config={config} setConfig={setConfig} ws={ws}></Kikitan>}
           </div>
         </div>
       </div>
