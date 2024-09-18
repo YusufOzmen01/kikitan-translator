@@ -57,7 +57,6 @@ function App() {
   const [quickstartPage, setQuickstartPage] = React.useState(0)
 
   const [config, setConfig] = React.useState(DEFAULT_CONFIG)
-  const [version, setVersion] = React.useState("")
   const [lang, setLang] = React.useState<Lang | null>(null)
 
   const [loaded, setLoaded] = React.useState(false)
@@ -68,7 +67,6 @@ function App() {
 
   React.useEffect(() => {
     getVersion().then((version) => {
-      setVersion(version)
       setChangelogsVisible(localStorage.getItem("changelogsViewed") != version)
 
       setTimeout(() => localStorage.setItem("changelogsViewed", version), 1000)
@@ -237,9 +235,9 @@ function App() {
                             return
                           }
 
-                          let param = e.data.split(" ")
-                          let key = param[0]
-                          let value = param[1]
+                          const param = e.data.split(" ")
+                          const key = param[0]
+                          const value = param[1]
 
                           update_config({ ...config, [key]: value })
                         }
