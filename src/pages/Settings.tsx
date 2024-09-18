@@ -85,6 +85,27 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                             }
                         })
                     }} />} label={localization.omit_questionmark[lang]} />
+                    <FormControlLabel control={<Checkbox checked={config.language_settings.english_gender_change} onChange={(e) => {
+                        setConfig({
+                            ...config,
+                            language_settings: {
+                                ...config.language_settings,
+                                english_gender_change: e.target.checked
+                            }
+                        })
+                    }} />} label={localization.english_gender_text[lang]} />
+                    <FormControlLabel label={localization.gender[lang]} control={<Select className="ml-2 mr-4 mt-2" disabled={!config.language_settings.english_gender_change} value={config.language_settings.english_gender_change_gender} onChange={(e) => {
+                        setConfig({ 
+                            ...config, 
+                            language_settings: {
+                                ...config.language_settings,
+                                english_gender_change_gender: parseInt(e.target.value.toString())
+                            }
+                        })
+                    }}>
+                        <MenuItem key={"male"} value={0}>♂</MenuItem>
+                        <MenuItem key={"female"} value={1}>♀</MenuItem>
+                    </Select>} />
                 </FormGroup>
             </CustomTabPanel>
             <CustomTabPanel className="flex" value={page} index={1}>

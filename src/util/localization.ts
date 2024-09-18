@@ -29,4 +29,6 @@ export const localization = {
     osc_port: { en: "OSC Port", jp: "OSC ポート", cn: "OSC 端口", kr: "OSC 포트", tr: "OSC Portu" },
     dont_send_when_muted: { en: "Don't send chatbox messages when muted (Only translation mode)", jp: "ミュート時にチャットボックスメッセージを送信しない（翻訳モードのみ）", cn: "静音时不发送聊天框消息（仅限翻译模式）", kr: "음소거 상태에서 채팅박스 메시지를 보내지 않음 (번역 모드 전용)", tr: "Sessizken sohbet kutusu mesajları gönderme (Sadece çeviri modu)" },
     changelogs: { en: "Changelogs", jp: "変更履歴", cn: "更新日志", kr: "변경 사항", tr: "Değişiklikler" },
+    english_gender_text: { en: "When translating to English, change the pronoun. (Ex. He is a doctor/She is a doctor). Useful for languages with gender neutral structure.", jp: "変更履歴", cn: "翻译成英语时，请更改代词。（例如：他是医生/她是医生。）这对于性别中立结构的语言很有用。", kr: "영어로 번역할 때, 대명사를 변경하세요. (예: 그는 의사입니다/그녀는 의사입니다.) 성 중립적 구조를 가진 언어에 유용합니다", tr: "İngilizceye çevirirken, zamiri değiştirin. (Ör. O bir doktordur. \"O\" burada kız veya erkek olabilir) Cinsiyet nötr yapıya sahip diller için faydalıdır." },
+    gender: { en: "Gender", jp: "性別", cn: "性别", kr: "성별", tr: "Cinsiyet" },
 };
