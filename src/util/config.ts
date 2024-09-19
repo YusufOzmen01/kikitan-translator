@@ -76,7 +76,7 @@ export function validate_config(config: Config): Config {
     }
 
     if (typeof cfg.target_language === "number") {
-        cfg.target_language = langTo[cfg.target_language].code
+        cfg.target_language = langTo[cfg.target_language < 6 ? 0 : cfg.target_language-5].code
     }
 
     return cfg
