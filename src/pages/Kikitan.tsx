@@ -58,7 +58,7 @@ export default function Kikitan({ ovr, vrc, config, setConfig, ws, lang }: Kikit
 
             console.log(config.language_settings.english_gender_change_gender)
     
-            const val = detectionQueue[0]
+            const val = detectionQueue[0].replace(/%/g, "%25")
             detectionQueue = detectionQueue.slice(1)
     
             lock = true
