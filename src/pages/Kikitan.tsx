@@ -71,10 +71,12 @@ export default function Kikitan({ ovr, vrc, config, setConfig, ws, lang }: Kikit
                     case 0:
                         try {
                             let text = await translateGT(val, sourceLanguage, targetLanguage)
+
+                            console.log(text)
     
                             if (config.language_settings.english_gender_change && targetLanguage == "en") {
-                                if (config.language_settings.english_gender_change_gender == 0) text = text.replace(" she ", " he ").replace(" She ", " He ").replace(" her ", " his ").replace(" Her ", " His ")
-                                else text = text.replace(" he ", " she ").replace(" He ", " She ").replace(" his ", " her ").replace(" His ", " Her ").replace(" him ", " her ").replace(" Him ", " Her ")
+                                if (config.language_settings.english_gender_change_gender == 0) text = text.replace(/\bshe\b/g, "he").replace(/\bShe\b/g, "He").replace(/\bher\b/g, "him").replace(/\bHer\b/g, "Him")
+                                else text = text.replace(/\bhe\b/g, "she").replace(/\bHe\b/g, "She").replace(/\bhis\b/g, "her").replace(/\bHis\b/g, "Her").replace(/\bhim\b/g, "her").replace(/\bHim\b/g, "Her").replace(/\bhe's\b/g, "she's").replace(/\bHe's\b/g, "She's")
                             }
 
                             setTranslated(text)
@@ -102,19 +104,19 @@ export default function Kikitan({ ovr, vrc, config, setConfig, ws, lang }: Kikit
     }, [triggerUpdate])
 
     React.useEffect(() => {
-        setInterval(() => {
-            navigator.mediaDevices.enumerateDevices()
-            .then(function (devices) {
-                let def = devices.filter((device) => device.kind == "audioinput")[0].label
-                def = def.split("(")[1].split(")")[0]
-
-                setDefaultMicrophone(def)
-            }).catch(function (err) {
-                console.log(err.name + ": " + err.message);
-            });
-        }, 1000)
-
         if (sr == null) {
+            setInterval(() => {
+                navigator.mediaDevices.enumerateDevices()
+                .then(function (devices) {
+                    let def = devices.filter((device) => device.kind == "audioinput")[0].label
+                    def = def.split("(")[1].split(")")[0]
+    
+                    setDefaultMicrophone(def)
+                }).catch(function (err) {
+                    console.log(err.name + ": " + err.message);
+                });
+            }, 1000)
+
             sr = new WebSpeech(sourceLanguage)
 
             sr.onResult((result: string, isFinal: boolean) => {
