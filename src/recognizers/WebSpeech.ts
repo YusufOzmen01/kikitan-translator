@@ -11,8 +11,6 @@ export class WebSpeech extends Recognizer {
         this.recognition.maxAlternatives = 1
         this.recognition.continuous = true
         this.recognition.lang = lang;
-
-        console.log(lang)
     }
 
     start() {
