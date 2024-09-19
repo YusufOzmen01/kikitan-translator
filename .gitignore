@@ -41,3 +41,4 @@ bin
 obj
 old
 dist
+.env
