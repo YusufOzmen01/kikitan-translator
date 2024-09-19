@@ -1,10 +1,18 @@
-**UI Updates**
-• Added localization support (everything in the UI is localized)
-• Fixed a bug where if a translation error were to happen, it would throw away the text that's supposed to be translated. Now it will retry for 3 times before it drops
-• *Hopefully* finally fixed speech recognition randomly not picking up some of the words, especially the first word.
-• UI is now resizable (with a minimum size)
+## Kikitan is finally v1.1!
 
-**General Updates**
-• Updated the donation button link (It's Buy Me a Coffee now instead of the previous GitHub Supporters)
+This marks an important milestone in the development cycle of Kikitan. While there are still issues such as misrecognition and mistranslation, these will be addressed in a later update. Recognition may remain as is for a while, but translation should hopefully see significant improvements and increased customizability!
 
-**Please get in touch with me if you experience an issue. (Discord: sergiomarquina)**
+### Performance and Stability Updates
+- The loading and refreshing speed of Kikitan has drastically improved. You will notice the difference as soon as you open the application.
+- The project has been converted from JavaScript and Next to TypeScript and Vite + React. This has cleaned up the entire codebase, allowing me to optimize and fix many existing issues.
+
+### Bug Fixes
+- The issue with percentage signs breaking translations has been resolved.
+- The language swap button was incorrectly swapping languages. I switched to a dictionary-based system rather than an array-based one to fix this issue.
+- The translation or speech detection feature was randomly stopping. This has been addressed by rewriting the entire detection and translation logic.
+
+### UI Updates
+- Updates are now automatic. When an update is downloading, users will be notified by a popup.
+- A new setting has been added in the language options: "When translating to English, change the pronouns in the translation for gender-neutral languages."
+
+If you encounter any issues, please contact me on X (@marquina_osu) or Discord (sergiomarquina).
