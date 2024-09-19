@@ -73,8 +73,8 @@ export default function Kikitan({ ovr, vrc, config, setConfig, ws, lang }: Kikit
                             let text = await translateGT(val, sourceLanguage, targetLanguage)
     
                             if (config.language_settings.english_gender_change && targetLanguage == "en") {
-                                if (config.language_settings.english_gender_change_gender == 0) text = text.replace("she", "he").replace("She", "He").replace("her", "his").replace("Her", "His")
-                                else text = text.replace("he", "she").replace("He", "She").replace("his", "her").replace("His", "Her").replace("him", "her").replace("Him", "Her")
+                                if (config.language_settings.english_gender_change_gender == 0) text = text.replace(" she ", " he ").replace(" She ", " He ").replace(" her ", " his ").replace(" Her ", " His ")
+                                else text = text.replace(" he ", " she ").replace(" He ", " She ").replace(" his ", " her ").replace(" His ", " Her ").replace(" him ", " her ").replace(" Him ", " Her ")
                             }
 
                             setTranslated(text)
