@@ -1,6 +1,6 @@
 ## Kikitan nihayet v1.1 oldu!
 
-Bu, Kikitan'ın geliştirme döngüsünde önemli bir kilometre taşıdır. Hala yanlış tanıma ve yanlış çeviri gibi sorunlar var, ancak bunlar sonraki güncellemelerde ele alınacaktır. Tanıma şu an için bu şekilde kalabilir, ancak çeviri büyük iyileştirmeler ve özelleştirilebilirlik görecektir umarım!
+Bu, Kikitan'ın geliştirme döngüsünde önemli bir kilometre taşı. Hala yanlış konuşma algılama ve yanlış çeviri gibi sorunlar var, ancak bunlar sonraki güncellemelerde ele alınacaktır. Konuşma algılama şu an için bu şekilde kalabilir, ancak çeviri büyük iyileştirmeler ve özelleştirilebilirlik görecektir umarım!
 
 ### Performans ve Stabilite Güncellemeleri
 - Kikitan'ın yüklenme ve yenileme hızı önemli ölçüde arttı. Uygulamayı açtığınızda hemen fark edeceksiniz.
