@@ -13,6 +13,10 @@ azure = Azure(os.getenv("REGION"), os.getenv("API_KEY"))
 def read_root(engine: str, text: str, src: str, target: str):
     match engine:
         case "azure":
+            res = azure.translate(text, src, target)
+            if res == None:
+                return "Failed to translate."
+            
             return {
-                "text": azure.translate(text, src, target)
+                "text": res
             }

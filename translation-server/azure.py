@@ -28,6 +28,9 @@ class Azure:
         }]
 
         request = requests.post("https://api.cognitive.microsofttranslator.com/translate", params=params, headers=headers, json=body)
+        if request.status_code != 200:
+            return None
+        
         response = request.json()
 
         return response[0]["translations"][0]["text"]
