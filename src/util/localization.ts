@@ -18,7 +18,7 @@ export const localization = {
     steamvr_connection: { en: "SteamVR Connection", jp: "SteamVR 接続", cn: "SteamVR 连接", kr: "SteamVR 연결", tr: "SteamVR Bağlantısı" },
     language_settings: { en: "Language Settings", jp: "言語設定", cn: "语言设置", kr: "언어 설정", tr: "Dil Ayarları" },
     vrchat_settings: { en: "VRChat Settings", jp: "VRChat 設定", cn: "VRChat 设置", kr: "VRChat 설정", tr: "VRChat Ayarları" },
-    omit_questionmark: { en: "Omit the trailing question mark", jp: "文末の疑問符を省略", cn: "请省略句尾的问号", kr: "문장의 끝에 물음표를 생략하세요", tr: "Soru işaretini kaldır" },
+    omit_questionmark: { en: "[Japanese] Omit the trailing question mark", jp: "[日本語] 末尾の疑問符を省略", cn: "[日语] 省略末尾的问号", kr: "[일본어] 물음표를 생략", tr: "[Japonca] Son soru işaretini atla" },
     translation_first: { en: "Translation first", jp: "最初に翻訳文を表示", cn: "先显示翻译结果", kr: "먼저 번역 결과 표시", tr: "Önce çeviriyi göster" },
     send_typing_while_talking: { en: "Send typing status while talking", jp: "会話中に入力ステータスを送信する", cn: "正在说话时发送“正在输入”的状态", kr: "말하는 동안 입력 상태 보내기", tr: "Konuşurken yazma durumu gönder" },
     chatbox_update_speed: { en: "Chatbox update speed", jp: "チャットボックス更新速度", cn: "聊天框更新速度", kr: "채팅창 업데이트 속도", tr: "Sohbet kutusu güncelleme hızı" },
