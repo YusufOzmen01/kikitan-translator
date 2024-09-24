@@ -18,6 +18,7 @@ import { default as translateGT } from '../translators/google_translate';
 import { Config } from "../util/config";
 import { Recognizer } from "../recognizers/recognizer";
 import { WebSpeech } from "../recognizers/WebSpeech";
+import translateAZ from "../translators/azure";
 
 type KikitanProps = {
     ovr: boolean;
@@ -31,6 +32,8 @@ type KikitanProps = {
 let sr: Recognizer | null = null;
 let detectionQueue: string[] = []
 let lock = false
+
+const translators = [translateGT, translateAZ]
 
 export default function Kikitan({ ovr, vrc, config, setConfig, ws, lang }: KikitanProps) {
     const [detecting, setDetecting] = React.useState(true)
@@ -67,32 +70,38 @@ export default function Kikitan({ ovr, vrc, config, setConfig, ws, lang }: Kikit
             let count = 3;
     
             while (count > 0) {
-                switch (config.translator) {
-                    case 0:
+                try {
+                    let text = ""
+                    if (config.translator != 0) {
                         try {
-                            let text = await translateGT(val, sourceLanguage, targetLanguage)
-
-                            console.log(text)
-    
-                            if (config.language_settings.english_gender_change && targetLanguage == "en") {
-                                if (config.language_settings.english_gender_change_gender == 0) text = text.replace(/\bshe\b/g, "he").replace(/\bShe\b/g, "He").replace(/\bher\b/g, "him").replace(/\bHer\b/g, "Him")
-                                else text = text.replace(/\bhe\b/g, "she").replace(/\bHe\b/g, "She").replace(/\bhis\b/g, "her").replace(/\bHis\b/g, "Her").replace(/\bhim\b/g, "her").replace(/\bHim\b/g, "Her").replace(/\bhe's\b/g, "she's").replace(/\bHe's\b/g, "She's")
-                            }
-
-                            setTranslated(text)
-    
-                            invoke("send_message", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}`, msg: config.vrchat_settings.translation_first ? `${text} (${val})` : `${val} (${text})` })
-                            await new Promise(r => setTimeout(r, calculateMinWaitTime(text, config.vrchat_settings.chatbox_update_speed)));
-    
-                            count = 0
+                            text = await translators[config.translator](val, sourceLanguage.includes("en-") ? "en" : sourceLanguage.includes("es-") ? "es" : sourceLanguage, targetLanguage)
                         } catch (e) {
                             console.log(e)
-    
-                            count--
+
+                            text = await translateGT(val, sourceLanguage, targetLanguage)
                         }
-    
-                        break;
+                    } else {
+                        text = await translateGT(val, sourceLanguage, targetLanguage)
+                    }
+
+                    if (config.language_settings.english_gender_change && targetLanguage == "en") {
+                        if (config.language_settings.english_gender_change_gender == 0) text = text.replace(/\bshe\b/g, "he").replace(/\bShe\b/g, "He").replace(/\bher\b/g, "him").replace(/\bHer\b/g, "Him")
+                        else text = text.replace(/\bhe\b/g, "she").replace(/\bHe\b/g, "She").replace(/\bhis\b/g, "her").replace(/\bHis\b/g, "Her").replace(/\bhim\b/g, "her").replace(/\bHim\b/g, "Her").replace(/\bhe's\b/g, "she's").replace(/\bHe's\b/g, "She's")
+                    }
+
+                    setTranslated(text)
+
+                    invoke("send_message", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}`, msg: config.vrchat_settings.translation_first ? `${text} (${val})` : `${val} (${text})` })
+                    await new Promise(r => setTimeout(r, calculateMinWaitTime(text, config.vrchat_settings.chatbox_update_speed)));
+
+                    count = 0
+                } catch (e) {
+                    console.log(e)
+
+                    count--
                 }
+
+                break;
             }
     
             lock = false
