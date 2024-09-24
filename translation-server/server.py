@@ -32,7 +32,9 @@ def read_root(engine: str, text: str, src: str, target: str, response: Response)
             }
         case "chatgpt":
             try:
-                return chatgpt.translate(text, src, target)["content"]
+                return {
+                    "text": chatgpt.translate(text, src, target)["content"]
+                }
             except Exception as e:
                 print(e)
                 response.status_code = 500

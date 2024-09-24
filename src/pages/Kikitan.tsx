@@ -14,11 +14,14 @@ import { invoke } from '@tauri-apps/api/core'
 import { open } from '@tauri-apps/plugin-shell'
 
 import { calculateMinWaitTime, Lang, langSource, langTo } from "../util/constants"
-import { default as translateGT } from '../translators/google_translate';
+
 import { Config } from "../util/config";
 import { Recognizer } from "../recognizers/recognizer";
 import { WebSpeech } from "../recognizers/WebSpeech";
+
 import translateAZ from "../translators/azure";
+import translateGT from '../translators/google_translate';
+import translateGPT from "../translators/chatgpt";
 
 type KikitanProps = {
     ovr: boolean;
@@ -33,7 +36,7 @@ let sr: Recognizer | null = null;
 let detectionQueue: string[] = []
 let lock = false
 
-const translators = [translateGT, translateAZ]
+const translators = [translateGT, translateAZ, translateGPT]
 
 export default function Kikitan({ ovr, vrc, config, setConfig, ws, lang }: KikitanProps) {
     const [detecting, setDetecting] = React.useState(true)
