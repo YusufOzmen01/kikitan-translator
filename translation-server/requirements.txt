@@ -1,0 +1,2 @@
+python-dotenv==1.0.1
+fastapi[standard]==0.115.0
