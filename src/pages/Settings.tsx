@@ -114,6 +114,7 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                     }}>
                         <MenuItem key={"google"} value={0}>Google</MenuItem>
                         <MenuItem key={"azure"} value={1}>Azure</MenuItem>
+                        <MenuItem key={"azure"} value={2}>ChatGPT</MenuItem>
                     </Select>} />
                     <p className="text-sm italic">* {localization.translation_engine_note[lang]}</p>
                 </FormGroup>
