@@ -10,7 +10,8 @@ class ChatGPT:
         response = self.client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
-                {"role": "user", "content": f"Translate the following {src} text to {target}. " + text}
+                {"role": "system", "content": f"You are a translator. Translate the following {src} text to {target}."},
+                {"role": "user", "content": text}
             ]
         )
         
