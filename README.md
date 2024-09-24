@@ -3,9 +3,6 @@
 <a href="https://sergiomarquina.booth.pm/items/6073050">
 <img src="https://media.buyee.jp/guide/addtobuyee/assets/img/store-logo-booth.png" alt="drawing" width="150" align="center">
 </a>
-<a href="https://github.com/yusufozmen01/kikitan-translator/releases/latest/download/Kikitan.Translator_x64-setup.exe">
-<img src="https://i.imgur.com/50XNWwG.png)" alt="drawing" width="140" align="center">
-</a>
 <br><br>
 <img src="https://i.imgur.com/RQlgF0N.png" />
 </div>
