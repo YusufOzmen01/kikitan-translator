@@ -23,7 +23,7 @@ def read_root(engine: str, text: str, src: str, target: str, response: Response)
         case "azure":
             res = azure.translate(text, src, target)
             if res == None:
-                Response.status_code = 500
+                response.status_code = 500
                 
                 return "Failed to translate."
             
@@ -35,6 +35,6 @@ def read_root(engine: str, text: str, src: str, target: str, response: Response)
                 return chatgpt.translate(text, src, target)["content"]
             except Exception as e:
                 print(e)
-                Response.status_code = 500
+                response.status_code = 500
                 
                 return "Failed to translate."
