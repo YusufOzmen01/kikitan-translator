@@ -1,5 +1,5 @@
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
 from azure import Azure
 
 import os
@@ -16,11 +16,13 @@ async def add_cors_header(request, call_next):
     return response
 
 @app.get("/translate/{engine}")
-def read_root(engine: str, text: str, src: str, target: str):
+def read_root(engine: str, text: str, src: str, target: str, response: Response):
     match engine:
         case "azure":
             res = azure.translate(text, src, target)
             if res == None:
+                Response.status_code = 500
+                
                 return "Failed to translate."
             
             return {
