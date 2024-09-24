@@ -150,19 +150,19 @@ export default function Kikitan({ ovr, vrc, config, setConfig, ws, lang }: Kikit
     React.useEffect(() => {
         if (!detecting && detection.length != 0) {
             if (ovr) {
-                if (ws != null) ws.send(`send-${sourceLanguage == "ja" ? detection.replace("？/g", "") : detection}`)
+                if (ws != null) ws.send(`send-${sourceLanguage == "ja" ? detection.replace(/？/g, "") : detection}`)
 
                 return;
             }
 
             if (vrc) {
                 if (config.mode == 0) {
-                    detectionQueue = [...detectionQueue, (sourceLanguage == "ja" && config.language_settings.japanese_omit_questionmark) ? detection.replace("？/g", "") : detection]
+                    detectionQueue = [...detectionQueue, (sourceLanguage == "ja" && config.language_settings.japanese_omit_questionmark) ? detection.replace(/？/g, "") : detection]
 
                     return
                 }
 
-                invoke("send_message", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}`, msg: (sourceLanguage == "ja" && config.language_settings.japanese_omit_questionmark) ? detection.replace("？/g", "") : detection })
+                invoke("send_message", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}`, msg: (sourceLanguage == "ja" && config.language_settings.japanese_omit_questionmark) ? detection.replace(/？/g, "") : detection })
             }
         }
     }, [detecting, detection])
