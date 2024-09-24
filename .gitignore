@@ -42,3 +42,4 @@ obj
 old
 dist
 .env
+__pycache__
