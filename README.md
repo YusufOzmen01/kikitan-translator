@@ -1,4 +1,5 @@
 # Kikitan Translator
+
 <div align="center">
 <a href="https://sergiomarquina.booth.pm/items/6073050">
 <img src="https://media.buyee.jp/guide/addtobuyee/assets/img/store-logo-booth.png" alt="drawing" width="150" align="center">
@@ -7,14 +8,16 @@
 <img src="https://i.imgur.com/RQlgF0N.png" />
 </div>
 
-### A VRChat translator built for helping you and the person/people you're talking with to understand each other regardles of language differences.
+### A VRChat translator built for helping you and the person/people you're talking with to understand each other regardless of language differences.
 
 - **Translation:** Translation of your speech to the chatbox in more than 10 major languages (6 accents of English and 6 dialects of Spanish along with languages such as Japanese, Korean, Chinese, Italian, French, Turkish, Russian, Polish, Portugal, German, French, Arabic, Swedish and so on)
 - **Transcription (Just Speech to Text):** If you don't want to translate, there is a transcription mode that sends whatever you say directly to the chatbox. Perfect for people that prefer to not speak in VRChat but be able to communicate with the convenience of speaking.
 - **SteamVR Speech to Text:** Similar to transcription mode, you can use this application to use Speech to Text while controlling your computer through SteamVR. Instead of writing using the SteamVR keyboard, you can hold any button while aiming at the screen to send keystrokes of whatever you say. Make sure to enable "SteamVR Connection" in Kikitan. **Still a bit experimental**
 
 ## How to build
+
 ### Required dependencies
+
 - rust (recommended minimum is 1.77.2)
 - node (recommended minimum is v22.1.0)
 
