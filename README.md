@@ -4,6 +4,9 @@
 <a href="https://sergiomarquina.booth.pm/items/6073050">
 <img src="https://media.buyee.jp/guide/addtobuyee/assets/img/store-logo-booth.png" alt="drawing" width="150" align="center">
 </a>
+<a href="https://buymeacoffee.com/sergiomarquina">
+<img src="https://i.imgur.com/l7NBjqk.png" alt="drawing" width="150" height="45" align="center">
+</a>
 <br><br>
 <img src="https://i.imgur.com/RQlgF0N.png" />
 </div>
