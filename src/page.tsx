@@ -35,11 +35,14 @@ import { relaunch } from '@tauri-apps/plugin-process';
 
 import { localization } from './util/localization';
 
+import translateGT from './translators/google_translate';
+
 function App() {
   const [quickstartVisible, setQuickstartVisible] = React.useState(true)
   const [changelogsVisible, setChangelogsVisible] = React.useState(false)
   const [settingsVisible, setSettingsVisible] = React.useState(false)
   const [updateVisible, setUpdateVisible] = React.useState(false)
+  const [googleServersErrorVisible, setGoogleServersErrorVisible] = React.useState(false)
 
   const [quickstartPage, setQuickstartPage] = React.useState(0)
 
@@ -74,6 +77,12 @@ function App() {
         relaunch()
       });
     });
+
+    translateGT("Hello, how are you?", "en-US", "tr-TR").then((out) => { console.log("Can access to Google servers: " + out) }).catch(err => {
+      console.log(err)
+
+      setGoogleServersErrorVisible(true)
+    })
     
     setTimeout(() => setLoaded(true), 300);
   }, [])
@@ -82,7 +91,7 @@ function App() {
     <>
       <div className={`relative transition-all duration-500 ${!loaded ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
         {quickstartVisible && lang != null &&
-          <div className={'transition-all z-10 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute'}>
+          <div className={'transition-all z-20 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute'}>
             <div className='flex flex-col justify-between  w-10/12 h-5/6 outline outline-2 outline-white rounded bg-white'>
               <div className='relative mt-2 ml-2 mr-2 h-64'>
                 <div className={'absolute inset-0 transition-all flex justify-center ease-in-out ' + (quickstartPage == 0 ? "opacity-100" : "opacity-0 pointer-events-none")}>
@@ -165,7 +174,7 @@ function App() {
         }
 
         {updateVisible &&
-          <div className={'transition-all z-20 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (updateVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
+          <div className={'transition-all z-30 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (updateVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
             <div className='flex flex-col justify-center ml-10 w-10/12 h-5/6 outline outline-2 outline-white rounded bg-white'>
               <div className='flex flex-row justify-center'>
                 <CircularProgress></CircularProgress>
@@ -175,8 +184,21 @@ function App() {
           </div>
         }
 
+        {googleServersErrorVisible &&
+          <div className={'transition-all z-10 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (googleServersErrorVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
+            <div className='flex flex-col justify-center ml-10 w-6/12 h-3/6 outline outline-2 outline-gray-200 rounded bg-white'>
+              <div className='flex flex-row justify-center'>
+                <p className='ml-4 text-md text-center'>{localization.unable_to_access_google_servers[lang!]}</p>
+              </div>
+              <div className='flex flex-row justify-center mt-4'>
+                <Button variant="contained" className='w-32' onClick={() => { setGoogleServersErrorVisible(false) }}>{localization.close_menu[lang!]}</Button>
+              </div>
+            </div>
+          </div>
+        }
+
         {settingsVisible &&
-          <div className={'transition-all z-20 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (settingsVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
+          <div className={'transition-all z-30 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (settingsVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
             <div className='flex flex-col justify-between  w-10/12 h-5/6 outline outline-2 outline-white rounded bg-white'>
               <SettingsPage lang={lang!} config={config} setConfig={setConfig} closeCallback={() => setSettingsVisible(false)} />
             </div>
@@ -184,7 +206,7 @@ function App() {
         }
 
         {!quickstartVisible && changelogsVisible &&
-          <div className={'transition-all z-20 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (changelogsVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
+          <div className={'transition-all z-30 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (changelogsVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
             <div className='flex flex-col justify-between  w-10/12 h-5/6 outline outline-2 outline-white rounded bg-white'>
               <Changelogs lang={lang!} closeCallback={() => setChangelogsVisible(false)} />
             </div>

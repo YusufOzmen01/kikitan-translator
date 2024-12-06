@@ -22,10 +22,8 @@ import { Config } from "../util/config";
 import { Recognizer } from "../recognizers/recognizer";
 import { WebSpeech } from "../recognizers/WebSpeech";
 
-import translateAZ from "../translators/azure";
-import translateGT from '../translators/google_translate';
-import translateGPT from "../translators/chatgpt";
 import { localization } from "../util/localization";
+import translateGT from "../translators/google_translate";
 
 type KikitanProps = {
     config: Config;
@@ -36,8 +34,6 @@ type KikitanProps = {
 let sr: Recognizer | null = null;
 let detectionQueue: string[] = []
 let lock = false
-
-const translators = [translateGT, translateAZ, translateGPT]
 
 export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
     const [detecting, setDetecting] = React.useState(true)
@@ -85,18 +81,7 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
 
             while (count > 0) {
                 try {
-                    let text = ""
-                    if (config.translator != 0) {
-                        try {
-                            text = await translators[config.translator](val, sourceLanguage.includes("en-") ? "en" : sourceLanguage.includes("es-") ? "es" : sourceLanguage, targetLanguage)
-                        } catch (e) {
-                            console.log(e)
-
-                            text = await translateGT(val, sourceLanguage, targetLanguage)
-                        }
-                    } else {
-                        text = await translateGT(val, sourceLanguage, targetLanguage)
-                    }
+                    let text = await translateGT(val, sourceLanguage, targetLanguage)
 
                     if (config.language_settings.english_gender_change && targetLanguage == "en") {
                         if (config.language_settings.english_gender_change_gender == 0) text = text.replace(/\bshe\b/g, "he").replace(/\bShe\b/g, "He").replace(/\bher\b/g, "him").replace(/\bHer\b/g, "Him")
@@ -212,7 +197,6 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
                     </div>
                 </div>
             </div>
-
             <div>
                 <div className={`w-96 h-48 outline outline-2 transition-all outline-slate-400 rounded-md text-black font-bold text-center ${srStatus ? "" : "bg-gray-400"}`}>
                     <p className="align-middle">{translated}</p>

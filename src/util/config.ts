@@ -10,7 +10,6 @@ export const speed_presets = {
 export type Config = {
     source_language: string,
     target_language: string,
-    translator: number,
     mode: number,
     language_settings: {
         japanese_omit_questionmark: boolean,
@@ -30,7 +29,6 @@ export type Config = {
 export const DEFAULT_CONFIG: Config = {
     source_language: "en-US",
     target_language: "ja",
-    translator: 0,
     mode: 0,
     language_settings: {
         japanese_omit_questionmark: true,
@@ -69,8 +67,6 @@ export function validate_config(config: Config): Config {
     }
 
     // Validation 2: Update source and target language
-    // check if cfg.source_language and cfg.target_language are numbers
-    // if so, replace it with the code of the language
     if (typeof cfg.source_language === "number") {
         cfg.source_language = langSource[cfg.source_language].code
     }
