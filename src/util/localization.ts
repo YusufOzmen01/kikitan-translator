@@ -36,4 +36,5 @@ export const localization = {
     waiting_for_mic_access: { en: "Waiting for microphone access...", jp: "マイクアクセスを待っています...", cn: "等待麦克风访问...", kr: "마이크 액세스 대기 중...", tr: "Mikrofon erişimi bekleniyor..." },
     start: { en: "Start", jp: "開始", cn: "开始", kr: "시작", tr: "Başlat" },
     stop: { en: "Stop", jp: "停止", cn: "停止", kr: "중지", tr: "Durdur" },
+    unable_to_access_google_servers: { en: "Unable to access to Google servers. Please make sure your firewall settings are not blocking the requests or if you're located in a country that has Google servers banned (for example China), make sure your VPN is working properly!", jp: "Googleサーバーにアクセスできません。ファイアウォール設定がリクエストをブロックしていないか、Googleサーバーが禁止されている国にいる場合（例：中国）、VPNが正常に動作していることを確認してください！", cn: "无法访问谷歌服务器。请确保您的防火墙设置未阻止请求，或者如果您位于禁止谷歌服务器的国家（例如中国），请确保您的VPN正常工作！", kr: "Google 서버에 액세스할 수 없습니다. 방화벽 설정이 요청을 차단하고 있지 않은지 또는 Google 서버가 금지된 국가에 위치한 경우(예: 중국) VPN이 제대로 작동하는지 확인하세요!", tr: "Google sunucularına erişilemiyor. Güvenlik duvarı ayarlarınızın istekleri engellemediğinden veya Google sunucularının yasaklandığı bir ülkede bulunuyorsanız (örneğin Çin), VPN'inizin düzgün çalıştığından emin olun!" },
 };
