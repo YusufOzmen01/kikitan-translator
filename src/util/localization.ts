@@ -15,7 +15,6 @@ export const localization = {
     translation: { en: "Translation", jp: "翻訳", cn: "翻译", kr: "번역", tr: "Çeviri" },
     transcription: { en: "Transcription", jp: "文字起こし", cn: "转录", kr: "전사", tr: "Transkripsiyon" },
     translation_disabled: { en: "Translation is disabled. Enable translation from the setting above.", jp: "翻訳が無効になっています。上記の設定から翻訳を有効にしてください。", cn: "翻译已禁用。请从上面的设置中启用翻译。", kr: "번역이 비활성화되었습니다. 위 설정에서 번역을 활성화하세요.", tr: "Çeviri devre dışı. Yukarıdaki ayarları kullanarak çeviriyi etkinleştirin." },
-    steamvr_connection: { en: "SteamVR Connection", jp: "SteamVR 接続", cn: "SteamVR 连接", kr: "SteamVR 연결", tr: "SteamVR Bağlantısı" },
     language_settings: { en: "Language Settings", jp: "言語設定", cn: "语言设置", kr: "언어 설정", tr: "Dil Ayarları" },
     vrchat_settings: { en: "VRChat Settings", jp: "VRChat 設定", cn: "VRChat 设置", kr: "VRChat 설정", tr: "VRChat Ayarları" },
     omit_questionmark: { en: "[Japanese] Omit the trailing question mark", jp: "[日本語] 末尾の疑問符を省略", cn: "[日语] 省略末尾的问号", kr: "[일본어] 물음표를 생략", tr: "[Japonca] Son soru işaretini atla" },
@@ -34,4 +33,7 @@ export const localization = {
     updating: { en: "Updating...", jp: "更新中...", cn: "更新中...", kr: "업데이트 중...", tr: "Güncelleniyor..." },
     primary_translation_engine: { en: "Primary Translation Engine", jp: "主要翻訳エンジン", cn: "主要翻译引擎", kr: "기본 번역 엔진", tr: "Birincil Çeviri Motoru" },
     translation_engine_note: { en: "Anything other than google will be used as a primary. But when the primary translator fails, it will switch back to Google.", jp: "Google以外のものは主要として使用されます。ただし、主要翻訳エンジンが失敗した場合、Googleに切り替わります。", cn: "除了谷歌之外的任何东西都将被用作主要翻译引擎。但是当主要翻译引擎失败时，它将切换回谷歌。", kr: "Google 이외의 것은 기본으로 사용됩니다. 그러나 기본 번역기가 실패하면 다시 Google로 전환됩니다.", tr: "Google dışındaki her şey birincil olarak kullanılacaktır. Ancak birincil çevirmen başarısız olduğunda, Google'a geri dönecektir." },
+    waiting_for_mic_access: { en: "Waiting for microphone access...", jp: "マイクアクセスを待っています...", cn: "等待麦克风访问...", kr: "마이크 액세스 대기 중...", tr: "Mikrofon erişimi bekleniyor..." },
+    start: { en: "Start", jp: "開始", cn: "开始", kr: "시작", tr: "Başlat" },
+    stop: { en: "Stop", jp: "停止", cn: "停止", kr: "중지", tr: "Durdur" },
 };

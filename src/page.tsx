@@ -8,7 +8,6 @@ import {
   Typography,
   Select,
   MenuItem,
-  Switch,
   Button,
   IconButton,
   CircularProgress
@@ -36,15 +35,7 @@ import { relaunch } from '@tauri-apps/plugin-process';
 
 import { localization } from './util/localization';
 
-let ws: WebSocket | null = null
-
 function App() {
-  const [ovr, setOvr] = React.useState(false)
-  const [ovrSpeechRecognition, setOvrSpeechRecognition] = React.useState(false)
-  const [steamVRReady, setSteamVRReady] = React.useState(false)
-
-  const [vrc, setVrc] = React.useState(true)
-
   const [quickstartVisible, setQuickstartVisible] = React.useState(true)
   const [changelogsVisible, setChangelogsVisible] = React.useState(false)
   const [settingsVisible, setSettingsVisible] = React.useState(false)
@@ -206,58 +197,6 @@ function App() {
               <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                 Kikitan Translator
               </Typography>
-
-              <div className='flex'>
-                <p className='mt-2'>VRChat OSC</p>
-                <Switch color='secondary' className="ml-4 mr-2" checked={vrc} onChange={(e) => {
-                  setVrc(e.target.checked)
-                }} />
-                <p className='mt-2'>{localization.steamvr_connection[lang!]}</p>
-                <Switch color='secondary' disabled={ovr && !steamVRReady} className="ml-4" checked={ovr} onChange={(e) => {
-                  setOvr(e.target.checked)
-
-                  if (e.target.checked) {
-                    invoke("start_ovr", {}).then(() => {
-                      console.log("Starting ovr...")
-
-                      setTimeout(() => {
-                        ws = new WebSocket("ws://127.0.0.1/ovr")
-                        ws.onopen = () => {
-                          console.log("OVR connection opened!")
-
-                          setSteamVRReady(true)
-                        }
-
-                        ws.onmessage = (e) => {
-                          if (e.data == "SRON" || e.data == "SROFF") {
-                            setOvrSpeechRecognition(e.data == "SRON" ? true : e.data == "SROFF" ? false : ovrSpeechRecognition)
-
-                            return
-                          }
-
-                          const param = e.data.split(" ")
-                          const key = param[0]
-                          const value = param[1]
-
-                          update_config({ ...config, [key]: value })
-                        }
-
-                        ws.onerror = (e) => {
-                          console.log(e)
-                          invoke("kill_ovr", {}).then(() => console.log("Killing ovr process..."));
-
-                          setOvr(false)
-                          setSteamVRReady(false)
-                        }
-                      }, 3000)
-                    })
-                  } else {
-                    invoke("kill_ovr", {}).then(() => console.log("Killing ovr process..."));
-
-                    setSteamVRReady(false)
-                  }
-                }} />
-              </div>
               <div className='flex'>
                 <Select sx={{
                   color: 'white',
@@ -292,8 +231,8 @@ function App() {
               </div>
             </Toolbar>
           </AppBar>
-          <div className='flex flex-1 items-center align-middle flex-col mt-16'>
-            {loaded && <Kikitan lang={lang!} ovr={ovrSpeechRecognition} vrc={vrc} config={config} setConfig={setConfig} ws={ws}></Kikitan>}
+          <div className='flex flex-1 items-center align-middle flex-col mt-8'>
+            {loaded && <Kikitan lang={lang!} config={config} setConfig={setConfig}></Kikitan>}
           </div>
         </div>
       </div>
