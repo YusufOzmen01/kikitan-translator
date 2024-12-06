@@ -142,17 +142,6 @@ function App() {
 
                 <div className={'absolute inset-0 transition-all flex justify-center  ease-in-out ' + (quickstartPage == 3 ? "opacity-100" : "opacity-0 pointer-events-none")}>
                   <div className='absolute mt-2 flex flex-col items-center'>
-                    <p className='text-xl bold text-center'>{localization.stt_text[lang]}</p>
-                    {quickstartPage == 3 &&
-                      <video width={480} autoPlay loop className='mt-4'>
-                        <source src="/STEAMVR.mp4" type="video/mp4"></source>
-                      </video>
-                    }
-                  </div>
-                </div>
-
-                <div className={'absolute inset-0 transition-all flex justify-center  ease-in-out ' + (quickstartPage == 4 ? "opacity-100" : "opacity-0 pointer-events-none")}>
-                  <div className='absolute mt-2 flex flex-col items-center'>
                     <p className='text-xl bold text-center'>{localization.mode_selection[lang]}</p>
                     <img className='mt-4 w-[384px]' src={
                       {
@@ -167,18 +156,18 @@ function App() {
                   </div>
                 </div>
 
-                <div className={'absolute inset-0 transition-all space-y-2 flex flex-col items-center justify-center ease-in-out ' + (quickstartPage == 5 ? "opacity-100" : "opacity-0 pointer-events-none")}>
+                <div className={'absolute inset-0 transition-all space-y-2 flex flex-col items-center justify-center ease-in-out ' + (quickstartPage == 4 ? "opacity-100" : "opacity-0 pointer-events-none")}>
                   <div className='mt-4 mb-4'>
                     <p className='text-xl mt-8 bold text-center'>{localization.thank_you[lang]}</p>
                     <p className='text-lg mt-20 text-center'>{localization.thank_you_details[lang]}</p>
                   </div>
-                  <Button disabled={quickstartPage != 5} className={'w-70 '} variant='contained' startIcon={< GitHub />} onClick={async () => { open("https://github.com/YusufOzmen01/kikitan-translator") }}>{localization.open_repo[lang]}</Button>
-                  <Button disabled={quickstartPage != 5} className={'w-48 '} variant='contained' onClick={async () => { setQuickstartVisible(false); window.localStorage.setItem("quickstartMenu", "true"); localStorage.setItem("lang", lang) }}>{localization.close_menu[lang]}</Button>
+                  <Button disabled={quickstartPage != 4} className={'w-70 '} variant='contained' startIcon={< GitHub />} onClick={async () => { open("https://github.com/YusufOzmen01/kikitan-translator") }}>{localization.open_repo[lang]}</Button>
+                  <Button disabled={quickstartPage != 4} className={'w-48 '} variant='contained' onClick={async () => { setQuickstartVisible(false); window.localStorage.setItem("quickstartMenu", "true"); localStorage.setItem("lang", lang) }}>{localization.close_menu[lang]}</Button>
                 </div>
               </div>
               <div className='mb-2 flex justify-center space-x-4'>
                 <Button variant='contained' disabled={quickstartPage == 0} onClick={() => { setQuickstartPage(quickstartPage - 1) }}>{localization.previous[lang]}</Button>
-                <Button className='ml-4' variant='contained' disabled={quickstartPage > 4} onClick={() => { setQuickstartPage(quickstartPage + 1) }}>{localization.next[lang]}</Button>
+                <Button className='ml-4' variant='contained' disabled={quickstartPage > 3} onClick={() => { setQuickstartPage(quickstartPage + 1) }}>{localization.next[lang]}</Button>
               </div>
             </div>
           </div>
