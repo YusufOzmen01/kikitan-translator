@@ -6,17 +6,8 @@ use rosc::{OscMessage, OscPacket, OscType};
 use std::net::{Ipv4Addr, UdpSocket};
 use std::os::windows::process::CommandExt;
 use std::process::Command;
-use tauri::Manager;
 
 fn main() {
-    Command::new("taskkill")
-        .arg("/F")
-        .arg("/IM")
-        .arg("Kikitan OVR.exe")
-        .creation_flags(0x08000000_u32)
-        .spawn()
-        .unwrap();
-
     tauri::Builder::default()
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_shell::init())
@@ -24,8 +15,6 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             send_typing,
             send_message,
-            start_ovr,
-            kill_ovr,
             show_windows_audio_settings
         ])
         .run(tauri::generate_context!())
@@ -57,35 +46,10 @@ fn send_message(msg: String, address: String, port: String) {
 }
 
 #[tauri::command]
-fn start_ovr(handle: tauri::AppHandle) {
-    let resource_path = handle
-        .path()
-        .resource_dir()
-        .expect("failed to resolve resource")
-        .join("ovr/Kikitan OVR.exe");
-
-    Command::new(resource_path)
-        .creation_flags(0x08000000_u32)
-        .spawn()
-        .unwrap();
-}
-
-#[tauri::command]
 fn show_windows_audio_settings() {
     Command::new("powershell")
         .arg("Start")
         .arg("ms-settings:sound")
-        .creation_flags(0x08000000_u32)
-        .spawn()
-        .unwrap();
-}
-
-#[tauri::command]
-fn kill_ovr() {
-    Command::new("taskkill")
-        .arg("/F")
-        .arg("/IM")
-        .arg("Kikitan OVR.exe")
         .creation_flags(0x08000000_u32)
         .spawn()
         .unwrap();
