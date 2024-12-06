@@ -14,6 +14,7 @@ import {
 } from '@mui/icons-material';
 
 import { invoke } from '@tauri-apps/api/core'
+import { listen } from '@tauri-apps/api/event';
 import { open } from '@tauri-apps/plugin-shell'
 
 import { calculateMinWaitTime, Lang, langSource, langTo } from "../util/constants"
@@ -38,6 +39,7 @@ let lock = false
 export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
     const [detecting, setDetecting] = React.useState(true)
     const [srStatus, setSRStatus] = React.useState(true)
+    const [vrcMuted, setVRCMuted] = React.useState(false)
 
     const [detection, setDetection] = React.useState("")
     const [translated, setTranslated] = React.useState("")
@@ -61,9 +63,12 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
             return
         }
 
-        if (srStatus) sr.start()
+        if (srStatus) {
+            if (vrcMuted) sr.stop()
+            else sr.start()
+        }
         else sr.stop()
-    }, [srStatus])
+    }, [srStatus, vrcMuted])
 
     React.useEffect(() => {
         (async () => {
@@ -112,6 +117,10 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
     }, [triggerUpdate])
 
     React.useEffect(() => {
+        listen<boolean>("vrchat-mute", (event) => {
+            setVRCMuted(event.payload)
+        })
+
         if (sr == null) {
             setInterval(() => {
                 navigator.mediaDevices.enumerateDevices()

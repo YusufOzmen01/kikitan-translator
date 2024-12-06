@@ -106,17 +106,6 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                         <MenuItem key={"male"} value={0}>♂</MenuItem>
                         <MenuItem key={"female"} value={1}>♀</MenuItem>
                     </Select>} />
-                    <FormControlLabel label={localization.primary_translation_engine[lang]} control={<Select className="ml-2 mr-4 mt-2" value={config.translator} onChange={(e) => {
-                        setConfig({ 
-                            ...config, 
-                            translator: parseInt(e.target.value.toString())
-                        })
-                    }}>
-                        <MenuItem key={"google"} value={0}>Google</MenuItem>
-                        <MenuItem key={"azure"} value={1}>Azure</MenuItem>
-                        <MenuItem key={"azure"} value={2}>ChatGPT</MenuItem>
-                    </Select>} />
-                    <p className="text-sm italic">* {localization.translation_engine_note[lang]}</p>
                 </FormGroup>
             </CustomTabPanel>
             <CustomTabPanel className="flex" value={page} index={1}>
@@ -139,7 +128,7 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                             }
                         })
                     }} />} label={localization.send_typing_while_talking[lang]} />
-                    {/* <FormControlLabel control={<Checkbox checked={config.vrchat_settings.dont_send_when_muted} onChange={(e) => {
+                    <FormControlLabel control={<Checkbox checked={config.vrchat_settings.dont_send_when_muted} onChange={(e) => {
                         setConfig({
                             ...config,
                             vrchat_settings: {
@@ -147,7 +136,7 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                                 dont_send_when_muted: e.target.checked
                             }
                         })
-                    }} />} label={localization.dont_send_when_muted[lang]} /> */}
+                    }} />} label={localization.dont_send_when_muted[lang]} />
                     <div className="flex">
                         <TextField className="mt-2 w-48" value={config.vrchat_settings.osc_address} id="outlined-basic" label={localization.osc_address[lang]} variant="outlined" onChange={(e) => {
                             setConfig({

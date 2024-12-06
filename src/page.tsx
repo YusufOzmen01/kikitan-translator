@@ -83,6 +83,8 @@ function App() {
 
       setGoogleServersErrorVisible(true)
     })
+
+    invoke("start_vrc_listener")
     
     setTimeout(() => setLoaded(true), 300);
   }, [])
