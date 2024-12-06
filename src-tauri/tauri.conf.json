@@ -28,9 +28,7 @@
       "providerShortName": null,
       "signingIdentity": null
     },
-    "resources": [
-      "ovr/*"
-    ],
+    "resources": [],
     "shortDescription": "",
     "linux": {
       "deb": {
