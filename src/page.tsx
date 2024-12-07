@@ -18,7 +18,8 @@ import {
   Settings,
   Translate,
   WbSunny,
-  NightsStay
+  NightsStay,
+  Favorite
 } from '@mui/icons-material';
 
 import { invoke } from '@tauri-apps/api/core'
@@ -45,6 +46,7 @@ function App() {
   const [changelogsVisible, setChangelogsVisible] = React.useState(false)
   const [settingsVisible, setSettingsVisible] = React.useState(false)
   const [updateVisible, setUpdateVisible] = React.useState(false)
+  const [donateVisible, setDonateVisible] = React.useState(false)
   const [googleServersErrorVisible, setGoogleServersErrorVisible] = React.useState(false)
 
   const [quickstartPage, setQuickstartPage] = React.useState(0)
@@ -90,6 +92,17 @@ function App() {
     invoke("start_vrc_listener")
     
     setTimeout(() => setLoaded(true), 300);
+
+    if (localStorage.getItem("last_donation") == null) {
+      localStorage.setItem("last_donation", "1")
+    } else {
+      const last = parseInt(localStorage.getItem("last_donation")!)
+
+      if ((last + 60 * 60 * 24 * 30) <= Date.now()) {
+        setDonateVisible(true)
+        localStorage.setItem("last_donation", `${Date.now()}`)
+      }
+    }
   }, [])
 
   return (
@@ -145,7 +158,7 @@ function App() {
                 <Button disabled={quickstartPage != 2} className={'w-96 '} variant='contained' startIcon={<Settings />} onClick={() => { invoke("show_windows_audio_settings") }}>{localization.open_win_audio[lang]}</Button>
               </div>
 
-              <div className={'absolute inset-0 transition-all flex justify-center  ease-in-out ' + (quickstartPage == 3 ? "opacity-100" : "opacity-0 pointer-events-none")}>
+              <div className={'absolute inset-0 transition-all flex justify-center ease-in-out ' + (quickstartPage == 3 ? "opacity-100" : "opacity-0 pointer-events-none")}>
                 <div className='absolute mt-2 flex flex-col items-center'>
                   <p className='text-xl bold text-center'>{localization.mode_selection[lang]}</p>
                   <img className='mt-4 w-[384px]' src={
@@ -176,9 +189,9 @@ function App() {
             </div>
           </div>
         </div>
-
+        
         <div className={'transition-all z-30 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (updateVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
-          <div className='flex flex-col justify-center ml-10 w-10/12 h-5/6 outline outline-2 outline-white rounded bg-slate-400'>
+          <div className={`flex flex-col justify-center ml-10 w-10/12 h-5/6 outline outline-1 ${config.light_mode ? "outline-white" : "outline-slate-950"} rounded ${config.light_mode ? "bg-white" : "bg-slate-950"}`}>
             <div className='flex flex-row justify-center'>
               <CircularProgress></CircularProgress>
               <p className='ml-4 text-4xl'>{localization.updating[lang]}</p>
@@ -186,18 +199,29 @@ function App() {
           </div>
         </div>
 
-        {googleServersErrorVisible &&
-          <div className={'transition-all z-10 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (googleServersErrorVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
-            <div className='flex flex-col justify-center ml-10 w-6/12 h-3/6 outline outline-2 outline-gray-200 rounded bg-slate-400'>
-              <div className='flex flex-row justify-center'>
-                <p className='ml-4 text-md text-center'>{localization.unable_to_access_google_servers[lang]}</p>
-              </div>
-              <div className='flex flex-row justify-center mt-4'>
-                <Button variant="contained" className='w-32' onClick={() => { setGoogleServersErrorVisible(false) }}>{localization.close_menu[lang]}</Button>
-              </div>
+        <div className={'transition-all z-30 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (donateVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
+          <div className={`flex flex-col justify-center ml-10 w-6/12 h-3/6 outline outline-1 ${config.light_mode ? "outline-white" : "outline-slate-950"} rounded ${config.light_mode ? "bg-white" : "bg-slate-950"}`}>
+            <div className='flex flex-row justify-center'>
+              <p className='ml-4 text-md text-center'>{localization.donation_text[lang]}</p>
+            </div>
+            <div className='flex justify-center mt-4'>
+              <Button variant="contained" color="secondary" className='w-32' onClick={() => { open("https://buymeacoffee.com/sergiomarquina") }}><Favorite className='mr-2' /> {localization.donate[lang]}</Button>
+              <div className='w-2'></div>
+              <Button variant="contained" className='w-32' onClick={() => { setDonateVisible(false) }}>{localization.close_menu[lang]}</Button>
             </div>
           </div>
-        }
+        </div>
+
+        <div className={'transition-all z-10 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (googleServersErrorVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
+          <div className={`flex flex-col justify-center ml-10 w-10/12 h-3/6 outline outline-1 ${config.light_mode ? "outline-white" : "outline-slate-950"} outline-gray-200 rounded ${config.light_mode ? "bg-white" : "bg-slate-950"}`}>
+            <div className='flex flex-row justify-center'>
+              <p className='ml-4 text-md text-center'>{localization.unable_to_access_google_servers[lang]}</p>
+            </div>
+            <div className='flex flex-row justify-center mt-4'>
+              <Button variant="contained" className='w-32' onClick={() => { setGoogleServersErrorVisible(false) }}>{localization.close_menu[lang]}</Button>
+            </div>
+          </div>
+        </div>
 
         <div className={'transition-all z-30 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (settingsVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
           <div className={`flex flex-col justify-between  w-10/12 h-5/6 outline outline-1 ${config.light_mode ? "outline-slate-400" : "outline-slate-950"} rounded bg-white`}>
