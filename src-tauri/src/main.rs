@@ -55,6 +55,8 @@ fn show_windows_audio_settings() {
         .arg("ms-settings:sound")
         .creation_flags(0x08000000_u32)
         .spawn()
+        .unwrap()
+        .wait()
         .unwrap();
 }
 
