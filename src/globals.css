@@ -11,3 +11,15 @@
 body {
   font-family: 'Inter';
 }
+
+@layer base {
+  h2 {
+    @apply text-2xl;
+  }
+  h3 {
+    @apply text-xl;
+  }
+  ul, ol {
+    list-style: revert;
+  }
+}

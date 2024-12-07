@@ -1,18 +1,18 @@
-## Kikitan is finally v1.1!
+## Major Update: v1.2
+Another very important update for Kikitan! As you might have noticed, there are some important changes that have been made!
 
-This marks an important milestone in the development cycle of Kikitan. While there are still issues such as misrecognition and mistranslation, these will be addressed in a later update. Recognition may remain as is for a while, but translation should hopefully see significant improvements and increased customizability!
-
-### Performance and Stability Updates
-- The loading and refreshing speed of Kikitan has drastically improved. You will notice the difference as soon as you open the application.
-- The project has been converted from JavaScript and Next to TypeScript and Vite + React. This has cleaned up the entire codebase, allowing me to optimize and fix many existing issues.
-
-### Bug Fixes
-- The issue with percentage signs breaking translations has been resolved.
-- The language swap button was incorrectly swapping languages. I switched to a dictionary-based system rather than an array-based one to fix this issue.
-- The translation or speech detection feature was randomly stopping. This has been addressed by rewriting the entire detection and translation logic.
+### Dark Theme Support
+The blinding background of Kikitan can now be changed with a darker option! It is enabled by default so if you want to change the theme, you can do so by the button on top left.
 
 ### UI Updates
-- Updates are now automatic. When an update is downloading, users will be notified by a popup.
-- A new setting has been added in the language options: "When translating to English, change the pronouns in the translation for gender-neutral languages."
+- Some unused fields are removed
+- UI design had some inconsistencies such as different colors on different parts of the UI. Those are fixed
+- Improved the animations by quite a bit.
+- Added new transitions for "Recognition" and "Translation" boxes. You will notice them right away!
+- Added a start/stop button. There normally was a button for that on the top bar called "VRChat OSC" but it was not obvious for a lot of people. This should be more straightforward.
+- Added a donation pop up that will show up every now and then
+
+### Feature Updates
+- Added a new setting called "Disable Kikitan when muted" under the settings. This will disable recognition when you mute yourself in the game. Requires Kikitan to be started.
 
 If you encounter any issues, please contact me on X (@marquina_osu) or Discord (sergiomarquina).
