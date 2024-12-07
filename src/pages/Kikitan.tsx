@@ -37,7 +37,8 @@ let detectionQueue: string[] = []
 let lock = false
 
 export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
-    const [detecting, setDetecting] = React.useState(true)
+    const [detecting, setDetecting] = React.useState(false)
+    const [translating, setTranslating] = React.useState(false)
     const [srStatus, setSRStatus] = React.useState(true)
     const [vrcMuted, setVRCMuted] = React.useState(false)
 
@@ -86,6 +87,7 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
 
             while (count > 0) {
                 try {
+                    setTranslating(true)
                     let text = await translateGT(val, sourceLanguage, targetLanguage)
 
                     if (config.language_settings.english_gender_change && targetLanguage == "en") {
@@ -94,6 +96,7 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
                     }
 
                     setTranslated(text)
+                    setTranslating(false)
 
                     invoke("send_message", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}`, msg: config.vrchat_settings.translation_first ? `${text} (${val})` : `${val} (${text})` })
                     await new Promise(r => setTimeout(r, calculateMinWaitTime(text, config.vrchat_settings.chatbox_update_speed)));
@@ -138,7 +141,7 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
 
             sr.onResult((result: string, isFinal: boolean) => {
                 if (config.mode == 1 || config.vrchat_settings.send_typing_while_talking) invoke("send_typing", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}` })
-
+                
                 setDetection(result)
                 setDetecting(!isFinal)
             })
@@ -179,16 +182,33 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
     return <>
         <div className="flex align-middle">
             <div>
-                <div className={`mr-16 w-96 h-48 outline outline-2 transition-all outline-slate-400 rounded-md font-bold text-center ${detecting ? "text-slate-700 italic" : "text-black"} ${srStatus ? "" : "bg-gray-400"}`}>
+                <div className={`mr-16 w-96 h-48 outline outline-1 transition-all rounded-md font-bold text-center ${detecting ? "italic " + config.light_mode ? "text-slate-400 outline-slate-800" : "text-slate-200 outline-slate-400" :  config.light_mode ? "text-black" : "text-slate-200"} ${srStatus ? "" : "bg-gray-400"}`}>
                     <p className="align-middle">{detection}</p>
                 </div>
                 <div className="flex">
-                    <Select className="mt-4 ml-auto h-14" value={sourceLanguage} onChange={(e) => {
+                    <Select sx={{
+                        color: config.light_mode ? 'black' : 'white',
+                        '& .MuiOutlinedInput-notchedOutline': {
+                            borderColor: config.light_mode ? 'black' : '#94A3B8',
+                        },
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                            borderColor: config.light_mode ? 'black' : '#94A3B8',
+                        },
+                        "& .MuiSvgIcon-root": {
+                            color: config.light_mode ? 'black' : '#94A3B8'
+                        }
+                    }} MenuProps={{
+                        sx: {
+                            "& .MuiPaper-root": {
+                                backgroundColor: config.light_mode ? '#94A3B8' : '#020617',
+                            }
+                        }
+                    }}className="mt-4 ml-auto h-14" value={sourceLanguage} onChange={(e) => {
                         setSourceLanguage(e.target.value)
                         setConfig({ ...config, source_language: e.target.value })
                     }}>
                         {langSource.map((element) => {
-                            return <MenuItem key={element.code} value={element.code}>{element.name[lang]}</MenuItem>
+                            return <MenuItem sx={{ color: config.light_mode ? 'black' : 'white' }} key={element.code} value={element.code}>{element.name[lang]}</MenuItem>
                         })}
                     </Select>
                     <div className="mt-7">
@@ -207,17 +227,34 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
                 </div>
             </div>
             <div>
-                <div className={`w-96 h-48 outline outline-2 transition-all outline-slate-400 rounded-md text-black font-bold text-center ${srStatus ? "" : "bg-gray-400"}`}>
-                    <p className="align-middle">{translated}</p>
+                <div className={`w-96 h-48 outline outline-1 transition-all rounded-md ${config.light_mode ? "text-black outline-slate-800" : "text-slate-200 outline-slate-400"} font-bold text-center ${srStatus ? "" : "bg-gray-400"}`}>
+                    <p className={`transition-all duration-300 align-middle ${translating ? "opacity-0" : "opacity-100"}`}>{translated}</p>
                 </div>
                 <div>
-                    <Select className="mt-4" value={targetLanguage} onChange={(e) => {
+                    <Select sx={{
+                        color: config.light_mode ? 'black' : 'white',
+                        '& .MuiOutlinedInput-notchedOutline': {
+                            borderColor: config.light_mode ? 'black' : '#94A3B8',
+                        },
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                            borderColor: config.light_mode ? 'black' : '#94A3B8',
+                        },
+                        "& .MuiSvgIcon-root": {
+                            color: config.light_mode ? 'black' : '#94A3B8'
+                        }
+                    }} MenuProps={{
+                        sx: {
+                            "& .MuiPaper-root": {
+                                backgroundColor: config.light_mode ? '#94A3B8' : '#020617',
+                            }
+                        }
+                    }} className="mt-4" value={targetLanguage} onChange={(e) => {
                         setTargetLanguage(e.target.value)
 
                         setConfig({ ...config, target_language: e.target.value })
                     }}>
                         {langTo.map((element) => {
-                            return <MenuItem key={element.code} value={element.code}>{element.name[lang]}</MenuItem>
+                            return <MenuItem sx={{ color: config.light_mode ? 'black' : 'white' }} key={element.code} value={element.code}>{element.name[lang]}</MenuItem>
                         })}
                     </Select>
                 </div>

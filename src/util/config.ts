@@ -11,6 +11,7 @@ export type Config = {
     source_language: string,
     target_language: string,
     mode: number,
+    light_mode: boolean,
     language_settings: {
         japanese_omit_questionmark: boolean,
         english_gender_change: boolean,
@@ -30,6 +31,7 @@ export const DEFAULT_CONFIG: Config = {
     source_language: "en-US",
     target_language: "ja",
     mode: 0,
+    light_mode: false,
     language_settings: {
         japanese_omit_questionmark: true,
         english_gender_change: false,
