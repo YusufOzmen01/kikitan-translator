@@ -47,7 +47,6 @@ export const DEFAULT_CONFIG: Config = {
     }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function validate_config(config: Config): Config {
     // Validation 1: Validate the structure of the config
     // Oh yes, we love em types
