@@ -199,7 +199,7 @@ function App() {
           </div>
         </div>
 
-        <div className={'transition-all z-30 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (donateVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
+        <div className={'transition-all z-30 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (donateVisible && !quickstartVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
           <div className={`flex flex-col justify-center ml-10 w-6/12 h-3/6 outline outline-1 ${config.light_mode ? "outline-white" : "outline-slate-950"} rounded ${config.light_mode ? "bg-white" : "bg-slate-950"}`}>
             <div className='flex flex-row justify-center'>
               <p className='ml-4 text-md text-center'>{localization.donation_text[lang]}</p>
