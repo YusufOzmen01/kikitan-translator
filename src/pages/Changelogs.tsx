@@ -16,9 +16,10 @@ import { Lang } from "../util/constants";
 type ChangelogsProps = {
     closeCallback: () => void;
     lang: Lang;
+    light_mode: boolean;
 }
 
-export default function Changelogs({ closeCallback, lang }: ChangelogsProps) {
+export default function Changelogs({ closeCallback, lang, light_mode }: ChangelogsProps) {
     const [changelog, setChangelog] = React.useState("")
     React.useEffect(() => {
         fetch(`/changelogs/${lang}.md`).then((res) => res.text()).then((text) => {
@@ -27,8 +28,19 @@ export default function Changelogs({ closeCallback, lang }: ChangelogsProps) {
     }, [])
 
     return <>
-        <Box sx={{ width: '100%' }}>
-            <Box className="flex" sx={{ borderBottom: 1, borderColor: 'divider' }}>
+        <Box sx={{ 
+            width: '100%',
+            '& .MuiSvgIcon-root': {
+                color: light_mode ? 'black' : 'white'
+            },
+            '& .MuiOutlinedInput-notchedOutline': {
+                borderColor: light_mode ? 'black' : 'white',
+            },
+            '&:hover .MuiOutlinedInput-notchedOutline': {
+                borderColor: light_mode ? 'black' : 'white',
+            },
+        }} className={`h-screen ${light_mode ? "" : "bg-slate-950 text-white"}`}>
+            <Box className={`flex`} sx={{ borderBottom: 1, borderColor: 'divider' }}>
                 <IconButton className="ml-2 mr-2" onClick={() => { closeCallback() }}>
                     <Close />
                 </IconButton>
@@ -36,7 +48,7 @@ export default function Changelogs({ closeCallback, lang }: ChangelogsProps) {
                 <h1 className="ml-2 mt-[5px] text-xl font-semibold">{localization.changelogs[lang]}</h1>
             </Box>
 
-            <Markdown remarkPlugins={[remarkGfm]} className="text-md mt-4 ml-8 w-11/12 max-h-80 whitespace-pre text-wrap overflow-y-scroll">{changelog}</Markdown>
+            <Markdown remarkPlugins={[remarkGfm]} className="list-disc list-inside text-sm mt-4 ml-8 w-11/12 max-h-80 whitespace-pre text-wrap overflow-y-scroll">{changelog}</Markdown>
         </Box>
     </>
 }
