@@ -1,16 +1,13 @@
 from github import Github, Auth, InputFileContent
 
-from dotenv import load_dotenv
 import os
 import json
-
-load_dotenv()
 
 if "GITHUB_API_KEY" not in os.environ:
     raise Exception("GITHUB_API_KEY is required to run this script")
 
 if "TAURI_SIGNING_PRIVATE_KEY" not in os.environ:
-    raise Exception("GITHUB_API_KEY is required to run this script")
+    raise Exception("TAURI_SIGNING_PRIVATE_KEY is required to run this script")
 
 auth = Auth.Token(os.getenv("GITHUB_API_KEY"))
 g = Github(auth=auth)

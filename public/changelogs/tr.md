@@ -1,18 +1,18 @@
-## Kikitan nihayet v1.1 oldu!
+## Önemli Güncelleme: v1.2
+Kikitan için çok önemli bir güncelleme! Dikkat etmiş olabilirsiniz, bazı önemli değişiklikler yapıldı!
 
-Bu, Kikitan'ın geliştirme döngüsünde önemli bir kilometre taşı. Hala yanlış konuşma algılama ve yanlış çeviri gibi sorunlar var, ancak bunlar sonraki güncellemelerde ele alınacaktır. Konuşma algılama şu an için bu şekilde kalabilir, ancak çeviri büyük iyileştirmeler ve özelleştirilebilirlik görecektir umarım!
+### Karanlık Tema Desteği
+Kikitan'ın göz alan arka planı artık daha koyu bir seçenekle değiştirilebilir! Varsayılan olarak etkinleştirilmiştir, ancak temayı değiştirmek isterseniz sol üstteki düğmeden yapabilirsiniz.
 
-### Performans ve Stabilite Güncellemeleri
-- Kikitan'ın yüklenme ve yenileme hızı önemli ölçüde arttı. Uygulamayı açtığınızda hemen fark edeceksiniz.
-- Proje, JavaScript ve Next'ten TypeScript ve Vite + React'a dönüştürüldü. Bu, tüm kod tabanını temizleyerek birçok mevcut sorunu optimize etmemi ve düzeltmemi sağladı.
+### Arayüz Güncellemeleri
+- Kullanılmayan bazı alanlar kaldırıldı.
+- Arayüz tasarımındaki tutarsızlıklar (örneğin, farklı bölümlerde farklı renkler) düzeltildi.
+- Animasyonlar büyük ölçüde geliştirildi.
+- "Tanıma" ve "Çeviri" kutuları için yeni geçişler eklendi. Bunları hemen fark edeceksiniz!
+- Başlat/durdur düğmesi eklendi. Daha önce üst çubukta "VRChat OSC" adlı bir düğme vardı ama birçok kişi için belirgin değildi. Şimdi daha anlaşılır.
+- Zaman zaman görünen bir bağış açılır penceresi eklendi.
 
-### Hata Düzeltmeleri
-- Yüzde işaretinin çeviriyi bozma sorunu çözüldü.
-- Dil değiştirme butonu dilleri yanlış değiştiriyordu. Bu sorunu çözmek için dizilere dayalı sistemden sözlük tabanlı bir sisteme geçtim.
-- Çeviri veya ses algılama özelliği rastgele duruyordu. Bu sorun, tüm algılama ve çeviri mantığını yeniden yazarak çözüldü.
+### Özellik Güncellemeleri
+- Ayarlarda "Sessize alınca Kikitan'ı devre dışı bırak" adında yeni bir ayar eklendi. Bu, oyunda kendinizi sessize aldığınızda tanımayı devre dışı bırakacaktır. Kikitan'ın başlatılmış olması gerekir.
 
-### UI Güncellemeleri
-- Güncellemeler artık otomatik olarak yapılmaktadır. Güncelleme indirilirken kullanıcı bir açılır pencere ile bilgilendirilecektir.
-- Dil ayarlarına yeni bir seçenek eklendi: "İngilizceye çevirirken cinsiyet nötr dillerdeki zamirleri çeviride değiştir."
-
-Sorunlarla karşılaşırsanız, lütfen X (@marquina_osu) veya Discord (sergiomarquina) üzerinden benimle iletişime geçin.
+Herhangi bir sorunla karşılaşırsanız, bana X (@marquina_osu) veya Discord (sergiomarquina) üzerinden ulaşabilirsiniz.

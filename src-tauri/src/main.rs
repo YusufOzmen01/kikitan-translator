@@ -6,17 +6,10 @@ use rosc::{OscMessage, OscPacket, OscType};
 use std::net::{Ipv4Addr, UdpSocket};
 use std::os::windows::process::CommandExt;
 use std::process::Command;
-use tauri::Manager;
+use std::thread;
+use tauri::{AppHandle, Emitter};
 
 fn main() {
-    Command::new("taskkill")
-        .arg("/F")
-        .arg("/IM")
-        .arg("Kikitan OVR.exe")
-        .creation_flags(0x08000000_u32)
-        .spawn()
-        .unwrap();
-
     tauri::Builder::default()
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_shell::init())
@@ -24,9 +17,8 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             send_typing,
             send_message,
-            start_ovr,
-            kill_ovr,
-            show_windows_audio_settings
+            show_windows_audio_settings,
+            start_vrc_listener
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -57,36 +49,47 @@ fn send_message(msg: String, address: String, port: String) {
 }
 
 #[tauri::command]
-fn start_ovr(handle: tauri::AppHandle) {
-    let resource_path = handle
-        .path()
-        .resource_dir()
-        .expect("failed to resolve resource")
-        .join("ovr/Kikitan OVR.exe");
-
-    Command::new(resource_path)
-        .creation_flags(0x08000000_u32)
-        .spawn()
-        .unwrap();
-}
-
-#[tauri::command]
 fn show_windows_audio_settings() {
     Command::new("powershell")
         .arg("Start")
         .arg("ms-settings:sound")
         .creation_flags(0x08000000_u32)
         .spawn()
+        .unwrap()
+        .wait()
         .unwrap();
 }
 
 #[tauri::command]
-fn kill_ovr() {
-    Command::new("taskkill")
-        .arg("/F")
-        .arg("/IM")
-        .arg("Kikitan OVR.exe")
-        .creation_flags(0x08000000_u32)
-        .spawn()
-        .unwrap();
+fn start_vrc_listener(app: AppHandle) {
+    thread::spawn(move || {
+        let sock = UdpSocket::bind("localhost:9001").unwrap();
+        let mut buf = [0u8; rosc::decoder::MTU];
+
+        loop {
+            match sock.recv_from(&mut buf) {
+                Ok((size, _)) => {
+                    let (_, packet) = rosc::decoder::decode_udp(&buf[..size]).unwrap();
+
+                    match packet {
+                        OscPacket::Message(msg) => {
+                            if msg.addr.as_str() == "/avatar/parameters/MuteSelf" {
+                                if let Some(mute) = msg.args.first().unwrap().clone().bool() {
+                                    app.emit("vrchat-mute", mute).unwrap();
+                                }
+                            }
+                        }
+                        
+                        OscPacket::Bundle(bundle) => {
+                            println!("OSC Bundle: {:?}", bundle);
+                        }
+                    }
+                }
+                Err(e) => {
+                    println!("Error receiving from socket: {}", e);
+                    break;
+                }
+            }
+        }
+    });
 }

@@ -10,8 +10,8 @@ export const speed_presets = {
 export type Config = {
     source_language: string,
     target_language: string,
-    translator: number,
     mode: number,
+    light_mode: boolean,
     language_settings: {
         japanese_omit_questionmark: boolean,
         english_gender_change: boolean,
@@ -30,8 +30,8 @@ export type Config = {
 export const DEFAULT_CONFIG: Config = {
     source_language: "en-US",
     target_language: "ja",
-    translator: 0,
     mode: 0,
+    light_mode: false,
     language_settings: {
         japanese_omit_questionmark: true,
         english_gender_change: false,
@@ -47,7 +47,6 @@ export const DEFAULT_CONFIG: Config = {
     }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function validate_config(config: Config): Config {
     // Validation 1: Validate the structure of the config
     // Oh yes, we love em types
@@ -69,8 +68,6 @@ export function validate_config(config: Config): Config {
     }
 
     // Validation 2: Update source and target language
-    // check if cfg.source_language and cfg.target_language are numbers
-    // if so, replace it with the code of the language
     if (typeof cfg.source_language === "number") {
         cfg.source_language = langSource[cfg.source_language].code
     }
