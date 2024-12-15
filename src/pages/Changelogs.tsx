@@ -9,6 +9,11 @@ import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 
 import {
+  info,
+  error
+} from '@tauri-apps/plugin-log';
+
+import {
     Close
 } from '@mui/icons-material';
 import { Lang } from "../util/constants";
@@ -22,9 +27,14 @@ type ChangelogsProps = {
 export default function Changelogs({ closeCallback, lang, light_mode }: ChangelogsProps) {
     const [changelog, setChangelog] = React.useState("")
     React.useEffect(() => {
+        info("[CHANGELOG] Fetching changelogs...")
         fetch(`/changelogs/${lang}.md`).then((res) => res.text()).then((text) => {
+            info("[CHANGELOG] Succesfully fetched changelogs!")
             setChangelog(text)
           })
+        .catch(e => {
+            error("[CHANGELOG] Error fetching changelogs: " + e)
+        })
     }, [])
 
     return <>

@@ -53,6 +53,7 @@ function App() {
 
   const [config, setConfig] = React.useState(DEFAULT_CONFIG)
   const [lang, setLang] = React.useState<Lang>("en")
+  const [appVersion, setAppVersion] = React.useState("")
 
   const [loaded, setLoaded] = React.useState(false)
 
@@ -62,6 +63,7 @@ function App() {
 
   React.useEffect(() => {
     getVersion().then((version) => {
+      setAppVersion(version)
       setChangelogsVisible(localStorage.getItem("changelogsViewed") != version)
 
       setTimeout(() => localStorage.setItem("changelogsViewed", version), 1000)
@@ -98,7 +100,7 @@ function App() {
     } else {
       const last = parseInt(localStorage.getItem("last_donation")!)
 
-      if ((last + 60 * 60 * 24 * 30) <= Date.now()) {
+      if ((last + 60 * 60 * 12 * 1000) <= Date.now()) {
         setDonateVisible(true)
         localStorage.setItem("last_donation", `${Date.now()}`)
       }
@@ -205,9 +207,9 @@ function App() {
               <p className='ml-4 text-md text-center'>{localization.donation_text[lang]}</p>
             </div>
             <div className='flex justify-center mt-4'>
-              <Button variant="contained" color="secondary" className='w-32' onClick={() => { open("https://buymeacoffee.com/sergiomarquina") }}><Favorite className='mr-2' /> {localization.donate[lang]}</Button>
+              <Button variant="contained" color="secondary" className='w-48' onClick={() => { open("https://buymeacoffee.com/sergiomarquina") }}><Favorite className='mr-2' /> {localization.donate[lang]}</Button>
               <div className='w-2'></div>
-              <Button variant="contained" className='w-32' onClick={() => { setDonateVisible(false) }}>{localization.close_menu[lang]}</Button>
+              <Button variant="contained" className='w-48' onClick={() => { setDonateVisible(false) }}>{localization.close_menu[lang]}</Button>
             </div>
           </div>
         </div>
@@ -239,8 +241,15 @@ function App() {
         <div className="flex flex-col h-screen z-0">
           <AppBar position="static">
             <Toolbar>
-              <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+              <Typography className="flex" variant="h6" component="div" sx={{ flexGrow: 1 }}>
                 Kikitan Translator
+                <p className="text-sm italic ml-2 mt-2">
+                  <a href='' onClick={(e) => {
+                    e.preventDefault()
+
+                    setChangelogsVisible(true)
+                  }}>v{appVersion}</a>
+                </p>
               </Typography>
               <div className='flex'>
                 <Select sx={{
