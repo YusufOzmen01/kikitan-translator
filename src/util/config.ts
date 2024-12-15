@@ -1,6 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { langSource, langTo } from "./constants"
 
+import {
+    info,
+    debug
+} from '@tauri-apps/plugin-log';
+
 export const speed_presets = {
     slow: 60,
     medium: 30,
@@ -61,6 +66,7 @@ export function validate_config(config: Config): Config {
                 for (const key2 in nestedConfig) {
                     if (cfg[key][key2] == null) {
                         cfg[key][key2] = (nestedConfig as any)[key2];
+                        debug(`[CONFIG] Added missing key ${key2} to ${key}`)
                     }
                 }
             }
@@ -70,17 +76,21 @@ export function validate_config(config: Config): Config {
     // Validation 2: Update source and target language
     if (typeof cfg.source_language === "number") {
         cfg.source_language = langSource[cfg.source_language].code
+
+        debug(`[CONFIG] Updated source language to ${cfg.source_language}`)
     }
 
     if (typeof cfg.target_language === "number") {
         cfg.target_language = langTo[cfg.target_language < 6 ? 0 : cfg.target_language-5].code
+
+        debug(`[CONFIG] Updated target language to ${cfg.target_language}`)
     }
 
     return cfg
 }
 
 export function load_config(): Config {
-    console.log("loading")
+    info("[CONFIG] Loading config...")
     if (typeof window === "undefined") return DEFAULT_CONFIG
 
     const val = window.localStorage.getItem("config")
@@ -89,9 +99,13 @@ export function load_config(): Config {
     const config = validate_config(JSON.parse(val))
     update_config(config)
 
+    info("[CONFIG] Loaded config!")
+
     return config
 }
 
 export function update_config(config: Config) {
+    info(`[CONFIG] Updating config to ${JSON.stringify(config, null, 2)}`)
+
     localStorage.setItem("config", JSON.stringify(config))
 }
