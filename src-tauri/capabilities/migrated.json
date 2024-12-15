@@ -16,6 +16,7 @@
     "shell:allow-open",
     "fs:default",
     "shell:default",
-    "updater:default"
+    "updater:default",
+    "log:default"
   ]
 }

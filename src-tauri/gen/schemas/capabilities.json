@@ -1,1 +1,1 @@
-{"migrated":{"identifier":"migrated","description":"permissions that were migrated from v1","local":true,"windows":["main"],"permissions":["core:default",{"identifier":"fs:scope","allow":["$RESOURCE/*"]},"shell:allow-open","fs:default","shell:default","updater:default"]}}
+{"migrated":{"identifier":"migrated","description":"permissions that were migrated from v1","local":true,"windows":["main"],"permissions":["core:default",{"identifier":"fs:scope","allow":["$RESOURCE/*"]},"shell:allow-open","fs:default","shell:default","updater:default","log:default"]}}
