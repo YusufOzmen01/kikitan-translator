@@ -3,6 +3,12 @@ import * as React from "react"
 import { Select, MenuItem, Button } from "@mui/material"
 
 import {
+    info,
+    error,
+    warn
+} from '@tauri-apps/plugin-log';
+
+import {
     X as XIcon,
     GitHub as GitHubIcon,
     SwapHoriz as SwapHorizIcon,
@@ -54,43 +60,62 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
     const [targetLanguage, setTargetLanguage] = React.useState(config.target_language)
 
     React.useEffect(() => {
+        info(`[LANGUAGE] Changing language (${sourceLanguage} - ${targetLanguage}) - sr=${sr}`)
+
         if (sr) {
             sr.set_lang(sourceLanguage)
         }
     }, [sourceLanguage, targetLanguage])
 
     React.useEffect(() => {
+        info(`[SR] SR status=${srStatus} - VRC Muted=${vrcMuted}`)
+
         if (sr == null) {
+            warn("[SR] SR is currently null, so ignoring the changes")
+
             return
         }
 
         if (srStatus) {
-            if (vrcMuted) sr.stop()
-            else sr.start()
+            if (vrcMuted) {
+                info("[SR] Pausing SR...")
+                sr.stop()
+            }
+            else {
+                info("[SR] Starting SR...")
+                sr.start()
+            }
         }
-        else sr.stop()
+        else {
+            info("[SR] Stopping SR...")
+            sr.stop()
+        }
     }, [srStatus, vrcMuted])
 
     React.useEffect(() => {
         (async () => {
             if (detectionQueue.length == 0 || lock) return;
 
-            console.log(config.language_settings.english_gender_change_gender)
-
             const val = detectionQueue[0].replace(/%/g, "%25")
             detectionQueue = detectionQueue.slice(1)
 
             lock = true
 
+            info(`[TRANSLATION] Starting translation. Current detection queue length is ${detectionQueue.length}`)
+
             invoke("send_typing", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}` })
             let count = 3;
 
             while (count > 0) {
+                info(`[TRANSLATION] Attempting translation. Try ${4-count}`)
                 try {
                     setTranslating(true)
                     let text = await translateGT(val, sourceLanguage, targetLanguage)
+                    info("[TRANSLATION] Translation succeeded!")
 
                     if (config.language_settings.english_gender_change && targetLanguage == "en") {
+                        info("[TRANSLATION] Applying pronoun changes...")
+
                         if (config.language_settings.english_gender_change_gender == 0) text = text.replace(/\bshe\b/g, "he").replace(/\bShe\b/g, "He").replace(/\bher\b/g, "him").replace(/\bHer\b/g, "Him")
                         else text = text.replace(/\bhe\b/g, "she").replace(/\bHe\b/g, "She").replace(/\bhis\b/g, "her").replace(/\bHis\b/g, "Her").replace(/\bhim\b/g, "her").replace(/\bHim\b/g, "Her").replace(/\bhe's\b/g, "she's").replace(/\bHe's\b/g, "She's")
                     }
@@ -98,12 +123,13 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
                     setTranslated(text)
                     setTranslating(false)
 
+                    info("[TRANSLATION] Sending the message to chatbox...")
                     invoke("send_message", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}`, msg: config.vrchat_settings.translation_first ? `${text} (${val})` : `${val} (${text})` })
                     await new Promise(r => setTimeout(r, calculateMinWaitTime(text, config.vrchat_settings.chatbox_update_speed)));
 
                     count = 0
                 } catch (e) {
-                    console.log(e)
+                    error(`[TRANSLATION] An error occured while trying to translate: ${e}`)
 
                     count--
                 }
@@ -121,10 +147,12 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
 
     React.useEffect(() => {
         listen<boolean>("vrchat-mute", (event) => {
+            info(`[OSC] Received mute status ${event.payload}`)
             setVRCMuted(event.payload)
         })
 
         if (sr == null) {
+            info(`[SR] Initializing SR...`)
             setInterval(() => {
                 navigator.mediaDevices.enumerateDevices()
                     .then(function (devices) {
@@ -133,26 +161,29 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
 
                         setDefaultMicrophone(def)
                     }).catch(function (err) {
-                        console.log(err.name + ": " + err.message);
+                        error(`[MEDIA] Error while trying to pull the media devices: ${err.name + " " + err.message}`)
                     });
             }, 1000)
 
             sr = new WebSpeech(sourceLanguage)
+            info("[SR] Using WebSpeech for recognition")
 
             sr.onResult((result: string, isFinal: boolean) => {
+                info(`[SR] Received recognition result: Final: ${isFinal} - Result Length: ${result.length}`)
                 if (config.mode == 1 || config.vrchat_settings.send_typing_while_talking) invoke("send_typing", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}` })
                 
                 setDetection(result)
                 setDetecting(!isFinal)
             })
 
+            info("[SR] Starting recognition")
             sr.start()
         }
     }, [])
 
     React.useEffect(() => {
         if (defaultMicrophone == localization.waiting_for_mic_access[lang]) return;
-        console.log("Default microphone is not empty")
+        info("[MEDIA] Updating current microphone to " + defaultMicrophone)
 
         if (lastDefaultMicrophone == "") {
             setLastDefaultMicrophone(defaultMicrophone)
@@ -160,21 +191,24 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
             return;
         }
 
-        console.log("Last default microphone is not empty")
-
         if (lastDefaultMicrophone == defaultMicrophone) return;
 
         window.location.reload()
     }, [defaultMicrophone])
 
     React.useEffect(() => {
+        info(`[DETECTION] Detection status: Detecting: ${detecting} - Detection Length: ${detection.length}`)
+
         if (!detecting && detection.length != 0) {
             if (config.mode == 0) {
                 detectionQueue = [...detectionQueue, (sourceLanguage == "ja" && config.language_settings.japanese_omit_questionmark) ? detection.replace(/？/g, "") : detection]
 
+                info(`[DETECTION] Pushed the detection into the queue. Current queue length is ${detectionQueue.length}`)
+
                 return
             }
 
+            info(`[DETECTION] Sending the detection to chatbox...`)
             invoke("send_message", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}`, msg: (sourceLanguage == "ja" && config.language_settings.japanese_omit_questionmark) ? detection.replace(/？/g, "") : detection })
         }
     }, [detecting, detection])
