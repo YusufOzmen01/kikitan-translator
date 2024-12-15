@@ -4,6 +4,7 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+import { appLogDir } from '@tauri-apps/api/path';
 import { IconButton, FormControlLabel, FormGroup, Checkbox, TextField, Select, MenuItem, Button } from "@mui/material";
 
 import {
@@ -14,6 +15,7 @@ import { Config, DEFAULT_CONFIG, speed_presets } from "../util/config";
 
 import { localization } from "../util/localization";
 import { Lang } from "../util/constants";
+import { open } from "@tauri-apps/plugin-shell";
 
 type CustomTabPanelProps = {
     children: React.ReactNode;
@@ -244,8 +246,8 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
             </CustomTabPanel>
             <CustomTabPanel className="flex" value={page} index={2}>
                 <FormGroup>
-                    <Button variant="contained" onClick={() => {
-                        
+                    <Button variant="contained" onClick={async () => {
+                        open(await appLogDir())
                     }}>{localization.open_logs[lang]}</Button>
                 </FormGroup>
             </CustomTabPanel>

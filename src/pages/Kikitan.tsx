@@ -60,7 +60,7 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
     const [targetLanguage, setTargetLanguage] = React.useState(config.target_language)
 
     React.useEffect(() => {
-        info(`[LANGUAGE] Changing language (${sourceLanguage} - ${targetLanguage}) - sr=${sr}`)
+        info(`[LANGUAGE] Changing language (${sourceLanguage} - ${targetLanguage}) - sr=${sr != null}`)
 
         if (sr) {
             sr.set_lang(sourceLanguage)

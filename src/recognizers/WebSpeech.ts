@@ -31,56 +31,32 @@ export class WebSpeech extends Recognizer {
 
         this.recognition.onend = () => {
             if (this.running) {
-                debug("[WEBSPEECH] Recognition ended. Restarting in 500ms...")
-
                 setTimeout(() => {
                     try {
                         this.recognition.start();
-
-                        debug("[WEBSPEECH] Recognition restarted!")
-                    } catch (e) {
-                        console.log(e)
-
-                        error("[WEBSPEECH] Error restarting recognition: " + e)
-                    }
+                    } catch { /* empty */ }
                 }, 500);
             }
         }
 
         this.recognition.onnomatch = () => {
-            debug("[WEBSPEECH] No match. Restarting in 500ms...")
-
             if (this.running) {
                 setTimeout(() => {
                     try {
                         this.recognition.start();
-
-                        debug("[WEBSPEECH] Recognition restarted!")
-                    } catch (e) {
-                        console.log(e)
-
-                        error("[WEBSPEECH] Error restarting recognition: " + e)
-                    }
+                    } catch { /* empty */ }
                 }, 500);
             }
         }
 
         this.recognition.onerror = (e) => {
-            error("[WEBSPEECH] Error: " + e)
+            if (e.message.trim().length != 0) error("[WEBSPEECH] Error: " + e.message)
 
             if (this.running) {
-                debug("[WEBSPEECH] Restarting in 500ms...")
-
                 setTimeout(() => {
                     try {
                         this.recognition.start();
-
-                        debug("[WEBSPEECH] Recognition restarted!")
-                    } catch (e) {
-                        console.log(e)
-
-                        error("[WEBSPEECH] Error restarting recognition: " + e)
-                    }
+                    } catch { /* empty */ }
                 }, 500);
             }
         }
