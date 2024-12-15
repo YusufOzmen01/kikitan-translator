@@ -1,5 +1,11 @@
 import { Recognizer } from "./recognizer";
 
+import {
+    info,
+    error,
+    debug
+} from '@tauri-apps/plugin-log';
+
 export class WebSpeech extends Recognizer {
     recognition: SpeechRecognition;
 
@@ -17,8 +23,10 @@ export class WebSpeech extends Recognizer {
         this.running = true;
         try {
             this.recognition.start();
+
+            info("[WEBSPEECH] Recognition started!")
         } catch (e) {
-            console.log(e)
+            error("[WEBSPEECH] Error starting recognition: " + e)
         }
 
         this.recognition.onend = () => {
@@ -26,9 +34,7 @@ export class WebSpeech extends Recognizer {
                 setTimeout(() => {
                     try {
                         this.recognition.start();
-                    } catch (e) {
-                        console.log(e)
-                    }
+                    } catch { /* empty */ }
                 }, 500);
             }
         }
@@ -38,23 +44,19 @@ export class WebSpeech extends Recognizer {
                 setTimeout(() => {
                     try {
                         this.recognition.start();
-                    } catch (e) {
-                        console.log(e)
-                    }
+                    } catch { /* empty */ }
                 }, 500);
             }
         }
 
         this.recognition.onerror = (e) => {
-            console.log(e)
+            if (e.message.trim().length != 0) error("[WEBSPEECH] Error: " + e.message)
 
             if (this.running) {
                 setTimeout(() => {
                     try {
                         this.recognition.start();
-                    } catch (e) {
-                        console.log(e)
-                    }
+                    } catch { /* empty */ }
                 }, 500);
             }
         }
@@ -63,13 +65,17 @@ export class WebSpeech extends Recognizer {
     stop() {
         this.running = false;
         this.recognition.stop();
+
+        info("[WEBSPEECH] Recognition stopped!")
     }
 
     set_lang(lang: string) {
         this.recognition.lang = lang;
 
+        debug("[WEBSPEECH] Language set to " + lang)
         this.recognition.stop();
 
+        debug("[WEBSPEECH] Restarting in 500ms...")
         setTimeout(() => {
             this.recognition.start();
         }, 500);

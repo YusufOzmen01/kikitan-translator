@@ -4,7 +4,8 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import { IconButton, FormControlLabel, FormGroup, Checkbox, TextField, Select, MenuItem } from "@mui/material";
+import { appLogDir } from '@tauri-apps/api/path';
+import { IconButton, FormControlLabel, FormGroup, Checkbox, TextField, Select, MenuItem, Button } from "@mui/material";
 
 import {
     Close,
@@ -14,6 +15,7 @@ import { Config, DEFAULT_CONFIG, speed_presets } from "../util/config";
 
 import { localization } from "../util/localization";
 import { Lang } from "../util/constants";
+import { open } from "@tauri-apps/plugin-shell";
 
 type CustomTabPanelProps = {
     children: React.ReactNode;
@@ -82,6 +84,7 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                 <Tabs textColor="inherit" value={page} onChange={handleChange}>
                     <Tab label={localization.language_settings[lang]} {...a11yProps(0)} />
                     <Tab label={localization.vrchat_settings[lang]} {...a11yProps(1)} />
+                    <Tab label={localization.debug_settings[lang]} {...a11yProps(2)} />
                 </Tabs>
             </Box>
             <CustomTabPanel className="flex" value={page} index={0}>
@@ -239,6 +242,13 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                         <MenuItem sx={{ color: config.light_mode ? 'black' : 'white' }} value={speed_presets.medium}>{localization.medium[lang]}</MenuItem>
                         <MenuItem sx={{ color: config.light_mode ? 'black' : 'white' }} value={speed_presets.fast}>{localization.fast[lang]}</MenuItem>
                     </Select>
+                </FormGroup>
+            </CustomTabPanel>
+            <CustomTabPanel className="flex" value={page} index={2}>
+                <FormGroup>
+                    <Button variant="contained" onClick={async () => {
+                        open(await appLogDir())
+                    }}>{localization.open_logs[lang]}</Button>
                 </FormGroup>
             </CustomTabPanel>
         </Box>
