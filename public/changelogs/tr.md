@@ -1,18 +1,14 @@
-## Önemli Güncelleme: v1.2
-Kikitan için çok önemli bir güncelleme! Dikkat etmiş olabilirsiniz, bazı önemli değişiklikler yapıldı!
-
-### Karanlık Tema Desteği
-Kikitan'ın göz alan arka planı artık daha koyu bir seçenekle değiştirilebilir! Varsayılan olarak etkinleştirilmiştir, ancak temayı değiştirmek isterseniz sol üstteki düğmeden yapabilirsiniz.
+## Küçük Güncelleme: v1.2.1
+Bu sefer ufak hata düzeltmeleri yaptık.
 
 ### Arayüz Güncellemeleri
-- Kullanılmayan bazı alanlar kaldırıldı.
-- Arayüz tasarımındaki tutarsızlıklar (örneğin, farklı bölümlerde farklı renkler) düzeltildi.
-- Animasyonlar büyük ölçüde geliştirildi.
-- "Tanıma" ve "Çeviri" kutuları için yeni geçişler eklendi. Bunları hemen fark edeceksiniz!
-- Başlat/durdur düğmesi eklendi. Daha önce üst çubukta "VRChat OSC" adlı bir düğme vardı ama birçok kişi için belirgin değildi. Şimdi daha anlaşılır.
-- Zaman zaman görünen bir bağış açılır penceresi eklendi.
+- Bağış düğmesinin boyutları diğer dilleri göz önünde bulunduracak şekilde değiştirildi.
+- Hata Ayıklama Menüsü'nün "Günlükleri Aç" düğmesinin işlevi eklendi.
 
 ### Özellik Güncellemeleri
-- Ayarlarda "Sessize alınca Kikitan'ı devre dışı bırak" adında yeni bir ayar eklendi. Bu, oyunda kendinizi sessize aldığınızda tanımayı devre dışı bırakacaktır. Kikitan'ın başlatılmış olması gerekir.
+- Yeni bir günlükleme sistemi eklendi. Buna ayarları açarak, hata ayıklama menüsüne giderek ve "günlükleri aç" düğmesine tıklayarak erişebilirsiniz.
 
-Herhangi bir sorunla karşılaşırsanız, bana X (@marquina_osu) veya Discord (sergiomarquina) üzerinden ulaşabilirsiniz.
+## Hata Düzeltmeleri
+- Bağış açılır penceresi çok sık görünüyordu, bu sorun düzeltildi.
+
+Herhangi bir sorunla karşılaşırsanız, X'te (@marquina_osu) ya da Discord'da (sergiomarquina) benimle iletişime geçebilirsiniz.
