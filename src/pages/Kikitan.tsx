@@ -28,6 +28,7 @@ import { calculateMinWaitTime, Lang, langSource, langTo } from "../util/constant
 import { Config } from "../util/config";
 import { Recognizer } from "../recognizers/recognizer";
 import { WebSpeech } from "../recognizers/WebSpeech";
+import { Whisper } from "../recognizers/Whisper";
 
 import { localization } from "../util/localization";
 import translateGT from "../translators/google_translate";
@@ -165,8 +166,10 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
                     });
             }, 1000)
 
-            sr = new WebSpeech(sourceLanguage)
-            info("[SR] Using WebSpeech for recognition")
+            // sr = new WebSpeech(sourceLanguage)
+            // info("[SR] Using WebSpeech for recognition")
+            sr = new Whisper(sourceLanguage)
+            info("[SR] Using Whisper for recognition")
 
             sr.onResult((result: string, isFinal: boolean) => {
                 info(`[SR] Received recognition result: Final: ${isFinal} - Result Length: ${result.length}`)
