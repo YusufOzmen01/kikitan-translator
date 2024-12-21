@@ -166,11 +166,15 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
                     });
             }, 1000)
 
-            // sr = new WebSpeech(sourceLanguage)
-            // info("[SR] Using WebSpeech for recognition")
-            sr = new Whisper(sourceLanguage)
-            info("[SR] Using Whisper for recognition")
-
+            
+            if (config.recognizer == 0) {
+                sr = new WebSpeech(sourceLanguage)
+                info("[SR] Using WebSpeech for recognition")
+            } else {
+                sr = new Whisper(sourceLanguage)
+                info("[SR] Using Whisper for recognition")
+            }
+            
             sr.onResult((result: string, isFinal: boolean) => {
                 info(`[SR] Received recognition result: Final: ${isFinal} - Result Length: ${result.length}`)
                 if (config.mode == 1 || config.vrchat_settings.send_typing_while_talking) invoke("send_typing", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}` })

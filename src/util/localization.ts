@@ -39,4 +39,5 @@ export const localization = {
     donate: { en: "Donate", jp: "寄付", cn: "捐赠", kr: "기부", tr: "Bağış Yap" },
     debug_settings: { en: "Debug Settings", jp: "デバッグ設定", cn: "调试设置", kr: "디버그 설정", tr: "Hata Ayıklama Ayarları" },
     open_logs: { en: "Open Logs", jp: "ログを開く", cn: "打开日志", kr: "로그 열기", tr: "Günlükleri Aç" },
+    voice_recognition_engine: { en: "Voice Recognition Engine", jp: "音声認識エンジン", cn: "语音识别引擎", kr: "음성 인식 엔진", tr: "Ses Tanıma Motoru" },
 };

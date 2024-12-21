@@ -134,6 +134,32 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                         <MenuItem sx={{ color: config.light_mode ? 'black' : 'white' }} key={"male"} value={0}>♂</MenuItem>
                         <MenuItem sx={{ color: config.light_mode ? 'black' : 'white' }}  key={"female"} value={1}>♀</MenuItem>
                     </Select>} />
+                    <FormControlLabel label={localization.voice_recognition_engine[lang]} control={
+                        <Select sx={{
+                            color: config.light_mode ? 'black' : 'white',
+                            '& .MuiOutlinedInput-notchedOutline': {
+                              borderColor: config.light_mode ? 'black' : '#94A3B8',
+                            },
+                            '&:hover .MuiOutlinedInput-notchedOutline': {
+                              borderColor: config.light_mode ? 'black' : '#94A3B8',
+                            },
+                          }} MenuProps={{
+                            sx: {
+                                "& .MuiPaper-root": {
+                                    backgroundColor: config.light_mode ? 'white' : '#020617',
+                                }
+                            }
+                          }} className="ml-2 mr-4 mt-2" value={config.recognizer} onChange={(e) => {
+                        setConfig({ 
+                            ...config, 
+                            recognizer: parseInt(e.target.value.toString())
+                        })
+
+                        setTimeout(() => window.location.reload(), 200)
+                    }}>
+                        <MenuItem sx={{ color: config.light_mode ? 'black' : 'white' }} key={"webspeech"} value={0}>WebSpeech</MenuItem>
+                        <MenuItem sx={{ color: config.light_mode ? 'black' : 'white' }}  key={"whisper"} value={1}>Whisper (WIP)</MenuItem>
+                    </Select>} />
                 </FormGroup>
             </CustomTabPanel>
             <CustomTabPanel className="flex" value={page} index={1}>

@@ -32,30 +32,42 @@ export class Whisper extends Recognizer {
                 },
                 onnxWASMBasePath: "/",
                 positiveSpeechThreshold: 0.4,
-                negativeSpeechThreshold: 0.4,
-                minSpeechFrames: 5,
-                preSpeechPadFrames: 30,
+                negativeSpeechThreshold: 0.25,
+                minSpeechFrames: 1,
+                preSpeechPadFrames: 20,
                 onSpeechEnd: async (arr) => {
-                    const wavBuffer = utils.encodeWAV(arr)
+                    const wavBuffer = utils.encodeWAV(arr, 1, 16000, 1, 16)
                     const base64 = utils.arrayBufferToBase64(wavBuffer)
-                    const url = `data:audio/wav;base64,${base64}`
 
-                    const data = await fetch("http://127.0.0.1:8000", {
+                    const data = await fetch("http://127.0.0.1:8080/run_detection", {
                         method: "POST",
                         headers: {
                             "content-type": "application/json",
                         },
                         body: JSON.stringify({
-                            data: url,
+                            wavdata: base64,
                             lang: this.language.split("-")[0]
                         })
                     })
 
-                    this.callback!((await data.json()).text, true)
+                    console.log()
+
+                    this.callback!(await data.text(), true)
                 },
             })
 
             this.vad.start()
+
+            fetch("http://127.0.0.1:8080/init_model", {
+                method: "POST",
+                headers: {
+                    "content-type": "application/json",
+                },
+                body: JSON.stringify({
+                    modelpath: "model.bin",
+                    lang: this.language.split("-")[0]
+                })
+            })
         })
     }
 
