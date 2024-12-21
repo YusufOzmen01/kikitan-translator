@@ -33,7 +33,7 @@ export class Whisper extends Recognizer {
                 onnxWASMBasePath: "/",
                 positiveSpeechThreshold: 0.4,
                 negativeSpeechThreshold: 0.4,
-                minSpeechFrames: 10,
+                minSpeechFrames: 5,
                 preSpeechPadFrames: 30,
                 onSpeechEnd: async (arr) => {
                     const wavBuffer = utils.encodeWAV(arr)
