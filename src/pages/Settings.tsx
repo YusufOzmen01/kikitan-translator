@@ -4,7 +4,9 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+
 import { appLogDir } from '@tauri-apps/api/path';
+
 import { IconButton, FormControlLabel, FormGroup, Checkbox, TextField, Select, MenuItem, Button } from "@mui/material";
 
 import {
@@ -65,7 +67,7 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
     };
 
     return <>
-        <Box sx={{ 
+        <Box sx={{
             width: '100%',
             '& .MuiSvgIcon-root': {
                 color: config.light_mode ? 'black' : '#94A3B8'
@@ -111,55 +113,58 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                         <Select sx={{
                             color: config.light_mode ? 'black' : 'white',
                             '& .MuiOutlinedInput-notchedOutline': {
-                              borderColor: config.light_mode ? 'black' : '#94A3B8',
+                                borderColor: config.light_mode ? 'black' : '#94A3B8',
                             },
                             '&:hover .MuiOutlinedInput-notchedOutline': {
-                              borderColor: config.light_mode ? 'black' : '#94A3B8',
+                                borderColor: config.light_mode ? 'black' : '#94A3B8',
                             },
-                          }} MenuProps={{
+                        }} MenuProps={{
                             sx: {
                                 "& .MuiPaper-root": {
                                     backgroundColor: config.light_mode ? 'white' : '#020617',
                                 }
                             }
-                          }} className="ml-2 mr-4 mt-2" value={config.language_settings.english_gender_change_gender} onChange={(e) => {
-                        setConfig({ 
-                            ...config, 
-                            language_settings: {
-                                ...config.language_settings,
-                                english_gender_change_gender: parseInt(e.target.value.toString())
-                            }
-                        })
-                    }}>
-                        <MenuItem sx={{ color: config.light_mode ? 'black' : 'white' }} key={"male"} value={0}>♂</MenuItem>
-                        <MenuItem sx={{ color: config.light_mode ? 'black' : 'white' }}  key={"female"} value={1}>♀</MenuItem>
-                    </Select>} />
+                        }} className="ml-2 mr-4 mt-2" value={config.language_settings.english_gender_change_gender} onChange={(e) => {
+                            setConfig({
+                                ...config,
+                                language_settings: {
+                                    ...config.language_settings,
+                                    english_gender_change_gender: parseInt(e.target.value.toString())
+                                }
+                            })
+                        }}>
+                            <MenuItem sx={{ color: config.light_mode ? 'black' : 'white' }} key={"male"} value={0}>♂</MenuItem>
+                            <MenuItem sx={{ color: config.light_mode ? 'black' : 'white' }} key={"female"} value={1}>♀</MenuItem>
+
+                        </Select>
+                    } />
                     <FormControlLabel label={localization.voice_recognition_engine[lang]} control={
                         <Select sx={{
                             color: config.light_mode ? 'black' : 'white',
                             '& .MuiOutlinedInput-notchedOutline': {
-                              borderColor: config.light_mode ? 'black' : '#94A3B8',
+                                borderColor: config.light_mode ? 'black' : '#94A3B8',
                             },
                             '&:hover .MuiOutlinedInput-notchedOutline': {
-                              borderColor: config.light_mode ? 'black' : '#94A3B8',
+                                borderColor: config.light_mode ? 'black' : '#94A3B8',
                             },
-                          }} MenuProps={{
+                        }} MenuProps={{
                             sx: {
                                 "& .MuiPaper-root": {
                                     backgroundColor: config.light_mode ? 'white' : '#020617',
                                 }
                             }
-                          }} className="ml-2 mr-4 mt-2" value={config.recognizer} onChange={(e) => {
-                        setConfig({ 
-                            ...config, 
-                            recognizer: parseInt(e.target.value.toString())
-                        })
+                        }} className="ml-2 mr-4 mt-2" value={config.recognizer} onChange={(e) => {
+                            setConfig({
+                                ...config,
+                                recognizer: parseInt(e.target.value.toString())
+                            })
 
-                        setTimeout(() => window.location.reload(), 200)
-                    }}>
-                        <MenuItem sx={{ color: config.light_mode ? 'black' : 'white' }} key={"webspeech"} value={0}>WebSpeech</MenuItem>
-                        <MenuItem sx={{ color: config.light_mode ? 'black' : 'white' }}  key={"whisper"} value={1}>Whisper (WIP)</MenuItem>
-                    </Select>} />
+                            setTimeout(() => window.location.reload(), 200)
+                        }}>
+                            <MenuItem sx={{ color: config.light_mode ? 'black' : 'white' }} key={"webspeech"} value={0}>WebSpeech</MenuItem>
+                            <MenuItem sx={{ color: config.light_mode ? 'black' : 'white' }} key={"whisper"} value={1}>Whisper (WIP)</MenuItem>
+                        </Select>
+                    } />
                 </FormGroup>
             </CustomTabPanel>
             <CustomTabPanel className="flex" value={page} index={1}>
@@ -244,18 +249,18 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                     <Select sx={{
                         color: config.light_mode ? 'black' : 'white',
                         '& .MuiOutlinedInput-notchedOutline': {
-                          borderColor: config.light_mode ? 'black' : '#94A3B8',
+                            borderColor: config.light_mode ? 'black' : '#94A3B8',
                         },
                         '&:hover .MuiOutlinedInput-notchedOutline': {
-                          borderColor: config.light_mode ? 'black' : '#94A3B8',
+                            borderColor: config.light_mode ? 'black' : '#94A3B8',
                         }
-                      }} MenuProps={{
+                    }} MenuProps={{
                         sx: {
                             "& .MuiPaper-root": {
                                 backgroundColor: config.light_mode ? '#94A3B8' : '#020617',
                             }
                         }
-                      }} className="w-48" value={config.vrchat_settings.chatbox_update_speed} onChange={(e) => {
+                    }} className="w-48" value={config.vrchat_settings.chatbox_update_speed} onChange={(e) => {
                         setConfig({
                             ...config,
                             vrchat_settings: {

@@ -65,24 +65,26 @@ export class Whisper extends Recognizer {
             this.vad.start()
             await invoke("start_whisper_helper", { helperPath: await path.join(await path.appLocalDataDir(), "whisper/whisperkikitan.exe") })
 
-            setTimeout(async () => {
-                fetch("http://127.0.0.1:8080/init_model", {
-                    method: "POST",
-                    headers: {
-                        "content-type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        modelpath: await path.join(await path.appLocalDataDir(), "whisper/model.bin"),
-                        lang: this.language.split("-")[0]
+            for (let i = 0; i < 3; i++) {
+                try {
+                    await fetch("http://127.0.0.1:8080/init_model", {
+                        method: "POST",
+                        headers: {
+                            "content-type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            modelpath: await path.join(await path.appLocalDataDir(), "whisper/model.bin"),
+                            lang: this.language.split("-")[0]
+                        })
                     })
-                }).then(() => {
+
                     this.setWhisperInitializingVisible(0)
-                }).catch((e) => {
-                    error("[WHISPER] Failed to initialize model: " + e)
-    
-                    this.setWhisperInitializingVisible(2)
-                })
-            }, 1000)
+                    break;
+                }
+                catch (e) { error(`[WHISPER] Failed to initialize model (Retry ${i+1}): ${e}`) }
+
+                if (i == 2) this.setWhisperInitializingVisible(2)
+            }
         })
     }
 

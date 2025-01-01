@@ -217,11 +217,11 @@ function App() {
                   <p className='text-xl bold text-center'>{localization.mode_selection[lang]}</p>
                   <img className='mt-4 w-[384px]' src={
                     {
-                      en: "https://i.imgur.com/2OHmEcT.png",
-                      jp: "https://i.imgur.com/yTqbY4c.png",
-                      cn: "https://i.imgur.com/iByKH4k.png",
-                      kr: "https://i.imgur.com/Gr6UpXO.png",
-                      tr: "https://i.imgur.com/1we8FT4.png"
+                      en: "/mode_select_screenshots/en.png",
+                      jp: "/mode_select_screenshots/jp.png",
+                      cn: "/mode_select_screenshots/cn.png",
+                      kr: "/mode_select_screenshots/kr.png",
+                      tr: "/mode_select_screenshots/tr.png"
                     }[lang]
                   } width={240} />
                   <p className='text-lg mt-4 text-center'>{localization.mode_selection_details[lang]}</p>
@@ -310,7 +310,10 @@ function App() {
                 <Button variant="contained" onClick={() => {
                   setTimeout(() => { window.location.reload() }, 50);
                 }}>{localization.retry[lang]}</Button>
-
+                <Button variant="contained" color='warning' onClick={async () => {
+                  await remove(await path.join(await path.appLocalDataDir(), "whisper"))
+                  window.location.reload()
+                }}>{localization.reinstall_whisper[lang]}</Button>
                 <Button className='ml-2' variant="contained" color='error' onClick={() => {
                   setConfig({
                     ...config,
@@ -382,7 +385,7 @@ function App() {
               </div>
 
               <div className='flex flex-col justify-centere mt-4 gap-3'>
-              <Button variant="contained" color='success' onClick={() => { setWhisperDownloadVisible(2) }}>{localization.retry[lang]}</Button>
+                <Button variant="contained" color='success' onClick={() => { setWhisperDownloadVisible(2) }}>{localization.retry[lang]}</Button>
                 <Button variant="contained" color='error' onClick={() => {
                   setConfig({
                     ...config,
