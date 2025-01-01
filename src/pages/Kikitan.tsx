@@ -36,6 +36,7 @@ import translateGT from "../translators/google_translate";
 type KikitanProps = {
     config: Config;
     setConfig: (config: Config) => void;
+    setWhisperInitializingVisible: (state: number) => void;
     lang: Lang;
 }
 
@@ -43,7 +44,7 @@ let sr: Recognizer | null = null;
 let detectionQueue: string[] = []
 let lock = false
 
-export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
+export default function Kikitan({ config, setConfig, lang, setWhisperInitializingVisible }: KikitanProps) {
     const [detecting, setDetecting] = React.useState(false)
     const [translating, setTranslating] = React.useState(false)
     const [srStatus, setSRStatus] = React.useState(true)
@@ -171,7 +172,7 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
                 sr = new WebSpeech(sourceLanguage)
                 info("[SR] Using WebSpeech for recognition")
             } else {
-                sr = new Whisper(sourceLanguage)
+                sr = new Whisper(sourceLanguage, setWhisperInitializingVisible)
                 info("[SR] Using Whisper for recognition")
             }
             

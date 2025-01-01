@@ -3,15 +3,19 @@ import { MicVAD, utils } from "@ricky0123/vad-web"
 
 import {
     info,
-    debug
+    debug,
+    error
 } from '@tauri-apps/plugin-log';
 
 export class Whisper extends Recognizer {
     vad: MicVAD | undefined;
     callback: ((result: string, final: boolean) => void) | null = null
+    setWhisperInitializingVisible: (state: number) => void;
 
-    constructor(lang: string) {
+    constructor(lang: string, setWhisperInitializingVisible: (state: number) => void) {
         super(lang);
+
+        this.setWhisperInitializingVisible = setWhisperInitializingVisible
     }
 
     init() {
@@ -67,6 +71,12 @@ export class Whisper extends Recognizer {
                     modelpath: "model.bin",
                     lang: this.language.split("-")[0]
                 })
+            }).then(() => {
+                this.setWhisperInitializingVisible(0)
+            }).catch((e) => {
+                error("[WHISPER] Failed to initialize model: " + e)
+
+                this.setWhisperInitializingVisible(2)
             })
         })
     }

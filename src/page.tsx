@@ -48,6 +48,8 @@ function App() {
   const [updateVisible, setUpdateVisible] = React.useState(false)
   const [donateVisible, setDonateVisible] = React.useState(false)
   const [googleServersErrorVisible, setGoogleServersErrorVisible] = React.useState(false)
+  // const [whisperSetupVisible, setWhisperSetupVisible] = React.useState(false)
+  const [whisperInitializingVisible, setWhisperInitializingVisible] = React.useState(0)
 
   const [quickstartPage, setQuickstartPage] = React.useState(0)
 
@@ -71,7 +73,7 @@ function App() {
 
     const cfg = load_config()
     const language = localStorage.getItem("lang") as Lang | null
-    
+
     setQuickstartVisible(localStorage.getItem("quickstartMenu") == null || language == null)
     setLang(language == null ? "en" : language)
 
@@ -85,6 +87,8 @@ function App() {
       });
     });
 
+    setWhisperInitializingVisible(cfg.recognizer == 1 ? 1 : 0)
+
     translateGT("Hello, how are you?", "en-US", "tr-TR").then((out) => { console.log("Can access to Google servers: " + out) }).catch(err => {
       console.log(err)
 
@@ -92,7 +96,7 @@ function App() {
     })
 
     invoke("start_vrc_listener")
-    
+
     setTimeout(() => setLoaded(true), 300);
 
     if (localStorage.getItem("last_donation") == null) {
@@ -111,7 +115,7 @@ function App() {
     <>
       <div className={`relative transition-all duration-500 ${!loaded ? "opacity-0 pointer-events-none" : "opacity-100"} ${!config.light_mode ? "bg-slate-950 text-white" : ""}`}>
         <div className={`transition-all z-20 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute` + (quickstartVisible && lang != null ? " opacity-100" : " opacity-0 pointer-events-none")}>
-          <div className={`flex flex-col justify-between  w-10/12 h-5/6 outline outline-2 rounded  ${!config.light_mode ? "bg-slate-950 outline-slate-950" : "bg-white outline-white"}`}>
+          <div className={`flex flex-col justify-between w-10/12 h-5/6 outline outline-2 rounded  ${!config.light_mode ? "bg-slate-950 outline-slate-950" : "bg-white outline-white"}`}>
             <div className='relative mt-2 ml-2 mr-2 h-64'>
               <div className={`absolute inset-0 transition-all flex justify-center ease-in-out ${quickstartPage == 0 ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
                 <div className='absolute mt-28 flex flex-col items-center'>
@@ -191,9 +195,9 @@ function App() {
             </div>
           </div>
         </div>
-        
+
         <div className={'transition-all z-30 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (updateVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
-          <div className={`flex flex-col justify-center ml-10 w-10/12 h-5/6 outline outline-1 ${config.light_mode ? "outline-white" : "outline-slate-950"} rounded ${config.light_mode ? "bg-white" : "bg-slate-950"}`}>
+          <div className={`flex flex-col justify-center w-10/12 h-5/6 outline outline-1 ${config.light_mode ? "outline-white" : "outline-slate-950"} rounded ${config.light_mode ? "bg-white" : "bg-slate-950"}`}>
             <div className='flex flex-row justify-center'>
               <CircularProgress></CircularProgress>
               <p className='ml-4 text-4xl'>{localization.updating[lang]}</p>
@@ -202,7 +206,7 @@ function App() {
         </div>
 
         <div className={'transition-all z-30 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (donateVisible && !quickstartVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
-          <div className={`flex flex-col justify-center ml-10 w-6/12 h-3/6 outline outline-1 ${config.light_mode ? "outline-white" : "outline-slate-950"} rounded ${config.light_mode ? "bg-white" : "bg-slate-950"}`}>
+          <div className={`flex flex-col justify-center w-6/12 h-3/6 outline outline-1 ${config.light_mode ? "outline-white" : "outline-slate-950"} rounded ${config.light_mode ? "bg-white" : "bg-slate-950"}`}>
             <div className='flex flex-row justify-center'>
               <p className='ml-4 text-md text-center'>{localization.donation_text[lang]}</p>
             </div>
@@ -215,12 +219,59 @@ function App() {
         </div>
 
         <div className={'transition-all z-10 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (googleServersErrorVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
-          <div className={`flex flex-col justify-center ml-10 w-10/12 h-3/6 outline outline-1 ${config.light_mode ? "outline-white" : "outline-slate-950"} outline-gray-200 rounded ${config.light_mode ? "bg-white" : "bg-slate-950"}`}>
+          <div className={`flex flex-col justify-center w-10/12 h-3/6 outline outline-1 ${config.light_mode ? "outline-white" : "outline-slate-950"} outline-gray-200 rounded ${config.light_mode ? "bg-white" : "bg-slate-950"}`}>
             <div className='flex flex-row justify-center'>
               <p className='ml-4 text-md text-center'>{localization.unable_to_access_google_servers[lang]}</p>
             </div>
             <div className='flex flex-row justify-center mt-4'>
               <Button variant="contained" className='w-32' onClick={() => { setGoogleServersErrorVisible(false) }}>{localization.close_menu[lang]}</Button>
+            </div>
+          </div>
+        </div>
+
+        <div className={'transition-all z-10 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (whisperInitializingVisible > 0 ? " opacity-100" : " opacity-0 pointer-events-none")}>
+          <div className={`flex flex-col justify-center w-10/12 h-3/6 outline outline-1 ${config.light_mode ? "outline-white" : "outline-slate-950"} outline-gray-200 rounded ${config.light_mode ? "bg-white" : "bg-slate-950"}`}>
+            <div className={`transition-all w-10/12 absolute z-20 ${(whisperInitializingVisible == 1 ? "opacity-100" : "opacity-0 pointer-events-none")}`}>
+              <div className='flex flex-col justify-center'>
+                <div className='flex flex-row justify-center'>
+                  <CircularProgress />
+                  <p className='ml-4 mt-1 text-3xl text-center'>{localization.initializing_whisper[lang]}</p>
+                </div>
+                <p className='ml-4 mt-2 text-md text-center'>{localization.initializing_whisper_note[lang]}</p>
+              </div>
+
+              <div className='flex flex-row justify-center mt-4'>
+                <Button variant="contained" color='error' onClick={() => {
+                  setConfig({
+                    ...config,
+                    recognizer: 0
+                  })
+
+                  setTimeout(() => { window.location.reload() }, 50);
+                }}>{localization.cancel_and_switch_back[lang]}</Button>
+              </div>
+            </div>
+
+            <div className={`transition-all w-10/12 absolute z-30 ${(whisperInitializingVisible == 2 ? "opacity-100" : "opacity-0 pointer-events-none")}`}>
+              <div className='flex flex-col justify-center'>
+                <p className='ml-4 mt-1 text-3xl text-center'>{localization.error_initializing_whisper[lang]}</p>
+                <p className='ml-4 mt-2 text-md text-center'>{localization.error_initializing_whisper_note[lang]}</p>
+              </div>
+
+              <div className='flex flex-row justify-center mt-4 gap-2'>
+                <Button variant="contained" onClick={() => {
+                  setTimeout(() => { window.location.reload() }, 50);
+                }}>{localization.retry[lang]}</Button>
+
+                <Button className='ml-2' variant="contained" color='error' onClick={() => {
+                  setConfig({
+                    ...config,
+                    recognizer: 0
+                  })
+
+                  setTimeout(() => { window.location.reload() }, 50);
+                }}>{localization.cancel_and_switch_back[lang]}</Button>
+              </div>
             </div>
           </div>
         </div>
@@ -271,9 +322,11 @@ function App() {
                   '& .MuiSvgIcon-root': {
                     color: 'white'
                   }
-                }} onClick={() => { setConfig({
-                  ...config, light_mode: !config.light_mode
-                }) }}>
+                }} onClick={() => {
+                  setConfig({
+                    ...config, light_mode: !config.light_mode
+                  })
+                }}>
                   {config.light_mode ? <NightsStay /> : <WbSunny />}
                 </IconButton>
                 <IconButton sx={{
@@ -296,7 +349,7 @@ function App() {
             </Toolbar>
           </AppBar>
           <div className='flex flex-1 items-center align-middle flex-col mt-8'>
-            {loaded && <Kikitan lang={lang} config={config} setConfig={setConfig}></Kikitan>}
+            {loaded && <Kikitan lang={lang} config={config} setConfig={setConfig} setWhisperInitializingVisible={setWhisperInitializingVisible}></Kikitan>}
           </div>
         </div>
       </div>
