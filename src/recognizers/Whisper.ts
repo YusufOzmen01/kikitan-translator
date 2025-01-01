@@ -1,5 +1,7 @@
 import { Recognizer } from "./recognizer";
 import { MicVAD, utils } from "@ricky0123/vad-web"
+import { invoke } from "@tauri-apps/api/core";
+import * as path from '@tauri-apps/api/path';
 
 import {
     info,
@@ -61,23 +63,26 @@ export class Whisper extends Recognizer {
             })
 
             this.vad.start()
+            await invoke("start_whisper_helper", { helperPath: await path.join(await path.appLocalDataDir(), "whisper/whisperkikitan.exe") })
 
-            fetch("http://127.0.0.1:8080/init_model", {
-                method: "POST",
-                headers: {
-                    "content-type": "application/json",
-                },
-                body: JSON.stringify({
-                    modelpath: "model.bin",
-                    lang: this.language.split("-")[0]
+            setTimeout(async () => {
+                fetch("http://127.0.0.1:8080/init_model", {
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        modelpath: await path.join(await path.appLocalDataDir(), "whisper/model.bin"),
+                        lang: this.language.split("-")[0]
+                    })
+                }).then(() => {
+                    this.setWhisperInitializingVisible(0)
+                }).catch((e) => {
+                    error("[WHISPER] Failed to initialize model: " + e)
+    
+                    this.setWhisperInitializingVisible(2)
                 })
-            }).then(() => {
-                this.setWhisperInitializingVisible(0)
-            }).catch((e) => {
-                error("[WHISPER] Failed to initialize model: " + e)
-
-                this.setWhisperInitializingVisible(2)
-            })
+            }, 1000)
         })
     }
 

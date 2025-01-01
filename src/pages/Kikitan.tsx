@@ -185,7 +185,7 @@ export default function Kikitan({ config, setConfig, lang, setWhisperInitializin
             })
 
             info("[SR] Starting recognition")
-            sr.start()
+            sr?.start()
         }
     }, [])
 

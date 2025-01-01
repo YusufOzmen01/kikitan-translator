@@ -10,7 +10,8 @@ import {
   MenuItem,
   Button,
   IconButton,
-  CircularProgress
+  CircularProgress,
+  LinearProgress
 } from '@mui/material';
 
 import {
@@ -25,11 +26,14 @@ import {
 import { invoke } from '@tauri-apps/api/core'
 import { open } from '@tauri-apps/plugin-shell'
 
+import { exists, BaseDirectory, remove } from '@tauri-apps/plugin-fs';
+import * as path from '@tauri-apps/api/path';
+
 import SettingsPage from './pages/Settings';
 import Scroll from "./components/Scroll"
 
 import { DEFAULT_CONFIG, load_config, update_config } from './util/config';
-import { Lang } from './util/constants';
+import { Lang, WHISPER_PACKAGE_WIN_URL } from './util/constants';
 import { getVersion } from '@tauri-apps/api/app';
 
 import Changelogs from './pages/Changelogs';
@@ -40,6 +44,8 @@ import { relaunch } from '@tauri-apps/plugin-process';
 import { localization } from './util/localization';
 
 import translateGT from './translators/google_translate';
+import { error, info } from '@tauri-apps/plugin-log';
+import { listen } from '@tauri-apps/api/event';
 
 function App() {
   const [quickstartVisible, setQuickstartVisible] = React.useState(true)
@@ -50,6 +56,10 @@ function App() {
   const [googleServersErrorVisible, setGoogleServersErrorVisible] = React.useState(false)
   // const [whisperSetupVisible, setWhisperSetupVisible] = React.useState(false)
   const [whisperInitializingVisible, setWhisperInitializingVisible] = React.useState(0)
+  const [whisperDownloadVisible, setWhisperDownloadVisible] = React.useState(0)
+
+  const [readyForInit, setReadyForInit] = React.useState(false)
+  const [whisperDownloadProgress, setWhisperDownloadProgress] = React.useState(0)
 
   const [quickstartPage, setQuickstartPage] = React.useState(0)
 
@@ -88,12 +98,25 @@ function App() {
     });
 
     setWhisperInitializingVisible(cfg.recognizer == 1 ? 1 : 0)
+    setReadyForInit(cfg.recognizer == 0);
+
+    if (cfg.recognizer == 1) {
+      exists('whisper', {
+        baseDir: BaseDirectory.AppLocalData,
+      }).then(e => {
+        info(`Whisper status: ${e}`)
+        setReadyForInit(e);
+        setWhisperDownloadVisible(!e ? 1 : 0)
+      }).catch(e => error(e))
+    }
 
     translateGT("Hello, how are you?", "en-US", "tr-TR").then((out) => { console.log("Can access to Google servers: " + out) }).catch(err => {
       console.log(err)
 
       setGoogleServersErrorVisible(true)
     })
+
+    listen<number>("file-download-progress", progress => { setWhisperDownloadProgress(progress.payload) })
 
     invoke("start_vrc_listener")
 
@@ -110,6 +133,31 @@ function App() {
       }
     }
   }, [])
+
+  React.useEffect(() => {
+    if (whisperDownloadVisible == 2) {
+      path.appLocalDataDir().then(async appLocalDataPath => {
+        try {
+          try {
+            remove("whisper", { baseDir: BaseDirectory.AppLocalData })
+            await remove("whisper.zip", { baseDir: BaseDirectory.AppLocalData })
+          } catch { /* empty */ }
+
+          await invoke("download_file", { path: await path.join(appLocalDataPath, "whisper.zip"), url: WHISPER_PACKAGE_WIN_URL })
+
+          setWhisperDownloadProgress(100)
+          await invoke("extract_zip", { zipPath: await path.join(appLocalDataPath, "whisper.zip"), extractDir: await path.join(appLocalDataPath, "whisper") })
+          await remove("whisper.zip", { baseDir: BaseDirectory.AppLocalData })
+
+          window.location.reload()
+        } catch (e: unknown) {
+          error(`${e}`)
+
+          setWhisperDownloadVisible(3)
+        }
+      })
+    }
+  }, [whisperDownloadVisible])
 
   return (
     <>
@@ -229,7 +277,7 @@ function App() {
           </div>
         </div>
 
-        <div className={'transition-all z-10 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (whisperInitializingVisible > 0 ? " opacity-100" : " opacity-0 pointer-events-none")}>
+        <div className={'transition-all z-10 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (whisperInitializingVisible > 0 && readyForInit ? " opacity-100" : " opacity-0 pointer-events-none")}>
           <div className={`flex flex-col justify-center w-10/12 h-3/6 outline outline-1 ${config.light_mode ? "outline-white" : "outline-slate-950"} outline-gray-200 rounded ${config.light_mode ? "bg-white" : "bg-slate-950"}`}>
             <div className={`transition-all w-10/12 absolute z-20 ${(whisperInitializingVisible == 1 ? "opacity-100" : "opacity-0 pointer-events-none")}`}>
               <div className='flex flex-col justify-center'>
@@ -264,6 +312,78 @@ function App() {
                 }}>{localization.retry[lang]}</Button>
 
                 <Button className='ml-2' variant="contained" color='error' onClick={() => {
+                  setConfig({
+                    ...config,
+                    recognizer: 0
+                  })
+
+                  setTimeout(() => { window.location.reload() }, 50);
+                }}>{localization.cancel_and_switch_back[lang]}</Button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className={'transition-all z-10 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (whisperDownloadVisible > 0 ? " opacity-100" : " opacity-0 pointer-events-none")}>
+          <div className={`flex flex-col justify-center w-10/12 h-3/6 outline outline-1 ${config.light_mode ? "outline-white" : "outline-slate-950"} outline-gray-200 rounded ${config.light_mode ? "bg-white" : "bg-slate-950"}`}>
+            <div className={`transition-all w-10/12 absolute z-20 ${(whisperDownloadVisible == 1 ? "opacity-100" : "opacity-0 pointer-events-none")}`}>
+              <div className='flex flex-col justify-center'>
+                <p className='ml-4 mt-1 text-3xl text-center'>{localization.download_whisper[lang]}</p>
+                <p className='ml-4 mt-2 text-md text-center'>{localization.download_whisper_note[lang]}</p>
+              </div>
+
+              <div className='flex flex-row justify-center mt-4 gap-2'>
+                <Button variant="contained" color='success' onClick={() => {
+                  setWhisperDownloadVisible(2)
+                }}>{localization.download_whisper[lang]}</Button>
+                <Button variant="contained" color='error' onClick={() => {
+                  setConfig({
+                    ...config,
+                    recognizer: 0
+                  })
+
+                  setTimeout(() => { window.location.reload() }, 50);
+                }}>{localization.cancel_and_switch_back[lang]}</Button>
+              </div>
+            </div>
+
+            <div className={`transition-all w-10/12 absolute z-30 ${(whisperDownloadVisible == 2 ? "opacity-100" : "opacity-0 pointer-events-none")}`}>
+              <div className='flex flex-col justify-center'>
+                <p className='ml-4 mt-1 text-3xl text-center'>{localization.whisper_downloading[lang]}</p>
+                <p className='ml-4 mt-2 text-md text-center'>{localization.whisper_downloading_note[lang]}</p>
+              </div>
+
+              <div className='flex flex-col justify-centere mt-4 gap-3'>
+                {whisperDownloadProgress < 100 ? <>
+                  <div className='flex flex-row ml-auto mr-auto'>
+                    <p>{whisperDownloadProgress}%</p>
+                    <LinearProgress className='w-96 mt-[0.6rem] ml-2' variant='determinate' value={whisperDownloadProgress} />
+                  </div>
+                </> :
+                  <div className='flex flex-row ml-auto mr-auto'>
+                    <p className='ml-4 mt-2 text-md text-center'>{localization.extracting_zip[lang]}</p>
+                  </div>
+                }
+                <Button variant="contained" color='error' onClick={() => {
+                  setConfig({
+                    ...config,
+                    recognizer: 0
+                  })
+
+                  setTimeout(() => { window.location.reload() }, 50);
+                }}>{localization.cancel_and_switch_back[lang]}</Button>
+              </div>
+            </div>
+
+            <div className={`transition-all w-10/12 absolute z-30 ${(whisperDownloadVisible == 3 ? "opacity-100" : "opacity-0 pointer-events-none")}`}>
+              <div className='flex flex-col justify-center'>
+                <p className='ml-4 mt-1 text-3xl text-center'>{localization.whisper_downloading[lang]}</p>
+                <p className='ml-4 mt-2 text-md text-center'>{localization.whisper_downloading_error[lang]}</p>
+              </div>
+
+              <div className='flex flex-col justify-centere mt-4 gap-3'>
+              <Button variant="contained" color='success' onClick={() => { setWhisperDownloadVisible(2) }}>{localization.retry[lang]}</Button>
+                <Button variant="contained" color='error' onClick={() => {
                   setConfig({
                     ...config,
                     recognizer: 0
@@ -349,7 +469,7 @@ function App() {
             </Toolbar>
           </AppBar>
           <div className='flex flex-1 items-center align-middle flex-col mt-8'>
-            {loaded && <Kikitan lang={lang} config={config} setConfig={setConfig} setWhisperInitializingVisible={setWhisperInitializingVisible}></Kikitan>}
+            {loaded && readyForInit && <Kikitan lang={lang} config={config} setConfig={setConfig} setWhisperInitializingVisible={setWhisperInitializingVisible}></Kikitan>}
           </div>
         </div>
       </div>
