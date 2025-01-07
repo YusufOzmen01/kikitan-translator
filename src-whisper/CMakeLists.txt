@@ -1,4 +1,4 @@
-set(TARGET main)
+set(TARGET whisperkikitan)
 add_executable(${TARGET} main.cpp common.cpp)
 
 add_subdirectory(whisper.cpp whisper_build)
