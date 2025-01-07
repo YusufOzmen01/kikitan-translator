@@ -18,7 +18,10 @@
     "windows": {
       "certificateThumbprint": null,
       "digestAlgorithm": "sha256",
-      "timestampUrl": ""
+      "timestampUrl": "",
+      "nsis": {
+        "template": "nsis/installer.nsi"
+      }
     },
     "longDescription": "",
     "macOS": {
@@ -28,7 +31,9 @@
       "providerShortName": null,
       "signingIdentity": null
     },
-    "resources": [],
+    "resources": [
+      "whisper-files/*"
+    ],
     "shortDescription": "",
     "linux": {
       "deb": {

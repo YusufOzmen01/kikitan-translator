@@ -28,6 +28,7 @@ import { calculateMinWaitTime, Lang, langSource, langTo } from "../util/constant
 import { Config } from "../util/config";
 import { Recognizer } from "../recognizers/recognizer";
 import { WebSpeech } from "../recognizers/WebSpeech";
+import { Whisper } from "../recognizers/Whisper";
 
 import { localization } from "../util/localization";
 import translateGT from "../translators/google_translate";
@@ -35,6 +36,7 @@ import translateGT from "../translators/google_translate";
 type KikitanProps = {
     config: Config;
     setConfig: (config: Config) => void;
+    setWhisperInitializingVisible: (state: number) => void;
     lang: Lang;
 }
 
@@ -42,7 +44,7 @@ let sr: Recognizer | null = null;
 let detectionQueue: string[] = []
 let lock = false
 
-export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
+export default function Kikitan({ config, setConfig, lang, setWhisperInitializingVisible }: KikitanProps) {
     const [detecting, setDetecting] = React.useState(false)
     const [translating, setTranslating] = React.useState(false)
     const [srStatus, setSRStatus] = React.useState(true)
@@ -165,9 +167,15 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
                     });
             }, 1000)
 
-            sr = new WebSpeech(sourceLanguage)
-            info("[SR] Using WebSpeech for recognition")
-
+            
+            if (config.recognizer == 0) {
+                sr = new WebSpeech(sourceLanguage)
+                info("[SR] Using WebSpeech for recognition")
+            } else {
+                sr = new Whisper(sourceLanguage, setWhisperInitializingVisible)
+                info("[SR] Using Whisper for recognition")
+            }
+            
             sr.onResult((result: string, isFinal: boolean) => {
                 info(`[SR] Received recognition result: Final: ${isFinal} - Result Length: ${result.length}`)
                 if (config.mode == 1 || config.vrchat_settings.send_typing_while_talking) invoke("send_typing", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}` })
@@ -177,7 +185,7 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
             })
 
             info("[SR] Starting recognition")
-            sr.start()
+            sr?.start()
         }
     }, [])
 
