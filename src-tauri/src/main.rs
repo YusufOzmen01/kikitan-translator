@@ -2,7 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod vrc_commands;
-mod win;
+mod process_manager;
 mod filesys;
 
 fn main() {
@@ -15,8 +15,8 @@ fn main() {
             vrc_commands::send_typing,
             vrc_commands::send_message,
             vrc_commands::start_vrc_listener,
-            win::show_windows_audio_settings,
-            win::start_whisper_helper,
+            process_manager::show_audio_settings,
+            process_manager::start_whisper_helper,
             filesys::download_file,
             filesys::extract_zip
         ])
