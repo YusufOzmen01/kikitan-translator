@@ -24,9 +24,10 @@ export type Config = {
     },
     vrchat_settings: {
         translation_first: boolean,
+        only_translation: boolean,
         send_typing_while_talking: boolean,
         chatbox_update_speed: number,
-        dont_send_when_muted: boolean,
+        send_when_muted: boolean,
         osc_address: string,
         osc_port: number
     }
@@ -44,9 +45,10 @@ export const DEFAULT_CONFIG: Config = {
     },
     vrchat_settings: {
         translation_first: true,
+        only_translation: false,
         send_typing_while_talking: false,
         chatbox_update_speed: speed_presets.slow,
-        dont_send_when_muted: true,
+        send_when_muted: false,
         osc_address: "127.0.0.1",
         osc_port: 9000
     }

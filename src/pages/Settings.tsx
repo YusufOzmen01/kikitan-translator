@@ -65,7 +65,7 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
     };
 
     return <>
-        <Box sx={{ 
+        <Box sx={{
             width: '100%',
             '& .MuiSvgIcon-root': {
                 color: config.light_mode ? 'black' : '#94A3B8'
@@ -111,29 +111,29 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                         <Select sx={{
                             color: config.light_mode ? 'black' : 'white',
                             '& .MuiOutlinedInput-notchedOutline': {
-                              borderColor: config.light_mode ? 'black' : '#94A3B8',
+                                borderColor: config.light_mode ? 'black' : '#94A3B8',
                             },
                             '&:hover .MuiOutlinedInput-notchedOutline': {
-                              borderColor: config.light_mode ? 'black' : '#94A3B8',
+                                borderColor: config.light_mode ? 'black' : '#94A3B8',
                             },
-                          }} MenuProps={{
+                        }} MenuProps={{
                             sx: {
                                 "& .MuiPaper-root": {
                                     backgroundColor: config.light_mode ? 'white' : '#020617',
                                 }
                             }
-                          }} className="ml-2 mr-4 mt-2" value={config.language_settings.english_gender_change_gender} onChange={(e) => {
-                        setConfig({ 
-                            ...config, 
-                            language_settings: {
-                                ...config.language_settings,
-                                english_gender_change_gender: parseInt(e.target.value.toString())
-                            }
-                        })
-                    }}>
-                        <MenuItem sx={{ color: config.light_mode ? 'black' : 'white' }} key={"male"} value={0}>♂</MenuItem>
-                        <MenuItem sx={{ color: config.light_mode ? 'black' : 'white' }}  key={"female"} value={1}>♀</MenuItem>
-                    </Select>} />
+                        }} className="ml-2 mr-4 mt-2" value={config.language_settings.english_gender_change_gender} onChange={(e) => {
+                            setConfig({
+                                ...config,
+                                language_settings: {
+                                    ...config.language_settings,
+                                    english_gender_change_gender: parseInt(e.target.value.toString())
+                                }
+                            })
+                        }}>
+                            <MenuItem sx={{ color: config.light_mode ? 'black' : 'white' }} key={"male"} value={0}>♂</MenuItem>
+                            <MenuItem sx={{ color: config.light_mode ? 'black' : 'white' }} key={"female"} value={1}>♀</MenuItem>
+                        </Select>} />
                 </FormGroup>
             </CustomTabPanel>
             <CustomTabPanel className="flex" value={page} index={1}>
@@ -156,15 +156,15 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                             }
                         })
                     }} />} label={localization.send_typing_while_talking[lang]} />
-                    <FormControlLabel className="mb-2" control={<Checkbox checked={config.vrchat_settings.dont_send_when_muted} onChange={(e) => {
+                    <FormControlLabel className="mb-2" control={<Checkbox checked={config.vrchat_settings.send_when_muted} onChange={(e) => {
                         setConfig({
                             ...config,
                             vrchat_settings: {
                                 ...config.vrchat_settings,
-                                dont_send_when_muted: e.target.checked
+                                send_when_muted: e.target.checked
                             }
                         })
-                    }} />} label={localization.dont_send_when_muted[lang]} />
+                    }} />} label={localization.send_when_muted[lang]} />
                     <div className="flex transition-all">
                         <TextField slotProps={{
                             inputLabel: {
@@ -218,18 +218,18 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                     <Select sx={{
                         color: config.light_mode ? 'black' : 'white',
                         '& .MuiOutlinedInput-notchedOutline': {
-                          borderColor: config.light_mode ? 'black' : '#94A3B8',
+                            borderColor: config.light_mode ? 'black' : '#94A3B8',
                         },
                         '&:hover .MuiOutlinedInput-notchedOutline': {
-                          borderColor: config.light_mode ? 'black' : '#94A3B8',
+                            borderColor: config.light_mode ? 'black' : '#94A3B8',
                         }
-                      }} MenuProps={{
+                    }} MenuProps={{
                         sx: {
                             "& .MuiPaper-root": {
                                 backgroundColor: config.light_mode ? '#94A3B8' : '#020617',
                             }
                         }
-                      }} className="w-48" value={config.vrchat_settings.chatbox_update_speed} onChange={(e) => {
+                    }} className="w-48" value={config.vrchat_settings.chatbox_update_speed} onChange={(e) => {
                         setConfig({
                             ...config,
                             vrchat_settings: {
