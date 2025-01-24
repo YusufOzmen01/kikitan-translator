@@ -26,7 +26,7 @@ export type Config = {
         translation_first: boolean,
         only_translation: boolean,
         disable_kikitan_when_muted: boolean,
-        send_typing_status_while_talking: true,
+        send_typing_status_while_talking: boolean,
         chatbox_update_speed: number,
         osc_address: string,
         osc_port: number
