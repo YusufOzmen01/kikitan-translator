@@ -147,24 +147,24 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                             }
                         })
                     }} />} label={localization.translation_first[lang]} />
-                    <FormControlLabel control={<Checkbox checked={config.vrchat_settings.send_typing_while_talking} onChange={(e) => {
+                    <FormControlLabel control={<Checkbox checked={config.vrchat_settings.disable_kikitan_when_muted} onChange={(e) => {
                         setConfig({
                             ...config,
                             vrchat_settings: {
                                 ...config.vrchat_settings,
-                                send_typing_while_talking: e.target.checked
+                                disable_kikitan_when_muted: e.target.checked
                             }
                         })
-                    }} />} label={localization.send_typing_while_talking[lang]} />
-                    <FormControlLabel className="mb-2" control={<Checkbox checked={config.vrchat_settings.send_when_muted} onChange={(e) => {
+                    }} />} label={localization.disable_kikitan_when_muted[lang]} />
+                    <FormControlLabel className="mb-2" control={<Checkbox checked={config.vrchat_settings.send_typing_status_while_talking} onChange={(e) => {
                         setConfig({
                             ...config,
                             vrchat_settings: {
                                 ...config.vrchat_settings,
-                                send_when_muted: e.target.checked
+                                send_typing_status_while_talking: e.target.checked
                             }
                         })
-                    }} />} label={localization.send_when_muted[lang]} />
+                    }} />} label={localization.send_typing_status_while_talking[lang]} />
                     <div className="flex transition-all">
                         <TextField slotProps={{
                             inputLabel: {

@@ -25,9 +25,9 @@ export type Config = {
     vrchat_settings: {
         translation_first: boolean,
         only_translation: boolean,
-        send_typing_while_talking: boolean,
+        disable_kikitan_when_muted: boolean,
+        send_typing_status_while_talking: true,
         chatbox_update_speed: number,
-        send_when_muted: boolean,
         osc_address: string,
         osc_port: number
     }
@@ -46,9 +46,9 @@ export const DEFAULT_CONFIG: Config = {
     vrchat_settings: {
         translation_first: true,
         only_translation: false,
-        send_typing_while_talking: false,
+        disable_kikitan_when_muted: false,
+        send_typing_status_while_talking: true,
         chatbox_update_speed: speed_presets.slow,
-        send_when_muted: false,
         osc_address: "127.0.0.1",
         osc_port: 9000
     }

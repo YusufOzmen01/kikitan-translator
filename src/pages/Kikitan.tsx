@@ -68,7 +68,7 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
     }, [sourceLanguage, targetLanguage])
 
     React.useEffect(() => {
-        info(`[SR] SR status=${srStatus} - VRC Muted=${vrcMuted} - Send While Muted=${config.vrchat_settings.send_when_muted}`)
+        info(`[SR] SR status=${srStatus} - VRC Muted=${vrcMuted} - Disable Kikitan When Muted=${config.vrchat_settings.disable_kikitan_when_muted}`)
 
         if (sr == null) {
             warn("[SR] SR is currently null, so ignoring the changes")
@@ -77,7 +77,7 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
         }
 
         if (srStatus) {
-            if (vrcMuted && !config.vrchat_settings.send_when_muted) {
+            if (vrcMuted && config.vrchat_settings.disable_kikitan_when_muted) {
                 info("[SR] Pausing SR...")
                 sr.stop()
             }
@@ -170,7 +170,7 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
 
             sr.onResult((result: string, isFinal: boolean) => {
                 info(`[SR] Received recognition result: Final: ${isFinal} - Result Length: ${result.length}`)
-                if (config.mode == 1 || config.vrchat_settings.send_typing_while_talking) invoke("send_typing", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}` })
+                if (config.mode == 1 || config.vrchat_settings.send_typing_status_while_talking) invoke("send_typing", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}` })
 
                 setDetection(result)
                 setDetecting(!isFinal)
