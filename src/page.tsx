@@ -210,7 +210,7 @@ function App() {
                   <p className='text-xl bold text-center'>{localization.windows_mic_settings[lang]}</p>
                   <p className='text-lg mt-20 text-center'>{localization.windows_mic_details[lang]}</p>
                 </div>
-                <Button disabled={quickstartPage != 2} className={'w-96 '} variant='contained' startIcon={<Settings />} onClick={() => { invoke("show_windows_audio_settings") }}>{localization.open_win_audio[lang]}</Button>
+                <Button disabled={quickstartPage != 2} className={'w-96 '} variant='contained' startIcon={<Settings />} onClick={() => { invoke("show_audio_settings") }}>{localization.open_win_audio[lang]}</Button>
               </div>
 
               <div className={'absolute inset-0 transition-all flex justify-center ease-in-out ' + (quickstartPage == 3 ? "opacity-100" : "opacity-0 pointer-events-none")}>

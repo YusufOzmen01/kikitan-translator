@@ -31,9 +31,6 @@
       "providerShortName": null,
       "signingIdentity": null
     },
-    "resources": [
-      "whisper-files/*"
-    ],
     "shortDescription": "",
     "linux": {
       "deb": {
