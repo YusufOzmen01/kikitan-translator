@@ -229,14 +229,65 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                             },
                             '&:hover .MuiOutlinedInput-notchedOutline': {
                                 borderColor: config.light_mode ? 'black' : '#94A3B8',
-                            }
+                        },
                         }} MenuProps={{
                             sx: {
                                 "& .MuiPaper-root": {
                                     backgroundColor: config.light_mode ? '#94A3B8' : '#020617',
                                 }
                             }
-                        }} className="w-48" value={config.vrchat_settings.chatbox_update_speed} onChange={(e) => {
+                        }} className="ml-2 mr-4 mt-2" value={config.language_settings.english_gender_change_gender} onChange={(e) => {
+                            setConfig({
+                                ...config,
+                                language_settings: {
+                                    ...config.language_settings,
+                                    english_gender_change_gender: parseInt(e.target.value.toString())
+                                }
+                            })
+                        }}>
+                            <MenuItem sx={{ color: config.light_mode ? 'black' : 'white' }} key={"male"} value={0}>♂</MenuItem>
+                            <MenuItem sx={{ color: config.light_mode ? 'black' : 'white' }} key={"female"} value={1}>♀</MenuItem>
+                        </Select>} />
+                </FormGroup>
+            </CustomTabPanel>
+            <CustomTabPanel className="flex" value={page} index={1}>
+                <FormGroup>
+                    <FormControlLabel control={<Checkbox checked={config.vrchat_settings.translation_first} onChange={(e) => {
+                        setConfig({
+                            ...config,
+                            vrchat_settings: {
+                                ...config.vrchat_settings,
+                                translation_first: e.target.checked
+                            }
+                        })
+                    }} />} label={localization.translation_first[lang]} />
+                    <FormControlLabel control={<Checkbox checked={config.vrchat_settings.disable_kikitan_when_muted} onChange={(e) => {
+                        setConfig({
+                            ...config,
+                            vrchat_settings: {
+                                ...config.vrchat_settings,
+                                disable_kikitan_when_muted: e.target.checked
+                            }
+                        })
+                    }} />} label={localization.disable_kikitan_when_muted[lang]} />
+                    <FormControlLabel className="mb-2" control={<Checkbox checked={config.vrchat_settings.send_typing_status_while_talking} onChange={(e) => {
+                        setConfig({
+                            ...config,
+                            vrchat_settings: {
+                                ...config.vrchat_settings,
+                                send_typing_status_while_talking: e.target.checked
+                            }
+                        })
+                    }} />} label={localization.send_typing_status_while_talking[lang]} />
+                    <div className="flex transition-all">
+                        <TextField slotProps={{
+                            inputLabel: {
+                                style: { color: config.light_mode ? "black" : '#94A3B8' }
+                            },
+                            htmlInput: {
+                                style: { color: config.light_mode ? "black" : '#fff' }
+                            }
+                        }} className="mt-2 w-48" value={config.vrchat_settings.osc_address} id="outlined-basic" label={localization.osc_address[lang]} variant="outlined" onChange={(e) => {
                             setConfig({
                                 ...config,
                                 vrchat_settings: {

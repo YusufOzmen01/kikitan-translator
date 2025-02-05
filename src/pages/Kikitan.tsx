@@ -71,7 +71,7 @@ export default function Kikitan({ config, setConfig, lang, setWhisperInitializin
     }, [sourceLanguage, targetLanguage])
 
     React.useEffect(() => {
-        info(`[SR] SR status=${srStatus} - VRC Muted=${vrcMuted}`)
+        info(`[SR] SR status=${srStatus} - VRC Muted=${vrcMuted} - Disable Kikitan When Muted=${config.vrchat_settings.disable_kikitan_when_muted}`)
 
         if (sr == null) {
             warn("[SR] SR is currently null, so ignoring the changes")
@@ -80,11 +80,11 @@ export default function Kikitan({ config, setConfig, lang, setWhisperInitializin
         }
 
         if (srStatus) {
-            if (vrcMuted) {
+            if (vrcMuted && config.vrchat_settings.disable_kikitan_when_muted) {
                 info("[SR] Pausing SR...")
                 sr.stop()
             }
-            else {
+            else if (!sr.status()) {
                 info("[SR] Starting SR...")
                 sr.start()
             }
@@ -179,8 +179,8 @@ export default function Kikitan({ config, setConfig, lang, setWhisperInitializin
             
             sr.onResult((result: string, isFinal: boolean) => {
                 info(`[SR] Received recognition result: Final: ${isFinal} - Result Length: ${result.length}`)
-                if (config.mode == 1 || config.vrchat_settings.send_typing_while_talking) invoke("send_typing", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}` })
-                
+                if (config.mode == 1 || config.vrchat_settings.send_typing_status_while_talking) invoke("send_typing", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}` })
+
                 setDetection(result)
                 setDetecting(!isFinal)
             })
@@ -225,7 +225,7 @@ export default function Kikitan({ config, setConfig, lang, setWhisperInitializin
     return <>
         <div className="flex align-middle">
             <div>
-                <div className={`mr-16 w-96 h-48 outline outline-1 transition-all rounded-md font-bold text-center ${detecting ? "italic " + config.light_mode ? "text-slate-400 outline-slate-800" : "text-slate-200 outline-slate-400" :  config.light_mode ? "text-black" : "text-slate-200"} ${srStatus ? "" : "bg-gray-400"}`}>
+                <div className={`mr-16 w-96 h-48 outline outline-1 transition-all rounded-md font-bold text-center ${detecting ? "italic " + config.light_mode ? "text-slate-400 outline-slate-800" : "text-slate-200 outline-slate-400" : config.light_mode ? "text-black" : "text-slate-200"} ${srStatus ? "" : "bg-gray-400"}`}>
                     <p className="align-middle">{detection}</p>
                 </div>
                 <div className="flex">
@@ -246,7 +246,7 @@ export default function Kikitan({ config, setConfig, lang, setWhisperInitializin
                                 backgroundColor: config.light_mode ? '#94A3B8' : '#020617',
                             }
                         }
-                    }}className="mt-4 ml-auto h-14" value={sourceLanguage} onChange={(e) => {
+                    }} className="mt-4 ml-auto h-14" value={sourceLanguage} onChange={(e) => {
                         setSourceLanguage(e.target.value)
                         setConfig({ ...config, source_language: e.target.value })
                     }}>

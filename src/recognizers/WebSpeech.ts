@@ -81,6 +81,10 @@ export class WebSpeech extends Recognizer {
         }, 500);
     }
 
+    status(): boolean {
+        return this.running;
+    }
+
     onResult(callback: (result: string, final: boolean) => void) {
         this.recognition.onresult = (event) => {
             if (event.results.length > 0) {
