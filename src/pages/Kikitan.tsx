@@ -28,13 +28,16 @@ import { calculateMinWaitTime, Lang, langSource, langTo } from "../util/constant
 import { Config } from "../util/config";
 import { Recognizer } from "../recognizers/recognizer";
 import { WebSpeech } from "../recognizers/WebSpeech";
+import { Whisper } from "../recognizers/Whisper";
 
 import { localization } from "../util/localization";
 import translateGT from "../translators/google_translate";
+import translateGE from "../translators/gemini";
 
 type KikitanProps = {
     config: Config;
     setConfig: (config: Config) => void;
+    setWhisperInitializingVisible: (state: number) => void;
     lang: Lang;
 }
 
@@ -42,7 +45,7 @@ let sr: Recognizer | null = null;
 let detectionQueue: string[] = []
 let lock = false
 
-export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
+export default function Kikitan({ config, setConfig, lang, setWhisperInitializingVisible }: KikitanProps) {
     const [detecting, setDetecting] = React.useState(false)
     const [translating, setTranslating] = React.useState(false)
     const [srStatus, setSRStatus] = React.useState(true)
@@ -107,10 +110,12 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
             let count = 3;
 
             while (count > 0) {
-                info(`[TRANSLATION] Attempting translation. Try ${4 - count}`)
+                info(`[TRANSLATION] Attempting translation with translator ${config.translator_settings.translator} Try ${4-count}`)
                 try {
                     setTranslating(true)
-                    let text = await translateGT(val, sourceLanguage, targetLanguage)
+                    let text = config.translator_settings.translator == 0 ? 
+                        await translateGT(val, sourceLanguage, targetLanguage) :
+                        await translateGE(val, sourceLanguage, targetLanguage, config.translator_settings.gemini_api_key);
                     info("[TRANSLATION] Translation succeeded!")
 
                     if (config.language_settings.english_gender_change && targetLanguage == "en") {
@@ -124,7 +129,7 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
                     setTranslating(false)
 
                     info("[TRANSLATION] Sending the message to chatbox...")
-                    invoke("send_message", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}`, msg: config.vrchat_settings.translation_first ? `${text} (${val})` : `${val} (${text})` })
+                    invoke("send_message", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}`, msg: config.vrchat_settings.only_translation ? text : config.vrchat_settings.translation_first ? `${text} (${val})` : `${val} (${text})` })
                     await new Promise(r => setTimeout(r, calculateMinWaitTime(text, config.vrchat_settings.chatbox_update_speed)));
 
                     count = 0
@@ -133,8 +138,6 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
 
                     count--
                 }
-
-                break;
             }
 
             lock = false
@@ -165,9 +168,15 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
                     });
             }, 1000)
 
-            sr = new WebSpeech(sourceLanguage)
-            info("[SR] Using WebSpeech for recognition")
-
+            
+            if (config.translator_settings.recognizer == 0) {
+                sr = new WebSpeech(sourceLanguage)
+                info("[SR] Using WebSpeech for recognition")
+            } else {
+                sr = new Whisper(sourceLanguage, setWhisperInitializingVisible)
+                info("[SR] Using Whisper for recognition")
+            }
+            
             sr.onResult((result: string, isFinal: boolean) => {
                 info(`[SR] Received recognition result: Final: ${isFinal} - Result Length: ${result.length}`)
                 if (config.mode == 1 || config.vrchat_settings.send_typing_status_while_talking) invoke("send_typing", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}` })
@@ -177,7 +186,7 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
             })
 
             info("[SR] Starting recognition")
-            sr.start()
+            sr?.start()
         }
     }, [])
 

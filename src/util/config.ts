@@ -15,8 +15,8 @@ export const speed_presets = {
 export type Config = {
     source_language: string,
     target_language: string,
-    mode: number,
     light_mode: boolean,
+    mode: number,
     language_settings: {
         japanese_omit_questionmark: boolean,
         english_gender_change: boolean,
@@ -30,6 +30,11 @@ export type Config = {
         chatbox_update_speed: number,
         osc_address: string,
         osc_port: number
+    },
+    translator_settings: {
+        recognizer: number,
+        translator: number,
+        gemini_api_key: string
     }
 }
 
@@ -51,6 +56,11 @@ export const DEFAULT_CONFIG: Config = {
         chatbox_update_speed: speed_presets.slow,
         osc_address: "127.0.0.1",
         osc_port: 9000
+    },
+    translator_settings: {
+        recognizer: 0,
+        translator: 0,
+        gemini_api_key: ""
     }
 }
 
@@ -107,7 +117,13 @@ export function load_config(): Config {
 }
 
 export function update_config(config: Config) {
-    info(`[CONFIG] Updating config to ${JSON.stringify(config, null, 2)}`)
+    info(`[CONFIG] Updating config to ${JSON.stringify({
+        ...config,
+        translator_settings: {
+            ...config.translator_settings,
+            gemini_api_key: config.translator_settings.gemini_api_key.trim().length > 0 ? "********" : ""
+        }
+    }, null, 2)}`)
 
     localStorage.setItem("config", JSON.stringify(config))
 }
