@@ -117,7 +117,13 @@ export function load_config(): Config {
 }
 
 export function update_config(config: Config) {
-    info(`[CONFIG] Updating config to ${JSON.stringify(config, null, 2)}`)
+    info(`[CONFIG] Updating config to ${JSON.stringify({
+        ...config,
+        translator_settings: {
+            ...config.translator_settings,
+            gemini_api_key: config.translator_settings.gemini_api_key.trim().length > 0 ? "********" : ""
+        }
+    }, null, 2)}`)
 
     localStorage.setItem("config", JSON.stringify(config))
 }

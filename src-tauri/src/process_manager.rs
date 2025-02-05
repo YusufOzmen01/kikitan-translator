@@ -30,6 +30,8 @@ pub fn kill_whisper_helper() {
 
 #[tauri::command]
 pub fn start_whisper_helper(helper_path: String) {
+    kill_whisper_helper();
+
     #[cfg(target_os = "windows")]
     Command::new(helper_path)
         .creation_flags(0x08000000_u32)

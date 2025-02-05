@@ -88,6 +88,10 @@ export class Whisper extends Recognizer {
         })
     }
 
+    status(): boolean {
+        return this.running;
+    }
+
     start() {
         this.running = true;
         if (this.vad == undefined) return this.init()

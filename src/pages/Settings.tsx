@@ -154,24 +154,33 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                                 }
                             })
                         }} />} label={localization.translation_first[lang]} />
-                        <FormControlLabel control={<Checkbox checked={config.vrchat_settings.send_typing_while_talking} onChange={(e) => {
+                        <FormControlLabel control={<Checkbox checked={config.vrchat_settings.only_translation} onChange={(e) => {
                             setConfig({
                                 ...config,
                                 vrchat_settings: {
                                     ...config.vrchat_settings,
-                                    send_typing_while_talking: e.target.checked
+                                    only_translation: e.target.checked
+                                }
+                            })
+                        }} />} label={localization.only_send_translation[lang]} />
+                        <FormControlLabel control={<Checkbox checked={config.vrchat_settings.send_typing_status_while_talking} onChange={(e) => {
+                            setConfig({
+                                ...config,
+                                vrchat_settings: {
+                                    ...config.vrchat_settings,
+                                    send_typing_status_while_talking: e.target.checked
                                 }
                             })
                         }} />} label={localization.send_typing_while_talking[lang]} />
-                        <FormControlLabel className="mb-2" control={<Checkbox checked={config.vrchat_settings.dont_send_when_muted} onChange={(e) => {
+                        <FormControlLabel className="mb-2" control={<Checkbox checked={config.vrchat_settings.disable_kikitan_when_muted} onChange={(e) => {
                             setConfig({
                                 ...config,
                                 vrchat_settings: {
                                     ...config.vrchat_settings,
-                                    dont_send_when_muted: e.target.checked
+                                    disable_kikitan_when_muted: e.target.checked
                                 }
                             })
-                        }} />} label={localization.dont_send_when_muted[lang]} />
+                        }} />} label={localization.disable_kikitan_when_muted[lang]} />
                         <div className="flex transition-all">
                             <TextField slotProps={{
                                 inputLabel: {
@@ -229,65 +238,14 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                             },
                             '&:hover .MuiOutlinedInput-notchedOutline': {
                                 borderColor: config.light_mode ? 'black' : '#94A3B8',
-                        },
+                            },
                         }} MenuProps={{
                             sx: {
                                 "& .MuiPaper-root": {
                                     backgroundColor: config.light_mode ? '#94A3B8' : '#020617',
                                 }
                             }
-                        }} className="ml-2 mr-4 mt-2" value={config.language_settings.english_gender_change_gender} onChange={(e) => {
-                            setConfig({
-                                ...config,
-                                language_settings: {
-                                    ...config.language_settings,
-                                    english_gender_change_gender: parseInt(e.target.value.toString())
-                                }
-                            })
-                        }}>
-                            <MenuItem sx={{ color: config.light_mode ? 'black' : 'white' }} key={"male"} value={0}>♂</MenuItem>
-                            <MenuItem sx={{ color: config.light_mode ? 'black' : 'white' }} key={"female"} value={1}>♀</MenuItem>
-                        </Select>} />
-                </FormGroup>
-            </CustomTabPanel>
-            <CustomTabPanel className="flex" value={page} index={1}>
-                <FormGroup>
-                    <FormControlLabel control={<Checkbox checked={config.vrchat_settings.translation_first} onChange={(e) => {
-                        setConfig({
-                            ...config,
-                            vrchat_settings: {
-                                ...config.vrchat_settings,
-                                translation_first: e.target.checked
-                            }
-                        })
-                    }} />} label={localization.translation_first[lang]} />
-                    <FormControlLabel control={<Checkbox checked={config.vrchat_settings.disable_kikitan_when_muted} onChange={(e) => {
-                        setConfig({
-                            ...config,
-                            vrchat_settings: {
-                                ...config.vrchat_settings,
-                                disable_kikitan_when_muted: e.target.checked
-                            }
-                        })
-                    }} />} label={localization.disable_kikitan_when_muted[lang]} />
-                    <FormControlLabel className="mb-2" control={<Checkbox checked={config.vrchat_settings.send_typing_status_while_talking} onChange={(e) => {
-                        setConfig({
-                            ...config,
-                            vrchat_settings: {
-                                ...config.vrchat_settings,
-                                send_typing_status_while_talking: e.target.checked
-                            }
-                        })
-                    }} />} label={localization.send_typing_status_while_talking[lang]} />
-                    <div className="flex transition-all">
-                        <TextField slotProps={{
-                            inputLabel: {
-                                style: { color: config.light_mode ? "black" : '#94A3B8' }
-                            },
-                            htmlInput: {
-                                style: { color: config.light_mode ? "black" : '#fff' }
-                            }
-                        }} className="mt-2 w-48" value={config.vrchat_settings.osc_address} id="outlined-basic" label={localization.osc_address[lang]} variant="outlined" onChange={(e) => {
+                        }} className="mr-4 mt-2 w-32" value={config.vrchat_settings.chatbox_update_speed} onChange={(e) => {
                             setConfig({
                                 ...config,
                                 vrchat_settings: {
@@ -295,7 +253,7 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                                     chatbox_update_speed: parseInt(e.target.value.toString())
                                 }
                             })
-                        }} >
+                        }}>
                             <MenuItem sx={{ color: config.light_mode ? 'black' : 'white' }} value={speed_presets.slow}>{localization.slow[lang]}</MenuItem>
                             <MenuItem sx={{ color: config.light_mode ? 'black' : 'white' }} value={speed_presets.medium}>{localization.medium[lang]}</MenuItem>
                             <MenuItem sx={{ color: config.light_mode ? 'black' : 'white' }} value={speed_presets.fast}>{localization.fast[lang]}</MenuItem>
@@ -362,7 +320,7 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                                 <MenuItem sx={{ color: config.light_mode ? 'black' : 'white' }} key={"whisper"} value={1}>Gemini</MenuItem>
                             </Select>
                         } />
-                        <div className="flex transition-all mt-2 gap-2">
+                        <div className="flex transition-all mt-3 gap-2">
                             <TextField slotProps={{
                                 inputLabel: {
                                     style: { color: config.light_mode ? "black" : '#94A3B8' },
@@ -370,7 +328,7 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                                 htmlInput: {
                                     style: { color: config.light_mode ? "black" : '#fff' }
                                 }
-                            }} className="ml-2 mt-2 w-48 h-8" value={config.translator_settings.gemini_api_key} id="outlined-basic" label={"Gemini API Key"} variant="outlined" type="password" disabled={config.translator_settings.translator != 1} onChange={(e) => {
+                            }} className="w-48 h-8" value={config.translator_settings.gemini_api_key} id="outlined-basic" label={"Gemini API Key"} variant="outlined" type="password" disabled={config.translator_settings.translator != 1} onChange={(e) => {
                                 setConfig({
                                     ...config,
                                     translator_settings: {

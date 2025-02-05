@@ -158,12 +158,12 @@ export const localization = {
     kr: "OSC 포트",
     tr: "OSC Portu",
   },
-  dont_send_when_muted: {
-    en: "Don't send chatbox messages when muted in game",
-    jp: "ゲーム内でミュートされているときにチャットボックスメッセージを送信しない",
-    cn: "在游戏中被静音时不发送聊天框消息",
-    kr: "게임 내에서 음소거 상태일 때 채팅창 메시지를 보내지 않음",
-    tr: "Oyunda susturulduğunda sohbet kutusu mesajları gönderme",
+  disable_kikitan_when_muted: {
+    en: "Disable Kikitan when muted in game",
+    jp: "ゲーム内でミュートされているときに Kikitan を無効にする",
+    cn: "在游戏中被静音时禁用 Kikitan",
+    kr: "게임 내에서 음소거 상태일 때 Kikitan 비활성화",
+    tr: "Oyunda susturulduğunda Kikitan'ı devre dışı bırak"
   },
   changelogs: {
     en: "Changelogs",
@@ -350,5 +350,12 @@ export const localization = {
     cn: "翻译器",
     kr: "번역기",
     tr: "Çevirmen",
+  },
+  only_send_translation: {
+    en: "Only send translation",
+    jp: "翻訳のみ送信",
+    cn: "仅发送翻译",
+    kr: "번역만 보내기",
+    tr: "Sadece çeviriyi gönder",
   }
 };

@@ -129,7 +129,7 @@ export default function Kikitan({ config, setConfig, lang, setWhisperInitializin
                     setTranslating(false)
 
                     info("[TRANSLATION] Sending the message to chatbox...")
-                    invoke("send_message", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}`, msg: config.vrchat_settings.translation_first ? `${text} (${val})` : `${val} (${text})` })
+                    invoke("send_message", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}`, msg: config.vrchat_settings.only_translation ? text : config.vrchat_settings.translation_first ? `${text} (${val})` : `${val} (${text})` })
                     await new Promise(r => setTimeout(r, calculateMinWaitTime(text, config.vrchat_settings.chatbox_update_speed)));
 
                     count = 0
