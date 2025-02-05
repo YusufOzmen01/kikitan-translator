@@ -323,4 +323,32 @@ export const localization = {
     kr: "Whisper 다시 설치",
     tr: "Whisper'ı Yeniden Yükle",
   },
+  get_gemini_api_key: {
+    en: "Get Gemini API Key",
+    jp: "Gemini APIキーを取得",
+    cn: "获取Gemini API密钥",
+    kr: "Gemini API 키 받기",
+    tr: "Gemini API Anahtarı Al",
+  },
+  translator_settings: {
+    en: "Translator Settings",
+    jp: "翻訳設定",
+    cn: "翻译设置",
+    kr: "번역기 설정",
+    tr: "Çevirmen Ayarları",
+  },
+  gemini_api_key_tutorial: {
+    en: "How to get a Gemini API key",
+    jp: "Gemini APIキーの取得方法",
+    cn: "如何获取Gemini API密钥",
+    kr: "Gemini API 키를 얻는 방법",
+    tr: "Gemini API anahtarı nasıl alınır",
+  },
+  translator: {
+    en: "Translator",
+    jp: "翻訳機",
+    cn: "翻译器",
+    kr: "번역기",
+    tr: "Çevirmen",
+  }
 };

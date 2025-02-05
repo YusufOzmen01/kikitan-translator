@@ -26,6 +26,7 @@ tauri-plugin-log = "2.0.0-rc"
 reqwest = { version = "0.11.18", features = ["stream"] }
 futures-util = "0.3.31"
 zip-extract = { version = "0.2.1", features = ["lzma"] }
+tauri-plugin-os = "2"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem and the built-in dev server is disabled.

@@ -33,8 +33,9 @@ import SettingsPage from './pages/Settings';
 import Scroll from "./components/Scroll"
 
 import { DEFAULT_CONFIG, load_config, update_config } from './util/config';
-import { Lang, WHISPER_PACKAGE_WIN_URL } from './util/constants';
+import { getWhisperPackageURL, Lang } from './util/constants';
 import { getVersion } from '@tauri-apps/api/app';
+import { platform } from '@tauri-apps/plugin-os';
 
 import Changelogs from './pages/Changelogs';
 
@@ -97,10 +98,10 @@ function App() {
       });
     });
 
-    setWhisperInitializingVisible(cfg.recognizer == 1 ? 1 : 0)
-    setReadyForInit(cfg.recognizer == 0);
+    setWhisperInitializingVisible(cfg.translator_settings.recognizer == 1 ? 1 : 0)
+    setReadyForInit(cfg.translator_settings.recognizer == 0);
 
-    if (cfg.recognizer == 1) {
+    if (cfg.translator_settings.recognizer == 1) {
       exists('whisper', {
         baseDir: BaseDirectory.AppLocalData,
       }).then(e => {
@@ -143,13 +144,13 @@ function App() {
             await remove("whisper.zip", { baseDir: BaseDirectory.AppLocalData })
           } catch { /* empty */ }
 
-          await invoke("download_file", { path: await path.join(appLocalDataPath, "whisper.zip"), url: WHISPER_PACKAGE_WIN_URL })
+          await invoke("download_file", { path: await path.join(appLocalDataPath, "whisper.zip"), url: await getWhisperPackageURL(platform()) })
 
           setWhisperDownloadProgress(100)
           await invoke("extract_zip", { zipPath: await path.join(appLocalDataPath, "whisper.zip"), extractDir: await path.join(appLocalDataPath, "whisper") })
           await remove("whisper.zip", { baseDir: BaseDirectory.AppLocalData })
 
-          window.location.reload()
+          window.location.reload()  
         } catch (e: unknown) {
           error(`${e}`)
 
@@ -292,7 +293,10 @@ function App() {
                 <Button variant="contained" color='error' onClick={() => {
                   setConfig({
                     ...config,
-                    recognizer: 0
+                    translator_settings: {
+                      ...config.translator_settings,
+                      recognizer: 0
+                    }
                   })
 
                   setTimeout(() => { window.location.reload() }, 50);
@@ -317,7 +321,10 @@ function App() {
                 <Button className='ml-2' variant="contained" color='error' onClick={() => {
                   setConfig({
                     ...config,
-                    recognizer: 0
+                    translator_settings: {
+                      ...config.translator_settings,
+                      recognizer: 0
+                    }
                   })
 
                   setTimeout(() => { window.location.reload() }, 50);
@@ -342,7 +349,10 @@ function App() {
                 <Button variant="contained" color='error' onClick={() => {
                   setConfig({
                     ...config,
-                    recognizer: 0
+                    translator_settings: {
+                      ...config.translator_settings,
+                      recognizer: 0
+                    }
                   })
 
                   setTimeout(() => { window.location.reload() }, 50);
@@ -370,7 +380,10 @@ function App() {
                 <Button variant="contained" color='error' onClick={() => {
                   setConfig({
                     ...config,
-                    recognizer: 0
+                    translator_settings: {
+                      ...config.translator_settings,
+                      recognizer: 0
+                    }
                   })
 
                   setTimeout(() => { window.location.reload() }, 50);
@@ -389,7 +402,10 @@ function App() {
                 <Button variant="contained" color='error' onClick={() => {
                   setConfig({
                     ...config,
-                    recognizer: 0
+                    translator_settings: {
+                      ...config.translator_settings,
+                      recognizer: 0
+                    }
                   })
 
                   setTimeout(() => { window.location.reload() }, 50);

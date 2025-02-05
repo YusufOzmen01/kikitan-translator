@@ -32,6 +32,7 @@ import { Whisper } from "../recognizers/Whisper";
 
 import { localization } from "../util/localization";
 import translateGT from "../translators/google_translate";
+import translateGE from "../translators/gemini";
 
 type KikitanProps = {
     config: Config;
@@ -109,10 +110,12 @@ export default function Kikitan({ config, setConfig, lang, setWhisperInitializin
             let count = 3;
 
             while (count > 0) {
-                info(`[TRANSLATION] Attempting translation. Try ${4-count}`)
+                info(`[TRANSLATION] Attempting translation with translator ${config.translator_settings.translator} Try ${4-count}`)
                 try {
                     setTranslating(true)
-                    let text = await translateGT(val, sourceLanguage, targetLanguage)
+                    let text = config.translator_settings.translator == 0 ? 
+                        await translateGT(val, sourceLanguage, targetLanguage) :
+                        await translateGE(val, sourceLanguage, targetLanguage, config.translator_settings.gemini_api_key);
                     info("[TRANSLATION] Translation succeeded!")
 
                     if (config.language_settings.english_gender_change && targetLanguage == "en") {
@@ -135,8 +138,6 @@ export default function Kikitan({ config, setConfig, lang, setWhisperInitializin
 
                     count--
                 }
-
-                break;
             }
 
             lock = false
@@ -168,7 +169,7 @@ export default function Kikitan({ config, setConfig, lang, setWhisperInitializin
             }, 1000)
 
             
-            if (config.recognizer == 0) {
+            if (config.translator_settings.recognizer == 0) {
                 sr = new WebSpeech(sourceLanguage)
                 info("[SR] Using WebSpeech for recognition")
             } else {

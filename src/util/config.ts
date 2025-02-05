@@ -15,9 +15,8 @@ export const speed_presets = {
 export type Config = {
     source_language: string,
     target_language: string,
-    mode: number,
     light_mode: boolean,
-    recognizer: number,
+    mode: number,
     language_settings: {
         japanese_omit_questionmark: boolean,
         english_gender_change: boolean,
@@ -30,6 +29,11 @@ export type Config = {
         dont_send_when_muted: boolean,
         osc_address: string,
         osc_port: number
+    },
+    translator_settings: {
+        recognizer: number,
+        translator: number,
+        gemini_api_key: string
     }
 }
 
@@ -38,7 +42,6 @@ export const DEFAULT_CONFIG: Config = {
     target_language: "ja",
     mode: 0,
     light_mode: false,
-    recognizer: 0,
     language_settings: {
         japanese_omit_questionmark: true,
         english_gender_change: false,
@@ -51,6 +54,11 @@ export const DEFAULT_CONFIG: Config = {
         dont_send_when_muted: true,
         osc_address: "127.0.0.1",
         osc_port: 9000
+    },
+    translator_settings: {
+        recognizer: 0,
+        translator: 0,
+        gemini_api_key: ""
     }
 }
 

@@ -15,6 +15,7 @@
     },
     "shell:allow-open",
     "fs:default",
+    "os:allow-platform",
     {
       "identifier": "fs:allow-exists",
       "allow": [{ "path": "$APPLOCALDATA/*" }]
