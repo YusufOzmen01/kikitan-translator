@@ -29,3 +29,4 @@ pub fn start_whisper_helper(helper_path: String) {
         .creation_flags(0x08000000_u32)
         .spawn();
 }
+
