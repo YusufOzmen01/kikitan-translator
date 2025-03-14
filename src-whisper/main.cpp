@@ -224,7 +224,16 @@ whisper_context* ctx = nullptr;
 int main() {
     httplib::Server svr;
 
+    svr.Options(R"(\*)", [](const auto& req, auto& res) {
+        res.set_header("Allow", "GET, POST, HEAD, OPTIONS");
+    });
+
     svr.Post("/init_model", [](const httplib::Request &req, httplib::Response &res) {
+        res.set_header("Access-Control-Allow-Origin", req.get_header_value("Origin").c_str());
+        res.set_header("Allow", "GET, POST, HEAD, OPTIONS");
+        res.set_header("Access-Control-Allow-Headers", "X-Requested-With, Content-Type, Accept, Origin, Authorization");
+        res.set_header("Access-Control-Allow-Methods", "OPTIONS, GET, POST, HEAD");
+
         auto json = nlohmann::json::parse(req.body);
 
         if (json.is_null()) {
@@ -262,7 +271,20 @@ int main() {
         }
     });
 
+    
+    svr.Options("/init_model", [](const auto& req, auto& res) {
+        res.set_header("Access-Control-Allow-Origin", req.get_header_value("Origin").c_str());
+        res.set_header("Allow", "GET, POST, HEAD, OPTIONS");
+        res.set_header("Access-Control-Allow-Headers", "X-Requested-With, Content-Type, Accept, Origin, Authorization");
+        res.set_header("Access-Control-Allow-Methods", "OPTIONS, GET, POST, HEAD");
+    });
+
     svr.Post("/run_detection", [](const httplib::Request &req, httplib::Response &res) {
+        res.set_header("Access-Control-Allow-Origin", req.get_header_value("Origin").c_str());
+        res.set_header("Allow", "GET, POST, HEAD, OPTIONS");
+        res.set_header("Access-Control-Allow-Headers", "X-Requested-With, Content-Type, Accept, Origin, Authorization");
+        res.set_header("Access-Control-Allow-Methods", "OPTIONS, GET, POST, HEAD");
+
         auto json = nlohmann::json::parse(req.body);
 
         if (json.is_null()) {
@@ -295,6 +317,13 @@ int main() {
         }
 
         res.set_content(data, "plain/text");
+    });
+
+    svr.Options("/run_detection", [](const auto& req, auto& res) {
+        res.set_header("Access-Control-Allow-Origin", req.get_header_value("Origin").c_str());
+        res.set_header("Allow", "GET, POST, HEAD, OPTIONS");
+        res.set_header("Access-Control-Allow-Headers", "X-Requested-With, Content-Type, Accept, Origin, Authorization");
+        res.set_header("Access-Control-Allow-Methods", "OPTIONS, GET, POST, HEAD");
     });
 
     svr.listen("0.0.0.0", 7272);

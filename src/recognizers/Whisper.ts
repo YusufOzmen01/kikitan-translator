@@ -1,5 +1,5 @@
 import { Recognizer } from "./recognizer";
-import { MicVAD, utils } from "@ricky0123/vad-web"
+import { VAD } from "../util/vad";
 import { invoke } from "@tauri-apps/api/core";
 import * as path from '@tauri-apps/api/path';
 
@@ -10,7 +10,11 @@ import {
 } from '@tauri-apps/plugin-log';
 
 export class Whisper extends Recognizer {
-    vad: MicVAD | undefined;
+    vad: VAD = new VAD({
+        silenceThreshold: 500,
+        volumeThreshold: 0.05,
+        sampleRate: 16000
+    });
     callback: ((result: string, final: boolean) => void) | null = null
     setWhisperInitializingVisible: (state: number) => void;
 
@@ -18,74 +22,33 @@ export class Whisper extends Recognizer {
         super(lang);
 
         this.setWhisperInitializingVisible = setWhisperInitializingVisible
+
+        this.init()
     }
 
-    init() {
-        navigator.mediaDevices.getUserMedia({
-            audio: {
-                channelCount: 1,
-                echoCancellation: true,
-                autoGainControl: true,
-                noiseSuppression: true,
-            },
-        }).then(async stream => {
-            this.vad = await MicVAD.new({
-                stream,
-                model: "v5",
-                baseAssetPath: "/",
-                ortConfig: (ort) => {
-                    ort.env.wasm.wasmPaths = "https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/";
-                },
-                onnxWASMBasePath: "/",
-                positiveSpeechThreshold: 0.4,
-                negativeSpeechThreshold: 0.25,
-                minSpeechFrames: 1,
-                preSpeechPadFrames: 20,
-                onSpeechEnd: async (arr) => {
-                    const wavBuffer = utils.encodeWAV(arr, 1, 16000, 1, 16)
-                    const base64 = utils.arrayBufferToBase64(wavBuffer)
+    async init() {
+        await invoke("start_whisper_helper", { helperPath: await path.join(await path.appLocalDataDir(), "whisper/whisperkikitan.exe") })
 
-                    const data = await fetch("http://127.0.0.1:8080/run_detection", {
-                        method: "POST",
-                        headers: {
-                            "content-type": "application/json",
-                        },
-                        body: JSON.stringify({
-                            wavdata: base64,
-                            lang: this.language.split("-")[0]
-                        })
+        for (let i = 0; i < 3; i++) {
+            try {
+                await fetch("http://127.0.0.1:7272/init_model", {
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        modelpath: await path.join(await path.appLocalDataDir(), "whisper/model.bin"),
+                        lang: this.language.split("-")[0]
                     })
+                })
 
-                    console.log()
-
-                    this.callback!(await data.text(), true)
-                },
-            })
-
-            this.vad.start()
-            await invoke("start_whisper_helper", { helperPath: await path.join(await path.appLocalDataDir(), "whisper/whisperkikitan.exe") })
-
-            for (let i = 0; i < 3; i++) {
-                try {
-                    await fetch("http://127.0.0.1:8080/init_model", {
-                        method: "POST",
-                        headers: {
-                            "content-type": "application/json",
-                        },
-                        body: JSON.stringify({
-                            modelpath: await path.join(await path.appLocalDataDir(), "whisper/model.bin"),
-                            lang: this.language.split("-")[0]
-                        })
-                    })
-
-                    this.setWhisperInitializingVisible(0)
-                    break;
-                }
-                catch (e) { error(`[WHISPER] Failed to initialize model (Retry ${i+1}): ${e}`) }
-
-                if (i == 2) this.setWhisperInitializingVisible(2)
+                this.setWhisperInitializingVisible(0)
+                break;
             }
-        })
+            catch (e) { error(`[WHISPER] Failed to initialize model (Retry ${i + 1}): ${e}`) }
+
+            if (i == 2) this.setWhisperInitializingVisible(2)
+        }
     }
 
     status(): boolean {
@@ -94,24 +57,38 @@ export class Whisper extends Recognizer {
 
     start() {
         this.running = true;
-        if (this.vad == undefined) return this.init()
+        console.log("starting")
 
-        this.vad.start()
+        this.vad.start(async (result) => {
+            fetch("http://127.0.0.1:7272/run_detection", {
+                method: "POST",
+                headers: {
+                    "content-type": "application/json",
+                },
+                body: JSON.stringify({
+                    wavdata: result.audioBase64,
+                    lang: this.language.split("-")[0]
+                })
+            }).then(data => {
+                data.text().then(value => {
+                    this.callback!(value, true)
+                })
+            }).catch(async () => {
+                if (this.running) this.init()
+            })
+        })
         info("[WHISPER] Recognition started!")
     }
 
     stop() {
         this.running = false;
-        this.vad?.pause()
-        this.vad = undefined
+        this.vad.stop()
 
         info("[WHISPER] Recognition stopped!")
     }
 
     set_lang(lang: string) {
         this.language = lang
-        this.vad?.pause()
-        this.vad = undefined
         this.init()
 
         debug("[WEBSPEECH] Language set to " + lang)

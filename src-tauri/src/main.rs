@@ -2,11 +2,12 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod filesys;
-mod vrc_commands;
 mod process_manager;
+mod vrc_commands;
 
 fn main() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_shell::init())
@@ -22,9 +23,11 @@ fn main() {
             filesys::download_file,
             filesys::extract_zip
         ])
-        .on_window_event(|_, event| if let tauri::WindowEvent::CloseRequested { api, .. } = event {
-            println!("Killing whisper process...");
-            process_manager::kill_whisper_helper();
+        .on_window_event(|_, event| {
+            if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                println!("Killing whisper process...");
+                process_manager::kill_whisper_helper();
+            }
         })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
