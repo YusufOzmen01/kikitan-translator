@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react"
 
 import { Select, MenuItem, Button } from "@mui/material"
@@ -32,6 +33,7 @@ import { WebSpeech } from "../recognizers/WebSpeech";
 import { localization } from "../util/localization";
 import translateGT from "../translators/google_translate";
 import translateGE from "../translators/gemini";
+import { Gemini } from "../recognizers/Gemini";
 
 type KikitanProps = {
     config: Config;
@@ -95,7 +97,7 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
 
     React.useEffect(() => {
         (async () => {
-            if (detectionQueue.length == 0 || lock) return;
+            if (detectionQueue.length == 0 || lock || config.gemini_settings.gemini_enabled) return;
 
             const val = detectionQueue[0].replace(/%/g, "%25")
             detectionQueue = detectionQueue.slice(1)
@@ -108,12 +110,10 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
             let count = 3;
 
             while (count > 0) {
-                info(`[TRANSLATION] Attempting translation with translator ${config.translator_settings.translator} Try ${4-count}`)
+                info(`[TRANSLATION] Attempting translation - Try ${4 - count}`)
                 try {
                     setTranslating(true)
-                    let text = config.translator_settings.translator == 0 ? 
-                        await translateGT(val, sourceLanguage, targetLanguage) :
-                        await translateGE(val, sourceLanguage, targetLanguage, config.translator_settings.gemini_api_key);
+                    let text = await translateGT(val, sourceLanguage, targetLanguage);
                     info("[TRANSLATION] Translation succeeded!")
 
                     if (config.language_settings.english_gender_change && targetLanguage == "en") {
@@ -166,17 +166,31 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
                     });
             }, 1000)
 
-            
-            sr = new WebSpeech(sourceLanguage)
-            info("[SR] Using WebSpeech for recognition")
-            
-            sr.onResult((result: string, isFinal: boolean) => {
-                info(`[SR] Received recognition result: Final: ${isFinal} - Result Length: ${result.length}`)
-                if (config.mode == 1 || config.vrchat_settings.send_typing_status_while_talking) invoke("send_typing", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}` })
+            if (!config.gemini_settings.gemini_enabled) {
+                sr = new WebSpeech(sourceLanguage)
+                info("[SR] Using WebSpeech for recognition")
 
-                setDetection(result)
-                setDetecting(!isFinal)
-            })
+                sr.onResult((result: string, isFinal: boolean) => {
+                    info(`[SR] Received recognition result: Final: ${isFinal} - Result Length: ${result.length}`)
+                    if (config.mode == 1 || config.vrchat_settings.send_typing_status_while_talking) invoke("send_typing", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}` })
+
+                    setDetection(result)
+                    setDetecting(!isFinal)
+                })
+            } else {
+                sr = new Gemini(sourceLanguage, targetLanguage, config.gemini_settings.gemini_api_key)
+                info("[SR] Using Gemini for recognition")
+
+                sr.onResult((result: string, isFinal: boolean) => {
+                    info(`[GEMINI SR] Received gemini result: Result Length: ${result.length}`)
+                    const data = JSON.parse(result)
+
+                    setDetection(data.transcription)
+                    setTranslated(data.translation)
+                })
+            }
+
+
 
             info("[SR] Starting recognition")
             sr?.start()
@@ -201,7 +215,7 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
     React.useEffect(() => {
         info(`[DETECTION] Detection status: Detecting: ${detecting} - Detection Length: ${detection.length}`)
 
-        if (!detecting && detection.length != 0) {
+        if (!detecting && detection.length != 0 && !config.gemini_settings.gemini_enabled) {
             if (config.mode == 0) {
                 detectionQueue = [...detectionQueue, (sourceLanguage == "ja" && config.language_settings.japanese_omit_questionmark) ? detection.replace(/？/g, "") : detection]
 
@@ -232,7 +246,19 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
                         },
                         "& .MuiSvgIcon-root": {
                             color: config.light_mode ? 'black' : '#94A3B8'
-                        }
+                        },
+                        "&.Mui-disabled": {
+                            color: config.light_mode ? 'black' : 'white',
+                            '& .MuiOutlinedInput-notchedOutline': {
+                                borderColor: config.light_mode ? 'black' : '#94A3B8',
+                            },
+                            '&:hover .MuiOutlinedInput-notchedOutline': {
+                                borderColor: config.light_mode ? 'black' : '#94A3B8',
+                            },
+                            "& .MuiSvgIcon-root": {
+                                color: config.light_mode ? 'black' : '#94A3B8'
+                            },
+                        },
                     }} MenuProps={{
                         sx: {
                             "& .MuiPaper-root": {

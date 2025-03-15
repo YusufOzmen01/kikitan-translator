@@ -20,6 +20,13 @@ export const localization = {
     kr: "Windows 마이크 설정을 확인하세요. VR 헤드셋 마이크(또는 실제 마이크)를 선택해야 합니다. 기본 마이크를 변경한 후 Kikitan을 재시작하는 것을 잊지 마세요!",
     tr: "Windows varsayılan mikrofon ayarlarınızı kontrol edin. VR başlık mikrofonunuz (veya gerçek mikrofonunuz) seçili olmalıdır. Varsayılan mikrofonu değiştirdikten sonra Kikitan'ı yeniden başlatmayı unutmayın!",
   },
+  enable_gemini: {
+    en: "Enable Gemini",
+    jp: "ジェミニを有効にする",
+    cn: "启用Gemini",
+    kr: "젬니 활성화",
+    tr: "Gemini'yi etkinleştir",
+  },
   open_win_audio: {
     en: "Open Windows Audio Settings",
     jp: "Windowsのオーディオ設定を開く",
@@ -246,12 +253,19 @@ export const localization = {
     kr: "Gemini API 키 받기",
     tr: "Gemini API Anahtarı Al",
   },
-  translator_settings: {
-    en: "Translator Settings",
-    jp: "翻訳設定",
-    cn: "翻译设置",
-    kr: "번역기 설정",
-    tr: "Çevirmen Ayarları",
+  gemini_settings: {
+    en: "Gemini Settings",
+    jp: "Gemini 設定",
+    cn: "Gemini 设置",
+    kr: "Gemini 설정",
+    tr: "Gemini Ayarları",
+  },
+  auto: {
+    en: "Auto (Gemini)",
+    jp: "自動 (Gemini)",
+    cn: "自动 (Gemini)",
+    kr: "자동 (Gemini)",
+    tr: "Otomatik (Gemini)",
   },
   gemini_api_key_tutorial: {
     en: "How to get a Gemini API key",

@@ -31,9 +31,8 @@ export type Config = {
         osc_address: string,
         osc_port: number
     },
-    translator_settings: {
-        recognizer: number,
-        translator: number,
+    gemini_settings: {
+        gemini_enabled: boolean,
         gemini_api_key: string
     }
 }
@@ -57,9 +56,8 @@ export const DEFAULT_CONFIG: Config = {
         osc_address: "127.0.0.1",
         osc_port: 9000
     },
-    translator_settings: {
-        recognizer: 0,
-        translator: 0,
+    gemini_settings: {
+        gemini_enabled: false,
         gemini_api_key: ""
     }
 }
@@ -119,9 +117,9 @@ export function load_config(): Config {
 export function update_config(config: Config) {
     info(`[CONFIG] Updating config to ${JSON.stringify({
         ...config,
-        translator_settings: {
-            ...config.translator_settings,
-            gemini_api_key: config.translator_settings.gemini_api_key.trim().length > 0 ? "********" : ""
+        gemini_settings: {
+            ...config.gemini_settings,
+            gemini_api_key: config.gemini_settings.gemini_api_key.trim().length > 0 ? "********" : ""
         }
     }, null, 2)}`)
 

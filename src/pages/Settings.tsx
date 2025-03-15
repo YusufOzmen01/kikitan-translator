@@ -82,13 +82,13 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
         }} className={`relative w-max h-screen ${config.light_mode ? "" : "bg-slate-950 text-slate-200"}`}>
             <div className="absolute z-10">
                 <Box className="flex" sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                    <IconButton className="ml-2 mr-2" onClick={() => { closeCallback() }}>
+                    <IconButton className="ml-2 mr-2" onClick={() => { if (config.gemini_settings.gemini_enabled) { window.location.reload(); } closeCallback(); }}>
                         <Close />
                     </IconButton>
                     <Tabs textColor="inherit" value={page} onChange={handleChange}>
                         <Tab label={localization.language_settings[lang]} {...a11yProps(0)} />
                         <Tab label={localization.vrchat_settings[lang]} {...a11yProps(1)} />
-                        <Tab label={localization.translator_settings[lang]} {...a11yProps(2)} />
+                        <Tab label={localization.gemini_settings[lang]} {...a11yProps(2)} />
                         <Tab label={localization.debug_settings[lang]} {...a11yProps(3)} />
                     </Tabs>
                 </Box>
@@ -262,34 +262,15 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                 </CustomTabPanel>
                 <CustomTabPanel value={page} index={2}>
                     <div className="flex flex-col">
-                        <FormControlLabel label={localization.translator[lang]} control={
-                            <Select sx={{
-                                color: config.light_mode ? 'black' : 'white',
-                                '& .MuiOutlinedInput-notchedOutline': {
-                                    borderColor: config.light_mode ? 'black' : '#94A3B8',
-                                },
-                                '&:hover .MuiOutlinedInput-notchedOutline': {
-                                    borderColor: config.light_mode ? 'black' : '#94A3B8',
-                                },
-                            }} MenuProps={{
-                                sx: {
-                                    "& .MuiPaper-root": {
-                                        backgroundColor: config.light_mode ? 'white' : '#020617',
-                                    }
+                    <FormControlLabel control={<Checkbox checked={config.gemini_settings.gemini_enabled} onChange={(e) => {
+                            setConfig({
+                                ...config,
+                                gemini_settings: {
+                                    ...config.gemini_settings,
+                                    gemini_enabled: e.target.checked
                                 }
-                            }} className="ml-2 mr-4 mt-2" value={config.translator_settings.translator} onChange={(e) => {
-                                setConfig({
-                                    ...config,
-                                    translator_settings: {
-                                        ...config.translator_settings,
-                                        translator: parseInt(e.target.value.toString())
-                                    }
-                                })
-                            }}>
-                                <MenuItem sx={{ color: config.light_mode ? 'black' : 'white' }} key={"webspeech"} value={0}>Google Translate (Default)</MenuItem>
-                                <MenuItem sx={{ color: config.light_mode ? 'black' : 'white' }} key={"whisper"} value={1}>Gemini</MenuItem>
-                            </Select>
-                        } />
+                            })
+                        }} />} label={localization.enable_gemini[lang]} />
                         <div className="flex transition-all mt-3 gap-2">
                             <TextField slotProps={{
                                 inputLabel: {
@@ -298,11 +279,11 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                                 htmlInput: {
                                     style: { color: config.light_mode ? "black" : '#fff' }
                                 }
-                            }} className="w-48 h-8" value={config.translator_settings.gemini_api_key} id="outlined-basic" label={"Gemini API Key"} variant="outlined" type="password" disabled={config.translator_settings.translator != 1} onChange={(e) => {
+                            }} className="w-48 h-8" value={config.gemini_settings.gemini_api_key} id="outlined-basic" label={"Gemini API Key"} variant="outlined" type="password" disabled={!config.gemini_settings.gemini_enabled} onChange={(e) => {
                                 setConfig({
                                     ...config,
-                                    translator_settings: {
-                                        ...config.translator_settings,
+                                    gemini_settings: {
+                                        ...config.gemini_settings,
                                         gemini_api_key: e.target.value
                                     }
                                 })
