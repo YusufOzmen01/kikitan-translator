@@ -262,36 +262,6 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                 </CustomTabPanel>
                 <CustomTabPanel value={page} index={2}>
                     <div className="flex flex-col">
-                        <FormControlLabel label={localization.voice_recognition_engine[lang]} control={
-                            <Select sx={{
-                                color: config.light_mode ? 'black' : 'white',
-                                '& .MuiOutlinedInput-notchedOutline': {
-                                    borderColor: config.light_mode ? 'black' : '#94A3B8',
-                                },
-                                '&:hover .MuiOutlinedInput-notchedOutline': {
-                                    borderColor: config.light_mode ? 'black' : '#94A3B8',
-                                },
-                            }} MenuProps={{
-                                sx: {
-                                    "& .MuiPaper-root": {
-                                        backgroundColor: config.light_mode ? 'white' : '#020617',
-                                    }
-                                }
-                            }} className="ml-2 mr-4 mt-2" value={config.translator_settings.recognizer} onChange={(e) => {
-                                setConfig({
-                                    ...config,
-                                    translator_settings: {
-                                        ...config.translator_settings,
-                                        recognizer: parseInt(e.target.value.toString())
-                                    }
-                                })
-
-                                setTimeout(() => window.location.reload(), 200)
-                            }}>
-                                <MenuItem sx={{ color: config.light_mode ? 'black' : 'white' }} key={"webspeech"} value={0}>WebSpeech (Default)</MenuItem>
-                                <MenuItem sx={{ color: config.light_mode ? 'black' : 'white' }} key={"whisper"} value={1}>Whisper (WIP)</MenuItem>
-                            </Select>
-                        } />
                         <FormControlLabel label={localization.translator[lang]} control={
                             <Select sx={{
                                 color: config.light_mode ? 'black' : 'white',

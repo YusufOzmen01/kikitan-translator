@@ -1,5 +1,3 @@
-export const WHISPER_URL_GIST = "https://gist.githubusercontent.com/YusufOzmen01/130ffc8d3582575026c67db08d3163a4/raw"
-
 export const langSource = [
     { name: { en: "English (United States)", jp: "英語 (アメリカ)", cn: "英语 (美国)", kr: "영어 (미국)", tr: "İngilizce (ABD)" }, code: "en-US" },
     { name: { en: "English (United Kingdom)", jp: "英語 (イギリス)", cn: "英语 (英国)", kr: "영어 (영국)", tr: "İngilizce (İngiltere)" }, code: "en-UK" },
@@ -103,10 +101,4 @@ export function findLangSourceIndex(code: string) {
 
 export function findLangToIndex(code: string) {
     return langTo.findIndex((lang) => lang.code === code)
-}
-
-export async function getWhisperPackageURL(os: string) {
-    const res = await (await fetch(WHISPER_URL_GIST)).json()
-    
-    return res[os]
 }
