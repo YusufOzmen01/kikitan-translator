@@ -41,6 +41,13 @@ export const localization = {
     kr: "[VR 전용] SteamVR STT (음성 인식) 사용 방법",
     tr: "[SADECE VR] SteamVR STT (Sesli Yazma) nasıl kullanılır",
   },
+  change_basic_settings: {
+    en: "Change basic settings",
+    jp: "基本設定を変更する",
+    cn: "更改基本设置",
+    kr: "기본 설정 변경",
+    tr: "Temel ayarları değiştir",
+  },
   mode_selection: {
     en: "Mode Selection",
     jp: "モードの選択",
@@ -128,11 +135,11 @@ export const localization = {
     tr: "[Japonca] Son soru işaretini atla",
   },
   translation_first: {
-    en: "Translation first",
-    jp: "最初に翻訳文を表示",
-    cn: "先显示翻译结果",
-    kr: "먼저 번역 결과 표시",
-    tr: "Önce çeviriyi göster",
+    en: "Show translation first on the chatbox",
+    jp: "チャットボックスに最初に翻訳を表示する",
+    cn: "在聊天框中首先显示翻译",
+    kr: "채팅창에 먼저 번역 표시",
+    tr: "Sohbet kutusunda önce çeviriyi göster",
   },
   send_typing_while_talking: {
     en: "Send typing status while talking",
@@ -282,10 +289,17 @@ export const localization = {
     tr: "Çevirmen",
   },
   only_send_translation: {
-    en: "Only send translation",
-    jp: "翻訳のみ送信",
-    cn: "仅发送翻译",
-    kr: "번역만 보내기",
-    tr: "Sadece çeviriyi gönder",
+    en: "Only send the translation to the chatbox",
+    jp: "翻訳のみをチャットボックスに送信",
+    cn: "只将翻译发送到聊天框",
+    kr: "번역만 채팅창으로 보내기",
+    tr: "Sadece çeviriyi sohbet kutusuna gönder",
+  },
+  google_gemini_note: {
+    en: "Gemini is an AI model developed by Google. It is used for translation and transcription as an alternative to WebSpeech (default recognizer for Kikitan). It is free to use and better than WebSpeech + Google Translate system that Kikitan uses by default, but requires an API key. You can get an API key by following the tutorial that's accessible from the bottom below",
+    jp: "GeminiはGoogleが開発したAIモデルです。WebSpeech（Kikitanのデフォルト認識器）の代替として、翻訳と文字起こしに使用されます。使用は無料で、Kikitanがデフォルトで使用するWebSpeech + Google翻訳システムよりも優れていますが、APIキーが必要です。下部からアクセスできるチュートリアルに従ってAPIキーを取得できます",
+    cn: "Gemini是由Google开发的AI模型。它用于翻译和转录，作为Kikitan的默认识别器WebSpeech的替代品。它是免费使用的，比Kikitan默认使用的WebSpeech + Google翻译系统更好，但需要API密钥。您可以通过下面的教程获取API密钥",
+    kr: "Gemini은 Google이 개발한 AI 모델입니다. Kikitan의 기본 인식기인 WebSpeech 대안으로 번역 및 전사에 사용됩니다. 무료로 사용할 수 있으며 Kikitan이 기본적으로 사용하는 WebSpeech + Google 번역 시스템보다 우수하지만 API 키가 필요합니다. 아래에서 액세스할 수 있는 튜토리얼을 따라 API 키를 받을 수 있습니다",
+    tr: "Gemini, Google tarafından geliştirilen bir yapay zeka modelidir. Kikitan'ın varsayılan tanıyıcısı olan WebSpeech'in alternatifi olarak çeviri ve transkripsiyon için kullanılır. Kullanımı ücretsizdir ve Kikitan'ın varsayılan olarak kullandığı WebSpeech + Google Çeviri sisteminin üzerindedir, ancak bir API anahtarı gerektirir. Aşağıdan erişilebilen öğreticiyi takip ederek bir API anahtarı alabilirsiniz",
   }
 };

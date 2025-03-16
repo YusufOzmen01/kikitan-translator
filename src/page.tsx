@@ -60,19 +60,20 @@ function App() {
   }, [config])
 
   React.useEffect(() => {
-    getVersion().then((version) => {
-      setAppVersion(version)
-      setChangelogsVisible(localStorage.getItem("changelogsViewed") != version)
-
-      setTimeout(() => localStorage.setItem("changelogsViewed", version), 1000)
-    })
-
     const cfg = load_config()
     const language = localStorage.getItem("lang") as Lang | null
 
     setQuickstartVisible(localStorage.getItem("quickstartMenu") == null || language == null)
-    setLang(language == null ? "en" : language)
+    if (!(localStorage.getItem("quickstartMenu") == null || language == null)) {
+      getVersion().then((version) => {
+        setAppVersion(version)
+        setChangelogsVisible(localStorage.getItem("changelogsViewed") != version)
 
+        setTimeout(() => localStorage.setItem("changelogsViewed", version), 1000)
+      })
+    }
+
+    setLang(language == null ? "en" : language)
     setConfig(cfg)
 
     check().then((update) => {
@@ -105,11 +106,22 @@ function App() {
     }
   }, [])
 
+  React.useEffect(() => {
+    if (!quickstartVisible) {
+      getVersion().then((version) => {
+        setAppVersion(version)
+        setChangelogsVisible(localStorage.getItem("changelogsViewed") != version)
+
+        setTimeout(() => localStorage.setItem("changelogsViewed", version), 1000)
+      })
+    }
+  }, [quickstartVisible])
+
   return (
     <>
       <div className={`relative transition-all duration-500 ${!loaded ? "opacity-0 pointer-events-none" : "opacity-100"} ${!config.light_mode ? "bg-slate-950 text-white" : ""}`}>
         <div className={`transition-all z-20 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute` + (quickstartVisible && lang != null ? " opacity-100" : " opacity-0 pointer-events-none")}>
-          <QuickstartMenu config={config} setQuickstartVisible={setQuickstartVisible} setLang={setLang} lang={lang}></QuickstartMenu>
+          <QuickstartMenu config={config} setQuickstartVisible={setQuickstartVisible} setLang={setLang} lang={lang} setConfig={setConfig}></QuickstartMenu>
         </div>
 
         <div className={'transition-all z-30 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (updateVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>

@@ -262,7 +262,7 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                 </CustomTabPanel>
                 <CustomTabPanel value={page} index={2}>
                     <div className="flex flex-col">
-                    <FormControlLabel control={<Checkbox checked={config.gemini_settings.gemini_enabled} onChange={(e) => {
+                        <FormControlLabel control={<Checkbox checked={config.gemini_settings.gemini_enabled} onChange={(e) => {
                             setConfig({
                                 ...config,
                                 gemini_settings: {
