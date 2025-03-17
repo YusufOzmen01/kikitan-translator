@@ -18,8 +18,6 @@ Bu güncelleme Kikitan'a birçok yeni özellik getiriyor!
 
 *   Bazı kullanıcı arayüzü tutarsızlıkları ve küçük hatalar düzeltildi.
 
-**Hata Düzeltmeleri:**
-
 **Bilinen Sorunlar:**
 
 *   WebSpeech (varsayılan tanıyıcı) ile algılama sorunları yaşıyorsanız, Microsoft Edge'i güncellemeyi deneyin. Güncelleme sorunu çözmezse, Microsoft'un web sitesinden yeniden yükleyin.

@@ -18,8 +18,6 @@ This update brings many new features to Kikitan!
 
 *   Some UI inconsistencies and small bugs are fixed
 
-**Bug Fixes:**
-
 **Known Issues:**
 * If you are having detection issues with WebSpeech (default recognizer), try updating Microsoft Edge. If update doesn't solve the issue, reinstall it from Microsoft's website.
 
