@@ -97,7 +97,7 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
 
     React.useEffect(() => {
         (async () => {
-            if (detectionQueue.length == 0 || lock || config.gemini_settings.gemini_enabled) return;
+            if (detectionQueue.length == 0 || lock) return;
 
             const val = detectionQueue[0].replace(/%/g, "%25")
             detectionQueue = detectionQueue.slice(1)
@@ -113,7 +113,7 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
                 info(`[TRANSLATION] Attempting translation - Try ${4 - count}`)
                 try {
                     setTranslating(true)
-                    let text = await translateGT(val, sourceLanguage, targetLanguage);
+                    let text = config.gemini_settings.gemini_enabled ? val.split(" ~|~ ")[1] : await translateGT(val, sourceLanguage, targetLanguage);
                     info("[TRANSLATION] Translation succeeded!")
 
                     if (config.language_settings.english_gender_change && targetLanguage == "en") {
@@ -185,8 +185,7 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
                     info(`[GEMINI SR] Received gemini result: Result Length: ${result.length}`)
                     const data = JSON.parse(result)
 
-                    setDetection(data.transcription)
-                    setTranslated(data.translation)
+                    setDetection(data.transcription + " ~|~ " + data.translation)
                 })
             }
 
@@ -215,7 +214,7 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
     React.useEffect(() => {
         info(`[DETECTION] Detection status: Detecting: ${detecting} - Detection Length: ${detection.length}`)
 
-        if (!detecting && detection.length != 0 && !config.gemini_settings.gemini_enabled) {
+        if (!detecting && detection.length != 0) {
             if (config.mode == 0) {
                 detectionQueue = [...detectionQueue, (sourceLanguage == "ja" && config.language_settings.japanese_omit_questionmark) ? detection.replace(/？/g, "") : detection]
 
@@ -233,7 +232,7 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
         <div className="flex align-middle">
             <div>
                 <div className={`mr-16 w-96 h-48 outline outline-1 transition-all rounded-md font-bold text-center ${detecting ? "italic " + config.light_mode ? "text-slate-400 outline-slate-800" : "text-slate-200 outline-slate-400" : config.light_mode ? "text-black" : "text-slate-200"} ${srStatus ? "" : "bg-gray-400"}`}>
-                    <p className="align-middle">{detection}</p>
+                    <p className="align-middle">{config.gemini_settings.gemini_enabled ? detection.split(" ~|~")[0] : detection}</p>
                 </div>
                 <div className="flex">
                     <Select sx={{
