@@ -9,7 +9,8 @@ export abstract class Recognizer {
     abstract start(): void;
     abstract stop(): void;
     abstract set_lang(lang: string): void;
-    abstract status(): boolean;
+    abstract status(): unknown;
+    abstract name(): string;
 
     abstract onResult(callback: (result: string, final: boolean) => void): void;
 }

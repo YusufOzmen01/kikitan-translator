@@ -301,5 +301,55 @@ export const localization = {
     cn: "Gemini是由Google开发的AI模型。它用于翻译和转录，作为Kikitan的默认识别器WebSpeech的替代品。它是免费使用的，比Kikitan默认使用的WebSpeech + Google翻译系统更好，但需要API密钥。您可以通过下面的教程获取API密钥",
     kr: "Gemini은 Google이 개발한 AI 모델입니다. Kikitan의 기본 인식기인 WebSpeech 대안으로 번역 및 전사에 사용됩니다. 무료로 사용할 수 있으며 Kikitan이 기본적으로 사용하는 WebSpeech + Google 번역 시스템보다 우수하지만 API 키가 필요합니다. 아래에서 액세스할 수 있는 튜토리얼을 따라 API 키를 받을 수 있습니다",
     tr: "Gemini, Google tarafından geliştirilen bir yapay zeka modelidir. Kikitan'ın varsayılan tanıyıcısı olan WebSpeech'in alternatifi olarak çeviri ve transkripsiyon için kullanılır. Kullanımı ücretsizdir ve Kikitan'ın varsayılan olarak kullandığı WebSpeech + Google Çeviri sisteminin üzerindedir, ancak bir API anahtarı gerektirir. Aşağıdan erişilebilen öğreticiyi takip ederek bir API anahtarı alabilirsiniz",
+  },
+  gemini_is_disabled: {
+    en: "Gemini is disabled",
+    jp: "Gemini は無効です",
+    cn: "Gemini 已禁用",
+    kr: "젬니가 비활성화되었습니다",
+    tr: "Gemini devre dışı",
+  },
+  settings: {
+    en: "Settings",
+    jp: "設定",
+    cn: "设置",
+    kr: "설정",
+    tr: "Ayarlar",
+  },
+  // GEMINI STATUS SECTION
+  gemini_not_connected: {
+    en: "Gemini is not connected",
+    jp: "Gemini は接続されていません",
+    cn: "Gemini 未连接",
+    kr: "젬니가 연결되지 않았습니다",
+    tr: "Gemini bağlı değil",
+  },
+  invalid_gemini_api_key: {
+    en: "Invalid Gemini API key. Check your API key and try again.",
+    jp: "無効なGemini APIキーです。APIキーを確認してもう一度お試しください。",
+    cn: "无效的Gemini API密钥。请检查您的API密钥并重试。",
+    kr: "잘못된 젬니 API 키입니다. API 키를 확인하고 다시 시도하세요.",
+    tr: "Geçersiz Gemini API anahtarı. API anahtarınızı kontrol edin ve tekrar deneyin.",
+  },
+  connecting_to_gemini: {
+    en: "Connecting to Gemini...",
+    jp: "Gemini に接続中...",
+    cn: "连接到Gemini中...",
+    kr: "젬니에 연결 중...",
+    tr: "Gemini'ye bağlanıyor...",
+  },
+  waiting_for_gemini_setup: {
+    en: "Waiting for Gemini setup...",
+    jp: "Gemini セットアップを待っています...",
+    cn: "等待Gemini设置...",
+    kr: "젬니 설정 대기 중...",
+    tr: "Gemini kurulumu bekleniyor...",
+  },
+  gemini_is_ready: {
+    en: "Gemini is ready!",
+    jp: "Gemini が準備完了です！",
+    cn: "Gemini 准备就绪！",
+    kr: "젬니가 준비되었습니다!",
+    tr: "Gemini hazır!",
   }
 };

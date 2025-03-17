@@ -82,7 +82,7 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
         }} className={`relative w-max h-screen ${config.light_mode ? "" : "bg-slate-950 text-slate-200"}`}>
             <div className="absolute z-10">
                 <Box className="flex" sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                    <IconButton className="ml-2 mr-2" onClick={() => { if (config.gemini_settings.gemini_enabled) { window.location.reload(); } closeCallback(); }}>
+                    <IconButton className="ml-2 mr-2" onClick={() => { closeCallback(); }}>
                         <Close />
                     </IconButton>
                     <Tabs textColor="inherit" value={page} onChange={handleChange}>

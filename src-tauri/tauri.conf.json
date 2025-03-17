@@ -57,8 +57,8 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 500,
-        "minHeight": 500,
+        "height": 525,
+        "minHeight": 525,
         "minWidth": 900,
         "title": "Kikitan Translator",
         "width": 900

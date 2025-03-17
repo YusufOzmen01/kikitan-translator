@@ -230,7 +230,7 @@ function App() {
             </Toolbar>
           </AppBar>
           <div className='flex flex-1 items-center align-middle flex-col mt-8'>
-            {loaded && <Kikitan lang={lang} config={config} setConfig={setConfig}></Kikitan>}
+            {loaded && <Kikitan lang={lang} config={config} setConfig={setConfig} settingsVisible={settingsVisible} setSettingsVisible={setSettingsVisible}></Kikitan>}
           </div>
         </div>
       </div>

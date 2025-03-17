@@ -33,19 +33,21 @@ import { WebSpeech } from "../recognizers/WebSpeech";
 import { localization } from "../util/localization";
 import translateGT from "../translators/google_translate";
 import translateGE from "../translators/gemini";
-import { Gemini } from "../recognizers/Gemini";
+import { Gemini, GeminiState } from "../recognizers/Gemini";
 
 type KikitanProps = {
     config: Config;
     setConfig: (config: Config) => void;
+    setSettingsVisible: (state: boolean) => void
     lang: Lang;
+    settingsVisible: boolean
 }
 
 let sr: Recognizer | null = null;
 let detectionQueue: string[] = []
 let lock = false
 
-export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
+export default function Kikitan({ config, setConfig, lang, settingsVisible, setSettingsVisible }: KikitanProps) {
     const [detecting, setDetecting] = React.useState(false)
     const [translating, setTranslating] = React.useState(false)
     const [srStatus, setSRStatus] = React.useState(true)
@@ -61,6 +63,50 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
 
     const [sourceLanguage, setSourceLanguage] = React.useState(config.source_language)
     const [targetLanguage, setTargetLanguage] = React.useState(config.target_language)
+
+    const [geminiStatus, setGeminiStatus] = React.useState<GeminiState>();
+    const [geminiInterval, setGeminiInterval] = React.useState<NodeJS.Timeout | null>(null)
+
+    const restartSR = () => {
+        sr?.stop();
+        if (geminiInterval != null) {
+            clearInterval(geminiInterval)
+            setGeminiInterval(null)
+            setGeminiStatus(GeminiState.NOT_CONNECTED)
+        }
+
+        info(`[SR] Initializing SR...`)
+
+        if (!config.gemini_settings.gemini_enabled) {
+            sr = new WebSpeech(sourceLanguage)
+            info("[SR] Using WebSpeech for recognition")
+
+            sr.onResult((result: string, isFinal: boolean) => {
+                info(`[SR] Received recognition result: Final: ${isFinal} - Result Length: ${result.length}`)
+                if (config.mode == 1 || config.vrchat_settings.send_typing_status_while_talking) invoke("send_typing", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}` })
+
+                setDetection(result)
+                setDetecting(!isFinal)
+            })
+        } else {
+            sr = new Gemini(sourceLanguage, targetLanguage, config.gemini_settings.gemini_api_key)
+            info("[SR] Using Gemini for recognition")
+
+            setGeminiInterval(setInterval(() => {
+                setGeminiStatus(sr?.status() as GeminiState)
+            }, 100))
+
+            sr.onResult((result: string, isFinal: boolean) => {
+                info(`[GEMINI SR] Received gemini result: Result Length: ${result.length}`)
+                const data = JSON.parse(result)
+
+                setDetection(data.transcription + " ~|~ " + data.translation)
+            })
+        }
+
+        info("[SR] Starting recognition")
+        sr?.start()
+    }
 
     React.useEffect(() => {
         info(`[LANGUAGE] Changing language (${sourceLanguage} - ${targetLanguage}) - sr=${sr != null}`)
@@ -153,7 +199,6 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
         })
 
         if (sr == null) {
-            info(`[SR] Initializing SR...`)
             setInterval(() => {
                 navigator.mediaDevices.enumerateDevices()
                     .then(function (devices) {
@@ -166,35 +211,13 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
                     });
             }, 1000)
 
-            if (!config.gemini_settings.gemini_enabled) {
-                sr = new WebSpeech(sourceLanguage)
-                info("[SR] Using WebSpeech for recognition")
-
-                sr.onResult((result: string, isFinal: boolean) => {
-                    info(`[SR] Received recognition result: Final: ${isFinal} - Result Length: ${result.length}`)
-                    if (config.mode == 1 || config.vrchat_settings.send_typing_status_while_talking) invoke("send_typing", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}` })
-
-                    setDetection(result)
-                    setDetecting(!isFinal)
-                })
-            } else {
-                sr = new Gemini(sourceLanguage, targetLanguage, config.gemini_settings.gemini_api_key)
-                info("[SR] Using Gemini for recognition")
-
-                sr.onResult((result: string, isFinal: boolean) => {
-                    info(`[GEMINI SR] Received gemini result: Result Length: ${result.length}`)
-                    const data = JSON.parse(result)
-
-                    setDetection(data.transcription + " ~|~ " + data.translation)
-                })
-            }
-
-
-
-            info("[SR] Starting recognition")
-            sr?.start()
+            restartSR();
         }
     }, [])
+
+    React.useEffect(() => {
+        if (settingsVisible == false) restartSR()
+    }, [settingsVisible])
 
     React.useEffect(() => {
         if (defaultMicrophone == localization.waiting_for_mic_access[lang]) return;
@@ -332,10 +355,22 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
             }}>{defaultMicrophone}</a>
         </div>
         <div className="align-middle">
-            <div className="mt-2 flex space-x-2">
+            <div className="mt-2 flex space-x-2 justify-center">
                 <Button variant="contained" size="small" className="h-8" onClick={() => { open("https://twitter.com/marquina_osu") }}><XIcon fontSize="small" /></Button>
                 <Button variant="contained" size="small" className="h-8" onClick={() => { open("https://buymeacoffee.com/sergiomarquina") }}><FavoriteIcon fontSize="small" /></Button>
                 <Button variant="contained" size="small" className="h-8" onClick={() => { open("https://github.com/YusufOzmen01/kikitan-translator") }}><GitHubIcon fontSize="small" /></Button>
+            </div>
+            <div className="mt-2 text-md flex justify-center gap-1">
+                {config.gemini_settings.gemini_enabled && <>
+                    {geminiStatus == GeminiState.NOT_CONNECTED && <p className="text-slate-400 italic">{localization.gemini_not_connected[lang]}</p>}
+                    {geminiStatus == GeminiState.AUTH_FAILED && <p className="text-red-600">{localization.invalid_gemini_api_key[lang]}</p>}
+                    {geminiStatus == GeminiState.WS_CONNECTED && <p className="text-yellow-600">{localization.waiting_for_gemini_setup[lang]}</p>}
+                    {geminiStatus == GeminiState.RECOGNITION_STARTED && <p className="text-green-700">{localization.gemini_is_ready[lang]}</p>}
+                </>}
+                {!config.gemini_settings.gemini_enabled && <>
+                    <p className="text-center">{localization.gemini_is_disabled[lang]}</p>
+                    <a href="" className="italic text-slate-500" onClick={(e) => { e.preventDefault(); setSettingsVisible(true); }}>{localization.settings[lang]}</a>
+                </>}
             </div>
         </div>
     </>

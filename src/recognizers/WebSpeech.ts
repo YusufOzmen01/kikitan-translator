@@ -92,4 +92,8 @@ export class WebSpeech extends Recognizer {
             }
         }
     }
+
+    name(): string {
+        return "WebSpeech";
+    }
 }

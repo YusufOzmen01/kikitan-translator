@@ -8,15 +8,22 @@ import {
 
 import { setupMicrophoneCapture } from "../util/audiocapture";
 
+export enum GeminiState { NOT_CONNECTED, AUTH_FAILED, WS_CONNECTED, RECOGNITION_STARTED };
+
 export class Gemini extends Recognizer {
     stopRecognizer: (() => void) | null = null;
+    callback: ((result: string, final: boolean) => void) | null = null;
+
     socket: WebSocket | null = null;
     apikey: string = ""
-    callback: ((result: string, final: boolean) => void) | null = null;
-    buffer: string = ""
-    turn_over: boolean = false
+    
     target_lang: string = ""
     restartInterval: NodeJS.Timeout | null = null
+
+    turn_over: boolean = false
+    buffer: string = ""
+
+    current_status: GeminiState = GeminiState.NOT_CONNECTED;
 
     constructor(lang: string, target_lang: string, apikey: string) {
         super(lang);
@@ -37,11 +44,26 @@ export class Gemini extends Recognizer {
 
     async init() {
         this.stopRecognizer?.();
+        try {
+            const resp = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp?key=" + this.apikey)
+
+            if (resp.status != 200) {
+                this.current_status = GeminiState.AUTH_FAILED
+
+                return
+            }
+        } catch {
+            this.current_status = GeminiState.AUTH_FAILED
+
+            return
+        }
+
         this.socket?.close()
         this.socket = new WebSocket(`wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?key=${this.apikey}`)
 
         if (this.socket) {
             this.socket.onopen = async () => {
+                this.current_status = GeminiState.WS_CONNECTED
                 this.socket?.send(JSON.stringify(
                     {
                         "setup": {
@@ -59,9 +81,9 @@ export class Gemini extends Recognizer {
 
             this.socket.onmessage = async (data) => {
                 const text = await data.data.text()
-                console.log(text.trim())
 
                 if (text.trim().replaceAll("\n", "").replaceAll(" ", "") == '{"setupComplete":{}}') {
+                    this.current_status = GeminiState.RECOGNITION_STARTED
                     this.stopRecognizer = await setupMicrophoneCapture((chunk, sampleRate) => {
                         const pcmBuffer = new ArrayBuffer(chunk.length * 2);
                         const pcmView = new DataView(pcmBuffer);
@@ -104,7 +126,15 @@ export class Gemini extends Recognizer {
             }
 
             this.socket.onerror = (e) => {
+                this.current_status = GeminiState.NOT_CONNECTED
+
                 error("[GEMINI SR] Error while starting the recognizer: " + e)
+            }
+
+            this.socket.close = () => {
+                this.current_status = GeminiState.NOT_CONNECTED
+
+                error("[GEMINI SR] Websocket connection closed.")
             }
         }
     }
@@ -130,11 +160,15 @@ export class Gemini extends Recognizer {
         this.init()
     }
 
-    status(): boolean {
-        return this.running;
+    status(): GeminiState {
+        return this.current_status
     }
 
     onResult(callback: (result: string, final: boolean) => void) {
         this.callback = callback
+    }
+
+    name(): string {
+        return "Gemini"
     }
 }
