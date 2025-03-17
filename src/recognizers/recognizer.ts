@@ -12,5 +12,6 @@ export abstract class Recognizer {
     abstract status(): unknown;
     abstract name(): string;
 
+    abstract manual_trigger(data: string): void;
     abstract onResult(callback: (result: string, final: boolean) => void): void;
 }

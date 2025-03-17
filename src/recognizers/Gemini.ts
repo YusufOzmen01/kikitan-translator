@@ -16,7 +16,7 @@ export class Gemini extends Recognizer {
 
     socket: WebSocket | null = null;
     apikey: string = ""
-    
+
     target_lang: string = ""
     restartInterval: NodeJS.Timeout | null = null
 
@@ -170,5 +170,9 @@ export class Gemini extends Recognizer {
 
     name(): string {
         return "Gemini"
+    }
+
+    manual_trigger(data: string) {
+        this.socket?.send(JSON.stringify({ clientContent: { turns: [{ role: "user", parts: [{ "text": data }] }], "turnComplete": true } }))
     }
 }

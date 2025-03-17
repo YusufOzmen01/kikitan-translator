@@ -3,7 +3,6 @@ use std::process::Command;
 
 #[tauri::command]
 pub fn show_audio_settings() {
-    #[cfg(target_os = "windows")]
     Command::new("powershell")
         .arg("Start")
         .arg("ms-settings:sound")
@@ -16,7 +15,6 @@ pub fn show_audio_settings() {
 
 #[tauri::command]
 pub fn kill_whisper_helper() {
-    #[cfg(target_os = "windows")]
     Command::new("taskkill")
         .arg("/f")
         .arg("/im")
@@ -32,7 +30,6 @@ pub fn kill_whisper_helper() {
 pub fn start_whisper_helper(helper_path: String) {
     kill_whisper_helper();
 
-    #[cfg(target_os = "windows")]
     Command::new(helper_path)
         .creation_flags(0x08000000_u32)
         .spawn();

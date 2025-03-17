@@ -48,6 +48,13 @@ export const localization = {
     kr: "기본 설정 변경",
     tr: "Temel ayarları değiştir",
   },
+  text: {
+    en: "Text",
+    jp: "テキスト",
+    cn: "文本",
+    kr: "텍스트",
+    tr: "Metin",
+  },
   mode_selection: {
     en: "Mode Selection",
     jp: "モードの選択",
@@ -98,6 +105,13 @@ export const localization = {
     cn: "翻译",
     kr: "번역",
     tr: "Çeviri",
+  },
+  type_here: {
+    en: "Type here...",
+    jp: "ここに入力...",
+    cn: "在这里输入...",
+    kr: "여기에 입력...",
+    tr: "Buraya yazın...",
   },
   transcription: {
     en: "Transcription",
