@@ -20,6 +20,13 @@ export const localization = {
     kr: "Windows 마이크 설정을 확인하세요. VR 헤드셋 마이크(또는 실제 마이크)를 선택해야 합니다. 기본 마이크를 변경한 후 Kikitan을 재시작하는 것을 잊지 마세요!",
     tr: "Windows varsayılan mikrofon ayarlarınızı kontrol edin. VR başlık mikrofonunuz (veya gerçek mikrofonunuz) seçili olmalıdır. Varsayılan mikrofonu değiştirdikten sonra Kikitan'ı yeniden başlatmayı unutmayın!",
   },
+  announcement: {
+    en: "Announcement",
+    jp: "お知らせ",
+    cn: "公告",
+    kr: "공지",
+    tr: "Duyuru",
+  },
   enable_gemini: {
     en: "Enable Gemini",
     jp: "ジェミニを有効にする",

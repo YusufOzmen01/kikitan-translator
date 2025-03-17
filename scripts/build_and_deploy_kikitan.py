@@ -1,5 +1,4 @@
 from github import Github, Auth, InputFileContent
-import shutil
 
 import os
 import json
@@ -12,17 +11,6 @@ if "TAURI_SIGNING_PRIVATE_KEY" not in os.environ:
 
 auth = Auth.Token(os.getenv("GITHUB_API_KEY"))
 g = Github(auth=auth)
-
-print("Building whisper...")
-ret = os.system("cmake -B src-whisper/build src-whisper")
-if ret != 0:
-    raise Exception("Failed to build whisper")
-
-ret = os.system("make -C src-whisper/build")
-if ret != 0:
-    raise Exception("Failed to build whisper")
-
-shutil.copytree("src-whisper/build/bin", "src-tauri/whisper-files")
 
 print("Building kikitan...")
 ret = os.system("npm run tauri build")

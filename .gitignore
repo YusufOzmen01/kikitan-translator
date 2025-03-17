@@ -46,3 +46,4 @@ dist
 __pycache__
 build
 whisper-files
+announcement_files

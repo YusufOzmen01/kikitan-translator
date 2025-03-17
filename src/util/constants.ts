@@ -1,3 +1,5 @@
+export const ANNOUNCEMENT_GIST_URL = "https://gist.githubusercontent.com/YusufOzmen01/0804fb9388f7859b1a549cddc626c39f/raw"
+
 export const langSource = [
     { name: { en: "English (United States)", jp: "英語 (アメリカ)", cn: "英语 (美国)", kr: "영어 (미국)", tr: "İngilizce (ABD)" }, code: "en-US" },
     { name: { en: "English (United Kingdom)", jp: "英語 (イギリス)", cn: "英语 (英国)", kr: "영어 (영국)", tr: "İngilizce (İngiltere)" }, code: "en-UK" },

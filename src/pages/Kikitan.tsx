@@ -390,6 +390,8 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
                 <Button variant="contained" size="small" className="h-8" onClick={() => { open("https://twitter.com/marquina_osu") }}><XIcon fontSize="small" /></Button>
                 <Button variant="contained" size="small" className="h-8" onClick={() => { open("https://buymeacoffee.com/sergiomarquina") }}><FavoriteIcon fontSize="small" /></Button>
                 <Button variant="contained" size="small" className="h-8" onClick={() => { open("https://github.com/YusufOzmen01/kikitan-translator") }}><GitHubIcon fontSize="small" /></Button>
+                <Button variant="contained" size="small" className="h-8" onClick={() => { open("https://discord.gg/jpkYCgpBGV") }}><img src="/discordlogo.webp" className={config.light_mode ? "" : "invert"} width={18} /></Button>
+
             </div>
             <div className="mt-2 text-md flex justify-center gap-1">
                 {config.gemini_settings.gemini_enabled && <>

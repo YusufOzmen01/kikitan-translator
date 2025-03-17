@@ -10,7 +10,8 @@ import {
   MenuItem,
   Button,
   IconButton,
-  CircularProgress
+  CircularProgress,
+  Box
 } from '@mui/material';
 
 import {
@@ -18,7 +19,8 @@ import {
   Translate,
   WbSunny,
   NightsStay,
-  Favorite
+  Favorite,
+  Close
 } from '@mui/icons-material';
 
 import { invoke } from '@tauri-apps/api/core'
@@ -28,7 +30,7 @@ import SettingsPage from './pages/Settings';
 
 
 import { DEFAULT_CONFIG, load_config, update_config } from './util/config';
-import { Lang } from './util/constants';
+import { ANNOUNCEMENT_GIST_URL, Lang } from './util/constants';
 import { getVersion } from '@tauri-apps/api/app';
 
 import Changelogs from './pages/Changelogs';
@@ -40,6 +42,18 @@ import { localization } from './util/localization';
 
 import translateGT from './translators/google_translate';
 import QuickstartMenu from './components/Quickstart';
+import Markdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+
+type Announcement = {
+  show: boolean,
+  date: string,
+  en: string,
+  jp: string,
+  kr: string,
+  cn: string,
+  tr: string
+}
 
 function App() {
   const [quickstartVisible, setQuickstartVisible] = React.useState(true)
@@ -54,6 +68,8 @@ function App() {
   const [appVersion, setAppVersion] = React.useState("")
 
   const [loaded, setLoaded] = React.useState(false)
+  const [announcementVisible, setAnnouncementVisible] = React.useState(false)
+  const [announcementData, setAnnouncementData] = React.useState<Announcement>()
 
   React.useEffect(() => {
     if (loaded) update_config(config)
@@ -108,6 +124,14 @@ function App() {
 
   React.useEffect(() => {
     if (!quickstartVisible) {
+      fetch(ANNOUNCEMENT_GIST_URL).then(async data => {
+        const json = (await data.json()) as Announcement
+
+        setAnnouncementVisible(json.show ? localStorage.getItem("last-viewed-announcement")! == json.date ? false : true : false)
+        setAnnouncementData(json)
+        localStorage.setItem("last-viewed-announcement", json.date.toString());
+      })
+
       getVersion().then((version) => {
         setAppVersion(version)
         setChangelogsVisible(localStorage.getItem("changelogsViewed") != version)
@@ -122,6 +146,32 @@ function App() {
       <div className={`relative transition-all duration-500 ${!loaded ? "opacity-0 pointer-events-none" : "opacity-100"} ${!config.light_mode ? "bg-slate-950 text-white" : ""}`}>
         <div className={`transition-all z-20 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute` + (quickstartVisible && lang != null ? " opacity-100" : " opacity-0 pointer-events-none")}>
           <QuickstartMenu config={config} setQuickstartVisible={setQuickstartVisible} setLang={setLang} lang={lang} setConfig={setConfig}></QuickstartMenu>
+        </div>
+
+        <div className={'transition-all z-30 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + ((!quickstartVisible && announcementVisible) ? " opacity-100" : " opacity-0 pointer-events-none")}>
+          <div className={`flex flex-col justify-between w-10/12 h-5/6 outline outline-1 ${config.light_mode ? "outline-slate-400" : "outline-slate-950"} rounded bg-white`}>
+            <Box sx={{
+              width: '100%',
+              '& .MuiSvgIcon-root': {
+                color: config.light_mode ? 'black' : 'white'
+              },
+              '& .MuiOutlinedInput-notchedOutline': {
+                borderColor: config.light_mode ? 'black' : 'white',
+              },
+              '&:hover .MuiOutlinedInput-notchedOutline': {
+                borderColor: config.light_mode ? 'black' : 'white',
+              },
+            }} className={`h-screen ${config.light_mode ? "" : "bg-slate-950 text-white"}`}>
+              <Box className={`flex`} sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                <IconButton className="ml-2 mr-2" onClick={() => { setAnnouncementVisible(false) }}>
+                  <Close />
+                </IconButton>
+
+                <h1 className="ml-2 mt-[5px] text-xl font-semibold">{localization.announcement[lang]}</h1>
+              </Box>
+              <Markdown remarkPlugins={[remarkGfm]} className="list-disc list-inside text-sm mt-4 ml-8 w-11/12 max-h-80 whitespace-pre text-wrap overflow-y-scroll">{announcementData?.[lang]}</Markdown>
+            </Box>
+          </div>
         </div>
 
         <div className={'transition-all z-30 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (updateVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
