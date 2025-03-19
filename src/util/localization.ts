@@ -34,6 +34,13 @@ export const localization = {
     kr: "젬니 활성화",
     tr: "Gemini'yi etkinleştir",
   },
+  enable_gemini_transcription: {
+    en: "Enable Gemini Transcription",
+    jp: "ジェミニ文字起こしを有効にする",
+    cn: "启用Gemini转录",
+    kr: "젬니 전사 활성화",
+    tr: "Gemini Transkripsiyonu Etkinleştir",
+  },
   open_win_audio: {
     en: "Open Windows Audio Settings",
     jp: "Windowsのオーディオ設定を開く",
@@ -317,11 +324,11 @@ export const localization = {
     tr: "Sadece çeviriyi sohbet kutusuna gönder",
   },
   google_gemini_note: {
-    en: "Gemini is an AI model developed by Google. It is used for translation and transcription as an alternative to WebSpeech (default recognizer for Kikitan). It is free to use and better than WebSpeech + Google Translate system that Kikitan uses by default, but requires an API key. You can get an API key by following the tutorial that's accessible from the bottom below",
-    jp: "GeminiはGoogleが開発したAIモデルです。WebSpeech（Kikitanのデフォルト認識器）の代替として、翻訳と文字起こしに使用されます。使用は無料で、Kikitanがデフォルトで使用するWebSpeech + Google翻訳システムよりも優れていますが、APIキーが必要です。下部からアクセスできるチュートリアルに従ってAPIキーを取得できます",
-    cn: "Gemini是由Google开发的AI模型。它用于翻译和转录，作为Kikitan的默认识别器WebSpeech的替代品。它是免费使用的，比Kikitan默认使用的WebSpeech + Google翻译系统更好，但需要API密钥。您可以通过下面的教程获取API密钥",
-    kr: "Gemini은 Google이 개발한 AI 모델입니다. Kikitan의 기본 인식기인 WebSpeech 대안으로 번역 및 전사에 사용됩니다. 무료로 사용할 수 있으며 Kikitan이 기본적으로 사용하는 WebSpeech + Google 번역 시스템보다 우수하지만 API 키가 필요합니다. 아래에서 액세스할 수 있는 튜토리얼을 따라 API 키를 받을 수 있습니다",
-    tr: "Gemini, Google tarafından geliştirilen bir yapay zeka modelidir. Kikitan'ın varsayılan tanıyıcısı olan WebSpeech'in alternatifi olarak çeviri ve transkripsiyon için kullanılır. Kullanımı ücretsizdir ve Kikitan'ın varsayılan olarak kullandığı WebSpeech + Google Çeviri sisteminin üzerindedir, ancak bir API anahtarı gerektirir. Aşağıdan erişilebilen öğreticiyi takip ederek bir API anahtarı alabilirsiniz",
+    en: "Google's LLM is called Gemini. It's available for translation, and you can even try out the speech-to-text feature (though it might take a little longer sometimes). You'll need a free API key to use it, and getting one is simple – just click the \"How to get Gemini API Key\" button below for a tutorial. Just so you know, this translation tool is still experimental. It uses context to understand and translate better, but if you're using voice input, it might not always be spot-on. Keep that in mind as you use it!",
+    jp: "Gemini は Google の大規模言語モデル（LLM）です。翻訳（そしてオプションで音声テキスト変換も可能ですが、時々遅くなることがあります）にご利用いただけます。無料で簡単に入手できる API キーが必要です。以下の「Gemini API キーの取得方法」ボタンをクリックしてチュートリアルをご覧ください。ご注意ください：この機能はまだ実験段階です。文脈に基づいた翻訳と認識により、翻訳ミスを減らすように設計されています。音声テキスト変換機能をご利用の場合、発言された内容が完全に正確に検出されない可能性があります。ご利用にはご注意ください。",
+    cn: "Gemini 是 Google 的大型语言模型 (LLM)。你可以用它进行翻译（也可以选择使用语音转文本功能，但有时可能会比较慢）。你需要一个免费且容易获取的 API 密钥，你可以从下面获取（点击“如何获取 Gemini API 密钥”按钮查看教程）。请注意：此功能仍处于实验阶段。它利用上下文驱动的翻译和识别来减少翻译错误。如果你使用的是语音转文本功能，你所说的内容可能不会被完全准确地识别。请谨慎使用！",
+    kr: "Gemini는 Google의 대규모 언어 모델(LLM)입니다. 번역 기능(선택적으로 음성-텍스트 변환 기능도 가능하지만, 때때로 속도가 느릴 수 있습니다)을 사용할 수 있습니다. 무료로 쉽게 얻을 수 있는 API 키가 필요하며, 아래에서 얻을 수 있습니다(\"Gemini API 키를 얻는 방법\" 버튼을 클릭하여 안내를 확인하세요). 참고: 이 기능은 아직 실험 단계입니다. 문맥 기반 번역 및 인식을 통해 번역 오류를 줄이도록 설계되었지만, 음성-텍스트 기능을 사용하는 경우 말한 내용이 정확하게 인식되지 않을 수 있습니다. 사용에 주의하세요!",
+    tr: "Gemini, Google'ın büyük dil modelidir (LLM). Çeviri (ve isteğe bağlı olarak sesten metne çeviri için de kullanabilirsiniz, ancak zaman zaman yavaşlayabilir). Ücretsiz ve kolayca edinebileceğiniz bir API anahtarına ihtiyacınız olacak, bunu aşağıdan edinebilirsiniz (\"Gemini API Anahtarı Nasıl Alınır\" düğmesine tıklayarak bir öğreticiye ulaşın). Not: Bu özellik hala deneysel aşamadadır. Bağlam odaklı çeviri ve tanıma kullanarak çeviri hatalarını azaltır. Sesten metne özelliğini kullanıyorsanız, söyledikleriniz tam olarak algılanamayabilir. Dikkatli kullanın!",
   },
   gemini_is_disabled: {
     en: "Gemini is disabled",
@@ -372,5 +379,12 @@ export const localization = {
     cn: "Gemini 准备就绪！",
     kr: "젬니가 준비되었습니다!",
     tr: "Gemini hazır!",
+  },
+  gemini_rate_limit: {
+    en: "Gemini rate limit exceeded. Falling back to Google Translate for now",
+    jp: "Geminiのレート制限を超過しました。現在はGoogle翻訳にフォールバックします",
+    cn: "Gemini速率限制已超过。暂时回退到Google翻译",
+    kr: "젬니 요금 한도 초과. 현재는 Google 번역으로 대체됩니다",
+    tr: "Gemini hız sınırı aşıldı. Şimdilik Google Çeviri'ye geri dönülüyor"
   }
 };

@@ -19,8 +19,6 @@ export type Config = {
     mode: number,
     language_settings: {
         japanese_omit_questionmark: boolean,
-        english_gender_change: boolean,
-        english_gender_change_gender: number,
     },
     vrchat_settings: {
         translation_first: boolean,
@@ -33,6 +31,7 @@ export type Config = {
     },
     gemini_settings: {
         gemini_enabled: boolean,
+        gemini_enable_transcription: boolean,
         gemini_api_key: string
     }
 }
@@ -43,9 +42,7 @@ export const DEFAULT_CONFIG: Config = {
     mode: 0,
     light_mode: false,
     language_settings: {
-        japanese_omit_questionmark: true,
-        english_gender_change: false,
-        english_gender_change_gender: 0
+        japanese_omit_questionmark: true
     },
     vrchat_settings: {
         translation_first: true,
@@ -58,6 +55,7 @@ export const DEFAULT_CONFIG: Config = {
     },
     gemini_settings: {
         gemini_enabled: false,
+        gemini_enable_transcription: false,
         gemini_api_key: ""
     }
 }

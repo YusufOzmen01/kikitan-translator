@@ -1,4 +1,11 @@
 export const ANNOUNCEMENT_GIST_URL = "https://gist.githubusercontent.com/YusufOzmen01/0804fb9388f7859b1a549cddc626c39f/raw"
+export const GEMINI_TRANSLATION_PROMPT = (lang_src: string, lang_target: string): string => {
+    return `Translate the text which is in [${lang_src}] to [${lang_target}] and return the translation as response. Use native alphabets. Translate all input. Translate idioms & phrases naturally. Be casual, not formal. Only return one translation.`
+}
+
+export const GEMINI_TRANSLATION_TRANSCRIPTION_PROMPT = (lang_src: string, lang_target: string): string => {
+    return `Transcribe [${lang_src}] & translate to [${lang_target}]. Output: {"transcription":"", "translation":""}. Use native alphabets. Transcribe only the specified language. Detect & translate all input. Translate idioms & phrases naturally. Be casual, not formal.`
+}
 
 export const langSource = [
     { name: { en: "English (United States)", jp: "英語 (アメリカ)", cn: "英语 (美国)", kr: "영어 (미국)", tr: "İngilizce (ABD)" }, code: "en-US" },

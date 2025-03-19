@@ -103,44 +103,6 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                                 }
                             })
                         }} />} label={localization.omit_questionmark[lang]} />
-                        <FormControlLabel control={<Checkbox checked={config.language_settings.english_gender_change} onChange={(e) => {
-                            setConfig({
-                                ...config,
-                                language_settings: {
-                                    ...config.language_settings,
-                                    english_gender_change: e.target.checked
-                                }
-                            })
-                        }} />} label={localization.english_gender_text[lang]} />
-                        <FormControlLabel label={localization.gender[lang]} control={
-                            <Select sx={{
-                                color: config.light_mode ? 'black' : 'white',
-                                '& .MuiOutlinedInput-notchedOutline': {
-                                    borderColor: config.light_mode ? 'black' : '#94A3B8',
-                                },
-                                '&:hover .MuiOutlinedInput-notchedOutline': {
-                                    borderColor: config.light_mode ? 'black' : '#94A3B8',
-                                },
-                            }} MenuProps={{
-                                sx: {
-                                    "& .MuiPaper-root": {
-                                        backgroundColor: config.light_mode ? 'white' : '#020617',
-                                    }
-                                }
-                            }} className="ml-2 mr-4 mt-2" value={config.language_settings.english_gender_change_gender} onChange={(e) => {
-                                setConfig({
-                                    ...config,
-                                    language_settings: {
-                                        ...config.language_settings,
-                                        english_gender_change_gender: parseInt(e.target.value.toString())
-                                    }
-                                })
-                            }}>
-                                <MenuItem sx={{ color: config.light_mode ? 'black' : 'white' }} key={"male"} value={0}>♂</MenuItem>
-                                <MenuItem sx={{ color: config.light_mode ? 'black' : 'white' }} key={"female"} value={1}>♀</MenuItem>
-
-                            </Select>
-                        } />
                     </FormGroup>
                 </CustomTabPanel>
                 <CustomTabPanel className="flex" value={page} index={1}>
@@ -271,6 +233,15 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                                 }
                             })
                         }} />} label={localization.enable_gemini[lang]} />
+                        <FormControlLabel disabled={!config.gemini_settings.gemini_enabled} control={<Checkbox checked={config.gemini_settings.gemini_enable_transcription} onChange={(e) => {
+                            setConfig({
+                                ...config,
+                                gemini_settings: {
+                                    ...config.gemini_settings,
+                                    gemini_enable_transcription: e.target.checked
+                                }
+                            })
+                        }} />} label={localization.enable_gemini_transcription[lang]} />
                         <div className="flex transition-all mt-3 gap-2">
                             <TextField slotProps={{
                                 inputLabel: {

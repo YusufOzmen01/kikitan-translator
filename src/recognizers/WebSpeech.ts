@@ -6,18 +6,24 @@ import {
     debug
 } from '@tauri-apps/plugin-log';
 
+import google_translate from "../translators/google_translate";
+
 export class WebSpeech extends Recognizer {
     recognition: SpeechRecognition;
-    callback: ((result: string, final: boolean) => void) | null = null
+    no_translate: boolean = false;
+    jp_omit_questionmark: boolean = false;
+    callback: ((result: string[], final: boolean) => void) | null = null
 
-    constructor(lang: string) {
-        super(lang);
+    constructor(language_src: string, language_target: string, no_translate: boolean = false, jp_omit_questionmark: boolean = false) {
+        super(language_src, language_target);
 
         this.recognition = new window.webkitSpeechRecognition();
         this.recognition.interimResults = true
         this.recognition.maxAlternatives = 1
         this.recognition.continuous = true
-        this.recognition.lang = lang;
+        this.recognition.lang = language_src;
+        this.no_translate = no_translate;
+        this.jp_omit_questionmark = jp_omit_questionmark
     }
 
     start() {
@@ -70,10 +76,16 @@ export class WebSpeech extends Recognizer {
         info("[WEBSPEECH] Recognition stopped!")
     }
 
-    set_lang(lang: string) {
-        this.recognition.lang = lang;
+    set_lang(language_src: string, language_target: string) {
+        this.recognition.lang = language_src;
 
-        debug("[WEBSPEECH] Language set to " + lang)
+        if (language_target.trim().length != 0) {
+            this.language_target = language_target
+
+            debug(`[WEBSPEECH] Language target set to ${language_target}`)
+        }
+
+        debug(`[WEBSPEECH] Language source set to ${language_target}`)
         this.recognition.stop();
 
         debug("[WEBSPEECH] Restarting in 500ms...")
@@ -86,14 +98,38 @@ export class WebSpeech extends Recognizer {
         return this.running;
     }
 
-    onResult(callback: (result: string, final: boolean) => void) {
+    onResult(callback: (result: string[], final: boolean) => void) {
         this.callback = callback
 
-        this.recognition.onresult = (event) => {
+        this.recognition.onresult = async (event) => {
             if (event.results.length > 0) {
+                let transcript = event.results[event.results.length - 1][0].transcript.trim()
+                const isFinal = event.results[event.results.length - 1].isFinal
                 
+                if (this.language_src == "ja" && this.jp_omit_questionmark) {
+                    transcript = transcript.replace("？", "")
+                }
 
-                callback(event.results[event.results.length - 1][0].transcript.trim(), event.results[event.results.length - 1].isFinal);
+                const result = [transcript, ""]
+
+                
+                callback(result, false);
+
+                if (isFinal && !this.no_translate) {
+                    for (let i = 0; i < 3; i++) {
+                        try {
+                            result[1] = await google_translate(transcript, this.language_src, this.language_target);
+                        } catch (e) {
+                            error("[WEBSPEECH] Error translating using google translate!: " + e)
+                        }
+
+                        callback(result, isFinal);
+
+                        break
+                    }
+                } else {
+                    callback(result, isFinal && this.no_translate);
+                }
             }
         }
     }
@@ -102,7 +138,20 @@ export class WebSpeech extends Recognizer {
         return "WebSpeech";
     }
 
-    manual_trigger(data: string): void {
-        this.callback?.(data, true);
+    async manual_trigger(data: string) {
+        const result = [data, ""];
+        if (!this.no_translate) {
+            for (let i = 0; i < 3; i++) {
+                try {
+                    result[1] = await google_translate(data, this.language_src, this.language_target);
+                } catch (e) {
+                    error("[WEBSPEECH] Error translating using google translate!: " + e)
+                }
+
+                break
+            }
+        }
+
+        this.callback?.(result, true);
     }
 }

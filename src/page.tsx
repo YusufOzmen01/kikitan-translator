@@ -79,8 +79,8 @@ function App() {
     const cfg = load_config()
     const language = localStorage.getItem("lang") as Lang | null
 
-    setQuickstartVisible(localStorage.getItem("quickstartMenu") == null || language == null)
-    if (!(localStorage.getItem("quickstartMenu") == null || language == null)) {
+    setQuickstartVisible(localStorage.getItem("firstTimeSetupComplete") == null || language == null)
+    if (!(localStorage.getItem("firstTimeSetupComplete") == null || language == null)) {
       getVersion().then((version) => {
         setAppVersion(version)
         setChangelogsVisible(localStorage.getItem("changelogsViewed") != version)
