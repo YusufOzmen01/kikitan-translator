@@ -1,6 +1,6 @@
 export const ANNOUNCEMENT_GIST_URL = "https://gist.githubusercontent.com/YusufOzmen01/0804fb9388f7859b1a549cddc626c39f/raw"
 export const GEMINI_TRANSLATION_PROMPT = (lang_src: string, lang_target: string): string => {
-    return `Translate the text which is in [${lang_src}] to [${lang_target}] and return the translation as response. Use native alphabets. Translate all input. Translate idioms & phrases naturally. Be casual, not formal. Only return one translation.`
+    return `Translate the text which is in [${lang_src}] to language [${lang_target}] and only return the translation as response. Use native alphabets. Translate all input. Translate idioms & phrases naturally. Be casual, not formal. Only return one translation.`
 }
 
 export const GEMINI_TRANSLATION_TRANSCRIPTION_PROMPT = (lang_src: string, lang_target: string): string => {

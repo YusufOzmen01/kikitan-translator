@@ -58,7 +58,7 @@ export class Gemini extends Recognizer {
     async init_transcription_translation() {
         this.stop()
         try {
-            const resp = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp?key=" + this.apikey)
+            const resp = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite?key=" + this.apikey)
 
             if (resp.status != 200) {
                 this.current_status = GeminiState.AUTH_FAILED
@@ -149,13 +149,20 @@ export class Gemini extends Recognizer {
                 this.current_status = GeminiState.NOT_CONNECTED
 
                 error("[GEMINI SR] Websocket connection closed.")
+                if (this.running) {
+                    setTimeout(() => {
+                        info("[GEMINI SR] Restarting recognizer...")
+
+                        this.init_transcription_translation()
+                    } , 5000);
+                }
             }
         }
     }
 
     async init_translation() {
         try {
-            const resp = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp?key=" + this.apikey)
+            const resp = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite?key=" + this.apikey)
 
             if (resp.status != 200) {
                 this.current_status = GeminiState.AUTH_FAILED

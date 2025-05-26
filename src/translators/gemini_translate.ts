@@ -1,7 +1,7 @@
 import { GEMINI_TRANSLATION_PROMPT } from "../util/constants"
 
 export default async function (text: string, source: string, target: string, apikey: string): Promise<string> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apikey.trim()}`
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${apikey.trim()}`
 
   const res = await fetch(url,
     {

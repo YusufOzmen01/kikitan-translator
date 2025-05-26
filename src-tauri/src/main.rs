@@ -17,17 +17,9 @@ fn main() {
             vrc_commands::send_message,
             vrc_commands::start_vrc_listener,
             process_manager::show_audio_settings,
-            process_manager::start_whisper_helper,
-            process_manager::kill_whisper_helper,
             filesys::download_file,
             filesys::extract_zip
         ])
-        .on_window_event(|_, event| {
-            if let tauri::WindowEvent::CloseRequested { api, .. } = event {
-                println!("Killing whisper process...");
-                process_manager::kill_whisper_helper();
-            }
-        })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

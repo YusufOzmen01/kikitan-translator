@@ -163,11 +163,11 @@ export const localization = {
     tr: "[Japonca] Son soru işaretini atla",
   },
   translation_first: {
-    en: "Show translation first on the chatbox",
-    jp: "チャットボックスに最初に翻訳を表示する",
-    cn: "在聊天框中首先显示翻译",
-    kr: "채팅창에 먼저 번역 표시",
-    tr: "Sohbet kutusunda önce çeviriyi göster",
+    en: "Show the translation before the original text",
+    jp: "元のテキストの前に翻訳を表示",
+    cn: "在原始文本之前显示翻译",
+    kr: "원본 텍스트 앞에 번역 표시",
+    tr: "Orijinal metinden önce çeviriyi göster",
   },
   send_typing_while_talking: {
     en: "Send typing status while talking",
@@ -317,11 +317,11 @@ export const localization = {
     tr: "Çevirmen",
   },
   only_send_translation: {
-    en: "Only send the translation to the chatbox",
-    jp: "翻訳のみをチャットボックスに送信",
-    cn: "只将翻译发送到聊天框",
-    kr: "번역만 채팅창으로 보내기",
-    tr: "Sadece çeviriyi sohbet kutusuna gönder",
+    en: "Do not send the original text to the chatbox",
+    jp: "元のテキストをチャットボックスに送信しない",
+    cn: "不要将原始文本发送到聊天框",
+    kr: "원본 텍스트를 채팅창에 보내지 않음",
+    tr: "Orijinal metni sohbet kutusuna gönderme",
   },
   google_gemini_note: {
     en: "Google's LLM is called Gemini. It's available for translation, and you can even try out the speech-to-text feature (though it might take a little longer sometimes). You'll need a free API key to use it, and getting one is simple – just click the \"How to get Gemini API Key\" button below for a tutorial. Just so you know, this translation tool is still experimental. It uses context to understand and translate better, but if you're using voice input, it might not always be spot-on. Keep that in mind as you use it!",
