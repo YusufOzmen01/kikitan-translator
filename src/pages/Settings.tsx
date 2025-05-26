@@ -242,6 +242,15 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                                 }
                             })
                         }} />} label={localization.enable_gemini_transcription[lang]} />
+                        <FormControlLabel disabled={!config.gemini_settings.gemini_enabled} control={<Checkbox checked={config.gemini_settings.desktop_capture} onChange={(e) => {
+                            setConfig({
+                                ...config,
+                                gemini_settings: {
+                                    ...config.gemini_settings,
+                                    desktop_capture: e.target.checked
+                                }
+                            })
+                        }} />} label={localization.enable_desktop_capture[lang]} />
                         <div className="flex transition-all mt-3 gap-2">
                             <TextField slotProps={{
                                 inputLabel: {

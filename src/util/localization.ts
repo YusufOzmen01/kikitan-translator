@@ -41,6 +41,13 @@ export const localization = {
     kr: "젬니 전사 활성화",
     tr: "Gemini Transkripsiyonu Etkinleştir",
   },
+  enable_desktop_capture: {
+    en: "Enable Desktop Capture (Experimental!)",
+    jp: "デスクトップキャプチャを有効にする (実験的！)",
+    cn: "启用桌面捕获 (实验性！)",
+    kr: "데스크톱 캡처 활성화 (실험적!)",
+    tr: "Masaüstü Yakalama'yı Etkinleştir (Deneysel!)",
+  },
   open_win_audio: {
     en: "Open Windows Audio Settings",
     jp: "Windowsのオーディオ設定を開く",

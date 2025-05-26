@@ -6,7 +6,7 @@ import {
     error
 } from '@tauri-apps/plugin-log';
 
-import { setupMicrophoneCapture } from "../util/audiocapture";
+import { setupDesktopCapture, setupMicrophoneCapture } from "../util/audiocapture";
 import { GEMINI_TRANSLATION_TRANSCRIPTION_PROMPT } from "../util/constants";
 import { WebSpeech } from "./WebSpeech";
 
@@ -16,13 +16,14 @@ import google_translate from "../translators/google_translate";
 export enum GeminiState { NOT_CONNECTED, AUTH_FAILED, WS_CONNECTED, RECOGNITION_STARTED, RATE_LIMIT };
 
 export class Gemini extends Recognizer {
-    stopRecognizer: (() => void) | null = null;
+    stopCapture: (() => void) | null = null;
     callback: ((result: string[], final: boolean) => void) | null = null;
     webSpeech: WebSpeech | null = null;
 
     socket: WebSocket | null = null;
     apikey: string = ""
     translation_only: boolean = false
+    desktop_capture: boolean = false
 
     restartInterval: NodeJS.Timeout | null = null
 
@@ -31,15 +32,17 @@ export class Gemini extends Recognizer {
 
     current_status: GeminiState = GeminiState.NOT_CONNECTED;
 
-    constructor(language_src: string, language_target: string, apikey: string, translation_only: boolean, jp_omit_questionmark: boolean = false) {
+    constructor(language_src: string, language_target: string, apikey: string, translation_only: boolean, jp_omit_questionmark: boolean = false, desktop_capture: boolean = false) {
         super(language_src, language_target);
 
         this.apikey = apikey
         this.translation_only = translation_only
 
         if (this.translation_only) {
-            this.webSpeech = new WebSpeech(language_src,"", true, jp_omit_questionmark)
+            this.webSpeech = new WebSpeech(language_src, "", true, jp_omit_questionmark)
         }
+
+        this.desktop_capture = desktop_capture
     }
 
     start() {
@@ -96,7 +99,8 @@ export class Gemini extends Recognizer {
 
                 if (text.trim().replaceAll("\n", "").replaceAll(" ", "") == '{"setupComplete":{}}') {
                     this.current_status = GeminiState.RECOGNITION_STARTED
-                    this.stopRecognizer = await setupMicrophoneCapture((chunk, sampleRate) => {
+
+                    const captureCallback = (chunk: Float32Array<ArrayBufferLike>, sampleRate: number) => {
                         const pcmBuffer = new ArrayBuffer(chunk.length * 2);
                         const pcmView = new DataView(pcmBuffer);
 
@@ -117,11 +121,13 @@ export class Gemini extends Recognizer {
                         }
 
                         this.socket?.send(JSON.stringify({ realtimeInput: { mediaChunks: [{ mimeType: `audio/pcm;rate=${sampleRate}`, data: btoa(binaryString) }] } }))
-                    })
+                    }
+
+                    this.stopCapture = this.desktop_capture ? await setupDesktopCapture(captureCallback) : await setupMicrophoneCapture(captureCallback);
 
                     this.running = true;
 
-                    info("[GEMINI] Recognition started!")
+                    info(`[GEMINI${this.desktop_capture ? " DESKTOP CAPTURE" : ""}] Recognition started!`)
                 } else {
                     const json = JSON.parse(text)
 
@@ -142,19 +148,19 @@ export class Gemini extends Recognizer {
             this.socket.onerror = (e) => {
                 this.current_status = GeminiState.NOT_CONNECTED
 
-                error("[GEMINI SR] Error while starting the recognizer: " + e)
+                error(`[GEMINI${this.desktop_capture ? " DESKTOP CAPTURE" : ""}] Error while starting the recognizer: ${e}`)
             }
 
             this.socket.close = () => {
                 this.current_status = GeminiState.NOT_CONNECTED
 
-                error("[GEMINI SR] Websocket connection closed.")
+                error(`[GEMINI${this.desktop_capture ? " DESKTOP CAPTURE" : ""}] Websocket closed!`)
                 if (this.running) {
                     setTimeout(() => {
-                        info("[GEMINI SR] Restarting recognizer...")
+                        info(`[GEMINI${this.desktop_capture ? " DESKTOP CAPTURE" : ""}] Restarting transcription translation recognizer...`)
 
                         this.init_transcription_translation()
-                    } , 5000);
+                    }, 5000);
                 }
             }
         }
@@ -185,7 +191,7 @@ export class Gemini extends Recognizer {
                     result[1] = await gemini_translate(transcription[0], this.language_src, this.language_target, this.apikey)
                 } catch (e) {
                     if (!(e instanceof Error)) return;
-                    
+
                     switch (e.message) {
                         case "AUTH_FAIL":
                             this.current_status = GeminiState.AUTH_FAILED
@@ -194,9 +200,9 @@ export class Gemini extends Recognizer {
                             this.current_status = GeminiState.RATE_LIMIT
 
                             result[1] = await google_translate(transcription[0], this.language_src, this.language_target)
-                            break   
+                            break
                         default:
-                            error("[GEMINI] Error translating using gemini translate!: " + e)
+                            error(`[GEMINI${this.desktop_capture ? " DESKTOP CAPTURE" : ""}] Error while translating: ${e.message}`)
                             break
                     }
                 }
@@ -213,13 +219,14 @@ export class Gemini extends Recognizer {
         (async () => {
             this.running = false;
 
-            this.stopRecognizer?.();
+            this.stopCapture?.();
+
             clearInterval(this.restartInterval!);
             this.socket?.close()
 
             if (this.translation_only) this.webSpeech?.stop()
 
-            info("[GEMINI] Recognition stopped!")
+            info(`[GEMINI${this.desktop_capture ? " DESKTOP CAPTURE" : ""}] Recognition stopped!`)
         })();
 
     }
@@ -229,10 +236,10 @@ export class Gemini extends Recognizer {
         if (language_target.trim().length != 0) {
             this.language_target = language_target
 
-            debug(`[GEMINI] Language target set to ${language_target}`)
+            debug(`[GEMINI${this.desktop_capture ? " DESKTOP CAPTURE" : ""}] Language target set to ${language_target}`)
         }
 
-        debug(`[GEMINI] Language source set to ${language_src}`)
+        debug(`[GEMINI${this.desktop_capture ? " DESKTOP CAPTURE" : ""}] Language source set to ${language_src}`)
 
         if (!this.translation_only) this.init_transcription_translation()
         else this.webSpeech?.set_lang(language_src, language_target)

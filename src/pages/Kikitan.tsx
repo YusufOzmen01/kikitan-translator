@@ -43,6 +43,7 @@ type KikitanProps = {
 }
 
 let sr: Recognizer | null = null;
+let desktopSR: Recognizer | null = null;
 let detectionQueue: string[][] = []
 let lock = false
 
@@ -90,6 +91,23 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
         })
     }
 
+    const enableDesktopCapture = () => {
+        desktopSR = new Gemini(targetLanguage, sourceLanguage, config.gemini_settings.gemini_api_key, false, config.language_settings.japanese_omit_questionmark, true)
+        info("[DESKTOP CAPTURE] Using Gemini for recognition")
+
+        // setGeminiInterval(setInterval(() => {
+        //     setGeminiStatus(sr?.status() as GeminiState)
+        // }, 100))
+
+        desktopSR.onResult((result: string[], isFinal: boolean) => {
+            if (isFinal) {
+                console.log("[DESKTOP CAPTURE] Result: " + result[1])
+            }
+        })
+
+        desktopSR.start()
+    }
+
     const restartSR = () => {
         sr?.stop();
         if (geminiInterval != null) {
@@ -106,7 +124,7 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
 
             sr.onResult((result: string[], isFinal: boolean) => {
                 if (config.mode == 1 || config.vrchat_settings.send_typing_status_while_talking) invoke("send_typing", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}` })
-                
+
                 if (isFinal) {
                     info(`[QUEUE] Updating queue. Current queue length: ${detectionQueue.length}`)
 
@@ -116,7 +134,11 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
                 setDetection(result[0])
                 setDetecting(!isFinal)
             })
-        } else setGeminiAsSR()
+        } else {
+            setGeminiAsSR()
+
+            if (config.gemini_settings.desktop_capture) enableDesktopCapture();
+        }
 
         info("[SR] Starting recognition")
         sr?.start()
@@ -131,6 +153,12 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
             sr?.stop()
             setGeminiAsSR()
             sr?.start()
+
+            if (config.gemini_settings.desktop_capture) {
+                desktopSR?.stop()
+                enableDesktopCapture();
+                desktopSR?.start()
+            }
         }
     }, [sourceLanguage, targetLanguage])
 

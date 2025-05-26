@@ -32,6 +32,7 @@ export type Config = {
     gemini_settings: {
         gemini_enabled: boolean,
         gemini_enable_transcription: boolean,
+        desktop_capture: boolean,
         gemini_api_key: string
     }
 }
@@ -56,6 +57,7 @@ export const DEFAULT_CONFIG: Config = {
     gemini_settings: {
         gemini_enabled: false,
         gemini_enable_transcription: false,
+        desktop_capture: false,
         gemini_api_key: ""
     }
 }
