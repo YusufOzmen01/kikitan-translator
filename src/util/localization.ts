@@ -386,5 +386,12 @@ export const localization = {
     cn: "Gemini速率限制已超过。暂时回退到Google翻译",
     kr: "젬니 요금 한도 초과. 현재는 Google 번역으로 대체됩니다",
     tr: "Gemini hız sınırı aşıldı. Şimdilik Google Çeviri'ye geri dönülüyor"
+  },
+  send: {
+    en: "Send",
+    jp: "送信",
+    cn: "发送",
+    kr: "보내기",
+    tr: "Gönder"
   }
 };

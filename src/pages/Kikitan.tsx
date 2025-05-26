@@ -232,7 +232,7 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
     return <>
         <div className="relative transition-all">
             <div className={'transition-all z-30 w-full h-64 flex bg-transparent justify-center items-center absolute' + (textInputVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
-                <div className={`flex flex-col justify-center w-4/12 h-2/6 outline outline-1 ${config.light_mode ? "outline-white" : "outline-slate-900"} rounded ${config.light_mode ? "bg-white" : "bg-slate-950"}`}>
+                <div className={`flex flex-col justify-center w-7/12 h-2/6 outline outline-1 ${config.light_mode ? "outline-white" : "outline-slate-900"} rounded ${config.light_mode ? "bg-white" : "bg-slate-950"}`}>
                     <div className='flex flex-row justify-center gap-2'>
                         <TextField slotProps={{
                             inputLabel: {
@@ -251,7 +251,8 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
                         }} onChange={(e) => {
                             setTextInputValue(e.target.value)
                         }} />
-                        <Button variant="contained" className='w-48' onClick={() => { setTextInputVisible(false); setTextInputValue("") }}>{localization.close_menu[lang]}</Button>
+                        <Button variant="contained" className='w-12' onClick={() => { sr?.manual_trigger(textInputValue); setTextInputVisible(false); setTextInputValue("") }}>{localization.send[lang]}</Button>
+                        <Button variant="contained" color="error" className='w-36' onClick={() => { setTextInputVisible(false); setTextInputValue("") }}>{localization.close_menu[lang]}</Button>
                     </div>
                 </div>
             </div>
