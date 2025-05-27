@@ -10,7 +10,6 @@ export abstract class Recognizer {
 
     abstract start(): void;
     abstract stop(): void;
-    abstract set_lang(language_src: string, language_target: string): void;
     abstract status(): unknown;
     abstract name(): string;
 

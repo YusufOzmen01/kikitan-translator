@@ -63,7 +63,8 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
     const [sourceLanguage, setSourceLanguage] = React.useState(config.source_language)
     const [targetLanguage, setTargetLanguage] = React.useState(config.target_language)
 
-    const [geminiStatus, setGeminiStatus] = React.useState<GeminiState>();
+    const [geminiSRStatus, setGeminiSRStatus] = React.useState<GeminiState>();
+    const [geminiDesktopStatus, setGeminiDesktopStatus] = React.useState<GeminiState>();
     const [geminiInterval, setGeminiInterval] = React.useState<NodeJS.Timeout | null>(null)
 
     const [textInputVisible, setTextInputVisible] = React.useState(false)
@@ -76,7 +77,7 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
         info("[SR] Using Gemini for recognition")
 
         setGeminiInterval(setInterval(() => {
-            setGeminiStatus(sr?.status() as GeminiState)
+            setGeminiSRStatus(sr?.status() as GeminiState)
         }, 100))
 
         sr.onResult((result: string[], isFinal: boolean) => {
@@ -92,12 +93,14 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
     }
 
     const enableDesktopCapture = () => {
+        desktopSR?.stop()
+
         desktopSR = new Gemini(targetLanguage, sourceLanguage, config.gemini_settings.gemini_api_key, false, config.language_settings.japanese_omit_questionmark, true)
         info("[DESKTOP CAPTURE] Using Gemini for recognition")
 
-        // setGeminiInterval(setInterval(() => {
-        //     setGeminiStatus(sr?.status() as GeminiState)
-        // }, 100))
+        setGeminiInterval(setInterval(() => {
+            setGeminiDesktopStatus(sr?.status() as GeminiState)
+        }, 100))
 
         desktopSR.onResult((result: string[], isFinal: boolean) => {
             if (isFinal) {
@@ -113,7 +116,7 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
         if (geminiInterval != null) {
             clearInterval(geminiInterval)
             setGeminiInterval(null)
-            setGeminiStatus(GeminiState.NOT_CONNECTED)
+            setGeminiSRStatus(GeminiState.NOT_CONNECTED)
         }
 
         info(`[SR] Initializing SR...`)
@@ -148,17 +151,12 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
         info(`[LANGUAGE] Changing language (${sourceLanguage} - ${targetLanguage}) - sr=${sr != null}`)
 
         if (sr) {
-            sr.set_lang(sourceLanguage, targetLanguage);
-
             sr?.stop()
-            setGeminiAsSR()
-            sr?.start()
+            desktopSR?.stop()
 
-            if (config.gemini_settings.desktop_capture) {
-                desktopSR?.stop()
-                enableDesktopCapture();
-                desktopSR?.start()
-            }
+            setTimeout(() => {
+                restartSR()
+            }, 1000)
         }
     }, [sourceLanguage, targetLanguage])
 
@@ -398,11 +396,11 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
             </div>
             <div className="mt-2 text-md flex justify-center gap-1">
                 {config.gemini_settings.gemini_enabled && <>
-                    {geminiStatus == GeminiState.NOT_CONNECTED && <p className="text-slate-400 italic">{localization.gemini_not_connected[lang]}</p>}
-                    {geminiStatus == GeminiState.AUTH_FAILED && <p className="text-red-600">{localization.invalid_gemini_api_key[lang]}</p>}
-                    {geminiStatus == GeminiState.WS_CONNECTED && <p className="text-yellow-600">{localization.waiting_for_gemini_setup[lang]}</p>}
-                    {geminiStatus == GeminiState.RECOGNITION_STARTED && <p className="text-green-700">{localization.gemini_is_ready[lang]}</p>}
-                    {geminiStatus == GeminiState.RATE_LIMIT && <p className="text-yellow-400">{localization.gemini_rate_limit[lang]}</p>}
+                    {geminiSRStatus == GeminiState.NOT_CONNECTED && <p className="text-slate-400 italic">{localization.gemini_not_connected[lang]}</p>}
+                    {geminiSRStatus == GeminiState.AUTH_FAILED && <p className="text-red-600">{localization.invalid_gemini_api_key[lang]}</p>}
+                    {geminiSRStatus == GeminiState.WS_CONNECTED && <p className="text-yellow-600">{localization.waiting_for_gemini_setup[lang]}</p>}
+                    {geminiSRStatus == GeminiState.RECOGNITION_STARTED && <p className="text-green-700">{localization.gemini_is_ready[lang]}</p>}
+                    {geminiSRStatus == GeminiState.RATE_LIMIT && <p className="text-yellow-400">{localization.gemini_rate_limit[lang]}</p>}
                 </>}
                 {!config.gemini_settings.gemini_enabled && <>
                     <p className="text-center">{localization.gemini_is_disabled[lang]}</p>
