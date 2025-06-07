@@ -15,6 +15,9 @@
     "icon": [
       "icons/kikitan.ico"
     ],
+    "resources": [
+      "./ovrpipe"
+    ],
     "windows": {
       "certificateThumbprint": null,
       "digestAlgorithm": "sha256",

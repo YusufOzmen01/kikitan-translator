@@ -1,4 +1,5 @@
 import { Recognizer } from "./recognizer";
+import { invoke } from "@tauri-apps/api/core";
 
 import {
     info,
@@ -80,7 +81,35 @@ export class Gemini extends Recognizer {
                 this.session?.sendRealtimeInput({ audio: { mimeType: `audio/pcm;rate=${sampleRate}`, data: btoa(binaryString) } });
             }
 
-            if (desktop_capture) setupDesktopCapture(captureCallback);
+            if (desktop_capture) {
+                setupDesktopCapture(captureCallback);
+
+                (async () => {
+                    const res: boolean = await invoke("is_steamvr_running");
+                    if (res) {
+                        info("[OVERLAY] SteamVR is running, checking OpenVRPipe overlay...");
+
+                        if (!(await invoke("is_ovr_overlay_running"))) {
+                            info("[OVERLAY] Starting OpenVRPipe overlay...");
+
+                            await invoke("start_ovr_overlay")
+                            await new Promise(resolve => setTimeout(resolve, 2000));
+                        } else {
+                            info("[OVERLAY] OpenVRPipe overlay is already running.");
+                        }
+                    } else {
+                        info("[OVERLAY] Checking if desktop overlay is running...");
+                        if (!(await invoke("is_desktop_overlay_running"))) {
+                            info("[OVERLAY] Starting desktop overlay...");
+
+                            await invoke("start_desktop_overlay")
+                            await new Promise(resolve => setTimeout(resolve, 2000));
+                        } else {
+                            info("[OVERLAY] Desktop overlay is already running.");
+                        }
+                    }
+                })();
+            }
             else setupMicrophoneCapture(captureCallback)
         }
 

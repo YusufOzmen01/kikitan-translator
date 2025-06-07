@@ -17,6 +17,9 @@ fn main() {
             vrc_commands::send_message,
             vrc_commands::start_vrc_listener,
             process_manager::show_audio_settings,
+            process_manager::start_ovr_overlay,
+            process_manager::is_steamvr_running,
+            process_manager::is_ovr_overlay_running,
             filesys::download_file,
             filesys::extract_zip
         ])

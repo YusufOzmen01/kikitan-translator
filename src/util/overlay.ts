@@ -134,11 +134,6 @@ async function generate_openvr_pipe_command(text: string) {
 }
 
 export async function send_notification_text(text: string) {
-    // TODO: Check if SteamVR is running
-    // If so, check if OpenVRPipe is running
-    // If not, start OpenVRPipe
-
-    // If steamVR is not running, then send the notification to the desktop overlay
     if (!ws_connection?.OPEN) {
         ws_connection?.close();
         ws_connection = new WebSocket("ws://localhost:7711");
