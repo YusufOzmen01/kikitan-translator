@@ -359,26 +359,12 @@ export const localization = {
     kr: "젬니가 연결되지 않았습니다",
     tr: "Gemini bağlı değil",
   },
-  invalid_gemini_api_key: {
-    en: "Invalid Gemini API key. Check your API key and try again.",
-    jp: "無効なGemini APIキーです。APIキーを確認してもう一度お試しください。",
-    cn: "无效的Gemini API密钥。请检查您的API密钥并重试。",
-    kr: "잘못된 젬니 API 키입니다. API 키를 확인하고 다시 시도하세요.",
-    tr: "Geçersiz Gemini API anahtarı. API anahtarınızı kontrol edin ve tekrar deneyin.",
-  },
   connecting_to_gemini: {
     en: "Connecting to Gemini...",
     jp: "Gemini に接続中...",
     cn: "连接到Gemini中...",
     kr: "젬니에 연결 중...",
     tr: "Gemini'ye bağlanıyor...",
-  },
-  waiting_for_gemini_setup: {
-    en: "Waiting for Gemini setup...",
-    jp: "Gemini セットアップを待っています...",
-    cn: "等待Gemini设置...",
-    kr: "젬니 설정 대기 중...",
-    tr: "Gemini kurulumu bekleniyor...",
   },
   gemini_is_ready: {
     en: "Gemini is ready!",
@@ -387,12 +373,12 @@ export const localization = {
     kr: "젬니가 준비되었습니다!",
     tr: "Gemini hazır!",
   },
-  gemini_rate_limit: {
-    en: "Gemini rate limit exceeded. Falling back to Google Translate for now",
-    jp: "Geminiのレート制限を超過しました。現在はGoogle翻訳にフォールバックします",
-    cn: "Gemini速率限制已超过。暂时回退到Google翻译",
-    kr: "젬니 요금 한도 초과. 현재는 Google 번역으로 대체됩니다",
-    tr: "Gemini hız sınırı aşıldı. Şimdilik Google Çeviri'ye geri dönülüyor"
+  gemini_status: {
+    en: "Gemini Status",
+    jp: "Gemini ステータス",
+    cn: "Gemini 状态",
+    kr: "젬니 상태",
+    tr: "Gemini Durumu",
   },
   send: {
     en: "Send",

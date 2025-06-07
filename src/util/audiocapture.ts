@@ -33,6 +33,12 @@ export async function setupMicrophoneCapture(callback: (chunk: Float32Array<Arra
 
 export async function setupDesktopCapture(callback: (chunk: Float32Array<ArrayBufferLike>, sampleRate: number) => void) {
   try {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+      throw new Error("Desktop capture is not supported in this browser.");
+    }
+
+    console.log("Requesting desktop audio capture...");
+
     const stream = await navigator.mediaDevices.getDisplayMedia({ audio: true });
     if (!stream) {
       throw new Error("No audio stream available from desktop capture.");

@@ -17,7 +17,8 @@ import {
     KeyboardVoice as KeyboardVoiceIcon,
     PlayArrow as PlayArrowIcon,
     Pause as PauseIcon,
-    Keyboard
+    Keyboard,
+    Circle
 
 } from '@mui/icons-material';
 
@@ -33,6 +34,7 @@ import { WebSpeech } from "../recognizers/WebSpeech";
 
 import { localization } from "../util/localization";
 import { Gemini, GeminiState } from "../recognizers/Gemini";
+import { send_notification_text } from "../util/overlay";
 
 type KikitanProps = {
     config: Config,
@@ -65,7 +67,13 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
 
     const [geminiSRStatus, setGeminiSRStatus] = React.useState<GeminiState>();
     const [geminiDesktopStatus, setGeminiDesktopStatus] = React.useState<GeminiState>();
-    const [geminiInterval, setGeminiInterval] = React.useState<NodeJS.Timeout | null>(null)
+
+    const [statusTrigger, setStatusTrigger] = React.useState(false)
+
+    const [showGeminiStatus, setShowGeminiStatus] = React.useState(false)
+
+    const [geminiSRInterval, setGeminiSRInterval] = React.useState<NodeJS.Timeout | null>(null)
+    const [geminiDesktopInterval, setGeminiDesktopInterval] = React.useState<NodeJS.Timeout | null>(null)
 
     const [textInputVisible, setTextInputVisible] = React.useState(false)
     const [textInputValue, setTextInputValue] = React.useState("")
@@ -76,8 +84,10 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
         sr = new Gemini(sourceLanguage, targetLanguage, config.gemini_settings.gemini_api_key, !config.gemini_settings.gemini_enable_transcription, config.language_settings.japanese_omit_questionmark)
         info("[SR] Using Gemini for recognition")
 
-        setGeminiInterval(setInterval(() => {
+        setGeminiSRInterval(setInterval(() => {
             setGeminiSRStatus(sr?.status() as GeminiState)
+
+            setStatusTrigger(!statusTrigger)
         }, 100))
 
         sr.onResult((result: string[], isFinal: boolean) => {
@@ -98,13 +108,17 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
         desktopSR = new Gemini(targetLanguage, sourceLanguage, config.gemini_settings.gemini_api_key, false, config.language_settings.japanese_omit_questionmark, true)
         info("[DESKTOP CAPTURE] Using Gemini for recognition")
 
-        setGeminiInterval(setInterval(() => {
-            setGeminiDesktopStatus(sr?.status() as GeminiState)
+        setGeminiDesktopInterval(setInterval(() => {
+            setGeminiDesktopStatus(desktopSR?.status() as GeminiState)
+
+            setStatusTrigger(!statusTrigger)
         }, 100))
 
         desktopSR.onResult((result: string[], isFinal: boolean) => {
             if (isFinal) {
-                console.log("[DESKTOP CAPTURE] Result: " + result[1])
+                console.log("[DESKTOP CAPTURE] Result: " + result)
+
+                send_notification_text(result[1])
             }
         })
 
@@ -113,10 +127,14 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
 
     const restartSR = () => {
         sr?.stop();
-        if (geminiInterval != null) {
-            clearInterval(geminiInterval)
-            setGeminiInterval(null)
-            setGeminiSRStatus(GeminiState.NOT_CONNECTED)
+        if (geminiSRInterval != null) {
+            clearInterval(geminiSRInterval)
+            setGeminiSRInterval(null)
+        }
+
+        if (geminiDesktopInterval != null) {
+            clearInterval(geminiDesktopInterval)
+            setGeminiDesktopInterval(null)
         }
 
         info(`[SR] Initializing SR...`)
@@ -177,11 +195,13 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
             else {
                 info("[SR] Starting SR...")
                 sr.start()
+                desktopSR?.start()
             }
         }
         else {
             info("[SR] Stopping SR...")
             sr.stop()
+            desktopSR?.stop()
         }
     }, [srStatus, vrcMuted])
 
@@ -237,7 +257,7 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
     }, [])
 
     React.useEffect(() => {
-        if (settingsVisible == false && defaultMicrophone != localization.waiting_for_mic_access[lang]) restartSR()
+        if (settingsVisible == false && defaultMicrophone != localization.waiting_for_mic_access[lang] && srStatus) restartSR()
     }, [settingsVisible])
 
     React.useEffect(() => {
@@ -257,7 +277,7 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
 
     return <>
         <div className="relative transition-all">
-            <div className={'transition-all z-30 w-full h-64 flex bg-transparent justify-center items-center absolute' + (textInputVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
+            <div className={'transition-all z-20 w-full h-64 flex bg-transparent justify-center items-center absolute' + (textInputVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
                 <div className={`flex flex-col justify-center w-7/12 h-2/6 outline outline-1 ${config.light_mode ? "outline-white" : "outline-slate-900"} rounded ${config.light_mode ? "bg-white" : "bg-slate-950"}`}>
                     <div className='flex flex-row justify-center gap-2'>
                         <TextField slotProps={{
@@ -279,6 +299,27 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
                         }} />
                         <Button variant="contained" className='w-12' onClick={() => { sr?.manual_trigger(textInputValue); setTextInputVisible(false); setTextInputValue("") }}>{localization.send[lang]}</Button>
                         <Button variant="contained" color="error" className='w-36' onClick={() => { setTextInputVisible(false); setTextInputValue("") }}>{localization.close_menu[lang]}</Button>
+                    </div>
+                </div>
+            </div>
+            <div className={'transition-all z-30 w-full h-64 flex bg-transparent justify-center items-center absolute' + (showGeminiStatus ? " opacity-100" : " opacity-0 pointer-events-none")}>
+                <div className={`flex flex-col justify-center outline outline-1 ${config.light_mode ? "outline-white" : "outline-slate-900"} rounded ${config.light_mode ? "bg-white" : "bg-slate-950"}`}>
+                    <div className="flex justify-center m-2">
+                        <div className="flex flex-row justify-center gap-2">
+                            <div>
+                                <p className={geminiSRStatus?.connected ? "text-green-600" : geminiSRStatus?.error ? "text-red-600" : ""}>SR Status: {geminiSRStatus?.connected ? "Connected" : geminiSRStatus?.error ? "Error" : "Not Connected"}</p>
+                                <p>Time to Connect: {geminiSRStatus ? Math.floor((geminiSRStatus?.connection_established_time - geminiSRStatus?.connection_init_time) / 10) / 100 : 0}s</p>
+                                <p>Error message: {geminiSRStatus?.error ? geminiSRStatus.error_message : "-"}</p>
+                            </div>
+                            <div>
+                                <p className={geminiDesktopStatus?.connected ? "text-green-600" : geminiDesktopStatus?.error ? "text-red-600" : ""}>DR Status: {geminiDesktopStatus?.connected ? "Connected" : geminiDesktopStatus?.error ? "Error" : "Not Connected"}</p>
+                                <p>Time to Connect: {geminiDesktopStatus ? Math.floor((geminiDesktopStatus?.connection_established_time - geminiDesktopStatus?.connection_init_time) / 10) / 100 : 0}s</p>
+                                <p>Error message: {geminiDesktopStatus?.error ? geminiDesktopStatus.error_message : "-"}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div className='flex justify-center gap-2 mb-2'>
+                        <Button variant="contained" color="error" className='w-36' onClick={() => { setShowGeminiStatus(false); }}>{localization.close_menu[lang]}</Button>
                     </div>
                 </div>
             </div>
@@ -396,11 +437,11 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
             </div>
             <div className="mt-2 text-md flex justify-center gap-1">
                 {config.gemini_settings.gemini_enabled && <>
-                    {geminiSRStatus == GeminiState.NOT_CONNECTED && <p className="text-slate-400 italic">{localization.gemini_not_connected[lang]}</p>}
-                    {geminiSRStatus == GeminiState.AUTH_FAILED && <p className="text-red-600">{localization.invalid_gemini_api_key[lang]}</p>}
-                    {geminiSRStatus == GeminiState.WS_CONNECTED && <p className="text-yellow-600">{localization.waiting_for_gemini_setup[lang]}</p>}
-                    {geminiSRStatus == GeminiState.RECOGNITION_STARTED && <p className="text-green-700">{localization.gemini_is_ready[lang]}</p>}
-                    {geminiSRStatus == GeminiState.RATE_LIMIT && <p className="text-yellow-400">{localization.gemini_rate_limit[lang]}</p>}
+                    <a href="" className="text-center" onClick={(e) => { e.preventDefault(); setShowGeminiStatus(true) }}>
+                        <Circle color={geminiSRStatus?.connected ? "success" : (geminiSRStatus?.error || geminiSRStatus?.connection_established_time != 0) ? "error" : geminiSRStatus?.connection_init_time ? "warning" : "inherit"} className="mr-2"></Circle>
+                        {localization.gemini_status[lang]}
+                        <Circle color={geminiDesktopStatus?.connected ? "success" : (geminiDesktopStatus?.error || geminiDesktopStatus?.connection_established_time != 0) ? "error" : geminiDesktopStatus?.connection_init_time ? "warning" : "inherit"} className="ml-2"></Circle>
+                    </a>
                 </>}
                 {!config.gemini_settings.gemini_enabled && <>
                     <p className="text-center">{localization.gemini_is_disabled[lang]}</p>

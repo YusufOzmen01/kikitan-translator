@@ -11,25 +11,43 @@ import { setupDesktopCapture, setupMicrophoneCapture } from "../util/audiocaptur
 import { GEMINI_LIVE_API_MODEL, GEMINI_TRANSLATION_TRANSCRIPTION_PROMPT } from "../util/constants";
 import { WebSpeech } from "./WebSpeech";
 
-export enum GeminiState { NOT_CONNECTED, AUTH_FAILED, WS_CONNECTED, RECOGNITION_STARTED, RATE_LIMIT };
+export type GeminiState = {
+    connection_init_time: number;
+    connection_established_time: number;
+
+    connected: boolean;
+    error: boolean;
+
+    error_message?: string;
+}
 
 export type ResultCallback = ((result: string[], final: boolean) => void) | null;
 
 export class Gemini extends Recognizer {
-    stopCapture: (() => void) | null = null;
+    restartInterval: NodeJS.Timeout | null = null;
     callback: ResultCallback = null;
     webSpeech: WebSpeech | null = null;
 
     translation_only: boolean = false
     desktop_capture: boolean = false
 
+    api_key: string = ""
+
     turn_over: boolean = false
     buffer: string = ""
 
-    current_status: GeminiState = GeminiState.NOT_CONNECTED;
+    current_status: GeminiState = {
+        connected: false,
+        error: false,
+
+        connection_established_time: 0,
+        connection_init_time: 0
+    }
 
     ai: GoogleGenAI | null = null;
     session: Session | undefined;
+
+    start_timeout: NodeJS.Timeout | null = null;
 
     constructor(language_src: string, language_target: string, apikey: string, translation_only: boolean, jp_omit_questionmark: boolean = false, desktop_capture: boolean = false) {
         super(language_src, language_target);
@@ -38,83 +56,7 @@ export class Gemini extends Recognizer {
 
         if (this.translation_only) {
             this.webSpeech = new WebSpeech(language_src, "", true, jp_omit_questionmark)
-        }
-
-        this.desktop_capture = desktop_capture
-        this.ai = new GoogleGenAI({ apiKey: apikey });
-    }
-
-    start() {
-        this.init_gemini()
-    }
-
-    handleMessage({ buffer, turn_over, callback }: { buffer: string, turn_over: boolean, callback: ResultCallback }) {
-        return (message: LiveServerMessage) => {
-            if (message.serverContent?.turnComplete) {
-                turn_over = true
-
-                const data = buffer.split("|")
-
-                callback?.([data[0].trim(), data[1].trim()], true)
-            } else {
-                if (turn_over) { buffer = ""; turn_over = false }
-
-                if (typeof message.text === 'string') {
-                    buffer += message.text;
-                }
-            }
-        }
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    handleOpen({ status, running }: { status: GeminiState, running: boolean }) {
-        return () => {
-            status = GeminiState.WS_CONNECTED;
-
-            running = true;
-
-            console.log(`[GEMINI${this.desktop_capture ? " DESKTOP CAPTURE" : ""}] Connected to Gemini API! Status: ${status} - Running: ${running}`);
-        }
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    handleClose({ status, running }: { status: GeminiState, running: boolean }) {
-        return () => {
-            status = GeminiState.NOT_CONNECTED;
-
-            running = false;
-
-            console.log(`[GEMINI${this.desktop_capture ? " DESKTOP CAPTURE" : ""}] Disconnected from Gemini API! Status: ${status} - Running: ${running}`);
-        }
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    handleError({ desktop_capture, running }: { desktop_capture: boolean, running: boolean }) {
-        return (e: ErrorEvent) => {
-            error(`[GEMINI${desktop_capture ? " DESKTOP CAPTURE" : ""}] Error while connecting to Gemini API: ${e.message}`);
-
-            running = false;
-        }
-    }
-
-    async init_gemini() {
-        this.session = await this.ai?.live.connect({
-            model: GEMINI_LIVE_API_MODEL,
-            callbacks: {
-                onopen: this.handleOpen({ status: this.current_status, running: this.running }),
-                onmessage: this.handleMessage({ buffer: this.buffer, turn_over: this.turn_over, callback: this.callback }),
-                onerror: this.handleError({ desktop_capture: this.desktop_capture, running: this.running }),
-                onclose: this.handleClose({ status: this.current_status, running: this.running }),
-            },
-            config: {
-                responseModalities: [Modality.TEXT],
-                systemInstruction: {
-                    parts: [{ text: GEMINI_TRANSLATION_TRANSCRIPTION_PROMPT(this.language_src, this.language_target) }]
-                }
-            }
-        })
-
-        if (!this.translation_only) {
+        } else {
             const captureCallback = (chunk: Float32Array<ArrayBufferLike>, sampleRate: number) => {
                 const pcmBuffer = new ArrayBuffer(chunk.length * 2);
                 const pcmView = new DataView(pcmBuffer);
@@ -138,28 +80,149 @@ export class Gemini extends Recognizer {
                 this.session?.sendRealtimeInput({ audio: { mimeType: `audio/pcm;rate=${sampleRate}`, data: btoa(binaryString) } });
             }
 
-            this.stopCapture = this.desktop_capture ? await setupDesktopCapture(captureCallback) : await setupMicrophoneCapture(captureCallback);
-        } else {
-            this.webSpeech?.onResult(async (transcription, final) => {
-                if (final) {
-                    this.session?.sendClientContent({ turns: transcription[0] })
-                }
-
-                this.callback?.([transcription[0], ""], final)
-            })
-
-            this.webSpeech?.start()
+            if (desktop_capture) setupDesktopCapture(captureCallback);
+            else setupMicrophoneCapture(captureCallback)
         }
 
-        this.current_status = GeminiState.RECOGNITION_STARTED
+        this.desktop_capture = desktop_capture
+        this.ai = new GoogleGenAI({ apiKey: apikey });
+        this.api_key = apikey;
+    }
+
+    start() {
+        this.running = true;
+
+        this.restartInterval = setInterval(() => {
+            if (this.running && !this.current_status.connected && !this.current_status.error) {
+                info(`[GEMINI${this.desktop_capture ? " DESKTOP CAPTURE" : ""}] Reconnecting to Gemini API...`);
+
+                this.init_gemini();
+            }
+        }, 10000);
+
+        this.init_gemini()
+    }
+
+    handleMessage({ buffer, turn_over, callback }: { buffer: string, turn_over: boolean, callback: ResultCallback }) {
+        return (message: LiveServerMessage) => {
+            if (message.serverContent?.turnComplete) {
+                turn_over = true
+
+                const data = buffer.split("|")
+
+                callback?.([data[0].trim(), data[1].trim()], true)
+            } else {
+                if (turn_over) { buffer = ""; turn_over = false }
+
+                if (typeof message.text === 'string') {
+                    buffer += message.text;
+                }
+            }
+        }
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    handleOpen({ status }: { status: GeminiState }) {
+        return () => {
+            status.connection_established_time = Date.now();
+            status.connected = true;
+
+            console.log(`[GEMINI${this.desktop_capture ? " DESKTOP CAPTURE" : ""}] Connected to Gemini API! Status: ${JSON.stringify(status)}`);
+
+            if (this.translation_only) {
+                this.webSpeech?.onResult(async (transcription, final) => {
+                    if (final) {
+                        this.session?.sendClientContent({ turns: transcription[0] })
+                    }
+
+                    this.callback?.([transcription[0], ""], final)
+                })
+
+                this.webSpeech?.start()
+            }
+        }
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    handleClose({ status }: { status: GeminiState }) {
+        return () => {
+            status.connected = false;
+
+            console.log(`[GEMINI${this.desktop_capture ? " DESKTOP CAPTURE" : ""}] Disconnected from Gemini API! Status: ${JSON.stringify(status)}`);
+
+            if (this.start_timeout) clearTimeout(this.start_timeout);
+        }
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    handleError({ desktop_capture, status }: { desktop_capture: boolean, status: GeminiState }) {
+        return (e: ErrorEvent) => {
+            error(`[GEMINI${desktop_capture ? " DESKTOP CAPTURE" : ""}] Error while connecting to Gemini API: ${e.message}`);
+
+            status.connected = false;
+            status.error = true;
+            status.error_message = e.message;
+
+            if (this.start_timeout) clearTimeout(this.start_timeout);
+        }
+    }
+
+    async init_gemini() {
+        this.session?.close();
+        this.session = undefined;
+
+        try {
+            const res = await fetch("https://generativelanguage.googleapis.com/v1beta/models?key=" + this.api_key);
+            if (!res.ok) {
+                error(`[GEMINI${this.desktop_capture ? " DESKTOP CAPTURE" : ""}] Invalid API key.`);
+
+                this.current_status.connected = false;
+                this.current_status.error = true;
+                this.current_status.error_message = "API key is invalid or not set!";
+
+                return;
+            }
+        } catch {
+            error(`[GEMINI${this.desktop_capture ? " DESKTOP CAPTURE" : ""}] Invalid API key.`);
+
+            this.current_status.connected = false;
+            this.current_status.error = true;
+            this.current_status.error_message = "API key is invalid or not set!";
+
+            return;
+        }
+
+        this.current_status.connection_init_time = Date.now();
+        this.session = await this.ai?.live.connect({
+            model: GEMINI_LIVE_API_MODEL,
+            callbacks: {
+                onopen: this.handleOpen({ status: this.current_status }),
+                onmessage: this.handleMessage({ buffer: this.buffer, turn_over: this.turn_over, callback: this.callback }),
+                onerror: this.handleError({ desktop_capture: this.desktop_capture, status: this.current_status }),
+                onclose: this.handleClose({ status: this.current_status }),
+            },
+            config: {
+                responseModalities: [Modality.TEXT],
+                systemInstruction: {
+                    parts: [{ text: GEMINI_TRANSLATION_TRANSCRIPTION_PROMPT(this.language_src, this.language_target) }]
+                }
+            }
+        })
     }
 
     stop() {
         this.running = false;
 
         this.webSpeech?.stop();
-        this.stopCapture?.();
         this.session?.close();
+        this.session = undefined;
+
+        this.current_status.connected = false;
+        this.current_status.error = false;
+        this.current_status.connection_established_time = 0;
+        this.current_status.connection_init_time = 0;
+
+        if (this.restartInterval) clearInterval(this.restartInterval)
 
         info(`[GEMINI${this.desktop_capture ? " DESKTOP CAPTURE" : ""}] Recognition stopped!`)
     }
