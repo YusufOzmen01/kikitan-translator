@@ -31,6 +31,7 @@ import { WebSpeech } from "../recognizers/WebSpeech";
 
 import { localization } from "../util/localization";
 import translateGT from "../translators/google_translate";
+import MessageLog, { MessageEntry } from "../components/MessageLog";
 
 type KikitanProps = {
     config: Config;
@@ -50,6 +51,10 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
 
     const [detection, setDetection] = React.useState("")
     const [translated, setTranslated] = React.useState("")
+    
+    // Message log state
+    const [messageLog, setMessageLog] = React.useState<MessageEntry[]>([])
+    const maxLogEntries = 100 // Maximum number of log entries to keep
 
     const [defaultMicrophone, setDefaultMicrophone] = React.useState(localization.waiting_for_mic_access[lang])
     const [lastDefaultMicrophone, setLastDefaultMicrophone] = React.useState("")
@@ -122,6 +127,20 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
 
                     setTranslated(text)
                     setTranslating(false)
+                    
+                    // Add to message log
+                    setMessageLog(prevLog => {
+                        const newLog = [
+                            ...prevLog, 
+                            {
+                                original: val,
+                                translated: text,
+                                timestamp: new Date()
+                            }
+                        ];
+                        // Keep log limited to maxLogEntries
+                        return newLog.slice(-maxLogEntries);
+                    });
 
                     info("[TRANSLATION] Sending the message to chatbox...")
                     invoke("send_message", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}`, msg: config.vrchat_settings.translation_first ? `${text} (${val})` : `${val} (${text})` })
@@ -215,7 +234,7 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
 
     return <>
         <div className="flex align-middle">
-            <div>
+            <div className="flex flex-col mr-4">
                 <div className={`mr-16 w-96 h-48 outline outline-1 transition-all rounded-md font-bold text-center ${detecting ? "italic " + config.light_mode ? "text-slate-400 outline-slate-800" : "text-slate-200 outline-slate-400" : config.light_mode ? "text-black" : "text-slate-200"} ${srStatus ? "" : "bg-gray-400"}`}>
                     <p className="align-middle">{detection}</p>
                 </div>
@@ -294,6 +313,23 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
                 </div>
             </div>
         </div>
+        
+        {/* Message Log */}
+        <div className="mt-6 flex w-full justify-center flex-col items-center">
+            <div className="w-[800px] h-[250px] outline outline-1 rounded-md transition-all overflow-hidden">
+                <MessageLog messages={messageLog} config={config} />
+            </div>
+            <Button 
+                variant="text" 
+                size="small" 
+                className="mt-1" 
+                onClick={() => setMessageLog([])}
+                disabled={messageLog.length === 0}
+            >
+                {localization.clear_history[lang]}
+            </Button>
+        </div>
+        
         <div className="mt-2 mb-2">
             <Button variant="outlined" size="medium" color={srStatus ? "error" : "success"} onClick={() => { setSRStatus(!srStatus) }}><p>{!srStatus ? localization.start[lang] : localization.stop[lang]}</p> {srStatus ? <PauseIcon fontSize="small" /> : <PlayArrowIcon fontSize="small" />}</Button>
         </div>

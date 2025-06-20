@@ -39,4 +39,5 @@ export const localization = {
     donate: { en: "Donate", jp: "寄付", cn: "捐赠", kr: "기부", tr: "Bağış Yap" },
     debug_settings: { en: "Debug Settings", jp: "デバッグ設定", cn: "调试设置", kr: "디버그 설정", tr: "Hata Ayıklama Ayarları" },
     open_logs: { en: "Open Logs", jp: "ログを開く", cn: "打开日志", kr: "로그 열기", tr: "Günlükleri Aç" },
+    clear_history: { en: "Clear History", jp: "履歴をクリア", cn: "清除历史", kr: "기록 지우기", tr: "Geçmişi Temizle" }
 };
