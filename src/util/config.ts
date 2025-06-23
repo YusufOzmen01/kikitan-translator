@@ -12,6 +12,12 @@ export const speed_presets = {
     fast: 15
 }
 
+export type MessageHistoryItem = {
+    source: string;
+    translation: string;
+    timestamp: number;
+}
+
 export type Config = {
     source_language: string,
     target_language: string,
@@ -34,6 +40,11 @@ export type Config = {
         gemini_enable_transcription: boolean,
         desktop_capture: boolean,
         gemini_api_key: string
+    },
+    message_history: {
+        enabled: boolean,
+        max_items: number,
+        items: MessageHistoryItem[]
     }
 }
 
@@ -59,6 +70,11 @@ export const DEFAULT_CONFIG: Config = {
         gemini_enable_transcription: false,
         desktop_capture: false,
         gemini_api_key: ""
+    },
+    message_history: {
+        enabled: true,
+        max_items: 50,
+        items: []
     }
 }
 

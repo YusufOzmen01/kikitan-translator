@@ -179,7 +179,7 @@ export const localization = {
   send_typing_while_talking: {
     en: "Send typing status while talking",
     jp: "会話中に入力ステータスを送信する",
-    cn: "正在说话时发送“正在输入”的状态",
+    cn: "正在说话时发送\"正在输入\"的状态",
     kr: "말하는 동안 입력 상태 보내기",
     tr: "Konuşurken yazma durumu gönder",
   },
@@ -333,7 +333,7 @@ export const localization = {
   google_gemini_note: {
     en: "Google's LLM is called Gemini. It's available for translation, and you can even try out the speech-to-text feature (though it might take a little longer sometimes). You'll need a free API key to use it, and getting one is simple – just click the \"How to get Gemini API Key\" button below for a tutorial. Just so you know, this translation tool is still experimental. It uses context to understand and translate better, but if you're using voice input, it might not always be spot-on. Keep that in mind as you use it!",
     jp: "Gemini は Google の大規模言語モデル（LLM）です。翻訳（そしてオプションで音声テキスト変換も可能ですが、時々遅くなることがあります）にご利用いただけます。無料で簡単に入手できる API キーが必要です。以下の「Gemini API キーの取得方法」ボタンをクリックしてチュートリアルをご覧ください。ご注意ください：この機能はまだ実験段階です。文脈に基づいた翻訳と認識により、翻訳ミスを減らすように設計されています。音声テキスト変換機能をご利用の場合、発言された内容が完全に正確に検出されない可能性があります。ご利用にはご注意ください。",
-    cn: "Gemini 是 Google 的大型语言模型 (LLM)。你可以用它进行翻译（也可以选择使用语音转文本功能，但有时可能会比较慢）。你需要一个免费且容易获取的 API 密钥，你可以从下面获取（点击“如何获取 Gemini API 密钥”按钮查看教程）。请注意：此功能仍处于实验阶段。它利用上下文驱动的翻译和识别来减少翻译错误。如果你使用的是语音转文本功能，你所说的内容可能不会被完全准确地识别。请谨慎使用！",
+    cn: "Gemini 是 Google 的大型语言模型 (LLM)。你可以用它进行翻译（也可以选择使用语音转文本功能，但有时可能会比较慢）。你需要一个免费且容易获取的 API 密钥，你可以从下面获取（点击\"如何获取 Gemini API 密钥\"按钮查看教程）。请注意：此功能仍处于实验阶段。它利用上下文驱动的翻译和识别来减少翻译错误。如果你使用的是语音转文本功能，你所说的内容可能不会被完全准确地识别。请谨慎使用！",
     kr: "Gemini는 Google의 대규모 언어 모델(LLM)입니다. 번역 기능(선택적으로 음성-텍스트 변환 기능도 가능하지만, 때때로 속도가 느릴 수 있습니다)을 사용할 수 있습니다. 무료로 쉽게 얻을 수 있는 API 키가 필요하며, 아래에서 얻을 수 있습니다(\"Gemini API 키를 얻는 방법\" 버튼을 클릭하여 안내를 확인하세요). 참고: 이 기능은 아직 실험 단계입니다. 문맥 기반 번역 및 인식을 통해 번역 오류를 줄이도록 설계되었지만, 음성-텍스트 기능을 사용하는 경우 말한 내용이 정확하게 인식되지 않을 수 있습니다. 사용에 주의하세요!",
     tr: "Gemini, Google'ın büyük dil modelidir (LLM). Çeviri (ve isteğe bağlı olarak sesten metne çeviri için de kullanabilirsiniz, ancak zaman zaman yavaşlayabilir). Ücretsiz ve kolayca edinebileceğiniz bir API anahtarına ihtiyacınız olacak, bunu aşağıdan edinebilirsiniz (\"Gemini API Anahtarı Nasıl Alınır\" düğmesine tıklayarak bir öğreticiye ulaşın). Not: Bu özellik hala deneysel aşamadadır. Bağlam odaklı çeviri ve tanıma kullanarak çeviri hatalarını azaltır. Sesten metne özelliğini kullanıyorsanız, söyledikleriniz tam olarak algılanamayabilir. Dikkatli kullanın!",
   },
@@ -386,5 +386,47 @@ export const localization = {
     cn: "发送",
     kr: "보내기",
     tr: "Gönder"
+  },
+  message_history: {
+    en: "Message History",
+    jp: "メッセージ履歴",
+    cn: "消息历史",
+    kr: "메시지 기록",
+    tr: "Mesaj Geçmişi"
+  },
+  clear_history: {
+    en: "Clear History",
+    jp: "履歴をクリア",
+    cn: "清除历史",
+    kr: "기록 지우기",
+    tr: "Geçmişi Temizle"
+  },
+  enable_history: {
+    en: "Enable Message History",
+    jp: "メッセージ履歴を有効にする",
+    cn: "启用消息历史",
+    kr: "메시지 기록 활성화",
+    tr: "Mesaj Geçmişini Etkinleştir"
+  },
+  max_history_items: {
+    en: "Maximum History Items",
+    jp: "最大履歴アイテム数",
+    cn: "最大历史记录数",
+    kr: "최대 기록 항목 수",
+    tr: "Maksimum Geçmiş Öğeleri"
+  },
+  no_history: {
+    en: "No message history",
+    jp: "メッセージ履歴がありません",
+    cn: "没有消息历史",
+    kr: "메시지 기록 없음",
+    tr: "Mesaj geçmişi yok"
+  },
+  history_settings: {
+    en: "Message History Settings",
+    jp: "メッセージ履歴設定",
+    cn: "消息历史设置",
+    kr: "메시지 기록 설정",
+    tr: "Mesaj Geçmişi Ayarları"
   }
 };

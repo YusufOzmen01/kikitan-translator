@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react"
 
-import { Select, MenuItem, Button, TextField } from "@mui/material"
+import { Select, MenuItem, Button, TextField, IconButton, Tooltip } from "@mui/material"
 
 import {
     info,
@@ -18,7 +18,9 @@ import {
     PlayArrow as PlayArrowIcon,
     Pause as PauseIcon,
     Keyboard,
-    Circle
+    Circle,
+    History as HistoryIcon,
+    Close as CloseIcon
 
 } from '@mui/icons-material';
 
@@ -28,7 +30,7 @@ import { open } from '@tauri-apps/plugin-shell'
 
 import { calculateMinWaitTime, Lang, langSource, langTo } from "../util/constants"
 
-import { Config } from "../util/config";
+import { Config, MessageHistoryItem } from "../util/config";
 import { Recognizer } from "../recognizers/recognizer";
 import { WebSpeech } from "../recognizers/WebSpeech";
 
@@ -71,6 +73,7 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
     const [statusTrigger, setStatusTrigger] = React.useState(false)
 
     const [showGeminiStatus, setShowGeminiStatus] = React.useState(false)
+    const [showMessageHistory, setShowMessageHistory] = React.useState(false)
 
     const [geminiSRInterval, setGeminiSRInterval] = React.useState<NodeJS.Timeout | null>(null)
     const [geminiDesktopInterval, setGeminiDesktopInterval] = React.useState<NodeJS.Timeout | null>(null)
@@ -221,6 +224,27 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
 
             setTranslated(current_translation)
 
+            // Add to message history if enabled
+            if (config.message_history.enabled) {
+                const newHistoryItem: MessageHistoryItem = {
+                    source: current_detection,
+                    translation: current_translation,
+                    timestamp: Date.now()
+                };
+
+                // Add the new item and limit to max items
+                const updatedItems = [newHistoryItem, ...config.message_history.items]
+                    .slice(0, config.message_history.max_items);
+                
+                setConfig({
+                    ...config,
+                    message_history: {
+                        ...config.message_history,
+                        items: updatedItems
+                    }
+                });
+            }
+
             info("[TRANSLATION] Sending the message to chatbox...")
             invoke("send_message", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}`, msg: config.vrchat_settings.only_translation ? current_translation : config.vrchat_settings.translation_first ? `${current_translation} (${current_detection})` : `${current_detection} (${current_translation})` })
             await new Promise(r => setTimeout(r, calculateMinWaitTime(current_translation, config.vrchat_settings.chatbox_update_speed)));
@@ -275,8 +299,56 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
         window.location.reload()
     }, [defaultMicrophone])
 
+    const formatTimestamp = (timestamp: number) => {
+        const date = new Date(timestamp);
+        return date.toLocaleTimeString();
+    };
+
     return <>
         <div className="relative transition-all">
+            {/* Message History Modal */}
+            <div className={'transition-all z-20 w-full h-64 flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (showMessageHistory ? " opacity-100" : " opacity-0 pointer-events-none")}>
+                <div className={`flex flex-col w-10/12 h-96 outline outline-1 ${config.light_mode ? "outline-white" : "outline-slate-900"} rounded ${config.light_mode ? "bg-white" : "bg-slate-950"} p-4 overflow-hidden`}>
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className={`text-xl font-bold ${config.light_mode ? "text-black" : "text-white"}`}>
+                            {localization.message_history[lang]}
+                        </h2>
+                        <IconButton 
+                            onClick={() => setShowMessageHistory(false)}
+                            sx={{ color: config.light_mode ? 'rgba(0, 0, 0, 0.87)' : '#ffffff' }}
+                        >
+                            <CloseIcon />
+                        </IconButton>
+                    </div>
+                    
+                    <div className="overflow-y-auto flex-grow mb-4" style={{ maxHeight: 'calc(100% - 4rem)' }}>
+                        {config.message_history.items.length === 0 ? (
+                            <div className="flex items-center justify-center h-full">
+                                <span className={`text-sm italic ${config.light_mode ? "text-gray-500" : "text-gray-400"}`}>
+                                    {localization.no_history[lang]}
+                                </span>
+                            </div>
+                        ) : (
+                            <div className="space-y-4">
+                                {config.message_history.items.map((item, index) => (
+                                    <div key={index} className={`p-3 rounded-md ${config.light_mode ? "bg-gray-100" : "bg-slate-900"}`}>
+                                        <div className={`text-xs mb-1 ${config.light_mode ? "text-gray-500" : "text-gray-400"}`}>
+                                            {formatTimestamp(item.timestamp)}
+                                        </div>
+                                        <div className={`font-medium ${config.light_mode ? "text-black" : "text-white"}`}>
+                                            {item.source}
+                                        </div>
+                                        <div className={`mt-1 ${config.light_mode ? "text-gray-800" : "text-gray-300"}`}>
+                                            {item.translation}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+
             <div className={'transition-all z-20 w-full h-64 flex bg-transparent justify-center items-center absolute' + (textInputVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
                 <div className={`flex flex-col justify-center w-7/12 h-2/6 outline outline-1 ${config.light_mode ? "outline-white" : "outline-slate-900"} rounded ${config.light_mode ? "bg-white" : "bg-slate-950"}`}>
                     <div className='flex flex-row justify-center gap-2'>
@@ -419,6 +491,18 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
         <div className="mt-2 mb-2 flex gap-2">
             <Button variant="outlined" size="medium" disabled={!srStatus} onClick={() => { if (!textInputVisible) { textInputRef.current?.focus(); textInputRef.current?.select() } setTextInputVisible(!textInputVisible); }}><p>{localization.text[lang]}</p> {<Keyboard className="ml-2" fontSize="small" />}</Button>
             <Button variant="outlined" size="medium" color={srStatus ? "error" : "success"} onClick={() => { setSRStatus(!srStatus) }}><p>{!srStatus ? localization.start[lang] : localization.stop[lang]}</p> {srStatus ? <PauseIcon fontSize="small" /> : <PlayArrowIcon fontSize="small" />}</Button>
+            {config.message_history.enabled && (
+                <Tooltip title={localization.message_history[lang]}>
+                    <Button 
+                        variant="outlined" 
+                        size="medium"
+                        onClick={() => setShowMessageHistory(true)}
+                        disabled={config.message_history.items.length === 0}
+                    >
+                        <HistoryIcon fontSize="small" />
+                    </Button>
+                </Tooltip>
+            )}
         </div>
         <div>
             <KeyboardVoiceIcon fontSize="small" /><a className=" text-blue-700" href="" onClick={(e) => {
