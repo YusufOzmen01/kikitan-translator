@@ -117,7 +117,7 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
             setStatusTrigger(!statusTrigger)
         }, 100))
 
-        desktopSR.onResult((result: string[], isFinal: boolean) => {
+        desktopSR.onResult(async (result: string[], isFinal: boolean) => {
             if (isFinal) {
                 console.log("[DESKTOP CAPTURE] Result: " + result)
 

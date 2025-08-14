@@ -37,6 +37,20 @@ pub fn start_ovr_overlay(handle: tauri::AppHandle) {
 }
 
 #[tauri::command]
+pub fn start_desktop_overlay(handle: tauri::AppHandle) {
+    let resource_path = handle
+        .path()
+        .resource_dir()
+        .expect("failed to resolve resource")
+        .join("desktopoverlay/Desktop Image Overlay.exe");
+
+    Command::new(resource_path.clone())
+        .current_dir(resource_path.parent().expect("Failed to get parent directory"))
+        .spawn()
+        .unwrap();
+}
+
+#[tauri::command]
 pub fn is_steamvr_running() -> bool {
     let output = Command::new("tasklist")
         .arg("/FI")
@@ -75,3 +89,21 @@ pub fn is_ovr_overlay_running() -> bool {
 }
 
 // TODO: Desktop Overlay
+#[tauri::command]
+pub fn is_desktop_overlay_running() -> bool {
+    let output = Command::new("tasklist")
+        .arg("/FI")
+        .arg("IMAGENAME eq Desktop Image Overlay.exe")
+        .output()
+        .expect("Failed to execute command");
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+
+    if !stderr.is_empty() {
+        eprintln!("Error checking OVR Overlay status: {}", stderr);
+        return false;
+    }
+
+    stdout.contains("Desktop Image Overlay.exe")
+}

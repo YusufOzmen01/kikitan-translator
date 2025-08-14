@@ -1,7 +1,7 @@
 export const ANNOUNCEMENT_GIST_URL = "https://gist.githubusercontent.com/YusufOzmen01/0804fb9388f7859b1a549cddc626c39f/raw"
 
 export const GEMINI_TRANSLATION_TRANSCRIPTION_PROMPT = (lang_src: string, lang_target: string): string => {
-    return `Transcribe [${lang_src}] & translate to [${lang_target}]. Output: TRANSCRIPTION | TRANSLATION. Use native alphabets. Do not modify the transcription. Transcribe only the specified language. Detect & translate all input. Translate idioms & phrases naturally. Be casual, not formal. Make sure to TRANSLATE.`
+    return `Transcribe [${lang_src}] & translate to [${lang_target}]. Output: TRANSCRIPTION | TRANSLATION. Use native alphabets. Do not modify the transcription. Transcribe only the specified language. Detect & translate all input. Translate idioms & phrases naturally. Be casual, not formal. Make sure to TRANSLATE and make sure to return a full transcript and translation result. It should not be incomplete and be in the correct output format: Transcription followed by a | followed by the translation.`
 }
 
 export const GEMINI_LIVE_API_MODEL = "gemini-2.0-flash-live-001"

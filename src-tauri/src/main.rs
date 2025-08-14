@@ -18,8 +18,10 @@ fn main() {
             vrc_commands::start_vrc_listener,
             process_manager::show_audio_settings,
             process_manager::start_ovr_overlay,
+            process_manager::start_desktop_overlay,
             process_manager::is_steamvr_running,
             process_manager::is_ovr_overlay_running,
+            process_manager::is_desktop_overlay_running,
             filesys::download_file,
             filesys::extract_zip
         ])
