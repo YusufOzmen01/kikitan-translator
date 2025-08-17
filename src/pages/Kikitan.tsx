@@ -75,7 +75,6 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
 
     const [statusTrigger, setStatusTrigger] = React.useState(false)
 
-    const [showGeminiStatus, setShowGeminiStatus] = React.useState(false)
     const [showMessageHistory, setShowMessageHistory] = React.useState(false)
 
     const [geminiSRInterval, setGeminiSRInterval] = React.useState<NodeJS.Timeout | null>(null)
@@ -525,11 +524,11 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
             </div>
             <div className="mt-2 text-md flex justify-center gap-1">
                 {config.gemini_settings.gemini_enabled && <>
-                    <a href="" className="text-center" onClick={(e) => { e.preventDefault(); setShowGeminiStatus(true) }}>
+                    <p className="text-center">
                         <Circle color={geminiSRStatus?.connected ? "success" : (geminiSRStatus?.error || geminiSRStatus?.connection_established_time != 0) ? "error" : geminiSRStatus?.connection_init_time ? "warning" : "inherit"} className="mr-2"></Circle>
                         {localization.gemini_status[lang]}
                         <Circle color={geminiDesktopStatus?.connected ? "success" : (geminiDesktopStatus?.error || geminiDesktopStatus?.connection_established_time != 0) ? "error" : geminiDesktopStatus?.connection_init_time ? "warning" : "inherit"} className="ml-2"></Circle>
-                    </a>
+                    </p>
                 </>}
                 {!config.gemini_settings.gemini_enabled && <>
                     <p className="text-center">{localization.gemini_is_disabled[lang]}</p>
