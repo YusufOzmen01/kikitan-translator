@@ -22,10 +22,7 @@
     "windows": {
       "certificateThumbprint": null,
       "digestAlgorithm": "sha256",
-      "timestampUrl": "",
-      "nsis": {
-        "template": "nsis/installer.nsi"
-      }
+      "timestampUrl": ""
     },
     "longDescription": "",
     "macOS": {

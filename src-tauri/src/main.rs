@@ -4,6 +4,7 @@
 mod filesys;
 mod process_manager;
 mod vrc_commands;
+mod screenaudio;
 
 fn main() {
     tauri::Builder::default()
@@ -23,7 +24,9 @@ fn main() {
             process_manager::is_ovr_overlay_running,
             process_manager::is_desktop_overlay_running,
             filesys::download_file,
-            filesys::extract_zip
+            filesys::extract_zip,
+            screenaudio::start_audio_capture,
+            screenaudio::stop_audio_capture
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

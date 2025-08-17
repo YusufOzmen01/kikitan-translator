@@ -1,3 +1,6 @@
+import { invoke } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
+
 export async function setupMicrophoneCapture(callback: (chunk: Float32Array<ArrayBufferLike>, sampleRate: number) => void) {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -71,4 +74,30 @@ export async function setupDesktopCapture(callback: (chunk: Float32Array<ArrayBu
     console.error("Error accessing desktop audio:", error);
     throw error;
   }
+}
+
+export async function setupSystemAudioCapture(
+  callback: (chunk: Float32Array, sampleRate: number) => void
+) {
+  const unlisten = await listen("audio-chunk", (event) => {
+    const { chunk, sampleRate } = event.payload as { chunk: string; sampleRate: number };
+
+    // decode base64 -> ArrayBuffer -> Float32Array
+    const raw = atob(chunk);
+    const buf = new ArrayBuffer(raw.length);
+    const view = new Uint8Array(buf);
+    for (let i = 0; i < raw.length; i++) {
+      view[i] = raw.charCodeAt(i);
+    }
+    const float32 = new Float32Array(buf);
+
+    callback(float32, sampleRate);
+  });
+
+  await invoke("start_audio_capture");
+
+  return async () => {
+    await invoke("stop_audio_capture");
+    unlisten();
+  };
 }

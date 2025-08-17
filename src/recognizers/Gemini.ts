@@ -8,7 +8,7 @@ import {
 
 import { GoogleGenAI, LiveServerMessage, Modality, Session } from '@google/genai';
 
-import { setupDesktopCapture, setupMicrophoneCapture } from "../util/audiocapture";
+import { setupMicrophoneCapture, setupSystemAudioCapture } from "../util/audiocapture";
 import { GEMINI_LIVE_API_MODEL, GEMINI_TRANSLATION_TRANSCRIPTION_PROMPT } from "../util/constants";
 import { WebSpeech } from "./WebSpeech";
 
@@ -82,7 +82,7 @@ export class Gemini extends Recognizer {
             }
 
             if (desktop_capture) {
-                setupDesktopCapture(captureCallback);
+                setupSystemAudioCapture(captureCallback);
 
                 (async () => {
                     try {

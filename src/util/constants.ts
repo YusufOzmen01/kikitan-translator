@@ -1,10 +1,10 @@
 export const ANNOUNCEMENT_GIST_URL = "https://gist.githubusercontent.com/YusufOzmen01/0804fb9388f7859b1a549cddc626c39f/raw"
 
 export const GEMINI_TRANSLATION_TRANSCRIPTION_PROMPT = (lang_src: string, lang_target: string): string => {
-    return `Transcribe [${lang_src}] & translate to [${lang_target}]. Output: TRANSCRIPTION | TRANSLATION. Use native alphabets. Do not modify the transcription. Transcribe only the specified language. Detect & translate all input. Translate idioms & phrases naturally. Be casual, not formal. Make sure to TRANSLATE and make sure to return a full transcript and translation result. It should not be incomplete and be in the correct output format: Transcription followed by a | followed by the translation.`
+    return `You are a transcriptor and a translator. Your only role is to recognize what the user says and translate themm. Whatever the user says, recognize the words they say in ${lang_src} and translate them into ${lang_target}. The output format should be RECOGNITION | TRANSLATION. Example: Hello | Merhaba. Do not reply with anything else. Translate the words in an understandable and natural manner. If the user speaks in another language than ${lang_src}, the recognition should be the translation to ${lang_src}. Example: User said Merhaba, but the response should be: Hello | こんにちは.`
 }
 
-export const GEMINI_LIVE_API_MODEL = "gemini-2.0-flash-live-001"
+export const GEMINI_LIVE_API_MODEL = "gemini-live-2.5-flash-preview"
 
 export const langSource = [
     { name: { en: "English (United States)", jp: "英語 (アメリカ)", cn: "英语 (美国)", kr: "영어 (미국)", tr: "İngilizce (ABD)" }, code: "en-US" },
