@@ -85,28 +85,43 @@ export class Gemini extends Recognizer {
                 setupDesktopCapture(captureCallback);
 
                 (async () => {
-                    const res: boolean = await invoke("is_steamvr_running");
-                    if (res) {
-                        info("[OVERLAY] SteamVR is running, checking OpenVRPipe overlay...");
+                    try {
+                        const res: boolean = await invoke("is_steamvr_running");
+                        if (res) {
+                            info("[OVERLAY] SteamVR is running, checking OpenVRPipe overlay...");
 
-                        if (!(await invoke("is_ovr_overlay_running"))) {
-                            info("[OVERLAY] Starting OpenVRPipe overlay...");
-
-                            await invoke("start_ovr_overlay")
-                            await new Promise(resolve => setTimeout(resolve, 2000));
+                            if (!(await invoke("is_ovr_overlay_running"))) {
+                                info("[OVERLAY] Starting OpenVRPipe overlay...");
+                                
+                                try {
+                                    await invoke("start_ovr_overlay");
+                                    await new Promise(resolve => setTimeout(resolve, 2000));
+                                } catch (error) {
+                                    info(`[OVERLAY] Failed to start OpenVRPipe overlay: ${error}`);
+                                    info("[OVERLAY] VR overlay functionality will be disabled.");
+                                }
+                            } else {
+                                info("[OVERLAY] OpenVRPipe overlay is already running.");
+                            }
                         } else {
-                            info("[OVERLAY] OpenVRPipe overlay is already running.");
-                        }
-                    } else {
-                        info("[OVERLAY] Checking if desktop overlay is running...");
-                        if (!(await invoke("is_desktop_overlay_running"))) {
-                            info("[OVERLAY] Starting desktop overlay...");
+                            info("[OVERLAY] Checking if desktop overlay is running...");
+                            try {
+                                if (!(await invoke("is_desktop_overlay_running"))) {
+                                    info("[OVERLAY] Starting desktop overlay...");
 
-                            await invoke("start_desktop_overlay")
-                            await new Promise(resolve => setTimeout(resolve, 2000));
-                        } else {
-                            info("[OVERLAY] Desktop overlay is already running.");
+                                    await invoke("start_desktop_overlay");
+                                    await new Promise(resolve => setTimeout(resolve, 2000));
+                                } else {
+                                    info("[OVERLAY] Desktop overlay is already running.");
+                                }
+                            } catch (error) {
+                                info(`[OVERLAY] Failed to start desktop overlay: ${error}`);
+                                info("[OVERLAY] Desktop overlay functionality will be disabled.");
+                            }
                         }
+                    } catch (error) {
+                        info(`[OVERLAY] Error during overlay initialization: ${error}`);
+                        info("[OVERLAY] Overlay functionality will be disabled.");
                     }
                 })();
             }

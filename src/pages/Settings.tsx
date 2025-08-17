@@ -7,11 +7,12 @@ import Box from '@mui/material/Box';
 
 import { appLogDir } from '@tauri-apps/api/path';
 
-import { IconButton, FormControlLabel, FormGroup, Checkbox, TextField, Select, MenuItem, Button } from "@mui/material";
+import { IconButton, FormControlLabel, FormGroup, Checkbox, TextField, Select, MenuItem, Button, Slider } from "@mui/material";
 
 import {
     Close,
-    History
+    History,
+    Delete
 } from '@mui/icons-material';
 import { Config, DEFAULT_CONFIG, speed_presets } from "../util/config";
 
@@ -67,6 +68,16 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
         setPage(newValue);
     };
 
+    const clearMessageHistory = () => {
+        setConfig({
+            ...config,
+            message_history: {
+                ...config.message_history,
+                items: []
+            }
+        });
+    };
+
     return <>
         <Box sx={{
             width: '100%',
@@ -89,7 +100,8 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                         <Tab label={localization.language_settings[lang]} {...a11yProps(0)} />
                         <Tab label={localization.vrchat_settings[lang]} {...a11yProps(1)} />
                         <Tab label={localization.gemini_settings[lang]} {...a11yProps(2)} />
-                        <Tab label={localization.debug_settings[lang]} {...a11yProps(3)} />
+                        <Tab label={localization.history_settings[lang]} {...a11yProps(3)} />
+                        <Tab label={localization.debug_settings[lang]} {...a11yProps(4)} />
                     </Tabs>
                 </Box>
                 <CustomTabPanel className="flex" value={page} index={0}>
@@ -274,6 +286,75 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                     </div>
                 </CustomTabPanel>
                 <CustomTabPanel className="flex" value={page} index={3}>
+                    <FormGroup>
+                        <FormControlLabel control={<Checkbox checked={config.message_history.enabled} onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                            setConfig({
+                                ...config,
+                                message_history: {
+                                    ...config.message_history,
+                                    enabled: e.target.checked
+                                }
+                            })
+                        }} />} label={localization.enable_history[lang]} />
+                        
+                        <Typography className="mt-4" gutterBottom>
+                            {localization.max_history_items[lang]} ({config.message_history.max_items})
+                        </Typography>
+                        <Slider
+                            disabled={!config.message_history.enabled}
+                            value={config.message_history.max_items}
+                            min={10}
+                            max={200}
+                            step={10}
+                            onChange={(_e: Event, newValue: number | number[]) => {
+                                setConfig({
+                                    ...config,
+                                    message_history: {
+                                        ...config.message_history,
+                                        max_items: newValue as number
+                                    }
+                                });
+                            }}
+                            valueLabelDisplay="auto"
+                            sx={{
+                                width: 250,
+                                color: config.light_mode ? 'rgba(0, 0, 0, 0.87)' : '#94A3B8',
+                                '& .MuiSlider-thumb': {
+                                    '&:hover, &.Mui-focusVisible': {
+                                        boxShadow: '0px 0px 0px 8px rgba(25, 118, 210, 0.16)',
+                                    },
+                                },
+                            }}
+                        />
+
+                        <div className="mt-4">
+                            <Button 
+                                variant="contained" 
+                                color="error" 
+                                startIcon={<Delete />}
+                                onClick={clearMessageHistory}
+                                disabled={!config.message_history.enabled || config.message_history.items.length === 0}
+                                sx={{
+                                    backgroundColor: config.light_mode ? undefined : 'rgba(211, 47, 47, 0.8)',
+                                    color: '#ffffff',
+                                    '&:hover': {
+                                        backgroundColor: config.light_mode ? undefined : 'rgba(211, 47, 47, 1)',
+                                    },
+                                    '&.Mui-disabled': {
+                                        backgroundColor: config.light_mode ? undefined : 'rgba(100, 100, 100, 0.2)',
+                                        color: config.light_mode ? undefined : 'rgba(255, 255, 255, 0.3)',
+                                    }
+                                }}
+                            >
+                                {localization.clear_history[lang]}
+                            </Button>
+                            <Typography className="mt-2 text-sm" variant="body2" color={config.light_mode ? "textSecondary" : "rgba(255, 255, 255, 0.7)"}>
+                                {config.message_history.items.length} {localization.message_history[lang].toLowerCase()}
+                            </Typography>
+                        </div>
+                    </FormGroup>
+                </CustomTabPanel>
+                <CustomTabPanel className="flex" value={page} index={4}>
                     <FormGroup>
                         <Button variant="contained" onClick={async () => {
                             open(await appLogDir())

@@ -22,6 +22,13 @@ pub fn start_ovr_overlay(handle: tauri::AppHandle) {
         .resource_dir()
         .expect("failed to resolve resource")
         .join("ovrpipe/OpenVROverlayPipe.exe");
+    
+    // Check if the resource exists before trying to execute it
+    if !resource_path.exists() {
+        println!("[WARNING] OpenVROverlayPipe.exe not found at: {:?}", resource_path);
+        println!("[INFO] Skipping VR overlay functionality. You can download it from: https://github.com/BOLL7708/OpenVROverlayPipe/releases");
+        return;
+    }
 
     Command::new(resource_path.clone())
         .current_dir(resource_path.parent().expect("Failed to get parent directory"))
