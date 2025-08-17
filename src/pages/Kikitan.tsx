@@ -44,7 +44,8 @@ type KikitanProps = {
     setConfig: (config: Config) => void,
     setSettingsVisible: (state: boolean) => void,
     lang: Lang,
-    settingsVisible: boolean
+    settingsVisible: boolean,
+    quickstartVisible: boolean
 }
 
 let sr: Recognizer | null = null;
@@ -52,7 +53,7 @@ let desktopSR: Recognizer | null = null;
 let detectionQueue: string[][] = []
 let lock = false
 
-export default function Kikitan({ config, setConfig, lang, settingsVisible, setSettingsVisible }: KikitanProps) {
+export default function Kikitan({ config, setConfig, lang, settingsVisible, setSettingsVisible, quickstartVisible }: KikitanProps) {
     const [detecting, setDetecting] = React.useState(false)
     const [srStatus, setSRStatus] = React.useState(true)
     const [vrcMuted, setVRCMuted] = React.useState(false)
@@ -388,7 +389,7 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
                 </div>
             </div>
 
-            <div className={'transition-all z-30 w-full h-64 flex bg-transparent justify-center items-center absolute' + ((!geminiErrorShown) && (geminiSRStatus?.error || geminiDesktopStatus?.error) ? " opacity-100" : " opacity-0 pointer-events-none")}>
+            <div className={'transition-all z-30 w-full h-64 flex bg-transparent justify-center items-center absolute' + ((!geminiErrorShown && !quickstartVisible) && (geminiSRStatus?.error || geminiDesktopStatus?.error) ? " opacity-100" : " opacity-0 pointer-events-none")}>
                 <div className={`flex flex-col justify-center outline outline-1 ${config.light_mode ? "outline-white" : "outline-slate-900"} rounded ${config.light_mode ? "bg-white" : "bg-slate-950"}`}>
                     <div className="flex justify-center m-2">
                         <p className="text-xl">{localization.gemini_error[lang]}</p>
