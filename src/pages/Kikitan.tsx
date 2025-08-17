@@ -71,6 +71,8 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
     const [geminiSRStatus, setGeminiSRStatus] = React.useState<GeminiState>();
     const [geminiDesktopStatus, setGeminiDesktopStatus] = React.useState<GeminiState>();
 
+    const [geminiErrorShown, setGeminiErrorShown] = React.useState<boolean>(false)
+
     const [statusTrigger, setStatusTrigger] = React.useState(false)
 
     const [showGeminiStatus, setShowGeminiStatus] = React.useState(false)
@@ -290,7 +292,10 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
     }, [])
 
     React.useEffect(() => {
-        if (settingsVisible == false && defaultMicrophone != localization.waiting_for_mic_access[lang] && srStatus) restartSR()
+        if (settingsVisible == false && defaultMicrophone != localization.waiting_for_mic_access[lang] && srStatus) {
+            restartSR()
+            setGeminiErrorShown(false)
+        }
     }, [settingsVisible])
 
     React.useEffect(() => {
@@ -383,24 +388,14 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
                     </div>
                 </div>
             </div>
-            <div className={'transition-all z-30 w-full h-64 flex bg-transparent justify-center items-center absolute' + (showGeminiStatus ? " opacity-100" : " opacity-0 pointer-events-none")}>
+
+            <div className={'transition-all z-30 w-full h-64 flex bg-transparent justify-center items-center absolute' + ((!geminiErrorShown) && (geminiSRStatus?.error || geminiDesktopStatus?.error) ? " opacity-100" : " opacity-0 pointer-events-none")}>
                 <div className={`flex flex-col justify-center outline outline-1 ${config.light_mode ? "outline-white" : "outline-slate-900"} rounded ${config.light_mode ? "bg-white" : "bg-slate-950"}`}>
                     <div className="flex justify-center m-2">
-                        <div className="flex flex-row justify-center gap-2">
-                            <div>
-                                <p className={geminiSRStatus?.connected ? "text-green-600" : geminiSRStatus?.error ? "text-red-600" : ""}>SR Status: {geminiSRStatus?.connected ? "Connected" : geminiSRStatus?.error ? "Error" : "Not Connected"}</p>
-                                <p>Time to Connect: {geminiSRStatus ? Math.floor((geminiSRStatus?.connection_established_time - geminiSRStatus?.connection_init_time) / 10) / 100 : 0}s</p>
-                                <p>Error message: {geminiSRStatus?.error ? geminiSRStatus.error_message : "-"}</p>
-                            </div>
-                            <div>
-                                <p className={geminiDesktopStatus?.connected ? "text-green-600" : geminiDesktopStatus?.error ? "text-red-600" : ""}>DR Status: {geminiDesktopStatus?.connected ? "Connected" : geminiDesktopStatus?.error ? "Error" : "Not Connected"}</p>
-                                <p>Time to Connect: {geminiDesktopStatus ? Math.floor((geminiDesktopStatus?.connection_established_time - geminiDesktopStatus?.connection_init_time) / 10) / 100 : 0}s</p>
-                                <p>Error message: {geminiDesktopStatus?.error ? geminiDesktopStatus.error_message : "-"}</p>
-                            </div>
-                        </div>
+                        <p className="text-xl">{localization.gemini_error[lang]}</p>
                     </div>
                     <div className='flex justify-center gap-2 mb-2'>
-                        <Button variant="contained" color="error" className='w-36' onClick={() => { setShowGeminiStatus(false); }}>{localization.close_menu[lang]}</Button>
+                        <Button variant="contained" color="error" className='w-36' onClick={() => { setGeminiErrorShown(true); }}>{localization.close_menu[lang]}</Button>
                     </div>
                 </div>
             </div>

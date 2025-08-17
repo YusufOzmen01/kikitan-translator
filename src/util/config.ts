@@ -73,9 +73,9 @@ export const DEFAULT_CONFIG: Config = {
         osc_port: 9000
     },
     gemini_settings: {
-        gemini_enabled: false,
-        gemini_enable_transcription: false,
-        desktop_capture: false,
+        gemini_enabled: true,
+        gemini_enable_transcription: true,
+        desktop_capture: true,
         gemini_api_key: ""
     },
     message_history: {

@@ -13,6 +13,8 @@ import { Box, Button, Checkbox, FormControlLabel, FormGroup, MenuItem, Select, T
 import { Lang } from "../util/constants";
 import { invoke } from "@tauri-apps/api/core";
 
+import { Favorite } from '@mui/icons-material';
+
 type QuickstartMenuProps = {
     config: Config,
     setQuickstartVisible: (value: React.SetStateAction<boolean>) => void,
@@ -150,7 +152,7 @@ export default function QuickstartMenu({ config, setQuickstartVisible, setLang, 
                     <div className={'inset-0 transition-all space-y-2 flex flex-col items-center justify-center ease-in-out ' + (quickstartPage == 5 ? "opacity-100" : "opacity-0 pointer-events-none")}>
                         <div className='mt-4'>
                             <p className='text-4xl bold text-center'>Google Gemini</p>
-                            <p className='text-md mt-2 text-center'>{localization.google_gemini_note[lang]}</p>
+                            <p className='text-sm mt-2 text-center'>{localization.google_gemini_note[lang]}</p>
                         </div>
                         <FormGroup>
                             <FormControlLabel control={<Checkbox checked={config.gemini_settings.gemini_enabled} onChange={(e) => {
@@ -171,6 +173,15 @@ export default function QuickstartMenu({ config, setQuickstartVisible, setLang, 
                                     }
                                 })
                             }} />} label={localization.enable_gemini_transcription[lang]} />
+                            <FormControlLabel disabled={!config.gemini_settings.desktop_capture} control={<Checkbox checked={config.gemini_settings.desktop_capture} onChange={(e) => {
+                                setConfig({
+                                    ...config,
+                                    gemini_settings: {
+                                        ...config.gemini_settings,
+                                        desktop_capture: e.target.checked
+                                    }
+                                })
+                            }} />} label={localization.enable_desktop_capture[lang]} />
                             <div className="flex flex-row gap-2">
                                 <TextField slotProps={{
                                     inputLabel: {
@@ -200,8 +211,9 @@ export default function QuickstartMenu({ config, setQuickstartVisible, setLang, 
                         <p className='text-xl mt-8 bold text-center'>{localization.thank_you[lang]}</p>
                         <p className='text-lg mt-20 text-center'>{localization.thank_you_details[lang]}</p>
                     </div>
-                    <Button disabled={quickstartPage != 6} className={'w-70 '} variant='contained' startIcon={< GitHub />} onClick={async () => { open("https://github.com/YusufOzmen01/kikitan-translator") }}>{localization.open_repo[lang]}</Button>
-                    <Button disabled={quickstartPage != 6} className={'w-48 '} variant='contained' onClick={async () => {
+                    <Button disabled={quickstartPage != 6} className={'w-70'} variant='contained' startIcon={< GitHub />} onClick={async () => { open("https://github.com/YusufOzmen01/kikitan-translator") }}>{localization.open_repo[lang]}</Button>
+                    <Button disabled={quickstartPage != 6} variant="contained" color="secondary" className='w-48' onClick={() => { open("https://buymeacoffee.com/sergiomarquina") }}><Favorite className='mr-2' /> {localization.donate[lang]}</Button>
+                    <Button disabled={quickstartPage != 6} className={'w-48'} variant='contained' onClick={async () => {
                         window.localStorage.setItem("firstTimeSetupComplete", "true");
                         localStorage.setItem("lang", lang);
 

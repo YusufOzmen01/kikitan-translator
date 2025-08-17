@@ -42,11 +42,11 @@ export const localization = {
     tr: "Gemini Transkripsiyonu Etkinleştir",
   },
   enable_desktop_capture: {
-    en: "Enable Desktop Capture (Experimental!)",
-    jp: "デスクトップキャプチャを有効にする (実験的！)",
-    cn: "启用桌面捕获 (实验性！)",
-    kr: "데스크톱 캡처 활성화 (실험적!)",
-    tr: "Masaüstü Yakalama'yı Etkinleştir (Deneysel!)",
+    en: "Enable Desktop Capture",
+    jp: "デスクトップキャプチャを有効にする",
+    cn: "启用桌面捕获",
+    kr: "데스크톱 캡처 활성화",
+    tr: "Masaüstü Yakalama'yı Etkinleştir",
   },
   open_win_audio: {
     en: "Open Windows Audio Settings",
@@ -324,11 +324,11 @@ export const localization = {
     tr: "Orijinal metni sohbet kutusuna gönderme",
   },
   google_gemini_note: {
-    en: "Google's LLM is called Gemini. It's available for translation, and you can even try out the speech-to-text feature (though it might take a little longer sometimes). You'll need a free API key to use it, and getting one is simple – just click the \"How to get Gemini API Key\" button below for a tutorial. Just so you know, this translation tool is still experimental. It uses context to understand and translate better, but if you're using voice input, it might not always be spot-on. Keep that in mind as you use it!",
-    jp: "Gemini は Google の大規模言語モデル（LLM）です。翻訳（そしてオプションで音声テキスト変換も可能ですが、時々遅くなることがあります）にご利用いただけます。無料で簡単に入手できる API キーが必要です。以下の「Gemini API キーの取得方法」ボタンをクリックしてチュートリアルをご覧ください。ご注意ください：この機能はまだ実験段階です。文脈に基づいた翻訳と認識により、翻訳ミスを減らすように設計されています。音声テキスト変換機能をご利用の場合、発言された内容が完全に正確に検出されない可能性があります。ご利用にはご注意ください。",
-    cn: "Gemini 是 Google 的大型语言模型 (LLM)。你可以用它进行翻译（也可以选择使用语音转文本功能，但有时可能会比较慢）。你需要一个免费且容易获取的 API 密钥，你可以从下面获取（点击\"如何获取 Gemini API 密钥\"按钮查看教程）。请注意：此功能仍处于实验阶段。它利用上下文驱动的翻译和识别来减少翻译错误。如果你使用的是语音转文本功能，你所说的内容可能不会被完全准确地识别。请谨慎使用！",
-    kr: "Gemini는 Google의 대규모 언어 모델(LLM)입니다. 번역 기능(선택적으로 음성-텍스트 변환 기능도 가능하지만, 때때로 속도가 느릴 수 있습니다)을 사용할 수 있습니다. 무료로 쉽게 얻을 수 있는 API 키가 필요하며, 아래에서 얻을 수 있습니다(\"Gemini API 키를 얻는 방법\" 버튼을 클릭하여 안내를 확인하세요). 참고: 이 기능은 아직 실험 단계입니다. 문맥 기반 번역 및 인식을 통해 번역 오류를 줄이도록 설계되었지만, 음성-텍스트 기능을 사용하는 경우 말한 내용이 정확하게 인식되지 않을 수 있습니다. 사용에 주의하세요!",
-    tr: "Gemini, Google'ın büyük dil modelidir (LLM). Çeviri (ve isteğe bağlı olarak sesten metne çeviri için de kullanabilirsiniz, ancak zaman zaman yavaşlayabilir). Ücretsiz ve kolayca edinebileceğiniz bir API anahtarına ihtiyacınız olacak, bunu aşağıdan edinebilirsiniz (\"Gemini API Anahtarı Nasıl Alınır\" düğmesine tıklayarak bir öğreticiye ulaşın). Not: Bu özellik hala deneysel aşamadadır. Bağlam odaklı çeviri ve tanıma kullanarak çeviri hatalarını azaltır. Sesten metne özelliğini kullanıyorsanız, söyledikleriniz tam olarak algılanamayabilir. Dikkatli kullanın!",
+    en: "Kikitan uses Google's Gemini AI model to recognize both your voice and the others (via Desktop Audio Capture). To utilize it, grab your API key and paste it into the box below. You can press \"How to get API key\" button to get instructions on how to grab the API key after pressing \"Get API Key\" button. If you don't provide an API key, Kikitan will use WebSpeech API and Google Translate which is less accurate. You can always change your API key later in the settings.",
+    jp: "Kikitanは、あなたと他の人（デスクトップ音声キャプチャ経由）の音声を認識するために、GoogleのGemini AIモデルを使用します。これを利用するには、APIキーを取得し、下のボックスに貼り付けてください。「APIキーを取得」ボタンを押した後、キーの取得方法に関する説明を見るには「APIキーの取得方法」ボタンを押してください。APIキーを入力しない場合、Kikitanは精度の低いWebSpeech APIとGoogle翻訳を使用します。APIキーは後からいつでも設定で変更できます。",
+    cn: "Kikitan 使用谷歌的 Gemini AI 模型来识别您和他人（通过桌面音频捕获）的声音。要使用此功能，请获取您的 API 密钥并将其粘贴到下方的输入框中。在按下“获取API密钥”按钮后，您可以再按下“如何获取API密钥”按钮来查看获取API密钥的说明。如果您不提供API密钥，Kikitan将使用精度较低的WebSpeech API和谷歌翻译。您随时可以在设置中更改您的API密钥。",
+    kr: "Kikitan은 Google의 Gemini AI 모델을 사용하여 사용자 및 다른 사람의 음성(데스크톱 오디오 캡처를 통해)을 인식합니다. 이 기능을 활용하려면 API 키를 받아 아래 상자에 붙여넣으세요. \"API 키 발급\" 버튼을 누른 후, API 키를 발급받는 방법에 대한 안내가 필요하면 \"API 키 발급 방법\" 버튼을 누르시면 됩니다. API 키를 제공하지 않으면 Kikitan은 정확도가 낮은 WebSpeech API와 Google 번역을 사용합니다. API 키는 나중에 언제든지 설정에서 변경할 수 있습니다.",
+    tr: "Kikitan, hem sizin hem de diğerlerinin sesini (Masaüstü Ses Yakalama yoluyla) tanımak için Google'ın Gemini AI modelini kullanır. Bunu kullanmak için API anahtarınızı alın ve aşağıdaki kutuya yapıştırın. \"API Anahtarı Al\" düğmesine bastıktan sonra, API anahtarını nasıl alacağınıza dair talimatlar için \"API anahtarı nasıl alınır\" düğmesine basabilirsiniz. Bir API anahtarı sağlamazsanız, Kikitan daha az doğru olan WebSpeech API ve Google Çeviri'yi kullanacaktır. API anahtarınızı daha sonra dilediğiniz zaman ayarlardan değiştirebilirsiniz."
   },
   gemini_is_disabled: {
     en: "Gemini is disabled",
@@ -442,5 +442,12 @@ export const localization = {
     cn: "启用桌面语音识别和翻译数据",
     kr: "데스크톱 음성 인식 및 번역 데이터 활성화",
     tr: "Masaüstü Ses Tanıma ve Çeviri Verilerini Etkinleştir"
+  },
+  gemini_error: {
+    en: "An error occured while connecting to Gemini API! Your API key might be wrong, please check your API key from settings! If you don't want to use Gemini, disable Gemini through settings",
+    jp: "Gemini API への接続中にエラーが発生しました！API キーが間違っている可能性があります。設定から API キーを確認してください！ Gemini を使用したくない場合は、設定から Gemini を無効にしてください。",
+    cn: "连接到 Gemini API 时发生错误！您的 API 密钥可能错误，请从设置中检查您的 API 密钥！如果您不想使用 Gemini，请通过设置禁用 Gemini。",
+    kr: "Gemini API에 연결하는 동안 오류가 발생했습니다! API 키가 잘못되었을 수 있습니다. 설정에서 API 키를 확인하세요! Gemini를 사용하고 싶지 않다면 설정에서 Gemini를 비활성화하세요.",
+    tr: "Gemini API'sine bağlanırken bir hata oluştu! API anahtarınız yanlış olabilir, lütfen ayarlardan API anahtarınızı kontrol edin! Gemini'yi kullanmak istemiyorsanız, ayarlardan Gemini'yi devre dışı bırakın."
   }
 };
