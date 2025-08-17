@@ -90,34 +90,25 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
             '&:hover .MuiOutlinedInput-notchedOutline': {
                 borderColor: config.light_mode ? 'black' : '#94A3B8',
             },
+            '.MuiTabs-scrollButtons.Mui-disabled': {
+                opacity: 0.3
+            }
+
         }} className={`relative w-max h-screen ${config.light_mode ? "" : "bg-slate-950 text-slate-200"}`}>
             <div className="absolute z-10">
                 <Box className="flex" sx={{ borderBottom: 1, borderColor: 'divider' }}>
                     <IconButton className="ml-2 mr-2" onClick={() => { closeCallback(); }}>
                         <Close />
                     </IconButton>
-                    <Tabs textColor="inherit" value={page} onChange={handleChange}>
-                        <Tab label={localization.language_settings[lang]} {...a11yProps(0)} />
-                        <Tab label={localization.vrchat_settings[lang]} {...a11yProps(1)} />
-                        <Tab label={localization.gemini_settings[lang]} {...a11yProps(2)} />
-                        <Tab label={localization.history_settings[lang]} {...a11yProps(3)} />
+                    <Tabs textColor="inherit" value={page} onChange={handleChange} variant="scrollable" scrollButtons="auto">
+                        <Tab label={localization.vrchat_settings[lang]} {...a11yProps(0)} />
+                        <Tab label="Gemini" {...a11yProps(1)} />
+                        <Tab label={localization.message_history[lang]} {...a11yProps(2)} />
+                        <Tab label={localization.data_out[lang]} {...a11yProps(3)} />
                         <Tab label={localization.debug_settings[lang]} {...a11yProps(4)} />
                     </Tabs>
                 </Box>
                 <CustomTabPanel className="flex" value={page} index={0}>
-                    <FormGroup>
-                        <FormControlLabel control={<Checkbox checked={config.language_settings.japanese_omit_questionmark} onChange={(e) => {
-                            setConfig({
-                                ...config,
-                                language_settings: {
-                                    ...config.language_settings,
-                                    japanese_omit_questionmark: e.target.checked
-                                }
-                            })
-                        }} />} label={localization.omit_questionmark[lang]} />
-                    </FormGroup>
-                </CustomTabPanel>
-                <CustomTabPanel className="flex" value={page} index={1}>
                     <FormGroup>
                         <FormControlLabel control={<Checkbox checked={config.vrchat_settings.translation_first} onChange={(e) => {
                             setConfig({
@@ -234,7 +225,7 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                         </Select>
                     </FormGroup>
                 </CustomTabPanel>
-                <CustomTabPanel value={page} index={2}>
+                <CustomTabPanel value={page} index={1}>
                     <div className="flex flex-col">
                         <FormControlLabel control={<Checkbox checked={config.gemini_settings.gemini_enabled} onChange={(e) => {
                             setConfig({
@@ -285,7 +276,7 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                         </div>
                     </div>
                 </CustomTabPanel>
-                <CustomTabPanel className="flex" value={page} index={3}>
+                <CustomTabPanel className="flex" value={page} index={2}>
                     <FormGroup>
                         <FormControlLabel control={<Checkbox checked={config.message_history.enabled} onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                             setConfig({
@@ -352,6 +343,37 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                                 {config.message_history.items.length} {localization.message_history[lang].toLowerCase()}
                             </Typography>
                         </div>
+                    </FormGroup>
+                </CustomTabPanel>
+                <CustomTabPanel className="flex" value={page} index={3}>
+                    <FormGroup>
+                        <FormControlLabel control={<Checkbox checked={config.data_out.enable_user_speak_data} onChange={(e) => {
+                            setConfig({
+                                ...config,
+                                data_out: {
+                                    ...config.data_out,
+                                    enable_user_speak_data: e.target.checked
+                                }
+                            })
+                        }} />} label={localization.enable_user_transcription_data[lang]} />
+                        <FormControlLabel control={<Checkbox checked={config.data_out.enable_user_translation_data} onChange={(e) => {
+                            setConfig({
+                                ...config,
+                                data_out: {
+                                    ...config.data_out,
+                                    enable_user_translation_data: e.target.checked
+                                }
+                            })
+                        }} />} label={localization.enable_user_translation_data[lang]} />
+                        <FormControlLabel control={<Checkbox checked={config.data_out.enable_desktop_data} onChange={(e) => {
+                            setConfig({
+                                ...config,
+                                data_out: {
+                                    ...config.data_out,
+                                    enable_desktop_data: e.target.checked
+                                }
+                            })
+                        }} />} label={localization.enable_desktop_data[lang]} />
                     </FormGroup>
                 </CustomTabPanel>
                 <CustomTabPanel className="flex" value={page} index={4}>

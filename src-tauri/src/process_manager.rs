@@ -32,6 +32,7 @@ pub fn start_ovr_overlay(handle: tauri::AppHandle) {
 
     Command::new(resource_path.clone())
         .current_dir(resource_path.parent().expect("Failed to get parent directory"))
+        .creation_flags(0x08000000_u32)
         .spawn()
         .unwrap();
 }
@@ -46,6 +47,7 @@ pub fn start_desktop_overlay(handle: tauri::AppHandle) {
 
     Command::new(resource_path.clone())
         .current_dir(resource_path.parent().expect("Failed to get parent directory"))
+        .creation_flags(0x08000000_u32)
         .spawn()
         .unwrap();
 }
@@ -55,6 +57,7 @@ pub fn is_steamvr_running() -> bool {
     let output = Command::new("tasklist")
         .arg("/FI")
         .arg("IMAGENAME eq vrmonitor.exe")
+        .creation_flags(0x08000000_u32)
         .output()
         .expect("Failed to execute command");
 
@@ -74,6 +77,7 @@ pub fn is_ovr_overlay_running() -> bool {
     let output = Command::new("tasklist")
         .arg("/FI")
         .arg("IMAGENAME eq OpenVROverlayPipe.exe")
+        .creation_flags(0x08000000_u32)
         .output()
         .expect("Failed to execute command");
 
@@ -94,6 +98,7 @@ pub fn is_desktop_overlay_running() -> bool {
     let output = Command::new("tasklist")
         .arg("/FI")
         .arg("IMAGENAME eq Desktop Image Overlay.exe")
+        .creation_flags(0x08000000_u32)
         .output()
         .expect("Failed to execute command");
 

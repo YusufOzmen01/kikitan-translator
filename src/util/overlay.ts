@@ -116,16 +116,16 @@ export async function send_notification_text(text: string) {
     if (!ws_connection?.OPEN) {
         ws_connection?.close();
         ws_connection = new WebSocket("ws://localhost:7711");
-    if (await invoke("is_steamvr_running")) {
-        if (!ws_connection?.OPEN) {
-            ws_connection?.close();
-            ws_connection = new WebSocket("ws://localhost:7711");
+        if (await invoke("is_steamvr_running")) {
+            if (!ws_connection?.OPEN) {
+                ws_connection?.close();
+                ws_connection = new WebSocket("ws://localhost:7711");
 
-            ws_connection.onopen = async () => {
-                console.log("[OPENVRPIPE] WebSocket connection established.");
+                ws_connection.onopen = async () => {
+                    console.log("[OPENVRPIPE] WebSocket connection established.");
 
-            ws_connection?.send(JSON.stringify(generate_openvr_pipe_command(text)));
-        };
+                    ws_connection?.send(JSON.stringify(generate_openvr_pipe_command(text)));
+                };
                 ws_connection?.send(JSON.stringify(await generate_openvr_pipe_command(text)));
             };
 
@@ -133,10 +133,5 @@ export async function send_notification_text(text: string) {
         }
 
         ws_connection?.send(JSON.stringify(await generate_openvr_pipe_command(text)));
-    } else {
-        fetch("http://127.0.0.1:18554", {
-            method: "POST",
-            body: await draw_text_on_canvas(text) as string
-        })
     }
 }

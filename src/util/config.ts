@@ -27,6 +27,7 @@ export type Config = {
         japanese_omit_questionmark: boolean,
     },
     vrchat_settings: {
+        enable_chatbox: boolean,
         translation_first: boolean,
         only_translation: boolean,
         disable_kikitan_when_muted: boolean,
@@ -45,6 +46,11 @@ export type Config = {
         enabled: boolean,
         max_items: number,
         items: MessageHistoryItem[]
+    },
+    data_out: {
+        enable_user_speak_data: boolean,
+        enable_user_translation_data: boolean,
+        enable_desktop_data: boolean
     }
 }
 
@@ -57,6 +63,7 @@ export const DEFAULT_CONFIG: Config = {
         japanese_omit_questionmark: true
     },
     vrchat_settings: {
+        enable_chatbox: true,
         translation_first: true,
         only_translation: false,
         disable_kikitan_when_muted: false,
@@ -75,6 +82,11 @@ export const DEFAULT_CONFIG: Config = {
         enabled: true,
         max_items: 50,
         items: []
+    },
+    data_out: {
+        enable_user_speak_data: false,
+        enable_user_translation_data: false,
+        enable_desktop_data: false
     }
 }
 

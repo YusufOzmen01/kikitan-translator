@@ -37,6 +37,7 @@ import { WebSpeech } from "../recognizers/WebSpeech";
 import { localization } from "../util/localization";
 import { Gemini, GeminiState } from "../recognizers/Gemini";
 import { send_notification_text } from "../util/overlay";
+import { send_desktop, send_user_recognition, send_user_translation } from "../util/data_out";
 
 type KikitanProps = {
     config: Config,
@@ -99,6 +100,8 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
 
             if (isFinal) {
                 detectionQueue = [...detectionQueue, result]
+                if (config.data_out.enable_user_speak_data) send_user_recognition(result[0])
+                if (config.data_out.enable_user_translation_data) send_user_translation(result[1])
 
                 info(`[QUEUE] Updating queue. Current queue length: ${detectionQueue.length}`)
             }
@@ -120,6 +123,7 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
         desktopSR.onResult(async (result: string[], isFinal: boolean) => {
             if (isFinal) {
                 console.log("[DESKTOP CAPTURE] Result: " + result)
+                if (config.data_out.enable_desktop_data) send_desktop(result[0], result[1])
 
                 send_notification_text(result[1])
             }
@@ -147,10 +151,12 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
             info("[SR] Using WebSpeech for recognition")
 
             sr.onResult((result: string[], isFinal: boolean) => {
-                if (config.mode == 1 || config.vrchat_settings.send_typing_status_while_talking) invoke("send_typing", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}` })
+                if ((config.mode == 1 || config.vrchat_settings.send_typing_status_while_talking) && config.vrchat_settings.enable_chatbox) invoke("send_typing", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}` })
 
                 if (isFinal) {
                     info(`[QUEUE] Updating queue. Current queue length: ${detectionQueue.length}`)
+                    if (config.data_out.enable_user_speak_data) send_user_recognition(result[0])
+                    if (config.data_out.enable_user_translation_data) send_user_translation(result[1])
 
                     detectionQueue = [...detectionQueue, result]
                 }
@@ -235,7 +241,7 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
                 // Add the new item and limit to max items
                 const updatedItems = [newHistoryItem, ...config.message_history.items]
                     .slice(0, config.message_history.max_items);
-                
+
                 setConfig({
                     ...config,
                     message_history: {
@@ -245,8 +251,11 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
                 });
             }
 
-            info("[TRANSLATION] Sending the message to chatbox...")
-            invoke("send_message", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}`, msg: config.vrchat_settings.only_translation ? current_translation : config.vrchat_settings.translation_first ? `${current_translation} (${current_detection})` : `${current_detection} (${current_translation})` })
+            if (config.vrchat_settings.enable_chatbox) {
+                info("[TRANSLATION] Sending the message to chatbox...")
+                invoke("send_message", { address: config.vrchat_settings.osc_address, port: `${config.vrchat_settings.osc_port}`, msg: config.vrchat_settings.only_translation ? current_translation : config.vrchat_settings.translation_first ? `${current_translation} (${current_detection})` : `${current_detection} (${current_translation})` })
+            }
+
             await new Promise(r => setTimeout(r, calculateMinWaitTime(current_translation, config.vrchat_settings.chatbox_update_speed)));
 
             lock = false
@@ -313,14 +322,14 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
                         <h2 className={`text-xl font-bold ${config.light_mode ? "text-black" : "text-white"}`}>
                             {localization.message_history[lang]}
                         </h2>
-                        <IconButton 
+                        <IconButton
                             onClick={() => setShowMessageHistory(false)}
                             sx={{ color: config.light_mode ? 'rgba(0, 0, 0, 0.87)' : '#ffffff' }}
                         >
                             <CloseIcon />
                         </IconButton>
                     </div>
-                    
+
                     <div className="overflow-y-auto flex-grow mb-4" style={{ maxHeight: 'calc(100% - 4rem)' }}>
                         {config.message_history.items.length === 0 ? (
                             <div className="flex items-center justify-center h-full">
@@ -493,8 +502,8 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
             <Button variant="outlined" size="medium" color={srStatus ? "error" : "success"} onClick={() => { setSRStatus(!srStatus) }}><p>{!srStatus ? localization.start[lang] : localization.stop[lang]}</p> {srStatus ? <PauseIcon fontSize="small" /> : <PlayArrowIcon fontSize="small" />}</Button>
             {config.message_history.enabled && (
                 <Tooltip title={localization.message_history[lang]}>
-                    <Button 
-                        variant="outlined" 
+                    <Button
+                        variant="outlined"
                         size="medium"
                         onClick={() => setShowMessageHistory(true)}
                         disabled={config.message_history.items.length === 0}

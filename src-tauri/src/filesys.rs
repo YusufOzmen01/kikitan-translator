@@ -15,7 +15,7 @@ pub async fn download_file(app: AppHandle, path: String, url: String) -> Result<
         .or(Err(format!("Failed to GET from '{}'", &url)))?;
 
     if res.status() == 404 {
-        return Err(format!("URL not found!"));
+        return Err("URL not found!".to_string());
     }
 
     let total_size = res

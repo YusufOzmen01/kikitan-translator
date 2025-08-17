@@ -261,11 +261,11 @@ export const localization = {
   },
   donate: { en: "Donate", jp: "寄付", cn: "捐赠", kr: "기부", tr: "Bağış Yap" },
   debug_settings: {
-    en: "Debug Settings",
-    jp: "デバッグ設定",
-    cn: "调试设置",
-    kr: "디버그 설정",
-    tr: "Hata Ayıklama Ayarları",
+    en: "Debug",
+    jp: "デバッグ",
+    cn: "调试",
+    kr: "디버그",
+    tr: "Hata Ayıklama",
   },
   open_logs: {
     en: "Open Logs",
@@ -294,13 +294,6 @@ export const localization = {
     cn: "获取Gemini API密钥",
     kr: "Gemini API 키 받기",
     tr: "Gemini API Anahtarı Al",
-  },
-  gemini_settings: {
-    en: "Gemini Settings",
-    jp: "Gemini 設定",
-    cn: "Gemini 设置",
-    kr: "Gemini 설정",
-    tr: "Gemini Ayarları",
   },
   auto: {
     en: "Auto (Gemini)",
@@ -422,11 +415,32 @@ export const localization = {
     kr: "메시지 기록 없음",
     tr: "Mesaj geçmişi yok"
   },
-  history_settings: {
-    en: "Message History Settings",
-    jp: "メッセージ履歴設定",
-    cn: "消息历史设置",
-    kr: "메시지 기록 설정",
-    tr: "Mesaj Geçmişi Ayarları"
+  data_out: {
+    en: "Data Output",
+    jp: "データ出力",
+    cn: "数据输出",
+    kr: "데이터 출력",
+    tr: "Veri Çıkışı"
+  },
+  enable_user_transcription_data: {
+    en: "Enable User Transcription Data",
+    jp: "ユーザー音声認識データを有効にする",
+    cn: "启用用户语音识别数据",
+    kr: "사용자 음성 인식 데이터 활성화",
+    tr: "Kullanıcı Ses Tanıma Verilerini Etkinleştir"
+  },
+  enable_user_translation_data: {
+    en: "Enable User Translation Data",
+    jp: "ユーザー翻訳データを有効にする",
+    cn: "启用用户翻译数据",
+    kr: "사용자 번역 데이터 활성화",
+    tr: "Kullanıcı Çeviri Verilerini Etkinleştir"
+  },
+  enable_desktop_data: {
+    en: "Enable Desktop Transcription and Translation Data",
+    jp: "デスクトップ音声認識および翻訳データを有効にする",
+    cn: "启用桌面语音识别和翻译数据",
+    kr: "데스크톱 음성 인식 및 번역 데이터 활성화",
+    tr: "Masaüstü Ses Tanıma ve Çeviri Verilerini Etkinleştir"
   }
 };
