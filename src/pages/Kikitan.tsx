@@ -441,6 +441,8 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
                             }
                         }} className="mt-4 ml-auto h-14" value={sourceLanguage} onChange={(e) => {
                             setSourceLanguage(e.target.value)
+                            setLanguageUpdate(true)
+                            
                             setConfig({ ...config, source_language: e.target.value })
                         }}>
                             {langSource.map((element) => {
@@ -487,6 +489,7 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
                             }
                         }} className="mt-4" value={targetLanguage} onChange={(e) => {
                             setTargetLanguage(e.target.value)
+                            setLanguageUpdate(true)
 
                             setConfig({ ...config, target_language: e.target.value })
                         }}>
