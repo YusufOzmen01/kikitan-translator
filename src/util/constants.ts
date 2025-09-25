@@ -35,6 +35,8 @@ export const langSource = [
     { name: { en: "Spanish (Spain)", jp: "スペイン語 (スペイン)", cn: "西班牙语 (西班牙)", kr: "스페인어 (스페인)", tr: "İspanyolca (İspanya)" }, code: "es-ES" },
     { name: { en: "Spanish (US)", jp: "スペイン語 (アメリカ)", cn: "西班牙语 (美国)", kr: "스페인어 (미국)", tr: "İspanyolca (ABD)" }, code: "es-US" },
     { name: { en: "Swedish", jp: "スウェーデン語", cn: "瑞典语", kr: "스웨덴어", tr: "İsveççe" }, code: "sv" },
+    { name: { en: "Norwegian", jp: "ノルウェー語", cn: "挪威语", kr: "노르웨이어", tr: "Norveççe" }, code: "no" },
+    { name: { en: "Hungarian", jp: "ハンガリー語", cn: "匈牙利语", kr: "헝가리어", tr: "Macarca" }, code: "hu" },
     { name: { en: "Turkish", jp: "トルコ語", cn: "土耳其语", kr: "터키어", tr: "Türkçe" }, code: "tr" }
 ] as const;
 

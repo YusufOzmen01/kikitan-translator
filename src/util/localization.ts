@@ -255,7 +255,7 @@ export const localization = {
   donation_text: {
     en: "Kikitan is free and will always stay free. However, any support is hugely welcome! Since I am still a student, anything I receive helps me live better! So, if you enjoy using Kikitan, considering donating!",
     jp: "Kikitanは無料で、常に無料のままです。ただし、どんなサポートも大歓迎です！私はまだ学生なので、受け取るものは何でも私の生活をより良くするのに役立ちます！ですので、Kikitanを楽しんでいる場合は、寄付を検討してください！",
-    cn: "Kikitan是免费的，将永远保持免费。但是，任何支持都非常受欢迎！由于我仍然是一名学生，我收到的任何东西都有助于我过得更好！因此，如果您喜欢使用Kikitan，请考虑捐赠！",
+    cn: "Kikitan 是免费的，将永远保持免费。但是，任何支持都非常受欢迎！由于我仍然是一名学生，我收到的任何东西都有助于我过得更好！因此，如果您喜欢使用Kikitan，请考虑捐赠！",
     kr: "Kikitan은 무료이며 항상 무료로 유지됩니다. 그러나 모든 지원을 환영합니다! 아직 학생이기 때문에 받는 모든 것이 나를 더 나은 삶을 살게 도와줍니다! 그러니 Kikitan을 사용하는 것을 즐기신다면 기부를 고려해보세요!",
     tr: "Kikitan ücretsizdir ve her zaman ücretsiz kalacaktır. Ancak, her türlü desteğe açığım! Hala bir öğrenci olduğum için aldığım her bağış benim daha iyi yaşamama yardımcı olur! Bu yüzden, Kikitan'ı kullanmaktan keyif alıyorsanız, bağış yapmayı düşünün!",
   },
