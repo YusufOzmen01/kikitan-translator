@@ -34,12 +34,12 @@ export const localization = {
     kr: "젬니 활성화",
     tr: "Gemini'yi etkinleştir",
   },
-  enable_gemini_transcription: {
-    en: "Enable Gemini Transcription",
-    jp: "ジェミニ文字起こしを有効にする",
-    cn: "启用Gemini转录",
-    kr: "젬니 전사 활성화",
-    tr: "Gemini Transkripsiyonu Etkinleştir",
+  enable_gemini_microphone: {
+    en: "Enable Gemini Microphone",
+    jp: "ジェミニマイクを有効にする",
+    cn: "启用Gemini麦克风",
+    kr: "젬니 마이크 활성화",
+    tr: "Gemini Mikrofonu'nu etkinleştir",
   },
   enable_desktop_capture: {
     en: "Enable Desktop Capture",

@@ -69,6 +69,8 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
     const [sourceLanguage, setSourceLanguage] = React.useState(config.source_language)
     const [targetLanguage, setTargetLanguage] = React.useState(config.target_language)
 
+    const [languageUpdate, setLanguageUpdate] = React.useState(false)
+
     const [geminiSRStatus, setGeminiSRStatus] = React.useState<GeminiState>();
     const [geminiDesktopStatus, setGeminiDesktopStatus] = React.useState<GeminiState>();
 
@@ -87,7 +89,7 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
     const textInputRef = React.useRef<HTMLInputElement>(null)
 
     const setGeminiAsSR = () => {
-        sr = new Gemini(sourceLanguage, targetLanguage, config.gemini_settings.gemini_api_key, !config.gemini_settings.gemini_enable_transcription, config.language_settings.japanese_omit_questionmark)
+        sr = new Gemini(sourceLanguage, targetLanguage, config.gemini_settings.gemini_api_key, !config.gemini_settings.gemini_enable_microphone, config.language_settings.japanese_omit_questionmark)
         info("[SR] Using Gemini for recognition")
 
         setGeminiSRInterval(setInterval(() => {
@@ -148,7 +150,7 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
 
         info(`[SR] Initializing SR...`)
 
-        if (!config.gemini_settings.gemini_enabled) {
+        if (!config.gemini_settings.gemini_enabled || !config.gemini_settings.gemini_enable_microphone) {
             sr = new WebSpeech(sourceLanguage, targetLanguage)
             info("[SR] Using WebSpeech for recognition")
 
@@ -177,6 +179,7 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
     }
 
     React.useEffect(() => {
+        if (!languageUpdate) return;
         info(`[LANGUAGE] Changing language (${sourceLanguage} - ${targetLanguage}) - sr=${sr != null}`)
 
         if (sr) {
@@ -187,7 +190,9 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
                 restartSR()
             }, 1000)
         }
-    }, [sourceLanguage, targetLanguage])
+
+        setLanguageUpdate(false)
+    }, [languageUpdate])
 
     React.useEffect(() => {
         info(`[SR] SR status=${srStatus} - VRC Muted=${vrcMuted} - Disable Kikitan When Muted=${config.vrchat_settings.disable_kikitan_when_muted}`)
@@ -449,6 +454,7 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
 
                                 setTargetLanguage(new_t)
                                 setSourceLanguage(new_s)
+                                setLanguageUpdate(true)
 
                                 setConfig({ ...config, source_language: new_s, target_language: new_t })
                             }}>
