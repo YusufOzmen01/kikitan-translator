@@ -3,7 +3,7 @@ import { listen } from "@tauri-apps/api/event";
 
 export async function setupMicrophoneCapture(callback: (chunk: Float32Array<ArrayBufferLike>, sampleRate: number) => void) {
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: { autoGainControl: false } });
 
     const audioContext = new AudioContext();
     const sourceNode = audioContext.createMediaStreamSource(stream);
