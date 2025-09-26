@@ -185,15 +185,15 @@ export default function QuickstartMenu({ config, setQuickstartVisible, setLang, 
                                     }
                                 })
                             }} />} label={localization.enable_gemini[lang]} />
-                            <FormControlLabel disabled={!config.gemini_settings.gemini_enabled} control={<Checkbox checked={config.gemini_settings.gemini_enable_microphone} onChange={(e) => {
+                            <FormControlLabel disabled={!config.gemini_settings.gemini_enabled} control={<Checkbox checked={config.gemini_settings.gemini_microphone_capture} onChange={(e) => {
                                 setConfig({
                                     ...config,
                                     gemini_settings: {
                                         ...config.gemini_settings,
-                                        gemini_enable_microphone: e.target.checked
+                                        gemini_microphone_capture: e.target.checked
                                     }
                                 })
-                            }} />} label={localization.enable_gemini_microphone[lang]} />
+                            }} />} label={localization.enable_gemini_microphone_capture[lang]} />
                             <FormControlLabel disabled={!config.gemini_settings.gemini_enabled} control={<Checkbox checked={config.gemini_settings.desktop_capture} onChange={(e) => {
                                 setConfig({
                                     ...config,
@@ -286,14 +286,6 @@ export default function QuickstartMenu({ config, setQuickstartVisible, setLang, 
                                     borderColor: config.light_mode ? '#666666 !important' : '#4f4f4f !important'
                                 }
                             }} className='ml-4' variant='contained' color="warning" onClick={() => {
-                                setConfig({
-                                    ...config,
-                                    gemini_settings: {
-                                        ...config.gemini_settings,
-                                        gemini_enabled: false
-                                    }
-                                })
-
                                 setQuickstartPage(quickstartPage + 1)
                             }}>{localization.next[lang]}
                             </Button>

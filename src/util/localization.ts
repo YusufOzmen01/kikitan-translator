@@ -41,12 +41,12 @@ export const localization = {
     kr: "젬니 활성화",
     tr: "Gemini'yi etkinleştir",
   },
-  enable_gemini_microphone: {
-    en: "Enable Gemini Microphone",
-    jp: "ジェミニマイクを有効にする",
-    cn: "启用Gemini麦克风",
-    kr: "젬니 마이크 활성화",
-    tr: "Gemini Mikrofonu'nu etkinleştir",
+  enable_gemini_microphone_capture: {
+    en: "Enable Gemini Microphone Capture (Disabling will use WebSpeech instead)",
+    jp: "ジェミニのマイクキャプチャを有効にする（無効にするとWebSpeechが使用されます）",
+    cn: "启用Gemini麦克风捕获（禁用后将改用WebSpeech）",
+    kr: "젬니 마이크 캡처 활성화 (비활성화하면 대신 WebSpeech 사용)",
+    tr: "Gemini Mikrofon Yakalamayı Etkinleştir (Devre dışı bırakılırsa WebSpeech kullanılır)",
   },
   enable_desktop_capture: {
     en: "Enable Desktop Capture",

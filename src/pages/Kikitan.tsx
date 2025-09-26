@@ -89,7 +89,7 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
     const textInputRef = React.useRef<HTMLInputElement>(null)
 
     const setGeminiAsSR = () => {
-        sr = new Gemini(sourceLanguage, targetLanguage, config.gemini_settings.gemini_api_key, !config.gemini_settings.gemini_enable_microphone, config.language_settings.japanese_omit_questionmark)
+        sr = new Gemini(sourceLanguage, targetLanguage, config.gemini_settings.gemini_api_key, !config.gemini_settings.gemini_microphone_capture, config.language_settings.japanese_omit_questionmark)
         info("[SR] Using Gemini for recognition")
 
         setGeminiSRInterval(setInterval(() => {
@@ -150,7 +150,7 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
 
         info(`[SR] Initializing SR...`)
 
-        if (!config.gemini_settings.gemini_enabled || !config.gemini_settings.gemini_enable_microphone) {
+        if (!config.gemini_settings.gemini_enabled) {
             sr = new WebSpeech(sourceLanguage, targetLanguage)
             info("[SR] Using WebSpeech for recognition")
 

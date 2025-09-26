@@ -236,15 +236,15 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                                 }
                             })
                         }} />} label={localization.enable_gemini[lang]} />
-                        <FormControlLabel disabled={!config.gemini_settings.gemini_enabled} control={<Checkbox checked={config.gemini_settings.gemini_enable_microphone} onChange={(e) => {
+                        <FormControlLabel disabled={!config.gemini_settings.gemini_enabled} control={<Checkbox checked={config.gemini_settings.gemini_microphone_capture} onChange={(e) => {
                             setConfig({
                                 ...config,
                                 gemini_settings: {
                                     ...config.gemini_settings,
-                                    gemini_enable_microphone: e.target.checked
+                                    gemini_microphone_capture: e.target.checked
                                 }
                             })
-                        }} />} label={localization.enable_gemini_microphone[lang]} />
+                        }} />} label={localization.enable_gemini_microphone_capture[lang]} />
                         <FormControlLabel disabled={!config.gemini_settings.gemini_enabled} control={<Checkbox checked={config.gemini_settings.desktop_capture} onChange={(e) => {
                             setConfig({
                                 ...config,
