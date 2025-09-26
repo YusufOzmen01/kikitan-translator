@@ -170,12 +170,16 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
             })
         } else {
             setGeminiAsSR()
-
-            if (config.gemini_settings.desktop_capture) enableDesktopCapture();
         }
 
         info("[SR] Starting recognition")
         sr?.start()
+
+        if (config.gemini_settings.gemini_enabled && config.gemini_settings.desktop_capture) {
+            info("[DESKTOP CAPTURE] Starting desktop capture...")
+
+            enableDesktopCapture();
+        } else  desktopSR?.stop()
     }
 
     React.useEffect(() => {
@@ -442,7 +446,7 @@ export default function Kikitan({ config, setConfig, lang, settingsVisible, setS
                         }} className="mt-4 ml-auto h-14" value={sourceLanguage} onChange={(e) => {
                             setSourceLanguage(e.target.value)
                             setLanguageUpdate(true)
-                            
+
                             setConfig({ ...config, source_language: e.target.value })
                         }}>
                             {langSource.map((element) => {
