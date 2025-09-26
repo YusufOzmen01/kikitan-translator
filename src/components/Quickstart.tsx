@@ -9,7 +9,7 @@ import {
 
 import Scroll from "./Scroll"
 import { localization } from "../util/localization";
-import { Box, Button, Checkbox, FormControlLabel, FormGroup, MenuItem, Select, TextField } from "@mui/material";
+import { Box, Button, Checkbox, FormControlLabel, FormGroup, MenuItem, Select, TextField, Tooltip } from "@mui/material";
 import { Lang } from "../util/constants";
 import { invoke } from "@tauri-apps/api/core";
 
@@ -104,8 +104,8 @@ export default function QuickstartMenu({ config, setQuickstartVisible, setLang, 
                     '&:hover .MuiOutlinedInput-notchedOutline': {
                         borderColor: config.light_mode ? 'black' : '#94A3B8',
                     },
-                    '&.Mui-disabled': {
-                        color: 'green'
+                    '& .MuiFormControlLabel-root.Mui-disabled .MuiFormControlLabel-label': {
+                        color: config.light_mode ? '#666666' : '#4f4f4f'
                     }
                 }} >
                     <div className={'absolute inset-0 transition-all space-y-2 flex flex-col items-center ease-in-out ' + (quickstartPage == 4 ? "opacity-100" : "opacity-0 pointer-events-none")}>
@@ -229,8 +229,42 @@ export default function QuickstartMenu({ config, setQuickstartVisible, setLang, 
                 </div>
             </div>
             <div className='mb-2 flex justify-center space-x-4'>
-                <Button variant='contained' disabled={quickstartPage == 0} onClick={() => { setQuickstartPage(quickstartPage - 1) }}>{localization.previous[lang]}</Button>
-                <Button className='ml-4' variant='contained' disabled={quickstartPage > 5 || quickstartPage == 5 && config.gemini_settings.gemini_enabled && config.gemini_settings.gemini_api_key.trim().length == 0} onClick={() => { setQuickstartPage(quickstartPage + 1) }}>{localization.next[lang]}</Button>
+                <Button sx={{
+                    '&.Mui-disabled': {
+                        color: config.light_mode ? '#666666 !important' : '#4f4f4f !important',
+                        borderColor: config.light_mode ? '#666666 !important' : '#4f4f4f !important'
+                    }
+                }} variant='contained' disabled={quickstartPage == 0} onClick={() => { setQuickstartPage(quickstartPage - 1) }}>{localization.previous[lang]}</Button>
+                {(quickstartPage == 5 && config.gemini_settings.gemini_enabled && config.gemini_settings.gemini_api_key.trim().length == 0) &&
+                    <>
+                        <Tooltip title={localization.you_have_empty_apikey[lang]}>
+                            <Button sx={{
+                                '&.Mui-disabled': {
+                                    color: config.light_mode ? '#666666 !important' : '#4f4f4f !important',
+                                    borderColor: config.light_mode ? '#666666 !important' : '#4f4f4f !important'
+                                }
+                            }} className='ml-4' variant='contained' color="warning" onClick={() => { 
+                                setConfig({
+                                    ...config,
+                                    gemini_settings: {
+                                        ...config.gemini_settings,
+                                        gemini_enabled: false
+                                    }
+                                })
+
+                                setQuickstartPage(quickstartPage + 1)
+                             }}>{localization.next[lang]} 
+                            </Button>
+                        </Tooltip>
+                    </>
+                }
+
+                {!(quickstartPage == 5 && config.gemini_settings.gemini_enabled && config.gemini_settings.gemini_api_key.trim().length == 0) && <Button sx={{
+                    '&.Mui-disabled': {
+                        color: config.light_mode ? '#666666 !important' : '#4f4f4f !important',
+                        borderColor: config.light_mode ? '#666666 !important' : '#4f4f4f !important'
+                    }
+                }} className='ml-4' variant='contained' disabled={quickstartPage > 5} onClick={() => { setQuickstartPage(quickstartPage + 1) }}>{localization.next[lang]}</Button>}
             </div>
         </div>
 

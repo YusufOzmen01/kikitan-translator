@@ -330,6 +330,13 @@ export const localization = {
     kr: "Kikitan은 Google의 Gemini AI 모델을 사용하여 사용자 및 다른 사람의 음성(데스크톱 오디오 캡처를 통해)을 인식합니다. 이 기능을 활용하려면 API 키를 받아 아래 상자에 붙여넣으세요. \"API 키 발급\" 버튼을 누른 후, API 키를 발급받는 방법에 대한 안내가 필요하면 \"API 키 발급 방법\" 버튼을 누르시면 됩니다. API 키를 제공하지 않으면 Kikitan은 정확도가 낮은 WebSpeech API와 Google 번역을 사용합니다. API 키는 나중에 언제든지 설정에서 변경할 수 있습니다.",
     tr: "Kikitan, hem sizin hem de diğerlerinin sesini (Masaüstü Ses Yakalama yoluyla) tanımak için Google'ın Gemini AI modelini kullanır. Bunu kullanmak için API anahtarınızı alın ve aşağıdaki kutuya yapıştırın. \"API Anahtarı Al\" düğmesine bastıktan sonra, API anahtarını nasıl alacağınıza dair talimatlar için \"API anahtarı nasıl alınır\" düğmesine basabilirsiniz. Bir API anahtarı sağlamazsanız, Kikitan daha az doğru olan WebSpeech API ve Google Çeviri'yi kullanacaktır. API anahtarınızı daha sonra dilediğiniz zaman ayarlardan değiştirebilirsiniz."
   },
+  you_have_empty_apikey: {
+    en: "Your API key is empty! Gemini WILL NOT WORK without an API key! If you click next, Gemini will be disabled.",
+    jp: "APIキーが空です！APIキーがないとGeminiは動作しません！次へをクリックすると、Geminiは無効になります。",
+    cn: "您的API密钥为空！没有API密钥，Gemini将无法工作！如果您点击下一步，Gemini将被禁用。",
+    kr: "API 키가 비어 있습니다! API 키 없이는 Gemini가 작동하지 않습니다! 다음을 클릭하면 Gemini가 비활성화됩니다.",
+    tr: "API anahtarınız boş! Bir API anahtarı olmadan Gemini ÇALIŞMAYACAKTIR! İleri'ye tıklarsanız, Gemini devre dışı bırakılacaktır.",
+  },
   gemini_is_disabled: {
     en: "Gemini is disabled",
     jp: "Gemini は無効です",
