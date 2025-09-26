@@ -21,9 +21,11 @@ export const langSource = [
     { name: { en: "Finnish", jp: "フィンランド語", cn: "芬兰语", kr: "핀란드어", tr: "Fince" }, code: "fi" },
     { name: { en: "French", jp: "フランス語", cn: "法语", kr: "프랑스어", tr: "Fransızca" }, code: "fr" },
     { name: { en: "German", jp: "ドイツ語", cn: "德语", kr: "독일어", tr: "Almanca" }, code: "de" },
+    { name: { en: "Hungarian", jp: "ハンガリー語", cn: "匈牙利语", kr: "헝가리어", tr: "Macarca" }, code: "hu" },
     { name: { en: "Indonesian", jp: "インドネシア語", cn: "印尼语", kr: "인도네시아어", tr: "Endonezce" }, code: "id" },
     { name: { en: "Italian", jp: "イタリア語", cn: "意大利语", kr: "이탈리아어", tr: "İtalyanca" }, code: "it" },
     { name: { en: "Korean", jp: "韓国語", cn: "韩语", kr: "한국어", tr: "Korece" }, code: "ko" },
+    { name: { en: "Norwegian", jp: "ノルウェー語", cn: "挪威语", kr: "노르웨이어", tr: "Norveççe" }, code: "no" },
     { name: { en: "Polish", jp: "ポーランド語", cn: "波兰语", kr: "폴란드어", tr: "Lehçe" }, code: "pl" },
     { name: { en: "Portuguese", jp: "ポルトガル語", cn: "葡萄牙语", kr: "포르투갈어", tr: "Portekizce" }, code: "pt" },
     { name: { en: "Romanian", jp: "ルーマニア語", cn: "罗马尼亚语", kr: "루마니아어", tr: "Rumence" }, code: "ro" },
@@ -35,8 +37,6 @@ export const langSource = [
     { name: { en: "Spanish (Spain)", jp: "スペイン語 (スペイン)", cn: "西班牙语 (西班牙)", kr: "스페인어 (스페인)", tr: "İspanyolca (İspanya)" }, code: "es-ES" },
     { name: { en: "Spanish (US)", jp: "スペイン語 (アメリカ)", cn: "西班牙语 (美国)", kr: "스페인어 (미국)", tr: "İspanyolca (ABD)" }, code: "es-US" },
     { name: { en: "Swedish", jp: "スウェーデン語", cn: "瑞典语", kr: "스웨덴어", tr: "İsveççe" }, code: "sv" },
-    { name: { en: "Norwegian", jp: "ノルウェー語", cn: "挪威语", kr: "노르웨이어", tr: "Norveççe" }, code: "no" },
-    { name: { en: "Hungarian", jp: "ハンガリー語", cn: "匈牙利语", kr: "헝가리어", tr: "Macarca" }, code: "hu" },
     { name: { en: "Turkish", jp: "トルコ語", cn: "土耳其语", kr: "터키어", tr: "Türkçe" }, code: "tr" }
 ] as const;
 
@@ -76,6 +76,7 @@ export const langTo = [
     { name: { en: "Marathi", jp: "マラーティー語", cn: "马拉地语", kr: "마라티어", tr: "Marathi" }, code: "mr" },
     { name: { en: "Mongolian", jp: "モンゴル語", cn: "蒙古语", kr: "몽골어", tr: "Moğolca" }, code: "mn" },
     { name: { en: "Nepali", jp: "ネパール語", cn: "尼泊尔语", kr: "네팔어", tr: "Nepalce" }, code: "ne" },
+    { name: { en: "Norwegian", jp: "ノルウェー語", cn: "挪威语", kr: "노르웨이어", tr: "Norveççe" }, code: "no" },
     { name: { en: "Norwegian", jp: "ノルウェー語", cn: "挪威语", kr: "노르웨이어", tr: "Norveççe" }, code: "no" },
     { name: { en: "Odia", jp: "オディア語", cn: "奥里亚语", kr: "오디아어", tr: "Odiya" }, code: "or" },
     { name: { en: "Punjabi", jp: "パンジャブ語", cn: "旁遮普语", kr: "펀자비어", tr: "Pencapça" }, code: "pa" },
