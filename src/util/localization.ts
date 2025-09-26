@@ -6,6 +6,13 @@ export const localization = {
     kr: "OSC를 활성화하세요!",
     tr: "OSC ayarını etkinleştirdiğinizden emin olun!",
   },
+  how_to_setup_and_use_kikitan: {
+    en: "How to setup and use Kikitan",
+    jp: "Kikitanの設定と使用方法",
+    cn: "如何设置和使用Kikitan",
+    kr: "Kikitan 설정 및 사용 방법",
+    tr: "Kikitan'ı nasıl kurup kullanabilirsiniz",
+  },
   windows_mic_settings: {
     en: "Check your Windows default microphone settings!",
     jp: "Windowsのデフォルトマイクの設定を確認してください！",
@@ -213,6 +220,13 @@ export const localization = {
     cn: "在游戏中被静音时禁用 Kikitan",
     kr: "게임 내에서 음소거 상태일 때 Kikitan 비활성화",
     tr: "Oyunda susturulduğunda Kikitan'ı devre dışı bırak"
+  },
+  watch_tutorial: {
+    en: "Make sure to watch the tutorial before proceeding!",
+    jp: "続行する前にチュートリアルを必ず見てください！",
+    cn: "在继续之前，请务必观看教程！",
+    kr: "계속하기 전에 튜토리얼을 꼭 시청하세요!",
+    tr: "Devam etmeden önce eğitici videoyu izlediğinizden emin olun!",
   },
   changelogs: {
     en: "Changelogs",

@@ -69,15 +69,33 @@ export default function QuickstartMenu({ config, setQuickstartVisible, setLang, 
                     </div>
                 </div>
 
-                <div className={'absolute inset-0 transition-all flex flex-col items-center justify-center ease-in-out ' + (quickstartPage == 2 ? "opacity-100" : "opacity-0 pointer-events-none")}>
+                <div className={'absolute inset-0 transition-all flex justify-center ease-in-out ' + (quickstartPage == 2 ? "opacity-100" : "opacity-0 pointer-events-none")}>
+                    <div className='absolute mt-2 flex flex-col items-center'>
+                        <p className='text-xl bold text-center'>{localization.how_to_setup_and_use_kikitan[lang]}</p>
+                        {quickstartPage == 2 &&
+                            <iframe
+                                width="560"
+                                height="315"
+                                className="mt-4"
+                                src="https://www.youtube-nocookie.com/embed/hB7CDrVnNCs"
+                                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                {...({ credentialless: "" } as any)}
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                            />
+                        }
+                    </div>
+                </div>
+
+                <div className={'absolute inset-0 transition-all flex flex-col items-center justify-center ease-in-out ' + (quickstartPage == 3 ? "opacity-100" : "opacity-0 pointer-events-none")}>
                     <div className='mt-2 mb-4'>
                         <p className='text-xl bold text-center'>{localization.windows_mic_settings[lang]}</p>
                         <p className='text-lg mt-20 text-center'>{localization.windows_mic_details[lang]}</p>
                     </div>
-                    <Button disabled={quickstartPage != 2} className={'w-96 '} variant='contained' startIcon={<Settings />} onClick={() => { invoke("show_audio_settings") }}>{localization.open_win_audio[lang]}</Button>
+                    <Button disabled={quickstartPage != 3} className={'w-96 '} variant='contained' startIcon={<Settings />} onClick={() => { invoke("show_audio_settings") }}>{localization.open_win_audio[lang]}</Button>
                 </div>
 
-                <div className={'absolute inset-0 transition-all flex justify-center ease-in-out ' + (quickstartPage == 3 ? "opacity-100" : "opacity-0 pointer-events-none")}>
+                <div className={'absolute inset-0 transition-all flex justify-center ease-in-out ' + (quickstartPage == 4 ? "opacity-100" : "opacity-0 pointer-events-none")}>
                     <div className='absolute mt-2 flex flex-col items-center'>
                         <p className='text-xl bold text-center'>{localization.mode_selection[lang]}</p>
                         <img className='mt-4 w-[384px]' src={
@@ -108,7 +126,7 @@ export default function QuickstartMenu({ config, setQuickstartVisible, setLang, 
                         color: config.light_mode ? '#666666' : '#4f4f4f'
                     }
                 }} >
-                    <div className={'absolute inset-0 transition-all space-y-2 flex flex-col items-center ease-in-out ' + (quickstartPage == 4 ? "opacity-100" : "opacity-0 pointer-events-none")}>
+                    <div className={'absolute inset-0 transition-all space-y-2 flex flex-col items-center ease-in-out ' + (quickstartPage == 5 ? "opacity-100" : "opacity-0 pointer-events-none")}>
                         <div className='mt-4 mb-4'>
                             <p className='text-4xl bold text-center'>{localization.change_basic_settings[lang]}</p>
                         </div>
@@ -152,7 +170,7 @@ export default function QuickstartMenu({ config, setQuickstartVisible, setLang, 
                         </FormGroup>
                     </div>
 
-                    <div className={'inset-0 transition-all space-y-2 flex flex-col items-center justify-center ease-in-out ' + (quickstartPage == 5 ? "opacity-100" : "opacity-0 pointer-events-none")}>
+                    <div className={'inset-0 transition-all space-y-2 flex flex-col items-center justify-center ease-in-out ' + (quickstartPage == 6 ? "opacity-100" : "opacity-0 pointer-events-none")}>
                         <div className='mt-4'>
                             <p className='text-4xl bold text-center'>Google Gemini</p>
                             <p className='text-sm mt-2 text-center'>{localization.google_gemini_note[lang]}</p>
@@ -209,14 +227,14 @@ export default function QuickstartMenu({ config, setQuickstartVisible, setLang, 
                     </div>
                 </Box>
 
-                <div className={'absolute inset-0 transition-all space-y-2 flex flex-col items-center justify-center ease-in-out ' + (quickstartPage == 6 ? "opacity-100" : "opacity-0 pointer-events-none")}>
+                <div className={'absolute inset-0 transition-all space-y-2 flex flex-col items-center justify-center ease-in-out ' + (quickstartPage == 7 ? "opacity-100" : "opacity-0 pointer-events-none")}>
                     <div className='mt-4 mb-4'>
                         <p className='text-xl mt-8 bold text-center'>{localization.thank_you[lang]}</p>
                         <p className='text-lg mt-20 text-center'>{localization.thank_you_details[lang]}</p>
                     </div>
-                    <Button disabled={quickstartPage != 6} className={'w-70'} variant='contained' startIcon={< GitHub />} onClick={async () => { open("https://github.com/YusufOzmen01/kikitan-translator") }}>{localization.open_repo[lang]}</Button>
-                    <Button disabled={quickstartPage != 6} variant="contained" color="secondary" className='w-48' onClick={() => { open("https://buymeacoffee.com/sergiomarquina") }}><Favorite className='mr-2' /> {localization.donate[lang]}</Button>
-                    <Button disabled={quickstartPage != 6} className={'w-48'} variant='contained' onClick={async () => {
+                    <Button disabled={quickstartPage != 7} className={'w-70'} variant='contained' startIcon={< GitHub />} onClick={async () => { open("https://github.com/YusufOzmen01/kikitan-translator") }}>{localization.open_repo[lang]}</Button>
+                    <Button disabled={quickstartPage != 7} variant="contained" color="secondary" className='w-48' onClick={() => { open("https://buymeacoffee.com/sergiomarquina") }}><Favorite className='mr-2' /> {localization.donate[lang]}</Button>
+                    <Button disabled={quickstartPage != 7} className={'w-48'} variant='contained' onClick={async () => {
                         window.localStorage.setItem("firstTimeSetupComplete", "true");
                         localStorage.setItem("lang", lang);
 
@@ -235,7 +253,7 @@ export default function QuickstartMenu({ config, setQuickstartVisible, setLang, 
                         borderColor: config.light_mode ? '#666666 !important' : '#4f4f4f !important'
                     }
                 }} variant='contained' disabled={quickstartPage == 0} onClick={() => { setQuickstartPage(quickstartPage - 1) }}>{localization.previous[lang]}</Button>
-                {(quickstartPage == 5 && config.gemini_settings.gemini_enabled && config.gemini_settings.gemini_api_key.trim().length == 0) &&
+                {(quickstartPage == 6 && config.gemini_settings.gemini_enabled && config.gemini_settings.gemini_api_key.trim().length == 0) &&
                     <>
                         <Tooltip title={localization.you_have_empty_apikey[lang]}>
                             <Button sx={{
@@ -243,7 +261,7 @@ export default function QuickstartMenu({ config, setQuickstartVisible, setLang, 
                                     color: config.light_mode ? '#666666 !important' : '#4f4f4f !important',
                                     borderColor: config.light_mode ? '#666666 !important' : '#4f4f4f !important'
                                 }
-                            }} className='ml-4' variant='contained' color="warning" onClick={() => { 
+                            }} className='ml-4' variant='contained' color="warning" onClick={() => {
                                 setConfig({
                                     ...config,
                                     gemini_settings: {
@@ -253,18 +271,42 @@ export default function QuickstartMenu({ config, setQuickstartVisible, setLang, 
                                 })
 
                                 setQuickstartPage(quickstartPage + 1)
-                             }}>{localization.next[lang]} 
+                            }}>{localization.next[lang]}
                             </Button>
                         </Tooltip>
                     </>
                 }
 
-                {!(quickstartPage == 5 && config.gemini_settings.gemini_enabled && config.gemini_settings.gemini_api_key.trim().length == 0) && <Button sx={{
+                {quickstartPage == 2 &&
+                    <>
+                        <Tooltip title={localization.watch_tutorial[lang]}>
+                            <Button sx={{
+                                '&.Mui-disabled': {
+                                    color: config.light_mode ? '#666666 !important' : '#4f4f4f !important',
+                                    borderColor: config.light_mode ? '#666666 !important' : '#4f4f4f !important'
+                                }
+                            }} className='ml-4' variant='contained' color="warning" onClick={() => {
+                                setConfig({
+                                    ...config,
+                                    gemini_settings: {
+                                        ...config.gemini_settings,
+                                        gemini_enabled: false
+                                    }
+                                })
+
+                                setQuickstartPage(quickstartPage + 1)
+                            }}>{localization.next[lang]}
+                            </Button>
+                        </Tooltip>
+                    </>
+                }
+
+                {!((quickstartPage == 6 && config.gemini_settings.gemini_enabled && config.gemini_settings.gemini_api_key.trim().length == 0) || quickstartPage == 2) && <Button sx={{
                     '&.Mui-disabled': {
                         color: config.light_mode ? '#666666 !important' : '#4f4f4f !important',
                         borderColor: config.light_mode ? '#666666 !important' : '#4f4f4f !important'
                     }
-                }} className='ml-4' variant='contained' disabled={quickstartPage > 5} onClick={() => { setQuickstartPage(quickstartPage + 1) }}>{localization.next[lang]}</Button>}
+                }} className='ml-4' variant='contained' disabled={quickstartPage > 6} onClick={() => { setQuickstartPage(quickstartPage + 1) }}>{localization.next[lang]}</Button>}
             </div>
         </div>
 
