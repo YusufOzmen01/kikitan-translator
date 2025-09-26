@@ -19,6 +19,7 @@ fn main() {
             vrc_commands::send_message,
             vrc_commands::start_vrc_listener,
             process_manager::show_audio_settings,
+            process_manager::show_gemini_api_page,
             process_manager::start_ovr_overlay,
             process_manager::start_desktop_overlay,
             process_manager::is_steamvr_running,

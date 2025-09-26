@@ -104,6 +104,9 @@ export default function QuickstartMenu({ config, setQuickstartVisible, setLang, 
                     '&:hover .MuiOutlinedInput-notchedOutline': {
                         borderColor: config.light_mode ? 'black' : '#94A3B8',
                     },
+                    '&.Mui-disabled': {
+                        color: 'green'
+                    }
                 }} >
                     <div className={'absolute inset-0 transition-all space-y-2 flex flex-col items-center ease-in-out ' + (quickstartPage == 4 ? "opacity-100" : "opacity-0 pointer-events-none")}>
                         <div className='mt-4 mb-4'>
@@ -173,7 +176,7 @@ export default function QuickstartMenu({ config, setQuickstartVisible, setLang, 
                                     }
                                 })
                             }} />} label={localization.enable_gemini_microphone[lang]} />
-                            <FormControlLabel disabled={!config.gemini_settings.desktop_capture} control={<Checkbox checked={config.gemini_settings.desktop_capture} onChange={(e) => {
+                            <FormControlLabel disabled={!config.gemini_settings.gemini_enabled} control={<Checkbox checked={config.gemini_settings.desktop_capture} onChange={(e) => {
                                 setConfig({
                                     ...config,
                                     gemini_settings: {
@@ -199,7 +202,7 @@ export default function QuickstartMenu({ config, setQuickstartVisible, setLang, 
                                         }
                                     })
                                 }} />
-                                <Button variant="contained" color="success" className="h-14" onClick={async () => { open("https://aistudio.google.com/apikey"); }}>{localization.get_gemini_api_key[lang]}</Button>
+                                <Button variant="contained" color="success" className="h-14" onClick={async () => { invoke("show_gemini_api_page") }}>{localization.get_gemini_api_key[lang]}</Button>
                                 <Button variant="contained" className="h-14" onClick={async () => { setGeminiTutorialShow(true) }}>{localization.gemini_api_key_tutorial[lang]}</Button>
                             </div>
                         </FormGroup>
@@ -227,7 +230,7 @@ export default function QuickstartMenu({ config, setQuickstartVisible, setLang, 
             </div>
             <div className='mb-2 flex justify-center space-x-4'>
                 <Button variant='contained' disabled={quickstartPage == 0} onClick={() => { setQuickstartPage(quickstartPage - 1) }}>{localization.previous[lang]}</Button>
-                <Button className='ml-4' variant='contained' disabled={quickstartPage > 5} onClick={() => { setQuickstartPage(quickstartPage + 1) }}>{localization.next[lang]}</Button>
+                <Button className='ml-4' variant='contained' disabled={quickstartPage > 5 || quickstartPage == 5 && config.gemini_settings.gemini_enabled && config.gemini_settings.gemini_api_key.trim().length == 0} onClick={() => { setQuickstartPage(quickstartPage + 1) }}>{localization.next[lang]}</Button>
             </div>
         </div>
 

@@ -92,7 +92,6 @@ pub fn is_ovr_overlay_running() -> bool {
     stdout.contains("OpenVROverlayPipe.exe")
 }
 
-// TODO: Desktop Overlay
 #[tauri::command]
 pub fn is_desktop_overlay_running() -> bool {
     let output = Command::new("tasklist")
@@ -111,4 +110,13 @@ pub fn is_desktop_overlay_running() -> bool {
     }
 
     stdout.contains("Desktop Image Overlay.exe")
+}
+
+#[tauri::command]
+pub fn show_gemini_api_page() {
+    let output = Command::new("explorer")
+        .arg("https://aistudio.google.com/apikey")
+        .creation_flags(0x08000000_u32)
+        .output()
+        .expect("Failed to execute command");
 }
