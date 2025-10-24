@@ -461,19 +461,12 @@ export const localization = {
         kr: "데이터 출력",
         tr: "Veri Çıkışı",
     },
-    enable_user_transcription_data: {
-        en: "Enable User Transcription Data",
-        jp: "ユーザー音声認識データを有効にする",
-        cn: "启用用户语音识别数据",
-        kr: "사용자 음성 인식 데이터 활성화",
-        tr: "Kullanıcı Ses Tanıma Verilerini Etkinleştir",
-    },
-    enable_user_translation_data: {
-        en: "Enable User Translation Data",
-        jp: "ユーザー翻訳データを有効にする",
-        cn: "启用用户翻译数据",
-        kr: "사용자 번역 데이터 활성화",
-        tr: "Kullanıcı Çeviri Verilerini Etkinleştir",
+    enable_user_data: {
+        en: "Enable User Data",
+        jp: "ユーザーデータを有効にする",
+        cn: "启用用户数据",
+        kr: "사용자 데이터 활성화",
+        tr: "Kullanıcı Verilerini Etkinleştir",
     },
     enable_desktop_data: {
         en: "Enable Desktop Transcription and Translation Data",

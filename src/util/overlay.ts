@@ -1,8 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { calculateMinWaitTime } from "./constants";
 
-let ws_connection: WebSocket | null = null;
-
 function draw_text_on_canvas(text: string): string {
     const canvas = document.createElement('canvas');
     let ctx = canvas.getContext('2d');
@@ -81,25 +79,8 @@ function draw_text_on_canvas(text: string): string {
     return canvas.toDataURL("image/jpeg").replace("data:image/jpeg;base64,", "")
 }
 
-async function generate_openvr_pipe_command(text: string) {
-    return {
-        "key": "EnqueueOverlay",
-        "data": {
-            "imageData": await draw_text_on_canvas(text),
-            "anchorType": "Head",
-            "attachToAnchor": true,
-            "durationMs": Math.floor(calculateMinWaitTime(text, 50) + 1000),
-            "animationHz": -1,
-            "opacityPer": 1,
-            "widthM": 1,
-            "zDistanceM": 1.5,
-            "yDistanceM": -0.3,
-        }
-    }
-}
-
 export async function send_notification_text(text: string) {
-    if (!(await invoke("is_steamvr_running"))) {
+    if (await invoke("is_desktop_overlay_running")) {
         const img = draw_text_on_canvas(text);
         const time = Math.floor(calculateMinWaitTime(text, 100) + 1000);
 
@@ -112,15 +93,4 @@ export async function send_notification_text(text: string) {
 
         return;
     }
-
-    if (!ws_connection?.OPEN) {
-        ws_connection?.close();
-        ws_connection = new WebSocket("ws://localhost:7711");
-        ws_connection.onopen = async () => {
-            console.log("[OPENVRPIPE] WebSocket connection established.");
-            if (await invoke("is_steamvr_running")) ws_connection?.send(JSON.stringify(await generate_openvr_pipe_command(text)));
-
-            
-        };
-    } else ws_connection?.send(JSON.stringify(await generate_openvr_pipe_command(text)));
 }

@@ -16,7 +16,6 @@
       "icons/kikitan.ico"
     ],
     "resources": [
-      "./ovrpipe",
       "./desktopoverlay"
     ],
     "windows": {

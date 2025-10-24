@@ -347,24 +347,15 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                 </CustomTabPanel>
                 <CustomTabPanel className="flex" value={page} index={3}>
                     <FormGroup>
-                        <FormControlLabel control={<Checkbox checked={config.data_out.enable_user_speak_data} onChange={(e) => {
+                        <FormControlLabel control={<Checkbox checked={config.data_out.enable_user_data} onChange={(e) => {
                             setConfig({
                                 ...config,
                                 data_out: {
                                     ...config.data_out,
-                                    enable_user_speak_data: e.target.checked
+                                    enable_user_data: e.target.checked
                                 }
                             })
-                        }} />} label={localization.enable_user_transcription_data[lang]} />
-                        <FormControlLabel control={<Checkbox checked={config.data_out.enable_user_translation_data} onChange={(e) => {
-                            setConfig({
-                                ...config,
-                                data_out: {
-                                    ...config.data_out,
-                                    enable_user_translation_data: e.target.checked
-                                }
-                            })
-                        }} />} label={localization.enable_user_translation_data[lang]} />
+                        }} />} label={localization.enable_user_data[lang]} />
                         <FormControlLabel control={<Checkbox checked={config.data_out.enable_desktop_data} onChange={(e) => {
                             setConfig({
                                 ...config,

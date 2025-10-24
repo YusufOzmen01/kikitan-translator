@@ -115,75 +115,26 @@ export class Gemini extends Recognizer {
                 setupSystemAudioCapture(captureCallback);
 
                 (async () => {
-                    try {
-                        const res: boolean = await invoke("is_steamvr_running");
-                        if (res) {
+                    const res: boolean = await invoke("is_desktop_overlay_running");
+                    if (res) info("[OVERLAY] Overlay is already running!");
+                    else {
+                        try {
                             info(
-                                "[OVERLAY] SteamVR is running, checking OpenVRPipe overlay...",
+                                "[OVERLAY] Starting desktop overlay...",
                             );
 
-                            if (!(await invoke("is_ovr_overlay_running"))) {
-                                info(
-                                    "[OVERLAY] Starting OpenVRPipe overlay...",
-                                );
-
-                                try {
-                                    await invoke("start_ovr_overlay");
-                                    await new Promise((resolve) =>
-                                        setTimeout(resolve, 2000),
-                                    );
-                                } catch (error) {
-                                    info(
-                                        `[OVERLAY] Failed to start OpenVRPipe overlay: ${error}`,
-                                    );
-                                    info(
-                                        "[OVERLAY] VR overlay functionality will be disabled.",
-                                    );
-                                }
-                            } else {
-                                info(
-                                    "[OVERLAY] OpenVRPipe overlay is already running.",
-                                );
-                            }
-                        } else {
-                            info(
-                                "[OVERLAY] Checking if desktop overlay is running...",
+                            await invoke("start_desktop_overlay");
+                            await new Promise((resolve) =>
+                                setTimeout(resolve, 2000),
                             );
-                            try {
-                                if (
-                                    !(await invoke(
-                                        "is_desktop_overlay_running",
-                                    ))
-                                ) {
-                                    info(
-                                        "[OVERLAY] Starting desktop overlay...",
-                                    );
-
-                                    await invoke("start_desktop_overlay");
-                                    await new Promise((resolve) =>
-                                        setTimeout(resolve, 2000),
-                                    );
-                                } else {
-                                    info(
-                                        "[OVERLAY] Desktop overlay is already running.",
-                                    );
-                                }
-                            } catch (error) {
-                                info(
-                                    `[OVERLAY] Failed to start desktop overlay: ${error}`,
-                                );
-                                info(
-                                    "[OVERLAY] Desktop overlay functionality will be disabled.",
-                                );
-                            }
+                        } catch (error) {
+                            info(
+                                `[OVERLAY] Failed to start desktop overlay: ${error}`,
+                            );
+                            info(
+                                "[OVERLAY] Desktop overlay functionality will be disabled.",
+                            );
                         }
-                    } catch (error) {
-                        info(
-                            `[OVERLAY] Error during overlay initialization: ${error}`,
-                        );
-                        info(
-                            "[OVERLAY] Overlay functionality will be disabled.",
-                        );
                     }
                 })();
             } else setupMicrophoneCapture(captureCallback);
@@ -322,7 +273,7 @@ export class Gemini extends Recognizer {
         try {
             const res = await fetch(
                 "https://generativelanguage.googleapis.com/v1beta/models?key=" +
-                    this.api_key,
+                this.api_key,
             );
             if (!res.ok) {
                 error(
