@@ -17,6 +17,10 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             vrc_commands::send_typing,
             vrc_commands::send_message,
+            vrc_commands::send_disable_mic,
+            vrc_commands::send_disable_desktop,
+            vrc_commands::send_disable_chatbox,
+            vrc_commands::send_disable_overlay,
             vrc_commands::start_vrc_listener,
             process_manager::show_audio_settings,
             process_manager::show_gemini_api_page,

@@ -31,6 +31,54 @@ pub fn send_message(msg: String, address: String, port: String) {
 }
 
 #[tauri::command]
+pub fn send_disable_mic(data: bool, address: String, port: String) {
+    let sock = UdpSocket::bind((Ipv4Addr::UNSPECIFIED, 0)).unwrap();
+    let msg_buf = encoder::encode(&OscPacket::Message(OscMessage {
+        addr: "/avatar/parameters/DisableKikitanMic".to_string(),
+        args: vec![OscType::Bool(data)],
+    }))
+    .unwrap();
+
+    sock.send_to(&msg_buf, address + ":" + &port).unwrap();
+}
+
+#[tauri::command]
+pub fn send_disable_desktop(data: bool, address: String, port: String) {
+    let sock = UdpSocket::bind((Ipv4Addr::UNSPECIFIED, 0)).unwrap();
+    let msg_buf = encoder::encode(&OscPacket::Message(OscMessage {
+        addr: "/avatar/parameters/DisableKikitanDesktop".to_string(),
+        args: vec![OscType::Bool(data)],
+    }))
+    .unwrap();
+
+    sock.send_to(&msg_buf, address + ":" + &port).unwrap();
+}
+
+#[tauri::command]
+pub fn send_disable_chatbox(data: bool, address: String, port: String) {
+    let sock = UdpSocket::bind((Ipv4Addr::UNSPECIFIED, 0)).unwrap();
+    let msg_buf = encoder::encode(&OscPacket::Message(OscMessage {
+        addr: "/avatar/parameters/DisableKikitanChatbox".to_string(),
+        args: vec![OscType::Bool(data)],
+    }))
+    .unwrap();
+
+    sock.send_to(&msg_buf, address + ":" + &port).unwrap();
+}
+
+#[tauri::command]
+pub fn send_disable_overlay(data: bool, address: String, port: String) {
+    let sock = UdpSocket::bind((Ipv4Addr::UNSPECIFIED, 0)).unwrap();
+    let msg_buf = encoder::encode(&OscPacket::Message(OscMessage {
+        addr: "/avatar/parameters/DisableKikitanOverlay".to_string(),
+        args: vec![OscType::Bool(data)],
+    }))
+    .unwrap();
+
+    sock.send_to(&msg_buf, address + ":" + &port).unwrap();
+}
+
+#[tauri::command]
 pub fn start_vrc_listener(app: AppHandle) {
     unsafe {
         if LISTENER_STARTED {
@@ -55,11 +103,43 @@ pub fn start_vrc_listener(app: AppHandle) {
                             match packet {
                                 OscPacket::Message(msg) => {
                                     // println!("{:?}", msg);
-                                    if msg.addr.as_str() == "/avatar/parameters/MuteSelf" {
-                                        if let Some(mute) = msg.args.first().unwrap().clone().bool()
+                                    match msg.addr.as_str() {
+                                    "/avatar/parameters/MuteSelf" => {
+                                    if let Some(mute) = msg.args.first().unwrap().clone().bool()
                                         {
                                             app.emit("vrchat-mute", mute).unwrap();
                                         }
+                                    }
+
+                                    "/avatar/parameters/DisableKikitanMic" => {
+                                    if let Some(disable) = msg.args.first().unwrap().clone().bool()
+                                        {
+                                            app.emit("disable-kikitan-mic", disable).unwrap();
+                                        }
+                                    }
+
+                                    "/avatar/parameters/DisableKikitanDesktop" => {
+                                    if let Some(disable) = msg.args.first().unwrap().clone().bool()
+                                        {
+                                            app.emit("disable-kikitan-desktop", disable).unwrap();
+                                        }
+                                    }
+
+                                    "/avatar/parameters/DisableKikitanChatbox" => {
+                                    if let Some(disable) = msg.args.first().unwrap().clone().bool()
+                                        {
+                                            app.emit("disable-kikitan-chatbox", disable).unwrap();
+                                        }
+                                    }
+
+                                    "/avatar/parameters/DisableKikitanOverlay" => {
+                                    if let Some(disable) = msg.args.first().unwrap().clone().bool()
+                                        {
+                                            app.emit("disable-kikitan-overlay", disable).unwrap();
+                                        }
+                                    }
+
+                                    _ => {}
                                     }
                                 }
 

@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { invoke } from "@tauri-apps/api/core";
 import { langSource, langTo } from "./constants"
 
 import {
@@ -26,6 +27,7 @@ export type Config = {
     language_settings: {
         japanese_omit_questionmark: boolean,
     },
+    enable_overlay: boolean,
     vrchat_settings: {
         enable_chatbox: boolean,
         translation_first: boolean,
@@ -58,6 +60,7 @@ export const DEFAULT_CONFIG: Config = {
     target_language: "ja",
     mode: 0,
     light_mode: false,
+    enable_overlay: true,
     language_settings: {
         japanese_omit_questionmark: true
     },
@@ -137,6 +140,8 @@ export function load_config(): Config {
 
     info("[CONFIG] Loaded config!")
 
+    sendConfigDataToVRC(config)
+
     return config
 }
 
@@ -149,5 +154,27 @@ export function update_config(config: Config) {
     //     }
     // }, null, 2)}`)
 
+    sendConfigDataToVRC(config)
+
     localStorage.setItem("config", JSON.stringify(config))
+}
+
+function sendConfigDataToVRC(config: Config) {
+    invoke("send_disable_desktop", {
+        data: !config.gemini_settings.desktop_capture,
+        address: config.vrchat_settings.osc_address,
+        port: `${config.vrchat_settings.osc_port}`,
+    });
+
+    invoke("send_disable_chatbox", {
+        data: !config.vrchat_settings.enable_chatbox,
+        address: config.vrchat_settings.osc_address,
+        port: `${config.vrchat_settings.osc_port}`,
+    });
+
+    invoke("send_disable_overlay", {
+        data: !config.enable_overlay,
+        address: config.vrchat_settings.osc_address,
+        port: `${config.vrchat_settings.osc_port}`,
+    });
 }

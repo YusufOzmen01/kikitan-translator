@@ -81,6 +81,7 @@ export default function Kikitan({
     const [result, setResult] = React.useState<string[]>([]);
     const [detection, setDetection] = React.useState<string>("");
     const [translated, setTranslated] = React.useState("");
+    const [desktopResult, setDesktopResult] = React.useState("");
 
     const [defaultMicrophone, setDefaultMicrophone] = React.useState(
         localization.waiting_for_mic_access[lang],
@@ -174,7 +175,8 @@ export default function Kikitan({
 
             if (isFinal) {
                 console.log("[DESKTOP CAPTURE] Result: " + result);
-                send_notification_text(result[1]);
+                
+                setDesktopResult(result[1])
             }
         });
 
@@ -216,6 +218,10 @@ export default function Kikitan({
             enableDesktopCapture();
         } else desktopSR?.stop();
     };
+
+    React.useEffect(() => {
+        if (config.enable_overlay) send_notification_text(desktopResult);
+    }, [desktopResult]);
 
     React.useEffect(() => {
         if (!languageUpdate) return;
@@ -363,6 +369,40 @@ export default function Kikitan({
         listen<boolean>("vrchat-mute", (event) => {
             info(`[OSC] Received mute status ${event.payload}`);
             setVRCMuted(event.payload);
+        });
+        
+        listen<boolean>("disable-kikitan-mic", (event) => {
+            info(`[OSC] Received disable mic ${event.payload}`);
+            
+            setSRStatus(!event.payload)
+        });
+
+        listen<boolean>("disable-kikitan-desktop", (event) => {
+            info(`[OSC] Received disable desktop capture ${event.payload}`);
+
+            if (event.payload) desktopSR?.stop();
+            else desktopSR?.start();            
+        });
+
+        listen<boolean>("disable-kikitan-chatbox", (event) => {
+            info(`[OSC] Received disable chatbox ${event.payload}`);
+
+            setConfig({
+                ...config,
+                vrchat_settings: {
+                    ...config.vrchat_settings,
+                    enable_chatbox: !event.payload
+                }
+            })
+        });
+
+        listen<boolean>("disable-kikitan-overlay", (event) => {
+            info(`[OSC] Received disable overlay ${event.payload}`);
+
+            setConfig({
+                ...config,
+                enable_overlay: !event.payload
+            })
         });
 
         if (sr == null) {
@@ -820,6 +860,12 @@ export default function Kikitan({
                     size="medium"
                     color={srStatus ? "error" : "success"}
                     onClick={() => {
+                        invoke("send_disable_mic", {
+                            data: !srStatus,
+                            address: config.vrchat_settings.osc_address,
+                            port: `${config.vrchat_settings.osc_port}`,
+                        });
+
                         setSRStatus(!srStatus);
                     }}
                 >
