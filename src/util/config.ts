@@ -48,8 +48,7 @@ export type Config = {
         items: MessageHistoryItem[]
     },
     data_out: {
-        enable_user_speak_data: boolean,
-        enable_user_translation_data: boolean,
+        enable_user_data: boolean,
         enable_desktop_data: boolean
     }
 }
@@ -84,8 +83,7 @@ export const DEFAULT_CONFIG: Config = {
         items: []
     },
     data_out: {
-        enable_user_speak_data: false,
-        enable_user_translation_data: false,
+        enable_user_data: false,
         enable_desktop_data: false
     }
 }
@@ -143,13 +141,13 @@ export function load_config(): Config {
 }
 
 export function update_config(config: Config) {
-    info(`[CONFIG] Updating config to ${JSON.stringify({
-        ...config,
-        gemini_settings: {
-            ...config.gemini_settings,
-            gemini_api_key: config.gemini_settings.gemini_api_key.trim().length > 0 ? "********" : ""
-        }
-    }, null, 2)}`)
+    // info(`[CONFIG] Updating config to ${JSON.stringify({
+    //     ...config,
+    //     gemini_settings: {
+    //         ...config.gemini_settings,
+    //         gemini_api_key: config.gemini_settings.gemini_api_key.trim().length > 0 ? "********" : ""
+    //     }
+    // }, null, 2)}`)
 
     localStorage.setItem("config", JSON.stringify(config))
 }

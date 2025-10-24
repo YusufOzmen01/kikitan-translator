@@ -1,11 +1,11 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod data_out;
 mod filesys;
 mod process_manager;
-mod vrc_commands;
 mod screenaudio;
-mod data_out;
+mod vrc_commands;
 
 fn main() {
     tauri::Builder::default()
@@ -31,7 +31,8 @@ fn main() {
             screenaudio::stop_audio_capture,
             data_out::send_recognized_microphone,
             data_out::send_translated_microphone,
-            data_out::send_desktop
+            data_out::send_recognized_desktop,
+            data_out::send_translated_desktop
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
