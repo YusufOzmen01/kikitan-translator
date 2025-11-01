@@ -919,7 +919,7 @@ export default function Kikitan({
             </div>
 
             <div id="social-links" className="align-middle">
-                <div className="mt-2 flex justify-center">
+                <div className="flex justify-center">
                     <p
                         className={`text-sm mt-2 ${config.gemini_settings.microphone_capture
                                 ? "text-slate-700"
