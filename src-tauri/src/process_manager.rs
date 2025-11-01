@@ -17,6 +17,8 @@ pub fn show_audio_settings() {
 
 #[tauri::command]
 pub fn start_desktop_overlay(handle: tauri::AppHandle) {
+    kill_desktop_overlay();
+
     let resource_path = handle
         .path()
         .resource_dir()
@@ -28,6 +30,17 @@ pub fn start_desktop_overlay(handle: tauri::AppHandle) {
         .creation_flags(0x08000000_u32)
         .spawn()
         .unwrap();
+}
+
+#[tauri::command]
+pub fn kill_desktop_overlay() {
+    Command::new("taskkill")
+        .arg("/F")
+        .arg("/IM")
+        .arg("Desktop Image Overlay.exe")
+        .creation_flags(0x08000000_u32)
+        .output()
+        .expect("Failed to execute command");
 }
 
 #[tauri::command]

@@ -25,6 +25,7 @@ fn main() {
             process_manager::show_audio_settings,
             process_manager::show_gemini_api_page,
             process_manager::start_desktop_overlay,
+            process_manager::kill_desktop_overlay,
             process_manager::is_desktop_overlay_running,
             filesys::download_file,
             filesys::extract_zip,

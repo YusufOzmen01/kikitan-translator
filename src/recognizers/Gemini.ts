@@ -4,6 +4,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { info, error } from "@tauri-apps/plugin-log";
 
 import {
+    ActivityHandling,
     GoogleGenAI,
     LiveServerMessage,
     Modality,
@@ -168,7 +169,6 @@ export class Gemini extends Recognizer {
     handleMessage({
         buffer,
         transcription,
-        turn_over,
         callback,
     }: {
         buffer: string;
@@ -180,25 +180,23 @@ export class Gemini extends Recognizer {
             if (message.serverContent?.inputTranscription?.text) {
                 if (typeof message.serverContent.inputTranscription.text === 'string') {
                     transcription += message.serverContent.inputTranscription.text;
+                    // if (transcription.includes(".") || transcription.includes("。")) {
+                    //     console.log("[GEMINI] End of sentence detected.");
+
+                    //     this.session?.sendRealtimeInput({ audioStreamEnd: true });
+                    // }
 
                     callback?.([transcription, ""], false);
                 }
             }
 
             if (message.serverContent?.turnComplete) {
-                turn_over = true;
-
                 const parts = buffer.split('|');
 
                 callback?.([parts[0].trim(), parts[1].trim()], true);
                 transcription = "";
                 buffer = "";
             } else {
-                if (turn_over) {
-                    buffer = "";
-                    turn_over = false;
-                }
-
                 if (typeof message.text === "string") {
                     buffer += message.text;
                 }
@@ -330,6 +328,9 @@ export class Gemini extends Recognizer {
                     ],
                 },
                 inputAudioTranscription: {},
+                realtimeInputConfig: {
+                    activityHandling: ActivityHandling.NO_INTERRUPTION
+                }
             },
         });
     }
@@ -351,6 +352,8 @@ export class Gemini extends Recognizer {
         info(
             `[GEMINI${this.desktop_capture ? " DESKTOP CAPTURE" : ""}] Recognition stopped!`,
         );
+
+        if (this.desktop_capture) invoke("kill_desktop_overlay");
     }
 
     status(): GeminiState {

@@ -232,7 +232,7 @@ export default function Kikitan({
     }, [geminiDesktopStatus, geminiSRStatus])
 
     React.useEffect(() => {
-        if (config.enable_overlay) send_notification_text(desktopResult);
+        if (config.enable_overlay) send_notification_text(desktopResult, (config.source_language == "ja" || config.source_language == "ko" || config.source_language == "zh"));
     }, [desktopResult]);
 
     React.useEffect(() => {

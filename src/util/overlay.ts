@@ -1,7 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { calculateMinWaitTime } from "./constants";
 
-function draw_text_on_canvas(text: string): string {
+function draw_text_on_canvas(text: string, no_space_language: boolean): string {
     const canvas = document.createElement('canvas');
     let ctx = canvas.getContext('2d');
 
@@ -30,7 +30,7 @@ function draw_text_on_canvas(text: string): string {
     }
 
     if ((ctx.measureText(currentText).width > maxTextWidth || ctx.measureText(currentText).actualBoundingBoxAscent + ctx.measureText(currentText).actualBoundingBoxDescent > maxTextHeigth)) {
-        const words = currentText.split(' ');
+        const words = no_space_language ? currentText : currentText.split(' ');
 
         let lines = [];
         let newText = '';
@@ -79,9 +79,9 @@ function draw_text_on_canvas(text: string): string {
     return canvas.toDataURL("image/jpeg").replace("data:image/jpeg;base64,", "")
 }
 
-export async function send_notification_text(text: string) {
+export async function send_notification_text(text: string, no_space_language: boolean) {
     if (await invoke("is_desktop_overlay_running")) {
-        const img = draw_text_on_canvas(text);
+        const img = draw_text_on_canvas(text, no_space_language);
         const time = Math.floor(calculateMinWaitTime(text, 100) + 1000);
 
         fetch("http://localhost:18554/?time=" + time, {

@@ -146,7 +146,7 @@ function App() {
     <>
       <div className={`relative transition-all duration-500 ${!loaded ? "opacity-0 pointer-events-none" : "opacity-100"} ${!config.light_mode ? "bg-slate-950 text-white" : ""}`}>
         <div className={`transition-all z-20 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute` + (quickstartVisible && lang != null ? " opacity-100" : " opacity-0 pointer-events-none")}>
-          <QuickstartMenu config={config} setQuickstartVisible={setQuickstartVisible} setLang={setLang} lang={lang} setConfig={setConfig}></QuickstartMenu>
+          <QuickstartMenu config={config} setLang={setLang} lang={lang} setConfig={setConfig}></QuickstartMenu>
         </div>
 
         <div className={'transition-all z-30 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + ((!quickstartVisible && announcementVisible) ? " opacity-100" : " opacity-0 pointer-events-none")}>
