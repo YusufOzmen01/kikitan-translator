@@ -80,6 +80,8 @@ function draw_text_on_canvas(text: string, no_space_language: boolean): string {
 }
 
 export async function send_notification_text(text: string, no_space_language: boolean) {
+    if (text.trim().length == 0) return;
+
     if (await invoke("is_desktop_overlay_running")) {
         const img = draw_text_on_canvas(text, no_space_language);
         const time = Math.floor(calculateMinWaitTime(text, 100) + 1000);
