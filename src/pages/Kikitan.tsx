@@ -8,6 +8,7 @@ import {
     TextField,
     IconButton,
     Tooltip,
+    Switch,
 } from "@mui/material";
 
 import { info, error, warn } from "@tauri-apps/plugin-log";
@@ -48,16 +49,15 @@ import {
     send_user_recognition,
     send_user_translation,
     send_desktop_recognition,
-    send_desktop_translation
+    send_desktop_translation,
 } from "../util/data_out";
 
 type KikitanProps = {
     config: Config;
     setConfig: (config: Config) => void;
-    setSettingsVisible: (state: boolean) => void;
+    setGeminiErrorShown: (state: boolean) => void;
     lang: Lang;
     settingsVisible: boolean;
-    quickstartVisible: boolean;
 };
 
 let sr: Recognizer | null = null;
@@ -70,8 +70,7 @@ export default function Kikitan({
     setConfig,
     lang,
     settingsVisible,
-    setSettingsVisible,
-    quickstartVisible,
+    setGeminiErrorShown
 }: KikitanProps) {
     const [detecting, setDetecting] = React.useState(false);
     const [srStatus, setSRStatus] = React.useState(true);
@@ -84,7 +83,7 @@ export default function Kikitan({
     const [desktopResult, setDesktopResult] = React.useState("");
 
     const [defaultMicrophone, setDefaultMicrophone] = React.useState(
-        localization.waiting_for_mic_access[lang],
+        localization.waiting_for_mic_access[lang]
     );
     const [lastDefaultMicrophone, setLastDefaultMicrophone] =
         React.useState("");
@@ -92,20 +91,27 @@ export default function Kikitan({
     const [triggerUpdate, setTriggerUpdate] = React.useState(false);
 
     const [sourceLanguage, setSourceLanguage] = React.useState(
-        config.source_language,
+        config.source_language
     );
     const [targetLanguage, setTargetLanguage] = React.useState(
-        config.target_language,
+        config.target_language
     );
 
     const [languageUpdate, setLanguageUpdate] = React.useState(false);
 
-    const [geminiSRStatus, setGeminiSRStatus] = React.useState<GeminiState>();
+    const [geminiSRStatus, setGeminiSRStatus] = React.useState<GeminiState>({
+        connected: false,
+        error: false,
+        connection_init_time: 0,
+        connection_established_time: 0,
+    });
     const [geminiDesktopStatus, setGeminiDesktopStatus] =
-        React.useState<GeminiState>();
-
-    const [geminiErrorShown, setGeminiErrorShown] =
-        React.useState<boolean>(false);
+        React.useState<GeminiState>({
+            connected: false,
+            error: false,
+            connection_init_time: 0,
+            connection_established_time: 0,
+        });
 
     const [statusTrigger, setStatusTrigger] = React.useState(false);
 
@@ -126,8 +132,8 @@ export default function Kikitan({
             sourceLanguage,
             targetLanguage,
             config.gemini_settings.gemini_api_key,
-            !config.gemini_settings.gemini_microphone_capture,
-            config.language_settings.japanese_omit_questionmark,
+            !config.gemini_settings.microphone_capture,
+            config.language_settings.japanese_omit_questionmark
         );
         info("[SR] Using Gemini for recognition");
 
@@ -136,7 +142,7 @@ export default function Kikitan({
                 setGeminiSRStatus(sr?.status() as GeminiState);
 
                 setStatusTrigger(!statusTrigger);
-            }, 100),
+            }, 100)
         );
 
         sr.onResult((result: string[], isFinal: boolean) => {
@@ -154,7 +160,7 @@ export default function Kikitan({
             config.gemini_settings.gemini_api_key,
             false,
             config.language_settings.japanese_omit_questionmark,
-            true,
+            true
         );
         info("[DESKTOP CAPTURE] Using Gemini for recognition");
 
@@ -163,7 +169,7 @@ export default function Kikitan({
                 setGeminiDesktopStatus(desktopSR?.status() as GeminiState);
 
                 setStatusTrigger(!statusTrigger);
-            }, 100),
+            }, 100)
         );
 
         desktopSR.onResult(async (result: string[], isFinal: boolean) => {
@@ -175,15 +181,15 @@ export default function Kikitan({
 
             if (isFinal) {
                 console.log("[DESKTOP CAPTURE] Result: " + result);
-                
-                setDesktopResult(result[1])
+
+                setDesktopResult(result[1]);
             }
         });
 
         desktopSR.start();
     };
 
-    const restartSR = () => {
+    const restartSR = (cfg: Config) => {
         sr?.stop();
         if (geminiSRInterval != null) {
             clearInterval(geminiSRInterval);
@@ -197,13 +203,13 @@ export default function Kikitan({
 
         info(`[SR] Initializing SR...`);
 
-        if (!config.gemini_settings.gemini_enabled) {
+        if (!cfg.gemini_settings.microphone_capture) {
             sr = new WebSpeech(sourceLanguage, targetLanguage);
             info("[SR] Using WebSpeech for recognition");
 
             sr.onResult((result: string[], isFinal: boolean) => {
                 setDetecting(!isFinal);
-                setResult(result)
+                setResult(result);
             });
         } else {
             setGeminiAsSR();
@@ -211,13 +217,19 @@ export default function Kikitan({
 
         info("[SR] Starting recognition");
         sr?.start();
+    };
 
-        if (config.gemini_settings.gemini_enabled && config.gemini_settings.desktop_capture) {
+    const restartDesktopSR = (cfg: Config) => {
+        if (cfg.gemini_settings.desktop_capture) {
             info("[DESKTOP CAPTURE] Starting desktop capture...");
 
             enableDesktopCapture();
         } else desktopSR?.stop();
     };
+
+    React.useEffect(() => {
+        setGeminiErrorShown(geminiDesktopStatus.error || geminiSRStatus.error)
+    }, [geminiDesktopStatus, geminiSRStatus])
 
     React.useEffect(() => {
         if (config.enable_overlay) send_notification_text(desktopResult);
@@ -226,7 +238,8 @@ export default function Kikitan({
     React.useEffect(() => {
         if (!languageUpdate) return;
         info(
-            `[LANGUAGE] Changing language (${sourceLanguage} - ${targetLanguage}) - sr=${sr != null}`,
+            `[LANGUAGE] Changing language (${sourceLanguage} - ${targetLanguage}) - sr=${sr != null
+            }`
         );
 
         if (sr) {
@@ -234,7 +247,8 @@ export default function Kikitan({
             desktopSR?.stop();
 
             setTimeout(() => {
-                restartSR();
+                restartSR(config);
+                restartDesktopSR(config);
             }, 1000);
         }
 
@@ -243,15 +257,19 @@ export default function Kikitan({
 
     React.useEffect(() => {
         if (vrcMuted && !startedSpeaking) {
-            console.log("Skipping this")
+            console.log("Skipping this");
 
             return;
         }
 
-        setDetection(result[0])
-        setStartedSpeaking(detecting)
+        setDetection(result[0]);
+        setStartedSpeaking(detecting);
 
-        if ((config.mode == 1 || config.vrchat_settings.send_typing_status_while_talking) && config.vrchat_settings.enable_chatbox) {
+        if (
+            (config.mode == 1 ||
+                config.vrchat_settings.send_typing_status_while_talking) &&
+            config.vrchat_settings.enable_chatbox
+        ) {
             invoke("send_typing", {
                 address: config.vrchat_settings.osc_address,
                 port: `${config.vrchat_settings.osc_port}`,
@@ -267,14 +285,14 @@ export default function Kikitan({
         if (!detecting && result.length != 0 && result[1].length != 0) {
             detectionQueue = [...detectionQueue, result];
 
-            info(`[QUEUE] Updating queue. Current queue length: ${detectionQueue.length}`);
+            info(
+                `[QUEUE] Updating queue. Current queue length: ${detectionQueue.length}`
+            );
         }
-    }, [result, detecting])
+    }, [result, detecting]);
 
     React.useEffect(() => {
-        info(
-            `[SR] SR status=${srStatus}`,
-        );
+        info(`[SR] SR status=${srStatus}`);
 
         if (sr == null) {
             warn("[SR] SR is currently null, so ignoring the changes");
@@ -303,7 +321,7 @@ export default function Kikitan({
             lock = true;
 
             info(
-                `[QUEUE] Processing the queue. Current queue length: ${detectionQueue.length}`,
+                `[QUEUE] Processing the queue. Current queue length: ${detectionQueue.length}`
             );
 
             const current_detection = current[0];
@@ -342,8 +360,8 @@ export default function Kikitan({
                     msg: config.vrchat_settings.only_translation
                         ? current_translation
                         : config.vrchat_settings.translation_first
-                          ? `${current_translation} (${current_detection})`
-                          : `${current_detection} (${current_translation})`,
+                            ? `${current_translation} (${current_detection})`
+                            : `${current_detection} (${current_translation})`,
                 });
             }
 
@@ -352,9 +370,9 @@ export default function Kikitan({
                     r,
                     calculateMinWaitTime(
                         current_translation,
-                        config.vrchat_settings.chatbox_update_speed,
-                    ),
-                ),
+                        config.vrchat_settings.chatbox_update_speed
+                    )
+                )
             );
 
             lock = false;
@@ -370,18 +388,18 @@ export default function Kikitan({
             info(`[OSC] Received mute status ${event.payload}`);
             setVRCMuted(event.payload);
         });
-        
+
         listen<boolean>("disable-kikitan-mic", (event) => {
             info(`[OSC] Received disable mic ${event.payload}`);
-            
-            setSRStatus(!event.payload)
+
+            setSRStatus(!event.payload);
         });
 
         listen<boolean>("disable-kikitan-desktop", (event) => {
             info(`[OSC] Received disable desktop capture ${event.payload}`);
 
             if (event.payload) desktopSR?.stop();
-            else desktopSR?.start();            
+            else desktopSR?.start();
         });
 
         listen<boolean>("disable-kikitan-chatbox", (event) => {
@@ -391,9 +409,9 @@ export default function Kikitan({
                 ...config,
                 vrchat_settings: {
                     ...config.vrchat_settings,
-                    enable_chatbox: !event.payload
-                }
-            })
+                    enable_chatbox: !event.payload,
+                },
+            });
         });
 
         listen<boolean>("disable-kikitan-overlay", (event) => {
@@ -401,8 +419,8 @@ export default function Kikitan({
 
             setConfig({
                 ...config,
-                enable_overlay: !event.payload
-            })
+                enable_overlay: !event.payload,
+            });
         });
 
         if (sr == null) {
@@ -411,7 +429,7 @@ export default function Kikitan({
                     .enumerateDevices()
                     .then(function (devices) {
                         let def = devices.filter(
-                            (device) => device.kind == "audioinput",
+                            (device) => device.kind == "audioinput"
                         )[0].label;
                         def = def.split("(")[1].split(")")[0];
 
@@ -419,12 +437,14 @@ export default function Kikitan({
                     })
                     .catch(function (err) {
                         error(
-                            `[MEDIA] Error while trying to pull the media devices: ${err.name + " " + err.message}`,
+                            `[MEDIA] Error while trying to pull the media devices: ${err.name + " " + err.message
+                            }`
                         );
                     });
             }, 1000);
 
-            restartSR();
+            restartSR(config);
+            restartDesktopSR(config);
         }
     }, []);
 
@@ -434,7 +454,8 @@ export default function Kikitan({
             defaultMicrophone != localization.waiting_for_mic_access[lang] &&
             srStatus
         ) {
-            restartSR();
+            restartSR(config);
+            restartDesktopSR(config);
             setGeminiErrorShown(false);
         }
     }, [settingsVisible]);
@@ -462,9 +483,10 @@ export default function Kikitan({
 
     return (
         <>
-            <div className="relative transition-all">
+            <div id="main" className="relative transition-all">
                 {/* Message History Modal */}
                 <div
+                    id="message-history"
                     className={
                         "transition-all z-20 w-full h-64 flex backdrop-blur-sm bg-transparent justify-center items-center absolute" +
                         (showMessageHistory
@@ -473,11 +495,18 @@ export default function Kikitan({
                     }
                 >
                     <div
-                        className={`flex flex-col w-10/12 h-96 outline outline-1 ${config.light_mode ? "outline-white" : "outline-slate-900"} rounded ${config.light_mode ? "bg-white" : "bg-slate-950"} p-4 overflow-hidden`}
+                        className={`flex flex-col w-10/12 h-96 outline outline-1 ${config.light_mode
+                                ? "outline-white"
+                                : "outline-slate-900"
+                            } rounded ${config.light_mode ? "bg-white" : "bg-slate-950"
+                            } p-4 overflow-hidden`}
                     >
                         <div className="flex justify-between items-center mb-4">
                             <h2
-                                className={`text-xl font-bold ${config.light_mode ? "text-black" : "text-white"}`}
+                                className={`text-xl font-bold ${config.light_mode
+                                        ? "text-black"
+                                        : "text-white"
+                                    }`}
                             >
                                 {localization.message_history[lang]}
                             </h2>
@@ -500,7 +529,10 @@ export default function Kikitan({
                             {config.message_history.items.length === 0 ? (
                                 <div className="flex items-center justify-center h-full">
                                     <span
-                                        className={`text-sm italic ${config.light_mode ? "text-gray-500" : "text-gray-400"}`}
+                                        className={`text-sm italic ${config.light_mode
+                                                ? "text-gray-500"
+                                                : "text-gray-400"
+                                            }`}
                                     >
                                         {localization.no_history[lang]}
                                     </span>
@@ -511,27 +543,39 @@ export default function Kikitan({
                                         (item, index) => (
                                             <div
                                                 key={index}
-                                                className={`p-3 rounded-md ${config.light_mode ? "bg-gray-100" : "bg-slate-900"}`}
+                                                className={`p-3 rounded-md ${config.light_mode
+                                                        ? "bg-gray-100"
+                                                        : "bg-slate-900"
+                                                    }`}
                                             >
                                                 <div
-                                                    className={`text-xs mb-1 ${config.light_mode ? "text-gray-500" : "text-gray-400"}`}
+                                                    className={`text-xs mb-1 ${config.light_mode
+                                                            ? "text-gray-500"
+                                                            : "text-gray-400"
+                                                        }`}
                                                 >
                                                     {formatTimestamp(
-                                                        item.timestamp,
+                                                        item.timestamp
                                                     )}
                                                 </div>
                                                 <div
-                                                    className={`font-medium ${config.light_mode ? "text-black" : "text-white"}`}
+                                                    className={`font-medium ${config.light_mode
+                                                            ? "text-black"
+                                                            : "text-white"
+                                                        }`}
                                                 >
                                                     {item.source}
                                                 </div>
                                                 <div
-                                                    className={`mt-1 ${config.light_mode ? "text-gray-800" : "text-gray-300"}`}
+                                                    className={`mt-1 ${config.light_mode
+                                                            ? "text-gray-800"
+                                                            : "text-gray-300"
+                                                        }`}
                                                 >
                                                     {item.translation}
                                                 </div>
                                             </div>
-                                        ),
+                                        )
                                     )}
                                 </div>
                             )}
@@ -548,7 +592,11 @@ export default function Kikitan({
                     }
                 >
                     <div
-                        className={`flex flex-col justify-center w-7/12 h-2/6 outline outline-1 ${config.light_mode ? "outline-white" : "outline-slate-900"} rounded ${config.light_mode ? "bg-white" : "bg-slate-950"}`}
+                        className={`flex flex-col justify-center w-7/12 h-2/6 outline outline-1 ${config.light_mode
+                                ? "outline-white"
+                                : "outline-slate-900"
+                            } rounded ${config.light_mode ? "bg-white" : "bg-slate-950"
+                            }`}
                     >
                         <div className="flex flex-row justify-center gap-2">
                             <TextField
@@ -612,42 +660,17 @@ export default function Kikitan({
                     </div>
                 </div>
 
-                <div
-                    className={
-                        "transition-all z-30 w-full h-64 flex bg-transparent justify-center items-center absolute" +
-                        (!geminiErrorShown &&
-                        !quickstartVisible &&
-                        (geminiSRStatus?.error || geminiDesktopStatus?.error)
-                            ? " opacity-100"
-                            : " opacity-0 pointer-events-none")
-                    }
-                >
-                    <div
-                        className={`flex flex-col justify-center outline outline-1 ${config.light_mode ? "outline-white" : "outline-slate-900"} rounded ${config.light_mode ? "bg-white" : "bg-slate-950"}`}
-                    >
-                        <div className="flex justify-center m-2">
-                            <p className="text-xl">
-                                {localization.gemini_error[lang]}
-                            </p>
-                        </div>
-                        <div className="flex justify-center gap-2 mb-2">
-                            <Button
-                                variant="contained"
-                                color="error"
-                                className="w-36"
-                                onClick={() => {
-                                    setGeminiErrorShown(true);
-                                }}
-                            >
-                                {localization.close_menu[lang]}
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-                <div className="z-10 flex align-middle">
+                <div id="main-boxes" className="z-10 flex align-middle">
                     <div>
                         <div
-                            className={`mr-16 w-96 h-48 outline outline-1 transition-all rounded-md font-bold text-center ${detecting ? ("italic " + config.light_mode ? "text-slate-400 outline-slate-800" : "text-slate-200 outline-slate-400") : config.light_mode ? "text-black" : "text-slate-200"} ${srStatus ? "" : "bg-gray-400"}`}
+                            className={`mr-16 w-96 h-48 outline outline-1 transition-all rounded-md font-bold text-center ${detecting
+                                    ? "italic " + config.light_mode
+                                        ? "text-slate-400 outline-slate-800"
+                                        : "text-slate-200 outline-slate-400"
+                                    : config.light_mode
+                                        ? "text-black"
+                                        : "text-slate-200"
+                                } ${srStatus ? "" : "bg-gray-400"}`}
                         >
                             <p className="align-middle">{detection}</p>
                         </div>
@@ -663,11 +686,11 @@ export default function Kikitan({
                                             : "#94A3B8",
                                     },
                                     "&:hover .MuiOutlinedInput-notchedOutline":
-                                        {
-                                            borderColor: config.light_mode
-                                                ? "black"
-                                                : "#94A3B8",
-                                        },
+                                    {
+                                        borderColor: config.light_mode
+                                            ? "black"
+                                            : "#94A3B8",
+                                    },
                                     "& .MuiSvgIcon-root": {
                                         color: config.light_mode
                                             ? "black"
@@ -683,11 +706,11 @@ export default function Kikitan({
                                                 : "#94A3B8",
                                         },
                                         "&:hover .MuiOutlinedInput-notchedOutline":
-                                            {
-                                                borderColor: config.light_mode
-                                                    ? "black"
-                                                    : "#94A3B8",
-                                            },
+                                        {
+                                            borderColor: config.light_mode
+                                                ? "black"
+                                                : "#94A3B8",
+                                        },
                                         "& .MuiSvgIcon-root": {
                                             color: config.light_mode
                                                 ? "black"
@@ -736,18 +759,18 @@ export default function Kikitan({
                                 <Button
                                     onClick={() => {
                                         const new_t = sourceLanguage.includes(
-                                            "en-",
+                                            "en-"
                                         )
                                             ? "en"
                                             : sourceLanguage.includes("es-")
-                                              ? "es"
-                                              : sourceLanguage;
+                                                ? "es"
+                                                : sourceLanguage;
                                         const new_s =
                                             targetLanguage == "en"
                                                 ? "en-US"
                                                 : targetLanguage == "es"
-                                                  ? "es-ES"
-                                                  : targetLanguage;
+                                                    ? "es-ES"
+                                                    : targetLanguage;
 
                                         setTargetLanguage(new_t);
                                         setSourceLanguage(new_s);
@@ -767,7 +790,11 @@ export default function Kikitan({
                     </div>
                     <div>
                         <div
-                            className={`w-96 h-48 outline outline-1 transition-all rounded-md ${config.light_mode ? "text-black outline-slate-800" : "text-slate-200 outline-slate-400"} font-bold text-center ${srStatus ? "" : "bg-gray-400"}`}
+                            className={`w-96 h-48 outline outline-1 transition-all rounded-md ${config.light_mode
+                                    ? "text-black outline-slate-800"
+                                    : "text-slate-200 outline-slate-400"
+                                } font-bold text-center ${srStatus ? "" : "bg-gray-400"
+                                }`}
                         >
                             <p
                                 className={`transition-all duration-300 align-middle`}
@@ -787,11 +814,11 @@ export default function Kikitan({
                                             : "#94A3B8",
                                     },
                                     "&:hover .MuiOutlinedInput-notchedOutline":
-                                        {
-                                            borderColor: config.light_mode
-                                                ? "black"
-                                                : "#94A3B8",
-                                        },
+                                    {
+                                        borderColor: config.light_mode
+                                            ? "black"
+                                            : "#94A3B8",
+                                    },
                                     "& .MuiSvgIcon-root": {
                                         color: config.light_mode
                                             ? "black"
@@ -839,7 +866,7 @@ export default function Kikitan({
                     </div>
                 </div>
             </div>
-            <div className="mt-2 mb-2 flex gap-2">
+            <div id="buttons" className="mt-2 mb-2 flex gap-2">
                 <Button
                     variant="outlined"
                     size="medium"
@@ -893,21 +920,146 @@ export default function Kikitan({
                     </Tooltip>
                 )}
             </div>
-            <div>
-                <KeyboardVoiceIcon fontSize="small" />
-                <a
-                    className=" text-blue-700"
-                    href=""
-                    onClick={(e) => {
-                        e.preventDefault();
 
-                        invoke("show_audio_settings");
-                    }}
+            <div id="social-links" className="align-middle">
+                <div className="mt-2 flex justify-center">
+                    <p
+                        className={`text-sm mt-2 ${config.gemini_settings.microphone_capture
+                                ? "text-slate-700"
+                                : "text-slate-200"
+                            }`}
+                    >
+                        {localization.legacy_capture[lang]}
+                    </p>
+                    <Switch
+                        sx={{
+                            "& .MuiSwitch-thumb": {
+                                color: config.light_mode
+                                    ? "#444444"
+                                    : "#94A3B8",
+                            },
+                            "& .MuiSwitch-track": {
+                                backgroundColor: config.light_mode
+                                    ? "#000000"
+                                    : "#94A3B8",
+                            },
+                        }}
+                        checked={config.gemini_settings.microphone_capture}
+                        onChange={(e) => {
+                            const new_cfg = {
+                                ...config,
+                                gemini_settings: {
+                                    ...config.gemini_settings,
+                                    microphone_capture: e.target.checked,
+                                },
+                            };
+                            setConfig(new_cfg);
+                            restartSR(new_cfg);
+                        }}
+                    ></Switch>
+                    <p
+                        className={`text-sm mt-2 ${!config.gemini_settings.microphone_capture
+                                ? "text-slate-700"
+                                : "text-slate-200"
+                            }`}
+                    >
+                        {localization.gemini_capture[lang]}
+                    </p>
+                </div>
+                <div className="flex justify-center">
+                    <p
+                        className={`text-sm mt-2 ${config.gemini_settings.desktop_capture
+                                ? "text-slate-700"
+                                : "text-slate-200"
+                            }`}
+                    >
+                        {localization.disable_desktop_capture[lang]}
+                    </p>
+                    <Switch
+                        sx={{
+                            "& .MuiSwitch-thumb": {
+                                color: config.light_mode
+                                    ? "#444444"
+                                    : "#94A3B8",
+                            },
+                            "& .MuiSwitch-track": {
+                                backgroundColor: config.light_mode
+                                    ? "#000000"
+                                    : "#94A3B8",
+                            },
+                        }}
+                        checked={config.gemini_settings.desktop_capture}
+                        onChange={(e) => {
+                            const new_cfg = {
+                                ...config,
+                                gemini_settings: {
+                                    ...config.gemini_settings,
+                                    desktop_capture: e.target.checked,
+                                },
+                            };
+                            setConfig(new_cfg);
+                            restartDesktopSR(new_cfg);
+                        }}
+                    ></Switch>
+                    <p
+                        className={`text-sm mt-2 ${!config.gemini_settings.desktop_capture
+                                ? "text-slate-700"
+                                : "text-slate-200"
+                            }`}
+                    >
+                        {localization.enable_desktop_capture[lang]}
+                    </p>
+                </div>
+                <div
+                    id="gemini-status"
+                    className="text-md flex justify-center gap-1"
                 >
-                    {defaultMicrophone}
-                </a>
-            </div>
-            <div className="align-middle">
+                    <p className="text-center">
+                        <Circle
+                            color={
+                                geminiSRStatus?.connected
+                                    ? "success"
+                                    : geminiSRStatus?.error ||
+                                        geminiSRStatus?.connection_established_time !=
+                                        0
+                                        ? "error"
+                                        : geminiSRStatus?.connection_init_time
+                                            ? "warning"
+                                            : "inherit"
+                            }
+                            className="mr-2"
+                        ></Circle>
+                        {localization.gemini_status[lang]}
+                        <Circle
+                            color={
+                                geminiDesktopStatus?.connected
+                                    ? "success"
+                                    : geminiDesktopStatus?.error ||
+                                        geminiDesktopStatus?.connection_established_time !=
+                                        0
+                                        ? "error"
+                                        : geminiDesktopStatus?.connection_init_time
+                                            ? "warning"
+                                            : "inherit"
+                            }
+                            className="ml-2"
+                        ></Circle>
+                    </p>
+                </div>
+                <div id="default-mic" className="justify-center flex mt-4">
+                    <KeyboardVoiceIcon fontSize="small" />
+                    <a
+                        className=" text-blue-700"
+                        href=""
+                        onClick={(e) => {
+                            e.preventDefault();
+
+                            invoke("show_audio_settings");
+                        }}
+                    >
+                        {defaultMicrophone}
+                    </a>
+                </div>
                 <div className="mt-2 flex space-x-2 justify-center">
                     <Button
                         variant="contained"
@@ -935,7 +1087,7 @@ export default function Kikitan({
                         className="h-8"
                         onClick={() => {
                             open(
-                                "https://github.com/YusufOzmen01/kikitan-translator",
+                                "https://github.com/YusufOzmen01/kikitan-translator"
                             );
                         }}
                     >
@@ -955,60 +1107,6 @@ export default function Kikitan({
                             width={18}
                         />
                     </Button>
-                </div>
-                <div className="mt-2 text-md flex justify-center gap-1">
-                    {config.gemini_settings.gemini_enabled && (
-                        <>
-                            <p className="text-center">
-                                <Circle
-                                    color={
-                                        geminiSRStatus?.connected
-                                            ? "success"
-                                            : geminiSRStatus?.error ||
-                                                geminiSRStatus?.connection_established_time !=
-                                                    0
-                                              ? "error"
-                                              : geminiSRStatus?.connection_init_time
-                                                ? "warning"
-                                                : "inherit"
-                                    }
-                                    className="mr-2"
-                                ></Circle>
-                                {localization.gemini_status[lang]}
-                                <Circle
-                                    color={
-                                        geminiDesktopStatus?.connected
-                                            ? "success"
-                                            : geminiDesktopStatus?.error ||
-                                                geminiDesktopStatus?.connection_established_time !=
-                                                    0
-                                              ? "error"
-                                              : geminiDesktopStatus?.connection_init_time
-                                                ? "warning"
-                                                : "inherit"
-                                    }
-                                    className="ml-2"
-                                ></Circle>
-                            </p>
-                        </>
-                    )}
-                    {!config.gemini_settings.gemini_enabled && (
-                        <>
-                            <p className="text-center">
-                                {localization.gemini_is_disabled[lang]}
-                            </p>
-                            <a
-                                href=""
-                                className="italic text-slate-500"
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    setSettingsVisible(true);
-                                }}
-                            >
-                                {localization.settings[lang]}
-                            </a>
-                        </>
-                    )}
                 </div>
             </div>
         </>

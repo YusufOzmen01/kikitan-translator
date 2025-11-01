@@ -185,12 +185,12 @@ export default function QuickstartMenu({ config, setQuickstartVisible, setLang, 
                                     }
                                 })
                             }} />} label={localization.enable_gemini[lang]} />
-                            <FormControlLabel disabled={!config.gemini_settings.gemini_enabled} control={<Checkbox checked={config.gemini_settings.gemini_microphone_capture} onChange={(e) => {
+                            <FormControlLabel disabled={!config.gemini_settings.gemini_enabled} control={<Checkbox checked={config.gemini_settings.microphone_capture} onChange={(e) => {
                                 setConfig({
                                     ...config,
                                     gemini_settings: {
                                         ...config.gemini_settings,
-                                        gemini_microphone_capture: e.target.checked
+                                        microphone_capture: e.target.checked
                                     }
                                 })
                             }} />} label={localization.enable_gemini_microphone_capture[lang]} />

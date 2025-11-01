@@ -55,6 +55,13 @@ export const localization = {
         kr: "데스크톱 캡처 활성화",
         tr: "Masaüstü Yakalama'yı Etkinleştir",
     },
+    disable_desktop_capture: {
+        en: "Disable Desktop Capture",
+        jp: "デスクトップキャプチャを無効にする",
+        cn: "禁用桌面捕获",
+        kr: "데스크톱 캡처 비활성화",
+        tr: "Masaüstü Yakalama'yı Devre Dışı Bırak",
+    },
     open_win_audio: {
         en: "Open Windows Audio Settings",
         jp: "Windowsのオーディオ設定を開く",
@@ -476,10 +483,24 @@ export const localization = {
         tr: "Masaüstü Ses Tanıma ve Çeviri Verilerini Etkinleştir",
     },
     gemini_error: {
-        en: "An error occured while connecting to Gemini API! Your API key might be wrong, please check your API key from settings! If you don't want to use Gemini, disable Gemini through settings",
-        jp: "Gemini API への接続中にエラーが発生しました！API キーが間違っている可能性があります。設定から API キーを確認してください！ Gemini を使用したくない場合は、設定から Gemini を無効にしてください。",
-        cn: "连接到 Gemini API 时发生错误！您的 API 密钥可能错误，请从设置中检查您的 API 密钥！如果您不想使用 Gemini，请通过设置禁用 Gemini。",
-        kr: "Gemini API에 연결하는 동안 오류가 발생했습니다! API 키가 잘못되었을 수 있습니다. 설정에서 API 키를 확인하세요! Gemini를 사용하고 싶지 않다면 설정에서 Gemini를 비활성화하세요.",
-        tr: "Gemini API'sine bağlanırken bir hata oluştu! API anahtarınız yanlış olabilir, lütfen ayarlardan API anahtarınızı kontrol edin! Gemini'yi kullanmak istemiyorsanız, ayarlardan Gemini'yi devre dışı bırakın.",
+        en: "An error occured while trying to connect to Gemini! Your API key might be invalid, you might be rate limited or there is a network issue. Please check your API key through Settings. If you're in a country that has Google services banned (for example China), make sure your VPN is working properly!",
+        jp: "Geminiに接続しようとしたときにエラーが発生しました！APIキーが無効である可能性があります。レート制限されているか、ネットワークの問題があります。設定からAPIキーを確認してください。Googleサービスが禁止されている国にいる場合（例：中国）、VPNが正常に動作していることを確認してください！",
+        cn: "尝试连接到Gemini时发生错误！您的API密钥可能无效，您可能受到速率限制或存在网络问题。请通过设置检查您的API密钥。如果您位于禁止谷歌服务的国家（例如中国），请确保您的VPN正常工作！",
+        kr: "젬니에 연결하는 동안 오류가 발생했습니다! API 키가 잘못되었거나 속도 제한이 걸렸거나 네트워크 문제일 수 있습니다. 설정을 통해 API 키를 확인하세요. Google 서비스가 금지된 국가에 있는 경우(예: 중국) VPN이 제대로 작동하는지 확인하세요!",
+        tr: "Gemini'ye bağlanmaya çalışırken bir hata oluştu! API anahtarınız geçersiz olabilir, hız sınırlamasına tabi tutulmuş olabilirsiniz veya bir ağ sorunu olabilir. Lütfen Ayarlar üzerinden API anahtarınızı kontrol edin. Google hizmetlerinin yasaklandığı bir ülkedeyseniz (örneğin Çin), VPN'inizin düzgün çalıştığından emin olun!",
     },
+    legacy_capture: {
+        en: "Legacy Capture (WebSpeech)",
+        jp: "レガシーキャプチャ (WebSpeech)",
+        cn: "传统捕获（WebSpeech）",
+        kr: "레거시 캡처 (WebSpeech)",
+        tr: "Eski Yakalama (WebSpeech)",
+    },
+    gemini_capture: {
+        en: "Gemini Capture (Experimental)",
+        jp: "Gemini キャプチャ (実験的)",
+        cn: "Gemini 捕获 (实验性)",
+        kr: "젬니 캡처 (실험적)",
+        tr: "Gemini Yakalama (Deneysel)",
+    }
 };

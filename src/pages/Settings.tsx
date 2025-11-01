@@ -227,25 +227,16 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                 </CustomTabPanel>
                 <CustomTabPanel value={page} index={1}>
                     <div className="flex flex-col">
-                        <FormControlLabel control={<Checkbox checked={config.gemini_settings.gemini_enabled} onChange={(e) => {
+                        <FormControlLabel control={<Checkbox checked={config.gemini_settings.microphone_capture} onChange={(e) => {
                             setConfig({
                                 ...config,
                                 gemini_settings: {
                                     ...config.gemini_settings,
-                                    gemini_enabled: e.target.checked
-                                }
-                            })
-                        }} />} label={localization.enable_gemini[lang]} />
-                        <FormControlLabel disabled={!config.gemini_settings.gemini_enabled} control={<Checkbox checked={config.gemini_settings.gemini_microphone_capture} onChange={(e) => {
-                            setConfig({
-                                ...config,
-                                gemini_settings: {
-                                    ...config.gemini_settings,
-                                    gemini_microphone_capture: e.target.checked
+                                    microphone_capture: e.target.checked
                                 }
                             })
                         }} />} label={localization.enable_gemini_microphone_capture[lang]} />
-                        <FormControlLabel disabled={!config.gemini_settings.gemini_enabled} control={<Checkbox checked={config.gemini_settings.desktop_capture} onChange={(e) => {
+                        <FormControlLabel control={<Checkbox checked={config.gemini_settings.desktop_capture} onChange={(e) => {
                             setConfig({
                                 ...config,
                                 gemini_settings: {
@@ -262,7 +253,7 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                                 htmlInput: {
                                     style: { color: config.light_mode ? "black" : '#fff' }
                                 }
-                            }} className="w-48 h-8" value={config.gemini_settings.gemini_api_key} id="outlined-basic" label={"Gemini API Key"} variant="outlined" type="password" disabled={!config.gemini_settings.gemini_enabled} onChange={(e) => {
+                            }} className="w-48 h-8" value={config.gemini_settings.gemini_api_key} id="outlined-basic" label={"Gemini API Key"} variant="outlined" type="password" onChange={(e) => {
                                 setConfig({
                                     ...config,
                                     gemini_settings: {

@@ -39,8 +39,7 @@ export type Config = {
         osc_port: number
     },
     gemini_settings: {
-        gemini_enabled: boolean,
-        gemini_microphone_capture: boolean,
+        microphone_capture: boolean,
         desktop_capture: boolean,
         gemini_api_key: string
     },
@@ -75,8 +74,7 @@ export const DEFAULT_CONFIG: Config = {
         osc_port: 9000
     },
     gemini_settings: {
-        gemini_enabled: true,
-        gemini_microphone_capture: true,
+        microphone_capture: true,
         desktop_capture: true,
         gemini_api_key: ""
     },

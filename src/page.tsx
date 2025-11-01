@@ -62,6 +62,7 @@ function App() {
   const [updateVisible, setUpdateVisible] = React.useState(false)
   const [donateVisible, setDonateVisible] = React.useState(false)
   const [googleServersErrorVisible, setGoogleServersErrorVisible] = React.useState(false)
+  const [geminiErrorShown, setGeminiErrorShown] = React.useState<boolean>(false);
 
   const [config, setConfig] = React.useState(DEFAULT_CONFIG)
   const [lang, setLang] = React.useState<Lang>("en")
@@ -196,6 +197,34 @@ function App() {
           </div>
         </div>
 
+        <div className={"transition-all text-center z-30 w-screen h-screen backdrop-blur-sm flex bg-transparent justify-center items-center absolute" + ((geminiErrorShown && !quickstartVisible) ? " opacity-100" : " opacity-0 pointer-events-none")}>
+          <div
+            className={`w-10/12 flex flex-col justify-center outline outline-1 ${config.light_mode
+                ? "outline-white"
+                : "outline-slate-900"
+              } rounded ${config.light_mode ? "bg-white" : "bg-slate-950"
+              }`}
+          >
+            <div className="flex justify-center m-2">
+              <p className="text-xl">
+                {localization.gemini_error[lang]}
+              </p>
+            </div>
+            <div className="flex justify-center gap-2 mb-2">
+              <Button
+                variant="contained"
+                color="error"
+                className="w-36"
+                onClick={() => {
+                  setGeminiErrorShown(false);
+                }}
+              >
+                {localization.close_menu[lang]}
+              </Button>
+            </div>
+          </div>
+        </div>
+
         <div className={'transition-all z-10 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (googleServersErrorVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
           <div className={`flex flex-col justify-center w-10/12 h-3/6 outline outline-1 ${config.light_mode ? "outline-white" : "outline-slate-950"} outline-gray-200 rounded ${config.light_mode ? "bg-white" : "bg-slate-950"}`}>
             <div className='flex flex-row justify-center'>
@@ -280,7 +309,7 @@ function App() {
             </Toolbar>
           </AppBar>
           <div className='flex flex-1 items-center align-middle flex-col mt-8'>
-            {loaded && <Kikitan lang={lang} config={config} setConfig={setConfig} settingsVisible={settingsVisible} setSettingsVisible={setSettingsVisible} quickstartVisible={quickstartVisible}></Kikitan>}
+            {loaded && <Kikitan lang={lang} config={config} setConfig={setConfig} settingsVisible={settingsVisible} setGeminiErrorShown={setGeminiErrorShown}></Kikitan>}
           </div>
         </div>
       </div>
