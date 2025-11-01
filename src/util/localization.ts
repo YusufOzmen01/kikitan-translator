@@ -154,12 +154,12 @@ export const localization = {
         kr: "여기에 입력...",
         tr: "Buraya yazın...",
     },
-    transcription: {
-        en: "Transcription",
-        jp: "文字起こし",
-        cn: "转录",
-        kr: "전사",
-        tr: "Transkripsiyon",
+    stt_only: {
+        en: "Speech-to-Text (STT) Only",
+        jp: "音声からテキストへ (STT) のみ",
+        cn: "仅语音转文本 (STT)",
+        kr: "음성 인식 전용 (STT)",
+        tr: "Sadece Sesli Metin (STT)",
     },
     translation_disabled: {
         en: "Translation is disabled. Enable translation from the setting above.",

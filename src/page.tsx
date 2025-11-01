@@ -275,7 +275,7 @@ function App() {
                   setTimeout(() => { window.location.reload() }, 300)
                 }}>
                   <MenuItem value={0}>{localization.translation[lang]}</MenuItem>
-                  <MenuItem value={1}>{localization.transcription[lang]}</MenuItem>
+                  <MenuItem value={1}>{localization.stt_only[lang]}</MenuItem>
                 </Select>
                 <IconButton sx={{
                   color: 'white',

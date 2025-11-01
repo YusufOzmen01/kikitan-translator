@@ -266,10 +266,7 @@ export default function Kikitan({
         setStartedSpeaking(detecting);
 
         if (
-            (config.mode == 1 ||
-                config.vrchat_settings.send_typing_status_while_talking) &&
-            config.vrchat_settings.enable_chatbox
-        ) {
+            (config.mode == 1 || config.vrchat_settings.send_typing_status_while_talking) && config.vrchat_settings.enable_chatbox) {
             invoke("send_typing", {
                 address: config.vrchat_settings.osc_address,
                 port: `${config.vrchat_settings.osc_port}`,
@@ -327,7 +324,7 @@ export default function Kikitan({
             const current_detection = current[0];
             const current_translation = current[1];
 
-            setTranslated(current_translation);
+            if (config.mode == 0) setTranslated(current_translation);
 
             // Add to message history if enabled
             if (config.message_history.enabled) {
@@ -357,7 +354,7 @@ export default function Kikitan({
                 invoke("send_message", {
                     address: config.vrchat_settings.osc_address,
                     port: `${config.vrchat_settings.osc_port}`,
-                    msg: config.vrchat_settings.only_translation
+                    msg: config.mode == 1 ? current_detection : config.vrchat_settings.only_translation
                         ? current_translation
                         : config.vrchat_settings.translation_first
                             ? `${current_translation} (${current_detection})`
