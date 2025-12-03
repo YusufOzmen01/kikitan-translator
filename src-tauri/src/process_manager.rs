@@ -64,9 +64,9 @@ pub fn is_desktop_overlay_running() -> bool {
 }
 
 #[tauri::command]
-pub fn show_gemini_api_page() {
-    let output = Command::new("explorer")
-        .arg("https://aistudio.google.com/apikey")
+pub fn open_url(url: &str) {
+    Command::new("explorer")
+        .arg(url)
         .creation_flags(0x08000000_u32)
         .output()
         .expect("Failed to execute command");

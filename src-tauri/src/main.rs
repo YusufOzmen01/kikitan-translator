@@ -23,7 +23,7 @@ fn main() {
             vrc_commands::send_disable_overlay,
             vrc_commands::start_vrc_listener,
             process_manager::show_audio_settings,
-            process_manager::show_gemini_api_page,
+            process_manager::open_url,
             process_manager::start_desktop_overlay,
             process_manager::kill_desktop_overlay,
             process_manager::is_desktop_overlay_running,

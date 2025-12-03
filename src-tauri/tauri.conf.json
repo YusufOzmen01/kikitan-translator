@@ -13,7 +13,7 @@
     "targets": "all",
     "externalBin": [],
     "icon": [
-      "icons/kikitan.ico"
+      "icons/kikitan_new.ico"
     ],
     "resources": [
       "./desktopoverlay"
@@ -40,7 +40,7 @@
     "createUpdaterArtifacts": "v1Compatible"
   },
   "productName": "Kikitan Translator",
-  "version": "1.2.3",
+  "version": "1.3.0",
   "identifier": "com.github.yusufozmen01.kikitan",
   "plugins": {
     "updater": {

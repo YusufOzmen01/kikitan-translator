@@ -309,7 +309,7 @@ function App() {
             </Toolbar>
           </AppBar>
           <div className='flex flex-1 items-center align-middle flex-col mt-8'>
-            {loaded && <Kikitan lang={lang} config={config} setConfig={setConfig} settingsVisible={settingsVisible} setGeminiErrorShown={setGeminiErrorShown}></Kikitan>}
+            {loaded && !quickstartVisible && <Kikitan lang={lang} config={config} setConfig={setConfig} settingsVisible={settingsVisible} setGeminiErrorShown={setGeminiErrorShown}></Kikitan>}
           </div>
         </div>
       </div>

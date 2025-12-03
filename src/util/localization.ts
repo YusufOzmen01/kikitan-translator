@@ -98,11 +98,11 @@ export const localization = {
         tr: "Mod Seçimi",
     },
     mode_selection_details: {
-        en: "You can change the mode from here. Translation sends both what is said and its translation to VRChat. With transcription, only what is said is sent to VRChat.",
-        jp: "ここからモードを変更できます。 翻訳では、発言内容とその翻訳の両方が VRChat に送信されます。 文字起こしでは、話した内容のみが VRChat に送信されます。",
-        cn: "您可以在这里更换模式。此翻译将会发送输入内容和翻译之后的内容至VRChat。通过转录，只有说出的内容会被输送至VRChat。",
-        kr: "여기서 모드를 변경할 수 있습니다. 번역 모드에서는 말한 내용과 번역된 내용이 모두 VRChat에 전송됩니다. 전사 모드에서는 말한 내용만 VRChat에 전송됩니다.",
-        tr: "Modu buradan değiştirebilirsiniz. Çeviri, söylenen şeyi ve çevirisini VRChat'e gönderir. Transkripsiyonda sadece söylenen şey VRChat'e gönderilir.",
+        en: "You can change the mode from here. Translation translates your speech to the specified language while STT only converts your speech to text without translation (can be used if you don't want to speak in game but also don't want to type in the chatbox).",
+        jp: "ここからモードを変更できます。翻訳はあなたの音声を指定された言語に翻訳しますが、STTは翻訳せずに音声をテキストに変換するだけです（ゲーム内で話したくないがチャットボックスに入力したくない場合に使用できます）。",
+        cn: "您可以从这里更改模式。翻译会将您的语音翻译成指定的语言，而STT只会将您的语音转换为文本而不进行翻译（如果您不想在游戏中说话但也不想在聊天框中输入，可以使用此功能）。",
+        kr: "여기에서 모드를 변경할 수 있습니다. 번역은 사용자의 음성을 지정된 언어로 번역하는 반면 STT는 번역 없이 음성을 텍스트로 변환합니다(게임에서 말하고 싶지 않지만 채팅창에 입력하고 싶지 않은 경우 사용할 수 있음).",
+        tr: "Buradan modu değiştirebilirsiniz. Çeviri, konuşmanızı belirtilen dile çevirirken, STT yalnızca konuşmanızı çeviri olmadan metne dönüştürür (oyunda konuşmak istemiyorsanız ancak sohbet kutusuna yazmak da istemiyorsanız kullanılabilir).",
     },
     thank_you: {
         en: "Thank you for using Kikitan!",
@@ -112,11 +112,11 @@ export const localization = {
         tr: "Kikitan'ı kullandığın için teşekkür ederim!",
     },
     thank_you_details: {
-        en: "Kikitan is an open source project! Any support for this project would be appreciated!",
-        jp: "キキタンはオープンソースプロジェクトです！このプロジェクトへのどんな支援も感謝します！",
-        cn: "Kikitan 是一个开源项目！感谢所有对此项目的帮助！",
-        kr: "Kikitan은 오픈 소스 프로젝트입니다! 이 프로젝트에 대한 지원에 감사드립니다!",
-        tr: "Kikitan açık kaynak bir projedir! Projeye yapılan her türlü desteğe minnettarım!",
+        en: "Kikitan will always be free and open source! If you want to support the project, you can do so from Buy Me a Coffee or through Booth.pm!",
+        jp: "Kikitanは常に無料でオープンソースです！プロジェクトをサポートしたい場合は、Buy Me a CoffeeまたはBooth.pmからサポートできます！",
+        cn: "Kikitan将永远是免费和开源的！如果您想支持该项目，可以通过Buy Me a Coffee或Booth.pm进行支持！",
+        kr: "Kikitan은 항상 무료이며 오픈 소스입니다! 프로젝트를 지원하고 싶다면 Buy Me a Coffee 또는 Booth.pm을 통해 지원할 수 있습니다!",
+        tr: "Kikitan her zaman ücretsiz ve açık kaynaklı olacaktır! Projeyi desteklemek isterseniz, Buy me a Coffee veya Booth.pm üzerinden destekleyebilirsiniz!",
     },
     next: { en: "Next", jp: "次", cn: "下一页", kr: "다음", tr: "İleri" },
     previous: {

@@ -20,9 +20,9 @@ public class OpenVROverlay : Application
 
     public OpenVROverlay() : base(ApplicationType.Overlay)
     {
-        Console.WriteLine("Starting dual-eye overlay (dynamic offset)...");
+        Console.WriteLine("Starting overlay...");
 
-        overlay = new Overlay("kikitan-overlay-left", "Kikitan Overlay");
+        overlay = new Overlay("kikitan-overlay", "Kikitan Overlay");
 
         overlay.WidthInMeters = 1f;
         overlay.Alpha = 1.0f;
@@ -41,36 +41,17 @@ public class OpenVROverlay : Application
             return;
         }
 
-        // Get per-eye transforms relative to the HMD
         var leftEye = system.GetEyeToHeadTransform(EVREye.Eye_Left);
-        var rightEye = system.GetEyeToHeadTransform(EVREye.Eye_Right);
 
-        // Extract eye X offsets from those transforms
-        float leftX = leftEye.m3;
-        float rightX = rightEye.m3;
-
-        // Typically leftX ≈ -0.032, rightX ≈ +0.032
-        float ipd = Math.Abs(rightX - leftX);
-        Console.WriteLine($"IPD detected: {ipd * 1000:F1} mm");
-
-        // Build transform matrices for overlays
-        HmdMatrix34_t leftTransform = new HmdMatrix34_t
+        HmdMatrix34_t overlayTransform = new HmdMatrix34_t
         {
             m0 = 1, m1 = 0, m2 = 0, m3 = leftX,
             m4 = 0, m5 = 1, m6 = 0, m7 = verticalOffset,
             m8 = 0, m9 = 0, m10 = 1, m11 = overlayDistance
         };
 
-        HmdMatrix34_t rightTransform = new HmdMatrix34_t
-        {
-            m0 = 1, m1 = 0, m2 = 0, m3 = rightX,
-            m4 = 0, m5 = 1, m6 = 0, m7 = verticalOffset,
-            m8 = 0, m9 = 0, m10 = 1, m11 = overlayDistance
-        };
-
-        // Apply them
         var err = OpenVR.Overlay.SetOverlayTransformTrackedDeviceRelative(
-            overlay.Handle, OpenVR.k_unTrackedDeviceIndex_Hmd, ref leftTransform);
+            overlay.Handle, OpenVR.k_unTrackedDeviceIndex_Hmd, ref overlayTransform);
 
         if (err != EVROverlayError.None)
         {
@@ -93,7 +74,6 @@ public class OpenVROverlay : Application
                 continue;
             }
 
-            // Update eye offsets dynamically
             UpdateOverlayTransforms();
 
             string fileName = Path.Combine(Path.GetTempPath(), "kikitan_overlay.png");

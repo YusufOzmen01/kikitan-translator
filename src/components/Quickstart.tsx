@@ -13,8 +13,6 @@ import { Box, Button, Checkbox, FormControlLabel, FormGroup, MenuItem, Select, T
 import { Lang } from "../util/constants";
 import { invoke } from "@tauri-apps/api/core";
 
-import { Favorite } from '@mui/icons-material';
-
 type QuickstartMenuProps = {
     config: Config,
     setLang: (value: React.SetStateAction<Lang>) => void,
@@ -210,7 +208,7 @@ export default function QuickstartMenu({ config, setLang, lang, setConfig }: Qui
                                         }
                                     })
                                 }} />
-                                <Button variant="contained" color="success" className="h-14" onClick={async () => { invoke("show_gemini_api_page") }}>{localization.get_gemini_api_key[lang]}</Button>
+                                <Button variant="contained" color="success" className="h-14" onClick={async () => { invoke("open_url", { url: "https://aistudio.google.com/api-keys" }) }}>{localization.get_gemini_api_key[lang]}</Button>
                                 <Button variant="contained" className="h-14" onClick={async () => { setGeminiTutorialShow(true) }}>{localization.gemini_api_key_tutorial[lang]}</Button>
                             </div>
                         </FormGroup>
@@ -223,7 +221,22 @@ export default function QuickstartMenu({ config, setLang, lang, setConfig }: Qui
                         <p className='text-lg mt-20 text-center'>{localization.thank_you_details[lang]}</p>
                     </div>
                     <Button disabled={quickstartPage != 7} className={'w-70'} variant='contained' startIcon={< GitHub />} onClick={async () => { open("https://github.com/YusufOzmen01/kikitan-translator") }}>{localization.open_repo[lang]}</Button>
-                    <Button disabled={quickstartPage != 7} variant="contained" color="secondary" className='w-48' onClick={() => { open("https://buymeacoffee.com/sergiomarquina") }}><Favorite className='mr-2' /> {localization.donate[lang]}</Button>
+                    <div className="flex gap-2">
+                        <Button sx={{
+                            backgroundColor: "#ffde06",
+                            color: "black"
+                        }} disabled={quickstartPage != 7} variant="contained" className='w-52 h-9' onClick={() => { invoke("open_url", { url: "https://buymeacoffee.com/sergiomarquina" }) }}>
+                            <img src="/buymeacoffeelogo.svg" width={36}></img>
+                            <p className="mt-0.5">Buy Me a Coffee</p>
+                        </Button>
+
+                        <Button sx={{
+                            backgroundColor: "#fc4d50"
+                        }}  disabled={quickstartPage != 7} variant="contained" className='w-52' onClick={() => { invoke("open_url", { url: "https://booth.pm/en/items/6073050" }) }}>
+                            <img src="/boothlogo.svg" width={24} className="mr-2"></img>
+                            <p className="mt-0.5">Booth.pm</p>
+                        </Button>
+                    </div>
                     <Button disabled={quickstartPage != 7} className={'w-48'} variant='contained' onClick={async () => {
                         window.localStorage.setItem("firstTimeSetupComplete", "true");
                         localStorage.setItem("lang", lang);
@@ -292,7 +305,7 @@ export default function QuickstartMenu({ config, setLang, lang, setConfig }: Qui
         <div className={'transition-all z-20 w-full h-[192] flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (geminiTutorialShow ? " opacity-100" : " opacity-0 pointer-events-none")}>
             <div className={`flex flex-col items-center justify-center w-10/12 h-3/6 outline outline-1 ${config.light_mode ? "outline-white" : "outline-slate-950"} outline-gray-200 rounded ${config.light_mode ? "bg-white" : "bg-slate-950"}`}>
                 {geminiTutorialShow &&
-                    <video autoPlay loop className='mt-4'>
+                    <video autoPlay loop controls className='mt-4'>
                         <source src="/gemini_tutorial.mp4" type="video/mp4"></source>
                     </video>
                 }

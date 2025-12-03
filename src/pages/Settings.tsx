@@ -369,7 +369,7 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
             <div className={'transition-all z-20 w-full h-[192] flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (geminiTutorialShow ? " opacity-100" : " opacity-0 pointer-events-none")}>
                 <div className={`flex flex-col items-center justify-center w-10/12 h-3/6 outline outline-1 ${config.light_mode ? "outline-white" : "outline-slate-950"} outline-gray-200 rounded ${config.light_mode ? "bg-white" : "bg-slate-950"}`}>
                     {geminiTutorialShow &&
-                        <video autoPlay loop className='mt-4'>
+                        <video autoPlay loop controls className='mt-4'>
                             <source src="/gemini_tutorial.mp4" type="video/mp4"></source>
                         </video>
                     }
