@@ -102,10 +102,10 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                     </IconButton>
                     <Tabs textColor="inherit" value={page} onChange={handleChange} variant="scrollable" scrollButtons="auto">
                         <Tab label={localization.vrchat_settings[lang]} {...a11yProps(0)} />
-                        <Tab label="Gemini" {...a11yProps(1)} />
-                        <Tab label={localization.message_history[lang]} {...a11yProps(2)} />
-                        <Tab label={localization.data_out[lang]} {...a11yProps(3)} />
-                        <Tab label={localization.debug_settings[lang]} {...a11yProps(4)} />
+                        {/* <Tab label="Gemini" {...a11yProps(1)} /> */}
+                        <Tab label={localization.message_history[lang]} {...a11yProps(1)} />
+                        <Tab label={localization.data_out[lang]} {...a11yProps(2)} />
+                        <Tab label={localization.debug_settings[lang]} {...a11yProps(3)} />
                     </Tabs>
                 </Box>
                 <CustomTabPanel className="flex" value={page} index={0}>
@@ -225,7 +225,7 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                         </Select>
                     </FormGroup>
                 </CustomTabPanel>
-                <CustomTabPanel value={page} index={1}>
+                {/* <CustomTabPanel value={page} index={1}>
                     <div className="flex flex-col">
                         <FormControlLabel control={<Checkbox checked={config.gemini_settings.microphone_capture} onChange={(e) => {
                             setConfig({
@@ -266,8 +266,8 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                             <Button variant="contained" className="h-14" onClick={async () => { setGeminiTutorialShow(true) }}>{localization.gemini_api_key_tutorial[lang]}</Button>
                         </div>
                     </div>
-                </CustomTabPanel>
-                <CustomTabPanel className="flex" value={page} index={2}>
+                </CustomTabPanel> */}
+                <CustomTabPanel className="flex" value={page} index={1}>
                     <FormGroup>
                         <FormControlLabel control={<Checkbox checked={config.message_history.enabled} onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                             setConfig({
@@ -336,7 +336,7 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                         </div>
                     </FormGroup>
                 </CustomTabPanel>
-                <CustomTabPanel className="flex" value={page} index={3}>
+                <CustomTabPanel className="flex" value={page} index={2}>
                     <FormGroup>
                         <FormControlLabel control={<Checkbox checked={config.data_out.enable_user_data} onChange={(e) => {
                             setConfig({
@@ -358,7 +358,7 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                         }} />} label={localization.enable_desktop_data[lang]} />
                     </FormGroup>
                 </CustomTabPanel>
-                <CustomTabPanel className="flex" value={page} index={4}>
+                <CustomTabPanel className="flex" value={page} index={3}>
                     <FormGroup>
                         <Button variant="contained" onClick={async () => {
                             open(await appLogDir())

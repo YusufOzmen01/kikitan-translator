@@ -1,27 +1,26 @@
-# Büyük Güncelleme - Kikitan Çevirmen v1.3.0
-Bu güncelleme Kikitan'a birçok yeni özellik getiriyor!
+# Küçük Güncelleme - Kikitan Translator v1.2.3
+
+Tam bir yılın ardından Kikitan nihayet yeni bir güncelleme aldı!
+Normalde bu güncelleme, Google Gemini tabanlı yeni bir tanıyıcı ve masaüstü ses çevirisi desteği içerecekti; ancak Google 15 Aralık’ta ücretsiz Live API’lerini kapattı ve bu durum özelliği tamamen kullanılamaz hale getirdi. Çünkü bu, kullanıcıların API için ödeme yapmasını gerektiriyor ve ben kullanıcılarımdan herhangi bir ödeme talep etmek istemiyorum. Bu yüzden ne yazık ki daha iyi bir alternatif bulana kadar bu güncellemeyi ertelemek zorundayım.
 
 **Yeni Özellikler:**
-
-*   **Google Gemini Entegrasyonu:**
-    *   Google Gemini kullanarak çeviri desteği eklendi. Daha önce kullandığım WebSpeech ve Google Çeviri kombinasyonundan daha iyi olması bekleniyor. Hala deneysel ama denemeye değer.
-    *   Gemini, daha doğal bir çeviri için konuşmanızı hem metne dönüştürecek hem de çevirecektir.
-*   **Metin Tabanlı Çeviri Girişi:**
-    *   Durdurma düğmesinin yanındaki düğmeyi kullanarak, konuşmak yerine çeviri için bir metin kutusuna yazabilirsiniz.
-*   **Geliştirilmiş Hızlı Başlangıç Menüsü:**
-    *   Hızlı başlangıç menüsü artık temel ayarları içeriyor ve kullanıcıların Kikitan'ı ilk kez başlattıklarında temel ayarları özelleştirmelerine olanak tanıyor. Bu, ilk çalıştırma deneyimini iyileştirir ve başlamayı kolaylaştırır!
-*   **Duyuru Sistemi:**
-    *   Önemli güncellemeleri, hata düzeltmelerini ve diğer ilgili bilgileri doğrudan kullanıcılara iletmek için bir duyuru sistemi uygulandı.
-    *   Ayrıca harici bağlantı düğmelerinin yanındaki yeni düğme aracılığıyla Discord sunucusuna da katılabilirsiniz!
+* **Metin Tabanlı Çeviri Girişi:**
+  * Durdurma düğmesinin yanındaki buton sayesinde artık konuşmak yerine bir metin kutusuna yazarak çeviri yapabilirsiniz.
+* **Geliştirilmiş Hızlı Başlangıç Menüsü:**
+  * Hızlı başlangıç menüsü artık temel ayarları içeriyor ve kullanıcıların Kikitan’ı ilk kez başlatırken bazı temel ayarları özelleştirmesine olanak tanıyor. Bu da ilk kullanım deneyimini iyileştiriyor ve başlamayı kolaylaştırıyor!
+* **Metin Tabanlı Çeviri Girişi:**
+  * Durdurma düğmesinin yanındaki buton sayesinde artık konuşmak yerine bir metin kutusuna yazarak çeviri yapabilirsiniz.
+* **Mesaj Geçmişi:**
+  * Ana sayfada uygun bir konuma yerleştirilmiş bir buton aracılığıyla artık mesaj geçmişinizi görebilirsiniz!
 
 **İyileştirmeler:**
-
-*   Bazı kullanıcı arayüzü tutarsızlıkları ve küçük hatalar düzeltildi.
+* Bazı arayüz tutarsızlıkları ve küçük hatalar giderildi
+* Mikrofonun bazen algılanmaması sorunu düzeltildi!
 
 **Bilinen Sorunlar:**
+* Sesiniz algılanmıyorsa, Microsoft Edge’i güncellemeyi deneyin. Güncelleme sorunu çözmezse, Microsoft’un web sitesinden yeniden yükleyin. Bu da işe yaramazsa, %localappdata%\com.github.yusufozmen01.kikitantranslator klasörünü silin ve Kikitan’ı yeniden başlatın.
 
-*   WebSpeech (varsayılan tanıyıcı) ile algılama sorunları yaşıyorsanız, Microsoft Edge'i güncellemeyi deneyin. Güncelleme sorunu çözmezse, Microsoft'un web sitesinden yeniden yükleyin.
+**Hata bildirimleri göndermek istiyorsanız ana sayfadaki butondan Discord’a katılmayı unutmayın!!**
 
 **Gelecek Planları:**
-
-*   Sırada, herkesin Kikitan'ı yüklemesine gerek kalmaması için masaüstü sesini çevirmek var. Bu büyük olasılıkla Gemini'nin kullanılmasını gerektirecek, ancak işlerin nasıl gideceğini göreceğiz.
+* Umarım Gemini için uygun bir alternatif bulabilirim ve böylece son bir yıldır üzerinde çalıştığım güncellemeyi yayınlayabilirim. Normalde bu güncelleme çok daha önce çıkacaktı, ancak keyif aldığım şeylere ve Kikitan’a odaklanmamı engelleyen birçok şey yaşadım, bu yüzden güncelleme aşırı derecede gecikti. GitHub’a bakarsanız, pull request’in bir yıldan uzun süredir açık olduğunu görebilirsiniz. Yeni bir güncellemeyi geç yayınladığım için özür dilerim ve Google’ın ücretsiz Live API’lerini kaldırmasından gerçekten nefret ediyorum. Cidden, senden nefret ediyorum Google.

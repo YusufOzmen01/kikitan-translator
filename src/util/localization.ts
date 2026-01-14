@@ -292,13 +292,6 @@ export const localization = {
         kr: "Kikitan은 무료이며 항상 무료로 유지됩니다. 그러나 모든 지원을 환영합니다! 아직 학생이기 때문에 받는 모든 것이 나를 더 나은 삶을 살게 도와줍니다! 그러니 Kikitan을 사용하는 것을 즐기신다면 기부를 고려해보세요!",
         tr: "Kikitan ücretsizdir ve her zaman ücretsiz kalacaktır. Ancak, her türlü desteğe açığım! Hala bir öğrenci olduğum için aldığım her bağış benim daha iyi yaşamama yardımcı olur! Bu yüzden, Kikitan'ı kullanmaktan keyif alıyorsanız, bağış yapmayı düşünün!",
     },
-    donate: {
-        en: "Donate",
-        jp: "寄付",
-        cn: "捐赠",
-        kr: "기부",
-        tr: "Bağış Yap",
-    },
     debug_settings: {
         en: "Debug",
         jp: "デバッグ",

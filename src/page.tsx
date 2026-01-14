@@ -10,8 +10,7 @@ import {
   MenuItem,
   Button,
   IconButton,
-  CircularProgress,
-  Box
+  CircularProgress
 } from '@mui/material';
 
 import {
@@ -19,8 +18,7 @@ import {
   Translate,
   WbSunny,
   NightsStay,
-  Favorite,
-  Close
+  Favorite
 } from '@mui/icons-material';
 
 import { invoke } from '@tauri-apps/api/core'
@@ -30,7 +28,7 @@ import SettingsPage from './pages/Settings';
 
 
 import { DEFAULT_CONFIG, load_config, update_config } from './util/config';
-import { ANNOUNCEMENT_GIST_URL, Lang } from './util/constants';
+import { Lang } from './util/constants';
 import { getVersion } from '@tauri-apps/api/app';
 
 import Changelogs from './pages/Changelogs';
@@ -42,19 +40,6 @@ import { localization } from './util/localization';
 
 import translateGT from './translators/google_translate';
 import QuickstartMenu from './components/Quickstart';
-import Markdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-
-type Announcement = {
-  show: boolean,
-  date: string,
-  en: string,
-  jp: string,
-  kr: string,
-  cn: string,
-  tr: string
-}
-
 function App() {
   const [quickstartVisible, setQuickstartVisible] = React.useState(true)
   const [changelogsVisible, setChangelogsVisible] = React.useState(false)
@@ -69,8 +54,6 @@ function App() {
   const [appVersion, setAppVersion] = React.useState("")
 
   const [loaded, setLoaded] = React.useState(false)
-  const [announcementVisible, setAnnouncementVisible] = React.useState(false)
-  const [announcementData, setAnnouncementData] = React.useState<Announcement>()
 
   React.useEffect(() => {
     if (loaded) update_config(config)
@@ -125,13 +108,13 @@ function App() {
 
   React.useEffect(() => {
     if (!quickstartVisible) {
-      fetch(ANNOUNCEMENT_GIST_URL).then(async data => {
-        const json = (await data.json()) as Announcement
+      // fetch(ANNOUNCEMENT_GIST_URL).then(async data => {
+      //   const json = (await data.json()) as Announcement
 
-        setAnnouncementVisible(json.show ? localStorage.getItem("last-viewed-announcement")! == json.date ? false : true : false)
-        setAnnouncementData(json)
-        localStorage.setItem("last-viewed-announcement", json.date.toString());
-      })
+      //   setAnnouncementVisible(json.show ? localStorage.getItem("last-viewed-announcement")! == json.date ? false : true : false)
+      //   setAnnouncementData(json)
+      //   localStorage.setItem("last-viewed-announcement", json.date.toString());
+      // })
 
       getVersion().then((version) => {
         setAppVersion(version)
@@ -149,32 +132,6 @@ function App() {
           <QuickstartMenu config={config} setLang={setLang} lang={lang} setConfig={setConfig}></QuickstartMenu>
         </div>
 
-        <div className={'transition-all z-30 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + ((!quickstartVisible && announcementVisible) ? " opacity-100" : " opacity-0 pointer-events-none")}>
-          <div className={`flex flex-col justify-between w-10/12 h-5/6 outline outline-1 ${config.light_mode ? "outline-slate-400" : "outline-slate-950"} rounded bg-white`}>
-            <Box sx={{
-              width: '100%',
-              '& .MuiSvgIcon-root': {
-                color: config.light_mode ? 'black' : 'white'
-              },
-              '& .MuiOutlinedInput-notchedOutline': {
-                borderColor: config.light_mode ? 'black' : 'white',
-              },
-              '&:hover .MuiOutlinedInput-notchedOutline': {
-                borderColor: config.light_mode ? 'black' : 'white',
-              },
-            }} className={`h-screen ${config.light_mode ? "" : "bg-slate-950 text-white"}`}>
-              <Box className={`flex`} sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                <IconButton className="ml-2 mr-2" onClick={() => { setAnnouncementVisible(false) }}>
-                  <Close />
-                </IconButton>
-
-                <h1 className="ml-2 mt-[5px] text-xl font-semibold">{localization.announcement[lang]}</h1>
-              </Box>
-              <Markdown remarkPlugins={[remarkGfm]} className="list-disc list-inside text-sm mt-4 ml-8 w-11/12 max-h-80 whitespace-pre text-wrap overflow-y-scroll">{announcementData?.[lang]}</Markdown>
-            </Box>
-          </div>
-        </div>
-
         <div className={'transition-all z-30 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (updateVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
           <div className={`flex flex-col justify-center w-10/12 h-5/6 outline outline-1 ${config.light_mode ? "outline-white" : "outline-slate-950"} rounded ${config.light_mode ? "bg-white" : "bg-slate-950"}`}>
             <div className='flex flex-row justify-center'>
@@ -189,10 +146,15 @@ function App() {
             <div className='flex flex-row justify-center'>
               <p className='ml-4 text-md text-center'>{localization.donation_text[lang]}</p>
             </div>
-            <div className='flex justify-center mt-4'>
-              <Button variant="contained" color="secondary" className='w-48' onClick={() => { open("https://buymeacoffee.com/sergiomarquina") }}><Favorite className='mr-2' /> {localization.donate[lang]}</Button>
-              <div className='w-2'></div>
-              <Button variant="contained" className='w-48' onClick={() => { setDonateVisible(false) }}>{localization.close_menu[lang]}</Button>
+            <div className='flex justify-center mt-4 gap-2'>
+              <Button variant="contained" color="secondary" className='w-48' onClick={() => { open("https://buymeacoffee.com/sergiomarquina") }}><Favorite className='mr-2' /><p className='text-xs'>Buy Me a Coffee</p></Button>
+              <Button sx={{
+                backgroundColor: "#fc4d50"
+              }} variant="contained" className='w-48' onClick={() => { invoke("open_url", { url: "https://booth.pm/en/items/6073050" }) }}>
+                <img src="/boothlogo.svg" width={24} className="mr-2"></img>
+                <p className="mt-0.5"><p className='text-xs'>Booth.pm</p></p>
+              </Button>
+              <Button variant="contained" className='w-48' onClick={() => { setDonateVisible(false) }}><p className='text-xs'>{localization.close_menu[lang]}</p></Button>
             </div>
           </div>
         </div>
@@ -200,8 +162,8 @@ function App() {
         <div className={"transition-all text-center z-30 w-screen h-screen backdrop-blur-sm flex bg-transparent justify-center items-center absolute" + ((geminiErrorShown && !quickstartVisible) ? " opacity-100" : " opacity-0 pointer-events-none")}>
           <div
             className={`w-10/12 flex flex-col justify-center outline outline-1 ${config.light_mode
-                ? "outline-white"
-                : "outline-slate-900"
+              ? "outline-white"
+              : "outline-slate-900"
               } rounded ${config.light_mode ? "bg-white" : "bg-slate-950"
               }`}
           >

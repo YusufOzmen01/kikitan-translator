@@ -7,7 +7,7 @@ export const GEMINI_TRANSLATION_TRANSCRIPTION_PROMPT = (
 ): string => {
     return `You are a transcriptor and a translator. Your only role is to recognize what the user says and translate themm. Whatever the user says, recognize the words they say in ${lang_src} and translate them into ${lang_target}. The output format should be RECOGNITION | TRANSLATION. Example: Hello | Merhaba. Do not reply with anything else. Translate the words in an understandable and natural manner. If the user speaks in another language than ${lang_src}, the recognition should be the translation to ${lang_src}. Example: User said Merhaba, but the response should be: Hello | こんにちは. Make sure the translation is in ${lang_target}`};
 
-export const GEMINI_LIVE_API_MODEL = "gemini-live-2.5-flash-preview";
+export const GEMINI_LIVE_API_MODEL = "gemini-2.5-flash-native-audio-preview-09-2025";
 
 export const langSource = [
     {

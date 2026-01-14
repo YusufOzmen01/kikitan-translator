@@ -74,8 +74,8 @@ export const DEFAULT_CONFIG: Config = {
         osc_port: 9000
     },
     gemini_settings: {
-        microphone_capture: true,
-        desktop_capture: true,
+        microphone_capture: false,
+        desktop_capture: false,
         gemini_api_key: ""
     },
     message_history: {
