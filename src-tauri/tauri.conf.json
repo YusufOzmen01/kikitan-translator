@@ -13,7 +13,10 @@
     "targets": "all",
     "externalBin": [],
     "icon": [
-      "icons/kikitan.ico"
+      "icons/kikitan_new.ico"
+    ],
+    "resources": [
+      "./desktopoverlay"
     ],
     "windows": {
       "certificateThumbprint": null,
@@ -28,7 +31,6 @@
       "providerShortName": null,
       "signingIdentity": null
     },
-    "resources": [],
     "shortDescription": "",
     "linux": {
       "deb": {
@@ -38,7 +40,7 @@
     "createUpdaterArtifacts": "v1Compatible"
   },
   "productName": "Kikitan Translator",
-  "version": "1.2.2",
+  "version": "1.2.4",
   "identifier": "com.github.yusufozmen01.kikitan",
   "plugins": {
     "updater": {
@@ -55,15 +57,15 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 500,
-        "minHeight": 500,
+        "height": 525,
+        "minHeight": 525,
         "minWidth": 900,
         "title": "Kikitan Translator",
         "width": 900
       }
     ],
     "security": {
-      "csp": null
+      "csp": "default-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: https: blob:; media-src 'self' https: blob:; frame-src 'self' https:; child-src 'self' https:; connect-src 'self' https: http://localhost:* https://translate.googleapis.com https://generativelanguage.googleapis.com https://gist.githubusercontent.com wss:; font-src 'self' https: data:;"
     }
   }
 }

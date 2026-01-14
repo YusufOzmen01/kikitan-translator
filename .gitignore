@@ -44,3 +44,7 @@ dist
 .env
 .vscode
 __pycache__
+build
+whisper-files
+announcement_files
+target

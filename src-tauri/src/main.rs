@@ -1,117 +1,41 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use rosc::encoder;
-use rosc::{OscMessage, OscPacket, OscType};
-use std::net::{Ipv4Addr, UdpSocket};
-use std::os::windows::process::CommandExt;
-use std::process::Command;
-use std::thread;
-use tauri::{AppHandle, Emitter};
-
-static mut LISTENER_STARTED: bool = false;
+mod data_out;
+mod filesys;
+mod process_manager;
+mod screenaudio;
+mod vrc_commands;
 
 fn main() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_log::Builder::new().build())
         .invoke_handler(tauri::generate_handler![
-            send_typing,
-            send_message,
-            show_windows_audio_settings,
-            start_vrc_listener
+            vrc_commands::send_typing,
+            vrc_commands::send_message,
+            vrc_commands::send_disable_mic,
+            vrc_commands::send_disable_desktop,
+            vrc_commands::send_disable_chatbox,
+            vrc_commands::send_disable_overlay,
+            vrc_commands::start_vrc_listener,
+            process_manager::show_audio_settings,
+            process_manager::open_url,
+            process_manager::start_desktop_overlay,
+            process_manager::kill_desktop_overlay,
+            process_manager::is_desktop_overlay_running,
+            filesys::download_file,
+            filesys::extract_zip,
+            screenaudio::start_audio_capture,
+            screenaudio::stop_audio_capture,
+            data_out::send_recognized_microphone,
+            data_out::send_translated_microphone,
+            data_out::send_recognized_desktop,
+            data_out::send_translated_desktop
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
-}
-
-#[tauri::command]
-fn send_typing(address: String, port: String) {
-    let sock = UdpSocket::bind((Ipv4Addr::UNSPECIFIED, 0)).unwrap();
-    let msg_buf = encoder::encode(&OscPacket::Message(OscMessage {
-        addr: "/chatbox/typing".to_string(),
-        args: vec![OscType::Bool(true)],
-    }))
-    .unwrap();
-
-    sock.send_to(&msg_buf, address + ":" + &port).unwrap();
-}
-
-#[tauri::command]
-fn send_message(msg: String, address: String, port: String) {
-    let sock = UdpSocket::bind((Ipv4Addr::UNSPECIFIED, 0)).unwrap();
-    let msg_buf = encoder::encode(&OscPacket::Message(OscMessage {
-        addr: "/chatbox/input".to_string(),
-        args: vec![OscType::String(msg), OscType::Bool(true)],
-    }))
-    .unwrap();
-
-    sock.send_to(&msg_buf, address + ":" + &port).unwrap();
-}
-
-#[tauri::command]
-fn show_windows_audio_settings() {
-    Command::new("powershell")
-        .arg("Start")
-        .arg("ms-settings:sound")
-        .creation_flags(0x08000000_u32)
-        .spawn()
-        .unwrap()
-        .wait()
-        .unwrap();
-}
-
-#[tauri::command]
-fn start_vrc_listener(app: AppHandle) {
-    unsafe {
-        if LISTENER_STARTED {
-            return;
-        }
-
-        LISTENER_STARTED = true;
-    }
-
-    thread::spawn(move || {
-        let sock = UdpSocket::bind("127.0.0.1:9001");
-        match sock {
-            Ok(sock) => {
-                println!("Starting OSC listener...");
-                let mut buf = [0u8; rosc::decoder::MTU];
-
-                loop {
-                    match sock.recv_from(&mut buf) {
-                        Ok((size, _)) => {
-                            let (_, packet) = rosc::decoder::decode_udp(&buf[..size]).unwrap();
-
-                            match packet {
-                                OscPacket::Message(msg) => {
-                                    // println!("{:?}", msg);
-                                    if msg.addr.as_str() == "/avatar/parameters/MuteSelf" {
-                                        if let Some(mute) = msg.args.first().unwrap().clone().bool()
-                                        {
-                                            app.emit("vrchat-mute", mute).unwrap();
-                                        }
-                                    }
-                                }
-
-                                OscPacket::Bundle(bundle) => {
-                                    println!("OSC Bundle: {:?}", bundle);
-                                }
-                            }
-                        }
-                        Err(e) => {
-                            println!("Error receiving from socket: {}", e);
-                            break;
-                        }
-                    }
-                }
-            }
-
-            Err(e) => {
-                println!("Error binding to 9001: {:?}", e);
-            }
-        }
-    });
 }

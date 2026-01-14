@@ -13,7 +13,9 @@ auth = Auth.Token(os.getenv("GITHUB_API_KEY"))
 g = Github(auth=auth)
 
 print("Building kikitan...")
-os.system("npm run tauri build")
+ret = os.system("npm run tauri build")
+if ret != 0:
+    raise Exception("Failed to build kikitan")
 
 tauri_conf = json.load(open("src-tauri/tauri.conf.json"))
 repo = g.get_repo("YusufOzmen01/kikitan-translator")
