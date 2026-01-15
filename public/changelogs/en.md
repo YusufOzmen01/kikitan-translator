@@ -1,4 +1,6 @@
-# Minor Update - Kikitan Translator v1.2.3
+# Hotfix - Kikitan Translator v1.2.5
+
+This version only fixes the muting bug that wasn't fixed before the update, so I'll be keeping the same changelogs
 
 After a whole year, Kikitan now has a new update!
 Normally, this update was going to feature a new Google Gemini based recognizer and desktop audio translation support, but Google killed their free Live API on December 15th and that completely rendered that feature useless as it would require users to pay for the API and I do not want to ask my users to pay for anything. So I will sadly have to put that update on hold until I discover something better.
@@ -8,8 +10,6 @@ Normally, this update was going to feature a new Google Gemini based recognizer 
     *   With the button next to the stop button, you can now type on a textbox for translation instead of speaking.
 *   **Enhanced Quickstart Menu:**
     *   The quickstart menu now includes essential settings, allowing users to customize basic settings upon initial launch of Kikitan.  This improves the first-run experience and makes it easier to get started!
-*   *   **Text-Based Translation Input:**
-    *   With the button next to the stop button, you can now type on a textbox for translation instead of speaking.
 *   **Message History:**
 *   You can now see the history of your messages through a conveniently placed button on the main page!
 **Improvements:**

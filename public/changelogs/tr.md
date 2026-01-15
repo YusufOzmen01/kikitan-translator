@@ -1,4 +1,6 @@
-# Küçük Güncelleme - Kikitan Translator v1.2.3
+# Düzeltme Güncellemesi - Kikitan Translator v1.2.5
+
+Bu sürüm yalnızca önceki güncellemede düzeltilmeyen susturma hatasını giderir, bu yüzden aynı değişiklik günlüklerini kullanmaya devam edeceğim.
 
 Tam bir yılın ardından Kikitan nihayet yeni bir güncelleme aldı!
 Normalde bu güncelleme, Google Gemini tabanlı yeni bir tanıyıcı ve masaüstü ses çevirisi desteği içerecekti; ancak Google 15 Aralık’ta ücretsiz Live API’lerini kapattı ve bu durum özelliği tamamen kullanılamaz hale getirdi. Çünkü bu, kullanıcıların API için ödeme yapmasını gerektiriyor ve ben kullanıcılarımdan herhangi bir ödeme talep etmek istemiyorum. Bu yüzden ne yazık ki daha iyi bir alternatif bulana kadar bu güncellemeyi ertelemek zorundayım.

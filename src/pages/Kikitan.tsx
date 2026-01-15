@@ -7,8 +7,7 @@ import {
     Button,
     TextField,
     IconButton,
-    Tooltip,
-    Switch,
+    Tooltip
 } from "@mui/material";
 
 import { info, error, warn } from "@tauri-apps/plugin-log";
@@ -22,7 +21,6 @@ import {
     PlayArrow as PlayArrowIcon,
     Pause as PauseIcon,
     Keyboard,
-    Circle,
     History as HistoryIcon,
     Close as CloseIcon,
 } from "@mui/icons-material";
@@ -44,7 +42,6 @@ import { WebSpeech } from "../recognizers/WebSpeech";
 
 import { localization } from "../util/localization";
 // import { Gemini, GeminiState } from "../recognizers/Gemini";
-import { send_notification_text } from "../util/overlay";
 import {
     send_user_recognition,
     send_user_translation
@@ -67,8 +64,7 @@ export default function Kikitan({
     config,
     setConfig,
     lang,
-    settingsVisible,
-    setGeminiErrorShown
+    settingsVisible
 }: KikitanProps) {
     const [detecting, setDetecting] = React.useState(false);
     const [srStatus, setSRStatus] = React.useState(true);
@@ -78,7 +74,7 @@ export default function Kikitan({
     const [result, setResult] = React.useState<string[]>([]);
     const [detection, setDetection] = React.useState<string>("");
     const [translated, setTranslated] = React.useState("");
-    const [desktopResult, setDesktopResult] = React.useState("");
+    // const [desktopResult, setDesktopResult] = React.useState("");
 
     const [defaultMicrophone, setDefaultMicrophone] = React.useState(
         localization.waiting_for_mic_access[lang]
@@ -111,7 +107,7 @@ export default function Kikitan({
     //         connection_established_time: 0,
     //     });
 
-    const [statusTrigger, setStatusTrigger] = React.useState(false);
+    // const [statusTrigger, setStatusTrigger] = React.useState(false);
 
     const [showMessageHistory, setShowMessageHistory] = React.useState(false);
 
@@ -187,7 +183,7 @@ export default function Kikitan({
     //     desktopSR.start();
     // };
 
-    const restartSR = (cfg: Config) => {
+    const restartSR = () => {
         sr?.stop();
         // if (geminiSRInterval != null) {
         //     clearInterval(geminiSRInterval);
@@ -237,9 +233,9 @@ export default function Kikitan({
     //     setGeminiErrorShown(geminiDesktopStatus.error || geminiSRStatus.error)
     // }, [geminiDesktopStatus, geminiSRStatus])
 
-    React.useEffect(() => {
-        if (config.enable_overlay) send_notification_text(desktopResult, (config.source_language == "ja" || config.source_language == "ko" || config.source_language == "zh"));
-    }, [desktopResult]);
+    // React.useEffect(() => {
+    //     if (config.enable_overlay) send_notification_text(desktopResult, (config.source_language == "ja" || config.source_language == "ko" || config.source_language == "zh"));
+    // }, [desktopResult]);
 
     React.useEffect(() => {
         if (!languageUpdate) return;
@@ -253,7 +249,7 @@ export default function Kikitan({
             // desktopSR?.stop();
 
             setTimeout(() => {
-                restartSR(config);
+                restartSR();
                 // restartDesktopSR(config);
             }, 1000);
         }
@@ -262,7 +258,7 @@ export default function Kikitan({
     }, [languageUpdate]);
 
     React.useEffect(() => {
-        if (vrcMuted && !startedSpeaking) {
+        if (vrcMuted && !startedSpeaking && config.vrchat_settings.disable_kikitan_when_muted) {
             console.log("Skipping this");
 
             return;
@@ -446,7 +442,7 @@ export default function Kikitan({
                     });
             }, 1000);
 
-            restartSR(config);
+            restartSR();
             // restartDesktopSR(config);
         }
     }, []);
@@ -457,7 +453,7 @@ export default function Kikitan({
             defaultMicrophone != localization.waiting_for_mic_access[lang] &&
             srStatus
         ) {
-            restartSR(config);
+            restartSR();
             // restartDesktopSR(config);
             // setGeminiErrorShown(false);
         }
