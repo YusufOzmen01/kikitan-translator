@@ -37,7 +37,7 @@ import { listen } from "@tauri-apps/api/event";
 export async function setupMicrophoneCapture(
   callback: (chunk: Float32Array, sampleRate: number) => void
 ) {
-  const unlisten = await listen("audio-chunk", (event) => {
+  const unlisten = await listen("mic-audio-chunk", (event) => {
     const { chunk, sampleRate } = event.payload as { chunk: string; sampleRate: number };
 
     // decode base64 -> ArrayBuffer -> Float32Array

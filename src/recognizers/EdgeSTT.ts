@@ -5,7 +5,7 @@ import google_translate from "../translators/google_translate";
 
 const TRUSTED_TOKEN = "6A5AA1D4EAFF4E9FB37E23D68491D6F4";
 const MS_VERSION = "1-145.0.3800.70";
-const SAMPLE_RATE = 16000;
+const SAMPLE_RATE = 48000;
 const CHANNELS = 1;
 const BITS_PER_SAMPLE = 16;
 
@@ -124,6 +124,7 @@ function generateUuid(): string {
 export class EdgeSTT extends Recognizer {
     callback: ResultCallback = null;
     desktop_capture: boolean = false;
+    no_translate: boolean = false;
 
     ws: WebSocket | null = null;
     connectionId: string = "";
@@ -146,17 +147,19 @@ export class EdgeSTT extends Recognizer {
         language_src: string,
         language_target: string,
         desktop_capture: boolean = false,
+        no_translate: boolean = false,
     ) {
         super(language_src, language_target);
         this.desktop_capture = desktop_capture;
+        this.no_translate = no_translate;
     }
 
-    start(): void {
+    start() {
         this.running = true;
         this.initConnection();
     }
 
-    private async initConnection(): Promise<void> {
+    async initConnection() {
         if (!this.running) return;
 
         this.cleanup();
@@ -190,7 +193,7 @@ export class EdgeSTT extends Recognizer {
         }
     }
 
-    private onOpen(): void {
+    onOpen() {
         this.current_status.connected = true;
         this.current_status.connection_established_time = Date.now();
         this.current_status.error = false;
@@ -232,7 +235,7 @@ export class EdgeSTT extends Recognizer {
         this.startAudioCapture();
     }
 
-    private onMessage(ev: MessageEvent): void {
+    async onMessage(ev: MessageEvent) {
         let msgStr: string;
 
         if (typeof ev.data === "string") {
@@ -264,7 +267,8 @@ export class EdgeSTT extends Recognizer {
                     const data = JSON.parse(jsonPart);
                     if (data?.context?.serviceTag) {
                         this.currentServiceTag = data.context.serviceTag;
-                        info(`[EDGE-STT] Captured Service Tag: ${this.currentServiceTag}`);
+                        
+                        // info(`[EDGE-STT] Captured Service Tag: ${this.currentServiceTag}`);
                     }
                 }
             } catch (e) {
@@ -278,7 +282,6 @@ export class EdgeSTT extends Recognizer {
                 if (jsonPart) {
                     const parsed = JSON.parse(jsonPart);
                     if (parsed.Text) {
-                        info(`[EDGE-STT] Partial: ${parsed.Text}`);
                         this.callback?.([parsed.Text, ""], false);
                     }
                 }
@@ -293,8 +296,11 @@ export class EdgeSTT extends Recognizer {
                 if (jsonPart) {
                     const parsed = JSON.parse(jsonPart);
                     if (parsed.DisplayText) {
-                        info(`[EDGE-STT] Final: ${parsed.DisplayText}`);
-                        this.callback?.([parsed.DisplayText, ""], true);
+                        const response = [parsed.DisplayText, ""];
+
+                        if (!this.no_translate) response[1] = await google_translate(parsed.DisplayText, this.language_src, this.language_target);
+
+                        this.callback?.(response, true);
                     }
                 }
             } catch (e) {
@@ -303,33 +309,31 @@ export class EdgeSTT extends Recognizer {
         }
 
         if (msgStr.includes("Path:turn.end")) {
-            info("[EDGE-STT] Turn end detected. Restarting stream...");
             this.handleTurnRestart();
         }
     }
 
-    private onError(ev: Event): void {
+    onError(ev: Event) {
         logError(`[EDGE-STT${this.desktop_capture ? " DESKTOP" : ""}] WebSocket error: ${ev}`);
         this.current_status.connected = false;
         this.current_status.error = true;
         this.current_status.error_message = "WebSocket error";
     }
 
-    private onClose(ev: CloseEvent): void {
+    onClose(ev: CloseEvent) {
         info(
             `[EDGE-STT${this.desktop_capture ? " DESKTOP" : ""}] Connection closed: ${ev.code} ${ev.reason}`,
         );
         this.current_status.connected = false;
         this.audioStreamActive = false;
 
-        // Reconnect if still running
         if (this.running) {
             info("[EDGE-STT] Connection lost. Restarting connection...");
             this.initConnection();
         }
     }
 
-    private handleTurnRestart(): void {
+    handleTurnRestart() {
         if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return;
 
         this.restartPending = true;
@@ -337,7 +341,6 @@ export class EdgeSTT extends Recognizer {
         this.currentRequestId = generateUuid();
         this.streamIdCounter++;
 
-        // Calculate offset from bytes sent: offset = (bytesSent / bytesPerSecond) * 10^7 (100ns units)
         const bytesPerSecond = SAMPLE_RATE * CHANNELS * (BITS_PER_SAMPLE / 8);
         const secondsSent = this.bytesSent / bytesPerSecond;
         const offset100ns = Math.floor(secondsSent * 10_000_000);
@@ -360,17 +363,14 @@ export class EdgeSTT extends Recognizer {
             ),
         );
 
-        // Send new WAV header for the new turn
         this.sendWavHeader();
 
         this.restartPending = false;
 
-        info(
-            `[EDGE-STT] Restarted stream. RequestId: ${this.currentRequestId} StreamId: ${this.streamIdCounter} Offset: ${currentOffset}`,
-        );
+        // info(`[EDGE-STT] Restarted stream. RequestId: ${this.currentRequestId} StreamId: ${this.streamIdCounter} Offset: ${currentOffset}`);
     }
 
-    private sendWavHeader(): void {
+    sendWavHeader() {
         if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return;
 
         const headerMsg = createBinaryMessage(
@@ -383,7 +383,7 @@ export class EdgeSTT extends Recognizer {
         this.ws.send(headerMsg);
     }
 
-    private startAudioCapture(): void {
+    startAudioCapture() {
         this.audioStreamActive = true;
 
         const captureCallback = (
@@ -427,13 +427,13 @@ export class EdgeSTT extends Recognizer {
         }
     }
 
-    private wsSendText(msg: string): void {
+    wsSendText(msg: string) {
         if (this.ws && this.ws.readyState === WebSocket.OPEN) {
             this.ws.send(msg);
         }
     }
 
-    private cleanup(): void {
+    cleanup() {
         this.audioStreamActive = false;
 
         if (this.ws) {
@@ -446,7 +446,7 @@ export class EdgeSTT extends Recognizer {
         }
     }
 
-    stop(): void {
+    stop() {
         this.running = false;
         this.cleanup();
 

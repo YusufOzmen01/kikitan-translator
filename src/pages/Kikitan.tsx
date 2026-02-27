@@ -443,6 +443,10 @@ export default function Kikitan({
                     });
             }, 1000);
 
+            invoke("get_microphone_list").then(data => {
+                console.log(`Mic: ${data}`)
+            })
+
             restartSR();
             // restartDesktopSR(config);
         }
