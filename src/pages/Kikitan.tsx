@@ -38,26 +38,26 @@ import {
 
 import { Config, MessageHistoryItem } from "../util/config";
 import { Recognizer } from "../recognizers/recognizer";
-import { WebSpeech } from "../recognizers/WebSpeech";
 import { EdgeSTT } from "../recognizers/EdgeSTT";
 
 import { localization } from "../util/localization";
-// import { Gemini, GeminiState } from "../recognizers/Gemini";
 import {
+    send_desktop_recognition,
+    send_desktop_translation,
     send_user_recognition,
     send_user_translation
 } from "../util/data_out";
+import { send_notification_text } from "../util/overlay";
 
 type KikitanProps = {
     config: Config;
     setConfig: (config: Config) => void;
-    setGeminiErrorShown: (state: boolean) => void;
     lang: Lang;
     settingsVisible: boolean;
 };
 
 let sr: Recognizer | null = null;
-// let desktopSR: Recognizer | null = null;
+let desktopSR: Recognizer | null = null;
 let detectionQueue: string[][] = [];
 let lock = false;
 
@@ -75,7 +75,7 @@ export default function Kikitan({
     const [result, setResult] = React.useState<string[]>([]);
     const [detection, setDetection] = React.useState<string>("");
     const [translated, setTranslated] = React.useState("");
-    // const [desktopResult, setDesktopResult] = React.useState("");
+    const [desktopResult, setDesktopResult] = React.useState("");
 
     const [defaultMicrophone, setDefaultMicrophone] = React.useState(
         localization.waiting_for_mic_access[lang]
@@ -94,121 +94,44 @@ export default function Kikitan({
 
     const [languageUpdate, setLanguageUpdate] = React.useState(false);
 
-    // const [geminiSRStatus, setGeminiSRStatus] = React.useState<GeminiState>({
-    //     connected: false,
-    //     error: false,
-    //     connection_init_time: 0,
-    //     connection_established_time: 0,
-    // });
-    // const [geminiDesktopStatus, setGeminiDesktopStatus] =
-    //     React.useState<GeminiState>({
-    //         connected: false,
-    //         error: false,
-    //         connection_init_time: 0,
-    //         connection_established_time: 0,
-    //     });
-
-    // const [statusTrigger, setStatusTrigger] = React.useState(false);
-
     const [showMessageHistory, setShowMessageHistory] = React.useState(false);
-
-    // const [geminiSRInterval, setGeminiSRInterval] =
-    //     React.useState<NodeJS.Timeout | null>(null);
-    // const [geminiDesktopInterval, setGeminiDesktopInterval] =
-    //     React.useState<NodeJS.Timeout | null>(null);
 
     const [textInputVisible, setTextInputVisible] = React.useState(false);
     const [textInputValue, setTextInputValue] = React.useState("");
 
     const textInputRef = React.useRef<HTMLInputElement>(null);
 
-    // const setGeminiAsSR = () => {
-    //     sr = new Gemini(
-    //         sourceLanguage,
-    //         targetLanguage,
-    //         config.gemini_settings.gemini_api_key,
-    //         !config.gemini_settings.microphone_capture,
-    //         config.language_settings.japanese_omit_questionmark
-    //     );
-    //     info("[SR] Using Gemini for recognition");
+    const enableDesktopCapture = () => {
+        desktopSR?.stop();
 
-    //     setGeminiSRInterval(
-    //         setInterval(() => {
-    //             setGeminiSRStatus(sr?.status() as GeminiState);
+        desktopSR = new EdgeSTT(
+            targetLanguage,
+            sourceLanguage,
+            true,
+            false
+        );
 
-    //             setStatusTrigger(!statusTrigger);
-    //         }, 100)
-    //     );
+        desktopSR.onResult(async (result: string[], isFinal: boolean) => {
+            if (config.data_out.enable_desktop_data) {
+                send_desktop_recognition(result[0], isFinal);
 
-    //     sr.onResult((result: string[], isFinal: boolean) => {
-    //         setDetecting(!isFinal);
-    //         setResult(result);
-    //     });
-    // };
+                if (isFinal) send_desktop_translation(result[1]);
+            }
 
-    // const enableDesktopCapture = () => {
-    //     desktopSR?.stop();
+            if (isFinal) {
+                console.log("[DESKTOP CAPTURE] Result: " + result);
 
-    //     desktopSR = new Gemini(
-    //         targetLanguage,
-    //         sourceLanguage,
-    //         config.gemini_settings.gemini_api_key,
-    //         false,
-    //         config.language_settings.japanese_omit_questionmark,
-    //         true
-    //     );
-    //     info("[DESKTOP CAPTURE] Using Gemini for recognition");
+                setDesktopResult(result[1]);
+            }
+        });
 
-    //     setGeminiDesktopInterval(
-    //         setInterval(() => {
-    //             setGeminiDesktopStatus(desktopSR?.status() as GeminiState);
-
-    //             setStatusTrigger(!statusTrigger);
-    //         }, 100)
-    //     );
-
-    //     desktopSR.onResult(async (result: string[], isFinal: boolean) => {
-    //         if (config.data_out.enable_desktop_data) {
-    //             send_desktop_recognition(result[0], isFinal);
-
-    //             if (isFinal) send_desktop_translation(result[1]);
-    //         }
-
-    //         if (isFinal) {
-    //             console.log("[DESKTOP CAPTURE] Result: " + result);
-
-    //             setDesktopResult(result[1]);
-    //         }
-    //     });
-
-    //     desktopSR.start();
-    // };
+        desktopSR.start();
+    };
 
     const restartSR = () => {
         sr?.stop();
-        // if (geminiSRInterval != null) {
-        //     clearInterval(geminiSRInterval);
-        //     setGeminiSRInterval(null);
-        // }
-
-        // if (geminiDesktopInterval != null) {
-        //     clearInterval(geminiDesktopInterval);
-        //     setGeminiDesktopInterval(null);
-        // }
 
         info(`[SR] Initializing SR...`);
-
-        // if (!cfg.gemini_settings.microphone_capture) {
-        //     sr = new WebSpeech(sourceLanguage, targetLanguage);
-        //     info("[SR] Using WebSpeech for recognition");
-
-        //     sr.onResult((result: string[], isFinal: boolean) => {
-        //         setDetecting(!isFinal);
-        //         setResult(result);
-        //     });
-        // } else {
-        //     setGeminiAsSR();
-        // }
 
         sr = new EdgeSTT(sourceLanguage, targetLanguage);
         info("[SR] Using WebSpeech for recognition");
@@ -222,21 +145,17 @@ export default function Kikitan({
         sr?.start();
     };
 
-    // const restartDesktopSR = (cfg: Config) => {
-    //     if (cfg.gemini_settings.desktop_capture) {
-    //         info("[DESKTOP CAPTURE] Starting desktop capture...");
+    const restartDesktopSR = (cfg: Config) => {
+        if (cfg.desktop_capture) {
+            info("[DESKTOP CAPTURE] Starting desktop capture...");
 
-    //         enableDesktopCapture();
-    //     } else desktopSR?.stop();
-    // };
+            enableDesktopCapture();
+        } else desktopSR?.stop();
+    };
 
-    // React.useEffect(() => {
-    //     setGeminiErrorShown(geminiDesktopStatus.error || geminiSRStatus.error)
-    // }, [geminiDesktopStatus, geminiSRStatus])
-
-    // React.useEffect(() => {
-    //     if (config.enable_overlay) send_notification_text(desktopResult, (config.source_language == "ja" || config.source_language == "ko" || config.source_language == "zh"));
-    // }, [desktopResult]);
+    React.useEffect(() => {
+        if (config.enable_overlay) send_notification_text(desktopResult, (config.source_language == "ja" || config.source_language == "ko" || config.source_language == "zh"));
+    }, [desktopResult]);
 
     React.useEffect(() => {
         if (!languageUpdate) return;
@@ -247,11 +166,11 @@ export default function Kikitan({
 
         if (sr) {
             sr?.stop();
-            // desktopSR?.stop();
+            desktopSR?.stop();
 
             setTimeout(() => {
                 restartSR();
-                // restartDesktopSR(config);
+                restartDesktopSR(config);
             }, 1000);
         }
 
@@ -303,11 +222,11 @@ export default function Kikitan({
         if (srStatus) {
             info("[SR] Starting SR...");
             sr.start();
-            // desktopSR?.start();
+            desktopSR?.start();
         } else {
             info("[SR] Stopping SR...");
             sr.stop();
-            // desktopSR?.stop();
+            desktopSR?.stop();
         }
     }, [srStatus]);
 
@@ -329,7 +248,6 @@ export default function Kikitan({
 
             if (config.mode == 0) setTranslated(current_translation);
 
-            // Add to message history if enabled
             if (config.message_history.enabled) {
                 const newHistoryItem: MessageHistoryItem = {
                     source: current_detection,
@@ -337,7 +255,6 @@ export default function Kikitan({
                     timestamp: Date.now(),
                 };
 
-                // Add the new item and limit to max items
                 const updatedItems = [
                     newHistoryItem,
                     ...config.message_history.items,
@@ -395,12 +312,12 @@ export default function Kikitan({
             setSRStatus(!event.payload);
         });
 
-        // listen<boolean>("disable-kikitan-desktop", (event) => {
-        //     info(`[OSC] Received disable desktop capture ${event.payload}`);
+        listen<boolean>("disable-kikitan-desktop", (event) => {
+            info(`[OSC] Received disable desktop capture ${event.payload}`);
 
-        //     if (event.payload) desktopSR?.stop();
-        //     else desktopSR?.start();
-        // });
+            if (event.payload) desktopSR?.stop();
+            else desktopSR?.start();
+        });
 
         listen<boolean>("disable-kikitan-chatbox", (event) => {
             info(`[OSC] Received disable chatbox ${event.payload}`);
@@ -443,12 +360,8 @@ export default function Kikitan({
                     });
             }, 1000);
 
-            invoke("get_microphone_list").then(data => {
-                console.log(`Mic: ${data}`)
-            })
-
             restartSR();
-            // restartDesktopSR(config);
+            restartDesktopSR(config);
         }
     }, []);
 
@@ -459,8 +372,7 @@ export default function Kikitan({
             srStatus
         ) {
             restartSR();
-            // restartDesktopSR(config);
-            // setGeminiErrorShown(false);
+            restartDesktopSR(config);
         }
     }, [settingsVisible]);
 
@@ -925,133 +837,6 @@ export default function Kikitan({
             </div>
 
             <div id="social-links" className="align-middle">
-            { /* 
-                <div className="flex justify-center">
-                    <p
-                        className={`text-sm mt-2 ${config.gemini_settings.microphone_capture
-                                ? "text-slate-700"
-                                : "text-slate-200"
-                            }`}
-                    >
-                        {localization.legacy_capture[lang]}
-                    </p>
-                    <Switch
-                        sx={{
-                            "& .MuiSwitch-thumb": {
-                                color: config.light_mode
-                                    ? "#444444"
-                                    : "#94A3B8",
-                            },
-                            "& .MuiSwitch-track": {
-                                backgroundColor: config.light_mode
-                                    ? "#000000"
-                                    : "#94A3B8",
-                            },
-                        }}
-                        checked={config.gemini_settings.microphone_capture}
-                        onChange={(e) => {
-                            const new_cfg = {
-                                ...config,
-                                gemini_settings: {
-                                    ...config.gemini_settings,
-                                    microphone_capture: e.target.checked,
-                                },
-                            };
-                            setConfig(new_cfg);
-                            restartSR(new_cfg);
-                        }}
-                    ></Switch>
-                    <p
-                        className={`text-sm mt-2 ${!config.gemini_settings.microphone_capture
-                                ? "text-slate-700"
-                                : "text-slate-200"
-                            }`}
-                    >
-                        {localization.gemini_capture[lang]}
-                    </p>
-                </div>
-                 */ }
-                
-                {/* <div className="flex justify-center">
-                    <p
-                        className={`text-sm mt-2 ${config.gemini_settings.desktop_capture
-                                ? "text-slate-700"
-                                : "text-slate-200"
-                            }`}
-                    >
-                        {localization.disable_desktop_capture[lang]}
-                    </p>
-                    <Switch
-                        sx={{
-                            "& .MuiSwitch-thumb": {
-                                color: config.light_mode
-                                    ? "#444444"
-                                    : "#94A3B8",
-                            },
-                            "& .MuiSwitch-track": {
-                                backgroundColor: config.light_mode
-                                    ? "#000000"
-                                    : "#94A3B8",
-                            },
-                        }}
-                        checked={config.gemini_settings.desktop_capture}
-                        onChange={(e) => {
-                            const new_cfg = {
-                                ...config,
-                                gemini_settings: {
-                                    ...config.gemini_settings,
-                                    desktop_capture: e.target.checked,
-                                },
-                            };
-                            setConfig(new_cfg);
-                            restartDesktopSR(new_cfg);
-                        }}
-                    ></Switch>
-                    <p
-                        className={`text-sm mt-2 ${!config.gemini_settings.desktop_capture
-                                ? "text-slate-700"
-                                : "text-slate-200"
-                            }`}
-                    >
-                        {localization.enable_desktop_capture[lang]}
-                    </p>
-                </div> */}
-                {/* <div
-                    id="gemini-status"
-                    className="text-md flex justify-center gap-1"
-                >
-                    <p className="text-center">
-                        <Circle
-                            color={
-                                geminiSRStatus?.connected
-                                    ? "success"
-                                    : geminiSRStatus?.error ||
-                                        geminiSRStatus?.connection_established_time !=
-                                        0
-                                        ? "error"
-                                        : geminiSRStatus?.connection_init_time
-                                            ? "warning"
-                                            : "inherit"
-                            }
-                            className="mr-2"
-                        ></Circle>
-                        {localization.gemini_status[lang]}
-                        <Circle
-                            color={
-                                geminiDesktopStatus?.connected
-                                    ? "success"
-                                    : geminiDesktopStatus?.error ||
-                                        geminiDesktopStatus?.connection_established_time !=
-                                        0
-                                        ? "error"
-                                        : geminiDesktopStatus?.connection_init_time
-                                            ? "warning"
-                                            : "inherit"
-                            }
-                            className="ml-2"
-                        ></Circle>
-                    </p>
-                </div> */}
                 <div id="default-mic" className="justify-center flex mt-4">
                     <KeyboardVoiceIcon fontSize="small" />
                     <a

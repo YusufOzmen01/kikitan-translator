@@ -22,7 +22,6 @@ type QuickstartMenuProps = {
 
 export default function QuickstartMenu({ config, setLang, lang, setConfig }: QuickstartMenuProps) {
     const [quickstartPage, setQuickstartPage] = React.useState(0)
-    // const [geminiTutorialShow, setGeminiTutorialShow] = React.useState(false)
 
     return <>
         <div className={`absolute z-10 flex flex-col justify-between w-10/12 h-5/6 outline outline-2 rounded  ${!config.light_mode ? "bg-slate-950 outline-slate-950" : "bg-white outline-white"}`}>
@@ -166,53 +165,6 @@ export default function QuickstartMenu({ config, setLang, lang, setConfig }: Qui
                             }} />} label={localization.only_send_translation[lang]} />
                         </FormGroup>
                     </div>
-
-                    {/* <div className={'inset-0 transition-all space-y-2 flex flex-col items-center justify-center ease-in-out ' + (quickstartPage == 6 ? "opacity-100" : "opacity-0 pointer-events-none")}>
-                        <div className='mt-4'>
-                            <p className='text-4xl bold text-center'>Google Gemini</p>
-                            <p className='text-sm mt-2 text-center'>{localization.google_gemini_note[lang]}</p>
-                        </div>
-                        <FormGroup>
-                            <FormControlLabel control={<Checkbox checked={config.gemini_settings.microphone_capture} onChange={(e) => {
-                                setConfig({
-                                    ...config,
-                                    gemini_settings: {
-                                        ...config.gemini_settings,
-                                        microphone_capture: e.target.checked
-                                    }
-                                })
-                            }} />} label={localization.enable_gemini_microphone_capture[lang]} />
-                            <FormControlLabel control={<Checkbox checked={config.gemini_settings.desktop_capture} onChange={(e) => {
-                                setConfig({
-                                    ...config,
-                                    gemini_settings: {
-                                        ...config.gemini_settings,
-                                        desktop_capture: e.target.checked
-                                    }
-                                })
-                            }} />} label={localization.enable_desktop_capture[lang]} />
-                            <div className="flex flex-row gap-2">
-                                <TextField slotProps={{
-                                    inputLabel: {
-                                        style: { color: config.light_mode ? "black" : '#94A3B8' },
-                                    },
-                                    htmlInput: {
-                                        style: { color: config.light_mode ? "black" : '#fff' }
-                                    }
-                                }} className="w-48 h-8" value={config.gemini_settings.gemini_api_key} id="outlined-basic" label={"Gemini API Key"} variant="outlined" type="password" onChange={(e) => {
-                                    setConfig({
-                                        ...config,
-                                        gemini_settings: {
-                                            ...config.gemini_settings,
-                                            gemini_api_key: e.target.value
-                                        }
-                                    })
-                                }} />
-                                <Button variant="contained" color="success" className="h-14" onClick={async () => { invoke("open_url", { url: "https://aistudio.google.com/api-keys" }) }}>{localization.get_gemini_api_key[lang]}</Button>
-                                <Button variant="contained" className="h-14" onClick={async () => { setGeminiTutorialShow(true) }}>{localization.gemini_api_key_tutorial[lang]}</Button>
-                            </div>
-                        </FormGroup>
-                    </div> */}
                 </Box>
 
                 <div className={'absolute inset-0 transition-all space-y-2 flex flex-col items-center justify-center ease-in-out ' + (quickstartPage == 5 ? "opacity-100" : "opacity-0 pointer-events-none")}>
@@ -252,67 +204,7 @@ export default function QuickstartMenu({ config, setLang, lang, setConfig }: Qui
                         borderColor: config.light_mode ? '#666666 !important' : '#4f4f4f !important'
                     }
                 }} variant='contained' disabled={quickstartPage == 0} onClick={() => { setQuickstartPage(quickstartPage - 1) }}>{localization.previous[lang]}</Button>
-                {/* {(quickstartPage == 6 && (config.gemini_settings.desktop_capture || config.gemini_settings.microphone_capture) && config.gemini_settings.gemini_api_key.trim().length == 0) &&
-                    <>
-                        <Tooltip title={localization.you_have_empty_apikey[lang]}>
-                            <Button sx={{
-                                '&.Mui-disabled': {
-                                    color: config.light_mode ? '#666666 !important' : '#4f4f4f !important',
-                                    borderColor: config.light_mode ? '#666666 !important' : '#4f4f4f !important'
-                                }
-                            }} className='ml-4' variant='contained' color="warning" onClick={() => {
-                                setConfig({
-                                    ...config,
-                                    gemini_settings: {
-                                        ...config.gemini_settings,
-                                        microphone_capture: false,
-                                        desktop_capture: false
-                                    }
-                                })
-
-                                setQuickstartPage(quickstartPage + 1)
-                            }}>{localization.next[lang]}
-                            </Button>
-                        </Tooltip>
-                    </>
-                } */}
-
-                {/* {quickstartPage == 2 &&
-                    <>
-                        <Tooltip title={localization.watch_tutorial[lang]}>
-                            <Button sx={{
-                                '&.Mui-disabled': {
-                                    color: config.light_mode ? '#666666 !important' : '#4f4f4f !important',
-                                    borderColor: config.light_mode ? '#666666 !important' : '#4f4f4f !important'
-                                }
-                            }} className='ml-4' variant='contained' color="warning" onClick={() => {
-                                setQuickstartPage(quickstartPage + 1)
-                            }}>{localization.next[lang]}
-                            </Button>
-                        </Tooltip>
-                    </>
-                } */}
-
-                {!((quickstartPage == 6 && (config.gemini_settings.desktop_capture || config.gemini_settings.microphone_capture) && config.gemini_settings.gemini_api_key.trim().length == 0)) && <Button sx={{
-                    '&.Mui-disabled': {
-                        color: config.light_mode ? '#666666 !important' : '#4f4f4f !important',
-                        borderColor: config.light_mode ? '#666666 !important' : '#4f4f4f !important'
-                    }
-                }} className='ml-4' variant='contained' disabled={quickstartPage > 4} onClick={() => { setQuickstartPage(quickstartPage + 1) }}>{localization.next[lang]}</Button>}
             </div>
         </div>
-
-        {/* <div className={'transition-all z-20 w-full h-[192] flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (geminiTutorialShow ? " opacity-100" : " opacity-0 pointer-events-none")}>
-            <div className={`flex flex-col items-center justify-center w-10/12 h-3/6 outline outline-1 ${config.light_mode ? "outline-white" : "outline-slate-950"} outline-gray-200 rounded ${config.light_mode ? "bg-white" : "bg-slate-950"}`}>
-                {geminiTutorialShow &&
-                    <video autoPlay loop controls className='mt-4'>
-                        <source src="/gemini_tutorial.mp4" type="video/mp4"></source>
-                    </video>
-                }
-                <div className='flex flex-row justify-center mt-4 mb-4'>
-                    <Button variant="contained" className='w-48' onClick={() => { setGeminiTutorialShow(false) }}>{localization.close_menu[lang]}</Button>
-                </div>
-            </div>
-        </div> */}
     </>
 }

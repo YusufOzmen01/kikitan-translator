@@ -2,6 +2,7 @@ import { Recognizer } from "./recognizer";
 import { error, info, error as logError } from "@tauri-apps/plugin-log";
 import { setupMicrophoneCapture, setupSystemAudioCapture } from "../util/audiocapture";
 import google_translate from "../translators/google_translate";
+import { invoke } from "@tauri-apps/api/core";
 
 const TRUSTED_TOKEN = "6A5AA1D4EAFF4E9FB37E23D68491D6F4";
 const MS_VERSION = "1-145.0.3800.70";
@@ -422,6 +423,30 @@ export class EdgeSTT extends Recognizer {
 
         if (this.desktop_capture) {
             setupSystemAudioCapture(captureCallback);
+
+            (async () => {
+                    const res: boolean = await invoke("is_desktop_overlay_running");
+                    if (res) info("[OVERLAY] Overlay is already running!");
+                    else {
+                        try {
+                            info(
+                                "[OVERLAY] Starting desktop overlay...",
+                            );
+
+                            await invoke("start_desktop_overlay");
+                            await new Promise((resolve) =>
+                                setTimeout(resolve, 2000),
+                            );
+                        } catch (error) {
+                            info(
+                                `[OVERLAY] Failed to start desktop overlay: ${error}`,
+                            );
+                            info(
+                                "[OVERLAY] Desktop overlay functionality will be disabled.",
+                            );
+                        }
+                    }
+                })();
         } else {
             setupMicrophoneCapture(captureCallback);
         }

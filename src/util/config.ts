@@ -24,6 +24,7 @@ export type Config = {
     target_language: string,
     light_mode: boolean,
     mode: number,
+    desktop_capture: boolean,
     language_settings: {
         japanese_omit_questionmark: boolean,
     },
@@ -37,11 +38,6 @@ export type Config = {
         chatbox_update_speed: number,
         osc_address: string,
         osc_port: number
-    },
-    gemini_settings: {
-        microphone_capture: boolean,
-        desktop_capture: boolean,
-        gemini_api_key: string
     },
     message_history: {
         enabled: boolean,
@@ -59,6 +55,7 @@ export const DEFAULT_CONFIG: Config = {
     target_language: "ja",
     mode: 0,
     light_mode: false,
+    desktop_capture: false,
     enable_overlay: true,
     language_settings: {
         japanese_omit_questionmark: true
@@ -72,11 +69,6 @@ export const DEFAULT_CONFIG: Config = {
         chatbox_update_speed: speed_presets.slow,
         osc_address: "127.0.0.1",
         osc_port: 9000
-    },
-    gemini_settings: {
-        microphone_capture: false,
-        desktop_capture: false,
-        gemini_api_key: ""
     },
     message_history: {
         enabled: true,
@@ -144,14 +136,6 @@ export function load_config(): Config {
 }
 
 export function update_config(config: Config) {
-    // info(`[CONFIG] Updating config to ${JSON.stringify({
-    //     ...config,
-    //     gemini_settings: {
-    //         ...config.gemini_settings,
-    //         gemini_api_key: config.gemini_settings.gemini_api_key.trim().length > 0 ? "********" : ""
-    //     }
-    // }, null, 2)}`)
-
     sendConfigDataToVRC(config)
 
     localStorage.setItem("config", JSON.stringify(config))
@@ -159,7 +143,7 @@ export function update_config(config: Config) {
 
 function sendConfigDataToVRC(config: Config) {
     invoke("send_disable_desktop", {
-        data: !config.gemini_settings.desktop_capture,
+        data: !config.desktop_capture,
         address: config.vrchat_settings.osc_address,
         port: `${config.vrchat_settings.osc_port}`,
     });

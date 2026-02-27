@@ -62,7 +62,6 @@ type SettingsProps = {
 
 export default function Settings({ closeCallback, config, setConfig, lang }: SettingsProps) {
     const [page, setPage] = React.useState(0);
-    const [geminiTutorialShow, setGeminiTutorialShow] = React.useState(false)
 
     const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
         setPage(newValue);
@@ -102,7 +101,6 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                     </IconButton>
                     <Tabs textColor="inherit" value={page} onChange={handleChange} variant="scrollable" scrollButtons="auto">
                         <Tab label={localization.vrchat_settings[lang]} {...a11yProps(0)} />
-                        {/* <Tab label="Gemini" {...a11yProps(1)} /> */}
                         <Tab label={localization.message_history[lang]} {...a11yProps(1)} />
                         <Tab label={localization.data_out[lang]} {...a11yProps(2)} />
                         <Tab label={localization.debug_settings[lang]} {...a11yProps(3)} />
@@ -225,48 +223,6 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                         </Select>
                     </FormGroup>
                 </CustomTabPanel>
-                {/* <CustomTabPanel value={page} index={1}>
-                    <div className="flex flex-col">
-                        <FormControlLabel control={<Checkbox checked={config.gemini_settings.microphone_capture} onChange={(e) => {
-                            setConfig({
-                                ...config,
-                                gemini_settings: {
-                                    ...config.gemini_settings,
-                                    microphone_capture: e.target.checked
-                                }
-                            })
-                        }} />} label={localization.enable_gemini_microphone_capture[lang]} />
-                        <FormControlLabel control={<Checkbox checked={config.gemini_settings.desktop_capture} onChange={(e) => {
-                            setConfig({
-                                ...config,
-                                gemini_settings: {
-                                    ...config.gemini_settings,
-                                    desktop_capture: e.target.checked
-                                }
-                            })
-                        }} />} label={localization.enable_desktop_capture[lang]} />
-                        <div className="flex transition-all mt-3 gap-2">
-                            <TextField slotProps={{
-                                inputLabel: {
-                                    style: { color: config.light_mode ? "black" : '#94A3B8' },
-                                },
-                                htmlInput: {
-                                    style: { color: config.light_mode ? "black" : '#fff' }
-                                }
-                            }} className="w-48 h-8" value={config.gemini_settings.gemini_api_key} id="outlined-basic" label={"Gemini API Key"} variant="outlined" type="password" onChange={(e) => {
-                                setConfig({
-                                    ...config,
-                                    gemini_settings: {
-                                        ...config.gemini_settings,
-                                        gemini_api_key: e.target.value
-                                    }
-                                })
-                            }} />
-                            <Button variant="contained" color="success" className="h-14" onClick={async () => { open("https://aistudio.google.com/apikey"); }}>{localization.get_gemini_api_key[lang]}</Button>
-                            <Button variant="contained" className="h-14" onClick={async () => { setGeminiTutorialShow(true) }}>{localization.gemini_api_key_tutorial[lang]}</Button>
-                        </div>
-                    </div>
-                </CustomTabPanel> */}
                 <CustomTabPanel className="flex" value={page} index={1}>
                     <FormGroup>
                         <FormControlLabel control={<Checkbox checked={config.message_history.enabled} onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -363,20 +319,14 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                         <Button variant="contained" onClick={async () => {
                             open(await appLogDir())
                         }}>{localization.open_logs[lang]}</Button>
+                        <FormControlLabel control={<Checkbox checked={config.desktop_capture} onChange={(e) => {
+                            setConfig({
+                                ...config,
+                                desktop_capture: e.target.checked
+                            })
+                        }} />} label={localization.enable_desktop_capture[lang]} />
                     </FormGroup>
                 </CustomTabPanel>
-            </div>
-            <div className={'transition-all z-20 w-full h-[192] flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (geminiTutorialShow ? " opacity-100" : " opacity-0 pointer-events-none")}>
-                <div className={`flex flex-col items-center justify-center w-10/12 h-3/6 outline outline-1 ${config.light_mode ? "outline-white" : "outline-slate-950"} outline-gray-200 rounded ${config.light_mode ? "bg-white" : "bg-slate-950"}`}>
-                    {geminiTutorialShow &&
-                        <video autoPlay loop controls className='mt-4'>
-                            <source src="/gemini_tutorial.mp4" type="video/mp4"></source>
-                        </video>
-                    }
-                    <div className='flex flex-row justify-center mt-4 mb-4'>
-                        <Button variant="contained" className='w-48' onClick={() => { setGeminiTutorialShow(false) }}>{localization.close_menu[lang]}</Button>
-                    </div>
-                </div>
             </div>
         </Box>
     </>
