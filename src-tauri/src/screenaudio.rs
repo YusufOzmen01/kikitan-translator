@@ -14,7 +14,7 @@ static CAPTURE_STATE: Lazy<Arc<Mutex<Option<CaptureState>>>> =
     Lazy::new(|| Arc::new(Mutex::new(None)));
 
 #[tauri::command]
-pub fn start_audio_capture(app: tauri::AppHandle) -> Result<(), String> {
+pub fn start_desktop_audio_capture(app: tauri::AppHandle) -> Result<(), String> {
     let mut state_guard = CAPTURE_STATE.lock().unwrap();
     if state_guard.is_some() {
         return Err("Audio capture already running".into());
@@ -97,7 +97,7 @@ pub fn start_audio_capture(app: tauri::AppHandle) -> Result<(), String> {
 }
 
 #[tauri::command]
-pub fn stop_audio_capture() {
+pub fn stop_desktop_audio_capture() {
     let mut state_guard = CAPTURE_STATE.lock().unwrap();
     if let Some(state) = state_guard.as_mut() {
         state.stop_flag = true;

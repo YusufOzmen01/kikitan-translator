@@ -39,6 +39,7 @@ import {
 import { Config, MessageHistoryItem } from "../util/config";
 import { Recognizer } from "../recognizers/recognizer";
 import { WebSpeech } from "../recognizers/WebSpeech";
+import { EdgeSTT } from "../recognizers/EdgeSTT";
 
 import { localization } from "../util/localization";
 // import { Gemini, GeminiState } from "../recognizers/Gemini";
@@ -209,7 +210,7 @@ export default function Kikitan({
         //     setGeminiAsSR();
         // }
 
-        sr = new WebSpeech(sourceLanguage, targetLanguage);
+        sr = new EdgeSTT(sourceLanguage, targetLanguage);
         info("[SR] Using WebSpeech for recognition");
 
         sr.onResult((result: string[], isFinal: boolean) => {
