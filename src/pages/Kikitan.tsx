@@ -10,7 +10,7 @@ import {
     Tooltip
 } from "@mui/material";
 
-import { info, error, warn } from "@tauri-apps/plugin-log";
+import { info, warn } from "@tauri-apps/plugin-log";
 
 import {
     X as XIcon,
@@ -77,11 +77,7 @@ export default function Kikitan({
     const [translated, setTranslated] = React.useState("");
     const [desktopResult, setDesktopResult] = React.useState("");
 
-    const [defaultMicrophone, setDefaultMicrophone] = React.useState(
-        localization.waiting_for_mic_access[lang]
-    );
-    const [lastDefaultMicrophone, setLastDefaultMicrophone] =
-        React.useState("");
+    const [microphones, setMicrophones] = React.useState<{ name: string, sample_rate: number }[]>([])
 
     const [triggerUpdate, setTriggerUpdate] = React.useState(false);
 
@@ -133,7 +129,7 @@ export default function Kikitan({
 
         info(`[SR] Initializing SR...`);
 
-        sr = new EdgeSTT(sourceLanguage, targetLanguage);
+        sr = new EdgeSTT(sourceLanguage, targetLanguage, false, config.mode == 1);
         info("[SR] Using WebSpeech for recognition");
 
         sr.onResult((result: string[], isFinal: boolean) => {
@@ -341,56 +337,26 @@ export default function Kikitan({
         });
 
         if (sr == null) {
-            setInterval(() => {
-                navigator.mediaDevices
-                    .enumerateDevices()
-                    .then(function (devices) {
-                        let def = devices.filter(
-                            (device) => device.kind == "audioinput"
-                        )[0].label;
-                        def = def.split("(")[1].split(")")[0];
-
-                        setDefaultMicrophone(def);
+            invoke("get_microphone_list").then((data) => {
+                const d = data as { name: string, sample_rate: number }[];
+                if (d.filter(val => val.name == config.microphone).length == 0) {
+                    setConfig({
+                        ...config,
+                        microphone: d[0].name
                     })
-                    .catch(function (err) {
-                        error(
-                            `[MEDIA] Error while trying to pull the media devices: ${err.name + " " + err.message
-                            }`
-                        );
-                    });
-            }, 1000);
+                }
 
-            restartSR();
-            restartDesktopSR(config);
+                setMicrophones(d)
+            })
         }
     }, []);
 
     React.useEffect(() => {
-        if (
-            settingsVisible == false &&
-            defaultMicrophone != localization.waiting_for_mic_access[lang] &&
-            srStatus
-        ) {
+        if (settingsVisible == false && srStatus) {
             restartSR();
             restartDesktopSR(config);
         }
     }, [settingsVisible]);
-
-    React.useEffect(() => {
-        if (defaultMicrophone == localization.waiting_for_mic_access[lang])
-            return;
-        info("[MEDIA] Updating current microphone to " + defaultMicrophone);
-
-        if (lastDefaultMicrophone == "") {
-            setLastDefaultMicrophone(defaultMicrophone);
-
-            return;
-        }
-
-        if (lastDefaultMicrophone == defaultMicrophone) return;
-
-        window.location.reload();
-    }, [defaultMicrophone]);
 
     const formatTimestamp = (timestamp: number) => {
         const date = new Date(timestamp);
@@ -412,16 +378,16 @@ export default function Kikitan({
                 >
                     <div
                         className={`flex flex-col w-10/12 h-96 outline outline-1 ${config.light_mode
-                                ? "outline-white"
-                                : "outline-slate-900"
+                            ? "outline-white"
+                            : "outline-slate-900"
                             } rounded ${config.light_mode ? "bg-white" : "bg-slate-950"
                             } p-4 overflow-hidden`}
                     >
                         <div className="flex justify-between items-center mb-4">
                             <h2
                                 className={`text-xl font-bold ${config.light_mode
-                                        ? "text-black"
-                                        : "text-white"
+                                    ? "text-black"
+                                    : "text-white"
                                     }`}
                             >
                                 {localization.message_history[lang]}
@@ -446,8 +412,8 @@ export default function Kikitan({
                                 <div className="flex items-center justify-center h-full">
                                     <span
                                         className={`text-sm italic ${config.light_mode
-                                                ? "text-gray-500"
-                                                : "text-gray-400"
+                                            ? "text-gray-500"
+                                            : "text-gray-400"
                                             }`}
                                     >
                                         {localization.no_history[lang]}
@@ -460,14 +426,14 @@ export default function Kikitan({
                                             <div
                                                 key={index}
                                                 className={`p-3 rounded-md ${config.light_mode
-                                                        ? "bg-gray-100"
-                                                        : "bg-slate-900"
+                                                    ? "bg-gray-100"
+                                                    : "bg-slate-900"
                                                     }`}
                                             >
                                                 <div
                                                     className={`text-xs mb-1 ${config.light_mode
-                                                            ? "text-gray-500"
-                                                            : "text-gray-400"
+                                                        ? "text-gray-500"
+                                                        : "text-gray-400"
                                                         }`}
                                                 >
                                                     {formatTimestamp(
@@ -476,16 +442,16 @@ export default function Kikitan({
                                                 </div>
                                                 <div
                                                     className={`font-medium ${config.light_mode
-                                                            ? "text-black"
-                                                            : "text-white"
+                                                        ? "text-black"
+                                                        : "text-white"
                                                         }`}
                                                 >
                                                     {item.source}
                                                 </div>
                                                 <div
                                                     className={`mt-1 ${config.light_mode
-                                                            ? "text-gray-800"
-                                                            : "text-gray-300"
+                                                        ? "text-gray-800"
+                                                        : "text-gray-300"
                                                         }`}
                                                 >
                                                     {item.translation}
@@ -509,8 +475,8 @@ export default function Kikitan({
                 >
                     <div
                         className={`flex flex-col justify-center w-7/12 h-2/6 outline outline-1 ${config.light_mode
-                                ? "outline-white"
-                                : "outline-slate-900"
+                            ? "outline-white"
+                            : "outline-slate-900"
                             } rounded ${config.light_mode ? "bg-white" : "bg-slate-950"
                             }`}
                     >
@@ -580,12 +546,12 @@ export default function Kikitan({
                     <div>
                         <div
                             className={`mr-16 w-96 h-48 outline outline-1 transition-all rounded-md font-bold text-center ${detecting
-                                    ? "italic " + config.light_mode
-                                        ? "text-slate-400 outline-slate-800"
-                                        : "text-slate-200 outline-slate-400"
-                                    : config.light_mode
-                                        ? "text-black"
-                                        : "text-slate-200"
+                                ? "italic " + config.light_mode
+                                    ? "text-slate-400 outline-slate-800"
+                                    : "text-slate-200 outline-slate-400"
+                                : config.light_mode
+                                    ? "text-black"
+                                    : "text-slate-200"
                                 } ${srStatus ? "" : "bg-gray-400"}`}
                         >
                             <p className="align-middle">{detection}</p>
@@ -707,8 +673,8 @@ export default function Kikitan({
                     <div>
                         <div
                             className={`w-96 h-48 outline outline-1 transition-all rounded-md ${config.light_mode
-                                    ? "text-black outline-slate-800"
-                                    : "text-slate-200 outline-slate-400"
+                                ? "text-black outline-slate-800"
+                                : "text-slate-200 outline-slate-400"
                                 } font-bold text-center ${srStatus ? "" : "bg-gray-400"
                                 }`}
                         >
@@ -837,19 +803,89 @@ export default function Kikitan({
             </div>
 
             <div id="social-links" className="align-middle">
-                <div id="default-mic" className="justify-center flex mt-4">
-                    <KeyboardVoiceIcon fontSize="small" />
-                    <a
-                        className=" text-blue-700"
-                        href=""
-                        onClick={(e) => {
-                            e.preventDefault();
+                <div id="default-mic" className="justify-center flex mb-2 ml-2">
+                    <KeyboardVoiceIcon fontSize="small" className="mt-3" />
+                    <Select
+                        sx={{
+                            color: config.light_mode
+                                ? "black"
+                                : "white",
+                            "& .MuiOutlinedInput-notchedOutline": {
+                                borderColor: config.light_mode
+                                    ? "black"
+                                    : "#94A3B8",
+                            },
+                            "&:hover .MuiOutlinedInput-notchedOutline":
+                            {
+                                borderColor: config.light_mode
+                                    ? "black"
+                                    : "#94A3B8",
+                            },
+                            "& .MuiSvgIcon-root": {
+                                color: config.light_mode
+                                    ? "black"
+                                    : "#94A3B8",
+                            },
+                            "&.Mui-disabled": {
+                                color: config.light_mode
+                                    ? "black"
+                                    : "white",
+                                "& .MuiOutlinedInput-notchedOutline": {
+                                    borderColor: config.light_mode
+                                        ? "black"
+                                        : "#94A3B8",
+                                },
+                                "&:hover .MuiOutlinedInput-notchedOutline":
+                                {
+                                    borderColor: config.light_mode
+                                        ? "black"
+                                        : "#94A3B8",
+                                },
+                                "& .MuiSvgIcon-root": {
+                                    color: config.light_mode
+                                        ? "black"
+                                        : "#94A3B8",
+                                },
+                            },
+                        }}
+                        MenuProps={{
+                            sx: {
+                                "& .MuiPaper-root": {
+                                    backgroundColor: config.light_mode
+                                        ? "#94A3B8"
+                                        : "#020617",
+                                },
+                            },
+                        }}
+                        className="ml-4 h-12 w-48"
+                        value={config.microphone}
+                        onChange={(e) => {
+                            setConfig({
+                                ...config,
+                                microphone: e.target.value as string
+                            })
 
-                            invoke("show_audio_settings");
+                            setTimeout(() => {
+                                restartSR();
+                            }, 250)
                         }}
                     >
-                        {defaultMicrophone}
-                    </a>
+                        {microphones.map((element) => {
+                            return (
+                                <MenuItem
+                                    sx={{
+                                        color: config.light_mode
+                                            ? "black"
+                                            : "white",
+                                    }}
+                                    key={element.name}
+                                    value={element.name}
+                                >
+                                    {element.name}
+                                </MenuItem>
+                            );
+                        })}
+                    </Select>
                 </div>
                 <div className="mt-2 flex space-x-2 justify-center">
                     <Button

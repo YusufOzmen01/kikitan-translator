@@ -5,9 +5,16 @@ use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use tauri::{Emitter};
 use base64::{engine::general_purpose, Engine as _};
 use once_cell::sync::Lazy;
+use serde::Serialize;
 
 struct CaptureState {
     stop_flag: bool,
+}
+
+#[derive(Serialize)]
+pub struct MicrophoneInfo {
+    pub name: String,
+    pub sample_rate: u32,
 }
 
 static CAPTURE_STATE: Lazy<Arc<Mutex<Option<CaptureState>>>> =
@@ -17,7 +24,7 @@ static MIC_CAPTURE_STATE: Lazy<Arc<Mutex<Option<CaptureState>>>> =
     Lazy::new(|| Arc::new(Mutex::new(None)));
 
 #[tauri::command]
-pub fn get_microphone_list() -> Result<Vec<String>, String> {
+pub fn get_microphone_list() -> Result<Vec<MicrophoneInfo>, String> {
     let host = cpal::default_host();
 
     let default_name = host
@@ -25,25 +32,34 @@ pub fn get_microphone_list() -> Result<Vec<String>, String> {
         .map(|d| d.name().unwrap_or_default())
         .unwrap_or_default();
 
-    let mut names: Vec<String> = Vec::new();
+    let mut result: Vec<MicrophoneInfo> = Vec::new();
 
-    // Default device first
-    if !default_name.is_empty() {
-        names.push(default_name.clone());
+    if let Some(device) = host.default_input_device() {
+        let sample_rate = device
+            .default_input_config()
+            .map(|c| c.sample_rate().0)
+            .unwrap_or(0);
+        result.push(MicrophoneInfo {
+            name: default_name.clone(),
+            sample_rate,
+        });
     }
 
-    // Add remaining input devices, skipping the default
     if let Ok(devices) = host.input_devices() {
         for device in devices {
             if let Ok(name) = device.name() {
                 if name != default_name {
-                    names.push(name);
+                    let sample_rate = device
+                        .default_input_config()
+                        .map(|c| c.sample_rate().0)
+                        .unwrap_or(0);
+                    result.push(MicrophoneInfo { name, sample_rate });
                 }
             }
         }
     }
 
-    Ok(names)
+    Ok(result)
 }
 
 #[tauri::command]
@@ -112,18 +128,22 @@ pub fn start_desktop_audio_capture(app: tauri::AppHandle) -> Result<(), String> 
 
         stream.play().expect("Failed to start stream");
 
-        // run until stop_flag set
+        // run until stop_flag set or state cleared
         loop {
             {
                 let guard = state_clone.lock().unwrap();
-                if let Some(state) = &*guard {
-                    if state.stop_flag {
-                        break;
-                    }
+                match &*guard {
+                    Some(state) if state.stop_flag => break,
+                    None => break,
+                    _ => {}
                 }
             }
             thread::sleep(Duration::from_millis(50));
         }
+
+        // Clean up state after stream is dropped
+        let mut guard = state_clone.lock().unwrap();
+        *guard = None;
     });
 
     Ok(())
@@ -135,14 +155,31 @@ pub fn stop_desktop_audio_capture() {
     if let Some(state) = state_guard.as_mut() {
         state.stop_flag = true;
     }
-    *state_guard = None;
 }
 
 #[tauri::command]
-pub fn start_microphone_audio_capture(app: tauri::AppHandle, mic: usize) -> Result<(), String> {
+pub fn start_microphone_audio_capture(app: tauri::AppHandle, mic: String) -> Result<(), String> {
+    for _ in 0..20 {
+        let guard = MIC_CAPTURE_STATE.lock().unwrap();
+        if guard.is_none() {
+            break;
+        }
+        if let Some(state) = &*guard {
+            if state.stop_flag {
+                drop(guard);
+                thread::sleep(Duration::from_millis(50));
+                continue;
+            }
+        }
+        drop(guard);
+
+
+        stop_microphone_audio_capture();
+    }
+
     let mut state_guard = MIC_CAPTURE_STATE.lock().unwrap();
     if state_guard.is_some() {
-        return Err("Microphone capture already running".into());
+        stop_microphone_audio_capture();
     }
     *state_guard = Some(CaptureState { stop_flag: false });
 
@@ -152,23 +189,10 @@ pub fn start_microphone_audio_capture(app: tauri::AppHandle, mic: usize) -> Resu
     thread::spawn(move || {
         let host = cpal::default_host();
 
-        let device = {
-            let default_name = host.default_input_device()
-                .map(|d| d.name().unwrap_or_default())
-                .unwrap_or_default();
-
-            if mic == 0 {
-                host.default_input_device()
-                    .expect("No default input device found")
-            } else {
-                let non_default: Vec<_> = host.input_devices()
-                    .expect("Failed to enumerate input devices")
-                    .filter(|d| d.name().unwrap_or_default() != default_name)
-                    .collect();
-                non_default.into_iter().nth(mic - 1)
-                    .expect("Microphone index out of range")
-            }
-        };
+        let device = host.input_devices()
+            .expect("Failed to enumerate input devices")
+            .find(|d| d.name().unwrap_or_default().trim() == mic.trim())
+            .unwrap_or_else(|| panic!("Microphone '{}' not found", mic));
 
         let config = device.default_input_config()
             .expect("Failed to get default input config");
@@ -221,14 +245,17 @@ pub fn start_microphone_audio_capture(app: tauri::AppHandle, mic: usize) -> Resu
         loop {
             {
                 let guard = state_clone.lock().unwrap();
-                if let Some(state) = &*guard {
-                    if state.stop_flag {
-                        break;
-                    }
+                match &*guard {
+                    Some(state) if state.stop_flag => break,
+                    None => break,
+                    _ => {}
                 }
             }
             thread::sleep(Duration::from_millis(50));
         }
+
+        let mut guard = state_clone.lock().unwrap();
+        *guard = None;
     });
 
     Ok(())
@@ -240,5 +267,4 @@ pub fn stop_microphone_audio_capture() {
     if let Some(state) = state_guard.as_mut() {
         state.stop_flag = true;
     }
-    *state_guard = None;
 }

@@ -3,10 +3,11 @@ import { error, info, error as logError } from "@tauri-apps/plugin-log";
 import { setupMicrophoneCapture, setupSystemAudioCapture } from "../util/audiocapture";
 import google_translate from "../translators/google_translate";
 import { invoke } from "@tauri-apps/api/core";
+import { load_config } from "../util/config";
+import edge_translate from "../translators/edge_translate";
 
 const TRUSTED_TOKEN = "6A5AA1D4EAFF4E9FB37E23D68491D6F4";
 const MS_VERSION = "1-145.0.3800.70";
-const SAMPLE_RATE = 48000;
 const CHANNELS = 1;
 const BITS_PER_SAMPLE = 16;
 
@@ -85,7 +86,7 @@ function createBinaryMessage(
     return result;
 }
 
-function createWavHeader(): Uint8Array {
+function createWavHeader(SAMPLE_RATE: number): Uint8Array {
     const buffer = new ArrayBuffer(44);
     const view = new DataView(buffer);
 
@@ -134,8 +135,13 @@ export class EdgeSTT extends Recognizer {
     currentServiceTag: string | null = null;
     audioStreamActive: boolean = false;
     restartPending: boolean = false;
+    useEdgeTranslate: boolean = false;
 
     bytesSent: number = 0;
+    sample_rate: number = 48000;
+    mic: string = "default";
+
+    worker_callback: (() => Promise<void>) | null = null;
 
     current_status: EdgeSTTState = {
         connected: false,
@@ -163,7 +169,7 @@ export class EdgeSTT extends Recognizer {
     async initConnection() {
         if (!this.running) return;
 
-        this.cleanup();
+        await this.cleanup();
 
         this.connectionId = generateUuid();
         this.currentRequestId = generateUuid();
@@ -173,6 +179,16 @@ export class EdgeSTT extends Recognizer {
         this.bytesSent = 0;
 
         this.current_status.connection_init_time = Date.now();
+
+        const config = load_config();
+
+        this.useEdgeTranslate = config.use_edge_translate;
+
+        const mics = await invoke("get_microphone_list") as { name: string; sample_rate: number }[];
+        this.sample_rate = mics.filter((mic) => mic.name === config.microphone)[0]?.sample_rate || 48000;
+        this.mic = config.microphone;
+
+        info(`[EDGE-STT] Current microphone: ${config.microphone} Sample Rate: ${this.sample_rate}Hz`);
 
         try {
             const gec = await generateSecMsGecAsync();
@@ -211,7 +227,7 @@ export class EdgeSTT extends Recognizer {
                                 bitspersample: String(BITS_PER_SAMPLE),
                                 channelcount: String(CHANNELS),
                                 model: "",
-                                samplerate: String(SAMPLE_RATE),
+                                samplerate: String(this.sample_rate),
                                 type: "Stream",
                             },
                         },
@@ -299,7 +315,13 @@ export class EdgeSTT extends Recognizer {
                     if (parsed.DisplayText) {
                         const response = [parsed.DisplayText, ""];
 
-                        if (!this.no_translate) response[1] = await google_translate(parsed.DisplayText, this.language_src, this.language_target);
+                        if (!this.no_translate) {
+                            if (this.useEdgeTranslate) {
+                                response[1] = await edge_translate(parsed.DisplayText, this.language_src, this.language_target);
+                            } else {
+                                response[1] = await google_translate(parsed.DisplayText, this.language_src, this.language_target);
+                            }
+                        }
 
                         this.callback?.(response, true);
                     }
@@ -342,7 +364,7 @@ export class EdgeSTT extends Recognizer {
         this.currentRequestId = generateUuid();
         this.streamIdCounter++;
 
-        const bytesPerSecond = SAMPLE_RATE * CHANNELS * (BITS_PER_SAMPLE / 8);
+        const bytesPerSecond = this.sample_rate * CHANNELS * (BITS_PER_SAMPLE / 8);
         const secondsSent = this.bytesSent / bytesPerSecond;
         const offset100ns = Math.floor(secondsSent * 10_000_000);
         const currentOffset = String(offset100ns);
@@ -378,17 +400,17 @@ export class EdgeSTT extends Recognizer {
             "audio",
             String(this.streamIdCounter),
             this.currentRequestId,
-            createWavHeader(),
+            createWavHeader(this.sample_rate),
             "audio/x-wav",
         );
         this.ws.send(headerMsg);
     }
 
-    startAudioCapture() {
+    async startAudioCapture() {
         this.audioStreamActive = true;
 
         const captureCallback = (
-            chunk: Float32Array<ArrayBufferLike>
+            chunk: Float32Array<ArrayBufferLike>,
         ) => {
             if (
                 !this.audioStreamActive ||
@@ -422,7 +444,7 @@ export class EdgeSTT extends Recognizer {
         };
 
         if (this.desktop_capture) {
-            setupSystemAudioCapture(captureCallback);
+            this.worker_callback = await setupSystemAudioCapture(captureCallback);
 
             (async () => {
                     const res: boolean = await invoke("is_desktop_overlay_running");
@@ -448,7 +470,7 @@ export class EdgeSTT extends Recognizer {
                     }
                 })();
         } else {
-            setupMicrophoneCapture(captureCallback);
+            this.worker_callback = await setupMicrophoneCapture(captureCallback, this.mic);
         }
     }
 
@@ -458,7 +480,7 @@ export class EdgeSTT extends Recognizer {
         }
     }
 
-    cleanup() {
+    async cleanup() {
         this.audioStreamActive = false;
 
         if (this.ws) {
@@ -474,6 +496,16 @@ export class EdgeSTT extends Recognizer {
     stop() {
         this.running = false;
         this.cleanup();
+
+        if (this.worker_callback != null) {
+            this.worker_callback().then(() => {
+                info(`[EDGE-STT${this.desktop_capture ? " DESKTOP" : ""}] Audio capture stopped!`);
+                
+                this.worker_callback = null;
+            }).catch((e) => {
+                logError(`[EDGE-STT] Error stopping audio capture: ${e}`);
+            });
+        }
 
         this.current_status.connected = false;
         this.current_status.error = false;
@@ -499,7 +531,11 @@ export class EdgeSTT extends Recognizer {
         const result = [data, ""];
         for (let i = 0; i < 3; i++) {
             try {
-                result[1] = await google_translate(data, this.language_src, this.language_target);
+                if (this.useEdgeTranslate) {
+                    result[1] = await edge_translate(data, this.language_src, this.language_target);
+                } else {
+                    result[1] = await google_translate(data, this.language_src, this.language_target);
+                }
             } catch (e) {
                 error("[WEBSPEECH] Error translating using google translate!: " + e)
             }

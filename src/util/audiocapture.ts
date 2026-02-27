@@ -1,46 +1,13 @@
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 
-// export async function setupMicrophoneCapture(callback: (chunk: Float32Array<ArrayBufferLike>, sampleRate: number) => void) {
-//   try {
-//     const stream = await navigator.mediaDevices.getUserMedia({ audio: { autoGainControl: false } });
-
-//     const audioContext = new AudioContext();
-//     const sourceNode = audioContext.createMediaStreamSource(stream);
-
-//     const sampleRate = audioContext.sampleRate;
-//     const bufferSize = 1024;
-
-//     const processor = audioContext.createScriptProcessor(bufferSize, 1, 1);
-
-//     processor.onaudioprocess = (audioProcessingEvent) => {
-//       const inputBuffer = audioProcessingEvent.inputBuffer;
-//       const inputData = inputBuffer.getChannelData(0);
-
-//       callback(inputData, sampleRate);
-//     };
-
-//     sourceNode.connect(processor);
-//     processor.connect(audioContext.destination);
-
-//     return () => {
-//       processor.disconnect();
-//       sourceNode.disconnect();
-//       stream.getTracks().forEach(track => track.stop());
-//     };
-//   } catch (error) {
-//     console.error("Error accessing microphone:", error);
-//     throw error;
-//   }
-// }
-
 export async function setupMicrophoneCapture(
-  callback: (chunk: Float32Array, sampleRate: number) => void
+  callback: (chunk: Float32Array, sampleRate: number) => void,
+  mic: string
 ) {
   const unlisten = await listen("mic-audio-chunk", (event) => {
     const { chunk, sampleRate } = event.payload as { chunk: string; sampleRate: number };
 
-    // decode base64 -> ArrayBuffer -> Float32Array
     const raw = atob(chunk);
     const buf = new ArrayBuffer(raw.length);
     const view = new Uint8Array(buf);
@@ -52,10 +19,11 @@ export async function setupMicrophoneCapture(
     callback(float32, sampleRate);
   });
 
-  await invoke("start_microphone_audio_capture", { mic: 0 });
+  await invoke("start_microphone_audio_capture", { mic });
 
   return async () => {
     await invoke("stop_microphone_audio_capture");
+    
     unlisten();
   };
 }
@@ -66,7 +34,6 @@ export async function setupSystemAudioCapture(
   const unlisten = await listen("audio-chunk", (event) => {
     const { chunk, sampleRate } = event.payload as { chunk: string; sampleRate: number };
 
-    // decode base64 -> ArrayBuffer -> Float32Array
     const raw = atob(chunk);
     const buf = new ArrayBuffer(raw.length);
     const view = new Uint8Array(buf);
@@ -82,6 +49,7 @@ export async function setupSystemAudioCapture(
 
   return async () => {
     await invoke("stop_desktop_audio_capture");
+
     unlisten();
   };
 }

@@ -325,6 +325,12 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                                 desktop_capture: e.target.checked
                             })
                         }} />} label={localization.enable_desktop_capture[lang]} />
+                        <FormControlLabel control={<Checkbox checked={config.use_edge_translate} onChange={(e) => {
+                            setConfig({
+                                ...config,
+                                use_edge_translate: e.target.checked
+                            })
+                        }} />} label={localization.use_edge_translate[lang]} />
                     </FormGroup>
                 </CustomTabPanel>
             </div>

@@ -4,7 +4,7 @@
 mod data_out;
 mod filesys;
 mod process_manager;
-mod screenaudio;
+mod audio;
 mod vrc_commands;
 
 fn main() {
@@ -29,11 +29,11 @@ fn main() {
             process_manager::is_desktop_overlay_running,
             filesys::download_file,
             filesys::extract_zip,
-            screenaudio::start_desktop_audio_capture,
-            screenaudio::stop_desktop_audio_capture,
-            screenaudio::get_microphone_list,
-            screenaudio::start_microphone_audio_capture,
-            screenaudio::stop_microphone_audio_capture,
+            audio::start_desktop_audio_capture,
+            audio::stop_desktop_audio_capture,
+            audio::get_microphone_list,
+            audio::start_microphone_audio_capture,
+            audio::stop_microphone_audio_capture,
             data_out::send_recognized_microphone,
             data_out::send_translated_microphone,
             data_out::send_recognized_desktop,

@@ -24,7 +24,9 @@ export type Config = {
     target_language: string,
     light_mode: boolean,
     mode: number,
+    microphone: string,
     desktop_capture: boolean,
+    use_edge_translate: boolean,
     language_settings: {
         japanese_omit_questionmark: boolean,
     },
@@ -54,9 +56,11 @@ export const DEFAULT_CONFIG: Config = {
     source_language: "en-US",
     target_language: "ja",
     mode: 0,
+    microphone: "default",
     light_mode: false,
     desktop_capture: false,
     enable_overlay: true,
+    use_edge_translate: false,
     language_settings: {
         japanese_omit_questionmark: true
     },
