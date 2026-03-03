@@ -204,6 +204,12 @@ export default function QuickstartMenu({ config, setLang, lang, setConfig }: Qui
                         borderColor: config.light_mode ? '#666666 !important' : '#4f4f4f !important'
                     }
                 }} variant='contained' disabled={quickstartPage == 0} onClick={() => { setQuickstartPage(quickstartPage - 1) }}>{localization.previous[lang]}</Button>
+                {!(quickstartPage == 6) && <Button sx={{
+                    '&.Mui-disabled': {
+                        color: config.light_mode ? '#666666 !important' : '#4f4f4f !important',
+                        borderColor: config.light_mode ? '#666666 !important' : '#4f4f4f !important'
+                    }
+                }} className='ml-4' variant='contained' disabled={quickstartPage > 4} onClick={() => { setQuickstartPage(quickstartPage + 1) }}>{localization.next[lang]}</Button>}
             </div>
         </div>
     </>
