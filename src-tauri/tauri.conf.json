@@ -63,9 +63,6 @@
         "title": "Kikitan Translator",
         "width": 900
       }
-    ],
-    "security": {
-      "csp": "default-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: https: blob:; media-src 'self' https: blob:; frame-src 'self' https:; child-src 'self' https:; connect-src 'self' https: http://localhost:* https://translate.googleapis.com https://generativelanguage.googleapis.com https://gist.githubusercontent.com https://edge.microsoft.com/* wss:; font-src 'self' https: data:;"
-    }
+    ]
   }
 }

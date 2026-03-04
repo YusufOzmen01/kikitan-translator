@@ -16,7 +16,7 @@ public class OpenVROverlay : Application
     private List<ImageData> images;
 
     private float overlayDistance = -1.5f;
-    private float verticalOffset = -0.3f;
+    private float verticalOffset = -0.5f;
 
     public OpenVROverlay() : base(ApplicationType.Overlay)
     {
@@ -24,7 +24,7 @@ public class OpenVROverlay : Application
 
         overlay = new Overlay("kikitan-overlay", "Kikitan Overlay");
 
-        overlay.WidthInMeters = 1f;
+        overlay.WidthInMeters = 0.8f;
         overlay.Alpha = 1.0f;
         overlay.SetFlag(VROverlayFlags.IsPremultiplied, false);
         overlay.SetFlag(VROverlayFlags.SendVRSmoothScrollEvents, false);
@@ -45,7 +45,7 @@ public class OpenVROverlay : Application
 
         HmdMatrix34_t overlayTransform = new HmdMatrix34_t
         {
-            m0 = 1, m1 = 0, m2 = 0, m3 = leftX,
+            m0 = 1, m1 = 0, m2 = 0, m3 = leftEye.m3,
             m4 = 0, m5 = 1, m6 = 0, m7 = verticalOffset,
             m8 = 0, m9 = 0, m10 = 1, m11 = overlayDistance
         };

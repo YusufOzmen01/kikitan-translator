@@ -2,6 +2,7 @@ from github import Github, Auth, InputFileContent
 
 import os
 import json
+import shutil
 
 if "GITHUB_API_KEY" not in os.environ:
     raise Exception("GITHUB_API_KEY is required to run this script")
@@ -11,6 +12,13 @@ if "TAURI_SIGNING_PRIVATE_KEY" not in os.environ:
 
 auth = Auth.Token(os.getenv("GITHUB_API_KEY"))
 g = Github(auth=auth)
+
+print("Building overlay...")
+ret = os.system("dotnet build src-overlay/Desktop Image Overlay -c release")
+if ret != 0:
+    raise Exception("Failed to build overlay")
+
+shutil.copy("src-overlay/Desktop Image Overlay/bin/Release/net9.0-windows/*", "src-tauri/desktopoverlay")
 
 print("Building kikitan...")
 ret = os.system("npm run tauri build")
