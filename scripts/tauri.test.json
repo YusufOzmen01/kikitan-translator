@@ -13,7 +13,7 @@
     "targets": "nsis",
     "externalBin": [],
     "icon": [
-      "icons/kikitan_logo.ico"
+      "icons/kikitan_testbuild.ico"
     ],
     "resources": [
       "./desktopoverlay"
@@ -39,13 +39,14 @@
     },
     "createUpdaterArtifacts": "v1Compatible"
   },
-  "version": "1.2.6",
-  "identifier": "com.github.yusufozmen01.kikitan",
+  "productName": "Kikitan Translator Test Build",
+  "version": "1.2.6-rc.1",
+  "identifier": "com.github.yusufozmen01.kikitantestbuild",
   "plugins": {
     "updater": {
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEMwNjgzRTA3MzU3OThEMUMKUldRY2pYazFCejVvd1B2Y0k5YUtOTENTQzZUZlZ3Mk4rcXUxY2dUUGkrMmZLUHlUclYzUk5idngK",
       "endpoints": [
-        "https://gist.githubusercontent.com/YusufOzmen01/2739ef70ee7f4e60add7e5d87a4c745b/raw"
+        "https://gist.githubusercontent.com/YusufOzmen01/266717d41228ac93eef5c6a850bf5a5d/raw"
       ],
       "windows": {
         "installMode": "passive"
@@ -59,7 +60,7 @@
         "height": 525,
         "minHeight": 525,
         "minWidth": 900,
-        "title": "Kikitan Translator",
+        "title": "[TEST BUILD] Kikitan Translator",
         "width": 900
       }
     ]

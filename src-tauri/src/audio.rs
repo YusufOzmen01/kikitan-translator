@@ -1,3 +1,10 @@
+/*
+    Note: This section is pretty much vibe coded with my own fixes and adjustments done to it
+    I would love to accept a PR that would be a better implementation for this usecase
+    However, since it works fine at the moment, I will not bother with a reimplementation
+    If anyone wants to rewrite it, feel free to make a PR and I will merge it after testing it
+*/
+
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
@@ -64,11 +71,30 @@ pub fn get_microphone_list() -> Result<Vec<MicrophoneInfo>, String> {
 
 #[tauri::command]
 pub fn start_desktop_audio_capture(app: tauri::AppHandle) -> Result<(), String> {
+    // Signal any existing capture to stop
+    {
+        let mut guard = CAPTURE_STATE.lock().unwrap();
+        if let Some(state) = guard.as_mut() {
+            state.stop_flag = true;
+        }
+    }
+
+    // Wait for existing capture thread to clean up
+    for _ in 0..40 {
+        let guard = CAPTURE_STATE.lock().unwrap();
+        if guard.is_none() {
+            break;
+        }
+        drop(guard);
+        thread::sleep(Duration::from_millis(50));
+    }
+
     let mut state_guard = CAPTURE_STATE.lock().unwrap();
     if state_guard.is_some() {
-        return Err("Audio capture already running".into());
+        return Err("Previous desktop capture did not stop in time".into());
     }
     *state_guard = Some(CaptureState { stop_flag: false });
+    drop(state_guard);
 
     let state_arc = CAPTURE_STATE.clone();
     let app_handle = app.clone();
@@ -159,29 +185,30 @@ pub fn stop_desktop_audio_capture() {
 
 #[tauri::command]
 pub fn start_microphone_audio_capture(app: tauri::AppHandle, mic: String) -> Result<(), String> {
-    for _ in 0..20 {
+    // Signal any existing capture to stop
+    {
+        let mut guard = MIC_CAPTURE_STATE.lock().unwrap();
+        if let Some(state) = guard.as_mut() {
+            state.stop_flag = true;
+        }
+    }
+
+    // Wait for existing capture thread to clean up
+    for _ in 0..40 {
         let guard = MIC_CAPTURE_STATE.lock().unwrap();
         if guard.is_none() {
             break;
         }
-        if let Some(state) = &*guard {
-            if state.stop_flag {
-                drop(guard);
-                thread::sleep(Duration::from_millis(50));
-                continue;
-            }
-        }
         drop(guard);
-
-
-        stop_microphone_audio_capture();
+        thread::sleep(Duration::from_millis(50));
     }
 
     let mut state_guard = MIC_CAPTURE_STATE.lock().unwrap();
     if state_guard.is_some() {
-        stop_microphone_audio_capture();
+        return Err("Previous microphone capture did not stop in time".into());
     }
     *state_guard = Some(CaptureState { stop_flag: false });
+    drop(state_guard);
 
     let state_arc = MIC_CAPTURE_STATE.clone();
     let app_handle = app.clone();

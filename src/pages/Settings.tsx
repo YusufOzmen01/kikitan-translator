@@ -103,7 +103,7 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                         <Tab label={localization.vrchat_settings[lang]} {...a11yProps(0)} />
                         <Tab label={localization.message_history[lang]} {...a11yProps(1)} />
                         <Tab label={localization.data_out[lang]} {...a11yProps(2)} />
-                        <Tab label={localization.debug_settings[lang]} {...a11yProps(3)} />
+                        <Tab label={localization.advanced_settings[lang]} {...a11yProps(3)} />
                     </Tabs>
                 </Box>
                 <CustomTabPanel className="flex" value={page} index={0}>
@@ -234,7 +234,7 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                                 }
                             })
                         }} />} label={localization.enable_history[lang]} />
-                        
+
                         <Typography className="mt-4" gutterBottom>
                             {localization.max_history_items[lang]} ({config.message_history.max_items})
                         </Typography>
@@ -266,9 +266,9 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                         />
 
                         <div className="mt-4">
-                            <Button 
-                                variant="contained" 
-                                color="error" 
+                            <Button
+                                variant="contained"
+                                color="error"
                                 startIcon={<Delete />}
                                 onClick={clearMessageHistory}
                                 disabled={!config.message_history.enabled || config.message_history.items.length === 0}
@@ -319,18 +319,51 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                         <Button variant="contained" onClick={async () => {
                             open(await appLogDir())
                         }}>{localization.open_logs[lang]}</Button>
-                        <FormControlLabel control={<Checkbox checked={config.desktop_capture} onChange={(e) => {
+                        <FormControlLabel control={<Checkbox checked={config.testing.desktop_capture} onChange={(e) => {
                             setConfig({
                                 ...config,
-                                desktop_capture: e.target.checked
+                                testing: {
+                                    ...config.testing,
+                                    desktop_capture: e.target.checked
+                                }
                             })
                         }} />} label={localization.enable_desktop_capture[lang]} />
-                        <FormControlLabel control={<Checkbox checked={config.use_edge_translate} onChange={(e) => {
+                        <FormControlLabel control={<Checkbox checked={config.testing.use_edge_translate} onChange={(e) => {
                             setConfig({
                                 ...config,
-                                use_edge_translate: e.target.checked
+                                testing: {
+                                    ...config.testing,
+                                    use_edge_translate: e.target.checked
+                                }
                             })
                         }} />} label={localization.use_edge_translate[lang]} />
+                    </FormGroup>
+                    <FormGroup>
+                        <FormControlLabel control={<Checkbox checked={config.groq.translate_enabled} onChange={(e) => {
+                            setConfig({
+                                ...config,
+                                groq: {
+                                    ...config.groq,
+                                    translate_enabled: e.target.checked
+                                }
+                            })
+                        }} />} label={localization.enable_groq_translate[lang]} />
+                        <TextField slotProps={{
+                            inputLabel: {
+                                style: { color: config.light_mode ? "black" : '#94A3B8' },
+                            },
+                            htmlInput: {
+                                style: { color: config.light_mode ? "black" : '#fff' }
+                            }
+                        }} className="ml-2 mt-2 w-48" value={config.groq.api_key} id="outlined-basic" label={localization.api_key[lang]} variant="outlined" type="password" onChange={(e) => {
+                            setConfig({
+                                ...config,
+                                groq: {
+                                    ...config.groq,
+                                    api_key: e.target.value
+                                }
+                            })
+                        }} />
                     </FormGroup>
                 </CustomTabPanel>
             </div>

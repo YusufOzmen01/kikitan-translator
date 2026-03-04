@@ -13,6 +13,13 @@ export const localization = {
         kr: "Kikitan 설정 및 사용 방법",
         tr: "Kikitan'ı nasıl kurup kullanabilirsiniz",
     },
+    api_key: {
+        en: "API Key",
+        jp: "APIキー",
+        cn: "API密钥",
+        kr: "API 키",
+        tr: "API Anahtarı",
+    },
     default: {
         en: "Default",
         jp: "デフォルト",
@@ -54,6 +61,13 @@ export const localization = {
         cn: "启用桌面捕获",
         kr: "데스크톱 캡처 활성화",
         tr: "Masaüstü Yakalama'yı Etkinleştir",
+    },
+    enable_groq_translate: {
+        en: "Enable Groq Translate",
+        jp: "Groq Translateを有効にする",
+        cn: "启用Groq翻译",
+        kr: "Groq 번역 활성화",
+        tr: "Groq Çeviri'yi Etkinleştir",
     },
     disable_desktop_capture: {
         en: "Disable Desktop Capture",
@@ -292,12 +306,12 @@ export const localization = {
         kr: "Kikitan은 무료이며 항상 무료로 유지됩니다. 그러나 모든 지원을 환영합니다! 아직 학생이기 때문에 받는 모든 것이 나를 더 나은 삶을 살게 도와줍니다! 그러니 Kikitan을 사용하는 것을 즐기신다면 기부를 고려해보세요!",
         tr: "Kikitan ücretsizdir ve her zaman ücretsiz kalacaktır. Ancak, her türlü desteğe açığım! Hala bir öğrenci olduğum için aldığım her bağış benim daha iyi yaşamama yardımcı olur! Bu yüzden, Kikitan'ı kullanmaktan keyif alıyorsanız, bağış yapmayı düşünün!",
     },
-    debug_settings: {
-        en: "Debug",
-        jp: "デバッグ",
-        cn: "调试",
-        kr: "디버그",
-        tr: "Hata Ayıklama",
+    advanced_settings: {
+        en: "Advanced Settings",
+        jp: "高度な設定",
+        cn: "高级设置",
+        kr: "고급 설정",
+        tr: "Gelişmiş Ayarlar",
     },
     open_logs: {
         en: "Open Logs",

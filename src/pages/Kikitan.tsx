@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
 
 import {
@@ -36,7 +35,7 @@ import {
     langTo,
 } from "../util/constants";
 
-import { Config, MessageHistoryItem } from "../util/config";
+import { Config, load_config, MessageHistoryItem } from "../util/config";
 import { Recognizer } from "../recognizers/recognizer";
 import { EdgeSTT } from "../recognizers/EdgeSTT";
 
@@ -141,16 +140,21 @@ export default function Kikitan({
         sr?.start();
     };
 
-    const restartDesktopSR = (cfg: Config) => {
-        if (cfg.desktop_capture) {
+    const restartDesktopSR = () => {
+        const cfg = load_config();
+
+        if (cfg.testing.desktop_capture) {
             info("[DESKTOP CAPTURE] Starting desktop capture...");
 
             enableDesktopCapture();
-        } else desktopSR?.stop();
+        } else {
+            desktopSR?.stop();
+            desktopSR = null;
+        }
     };
 
     React.useEffect(() => {
-        if (config.enable_overlay) send_notification_text(desktopResult, (config.source_language == "ja" || config.source_language == "ko" || config.source_language == "zh"));
+        send_notification_text(desktopResult, (config.source_language == "ja" || config.source_language == "ko" || config.source_language == "zh"));
     }, [desktopResult]);
 
     React.useEffect(() => {
@@ -166,7 +170,7 @@ export default function Kikitan({
 
             setTimeout(() => {
                 restartSR();
-                restartDesktopSR(config);
+                restartDesktopSR();
             }, 1000);
         }
 
@@ -327,34 +331,27 @@ export default function Kikitan({
             });
         });
 
-        listen<boolean>("disable-kikitan-overlay", (event) => {
-            info(`[OSC] Received disable overlay ${event.payload}`);
-
-            setConfig({
-                ...config,
-                enable_overlay: !event.payload,
-            });
-        });
-
         if (sr == null) {
-            invoke("get_microphone_list").then((data) => {
-                const d = data as { name: string, sample_rate: number }[];
-                if (d.filter(val => val.name == config.microphone).length == 0) {
-                    setConfig({
-                        ...config,
-                        microphone: d[0].name
-                    })
-                }
+            setInterval(() => {
+                invoke("get_microphone_list").then((data) => {
+                    const d = data as { name: string, sample_rate: number }[];
+                    if (d.filter(val => val.name == config.microphone).length == 0) {
+                        setConfig({
+                            ...config,
+                            microphone: d[0].name
+                        })
+                    }
 
-                setMicrophones(d)
-            })
+                    setMicrophones(d)
+                })
+            }, 1000)
         }
     }, []);
 
     React.useEffect(() => {
         if (settingsVisible == false && srStatus) {
             restartSR();
-            restartDesktopSR(config);
+            restartDesktopSR();
         }
     }, [settingsVisible]);
 
@@ -857,7 +854,7 @@ export default function Kikitan({
                                 },
                             },
                         }}
-                        className="ml-4 h-12 w-48"
+                        className="ml-4 h-12 w-52"
                         value={config.microphone}
                         onChange={(e) => {
                             setConfig({
@@ -881,7 +878,7 @@ export default function Kikitan({
                                     key={element.name}
                                     value={element.name}
                                 >
-                                    {element.name}
+                                    {(element.name.includes("(") && element.name.includes(")")) ? element.name.match(/\(([^)]+)\)/)?.[1] : element.name}
                                 </MenuItem>
                             );
                         })}

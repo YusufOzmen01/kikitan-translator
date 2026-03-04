@@ -3,7 +3,6 @@ import { invoke } from "@tauri-apps/api/core";
 import { langSource, langTo } from "./constants"
 
 import {
-    info,
     debug
 } from '@tauri-apps/plugin-log';
 
@@ -25,12 +24,9 @@ export type Config = {
     light_mode: boolean,
     mode: number,
     microphone: string,
-    desktop_capture: boolean,
-    use_edge_translate: boolean,
     language_settings: {
         japanese_omit_questionmark: boolean,
     },
-    enable_overlay: boolean,
     vrchat_settings: {
         enable_chatbox: boolean,
         translation_first: boolean,
@@ -49,6 +45,15 @@ export type Config = {
     data_out: {
         enable_user_data: boolean,
         enable_desktop_data: boolean
+    },
+    groq: {
+        api_key: string,
+        translate_enabled: boolean,
+        recognition_enabled: boolean,
+    }
+    testing: {
+        desktop_capture: boolean,
+        use_edge_translate: boolean,
     }
 }
 
@@ -58,9 +63,6 @@ export const DEFAULT_CONFIG: Config = {
     mode: 0,
     microphone: "default",
     light_mode: false,
-    desktop_capture: false,
-    enable_overlay: true,
-    use_edge_translate: false,
     language_settings: {
         japanese_omit_questionmark: true
     },
@@ -82,6 +84,15 @@ export const DEFAULT_CONFIG: Config = {
     data_out: {
         enable_user_data: false,
         enable_desktop_data: false
+    },
+    testing: {
+        desktop_capture: false,
+        use_edge_translate: false,
+    },
+    groq: {
+        api_key: "",
+        translate_enabled: false,
+        recognition_enabled: false,
     }
 }
 
@@ -123,7 +134,6 @@ export function validate_config(config: Config): Config {
 }
 
 export function load_config(): Config {
-    info("[CONFIG] Loading config...")
     if (typeof window === "undefined") return DEFAULT_CONFIG
 
     const val = window.localStorage.getItem("config")
@@ -131,8 +141,6 @@ export function load_config(): Config {
 
     const config = validate_config(JSON.parse(val))
     update_config(config)
-
-    info("[CONFIG] Loaded config!")
 
     sendConfigDataToVRC(config)
 
@@ -147,19 +155,13 @@ export function update_config(config: Config) {
 
 function sendConfigDataToVRC(config: Config) {
     invoke("send_disable_desktop", {
-        data: !config.desktop_capture,
+        data: !config.testing.desktop_capture,
         address: config.vrchat_settings.osc_address,
         port: `${config.vrchat_settings.osc_port}`,
     });
 
     invoke("send_disable_chatbox", {
         data: !config.vrchat_settings.enable_chatbox,
-        address: config.vrchat_settings.osc_address,
-        port: `${config.vrchat_settings.osc_port}`,
-    });
-
-    invoke("send_disable_overlay", {
-        data: !config.enable_overlay,
         address: config.vrchat_settings.osc_address,
         port: `${config.vrchat_settings.osc_port}`,
     });

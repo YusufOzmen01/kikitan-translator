@@ -5,11 +5,14 @@ import google_translate from "../translators/google_translate";
 import { invoke } from "@tauri-apps/api/core";
 import { load_config } from "../util/config";
 import edge_translate from "../translators/edge_translate";
+import groq_translate from "../translators/groq_translate";
 
 const TRUSTED_TOKEN = "6A5AA1D4EAFF4E9FB37E23D68491D6F4";
 const MS_VERSION = "1-145.0.3800.70";
 const CHANNELS = 1;
 const BITS_PER_SAMPLE = 16;
+
+const translators = [google_translate, edge_translate, groq_translate]
 
 export type EdgeSTTState = {
     connection_init_time: number;
@@ -135,7 +138,7 @@ export class EdgeSTT extends Recognizer {
     currentServiceTag: string | null = null;
     audioStreamActive: boolean = false;
     restartPending: boolean = false;
-    useEdgeTranslate: boolean = false;
+    translator: number = 0;
 
     bytesSent: number = 0;
     sample_rate: number = 48000;
@@ -182,7 +185,7 @@ export class EdgeSTT extends Recognizer {
 
         const config = load_config();
 
-        this.useEdgeTranslate = config.use_edge_translate;
+        this.translator = config.testing.use_edge_translate ? 1 : config.groq.translate_enabled ? 2 : 0;
 
         const mics = await invoke("get_microphone_list") as { name: string; sample_rate: number }[];
         this.sample_rate = mics.filter((mic) => mic.name === config.microphone)[0]?.sample_rate || 48000;
@@ -315,13 +318,7 @@ export class EdgeSTT extends Recognizer {
                     if (parsed.DisplayText) {
                         const response = [parsed.DisplayText, ""];
 
-                        if (!this.no_translate) {
-                            if (this.useEdgeTranslate) {
-                                response[1] = await edge_translate(parsed.DisplayText, this.language_src, this.language_target);
-                            } else {
-                                response[1] = await google_translate(parsed.DisplayText, this.language_src, this.language_target);
-                            }
-                        }
+                        if (!this.no_translate) response[1] = await translators[this.translator](parsed.DisplayText, this.language_src, this.language_target);
 
                         this.callback?.(response, true);
                     }
@@ -531,13 +528,9 @@ export class EdgeSTT extends Recognizer {
         const result = [data, ""];
         for (let i = 0; i < 3; i++) {
             try {
-                if (this.useEdgeTranslate) {
-                    result[1] = await edge_translate(data, this.language_src, this.language_target);
-                } else {
-                    result[1] = await google_translate(data, this.language_src, this.language_target);
-                }
+                await translators[this.translator](data, this.language_src, this.language_target);
             } catch (e) {
-                error("[WEBSPEECH] Error translating using google translate!: " + e)
+                error("[WEBSPEECH] Error translating using translate!: " + e)
             }
 
             break
