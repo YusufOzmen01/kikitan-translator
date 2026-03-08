@@ -195,6 +195,28 @@ export class VAD extends Recognizer {
 
         if (this.desktop_capture) {
             this.stopCapture = await setupSystemAudioCapture(captureCallback);
+
+             (async () => {
+                const res: boolean = await invoke("is_desktop_overlay_running");
+                if (res) info("[OVERLAY] Overlay is already running!");
+                else {
+                    try {
+                        info("[OVERLAY] Starting desktop overlay...", );
+
+                        await invoke("start_desktop_overlay");
+                        await new Promise((resolve) =>
+                            setTimeout(resolve, 2000),
+                        );
+                    } catch (error) {
+                        info(
+                            `[OVERLAY] Failed to start desktop overlay: ${error}`,
+                        );
+                        info(
+                            "[OVERLAY] Desktop overlay functionality will be disabled.",
+                        );
+                    }
+                }
+            })();
         } else {
             this.stopCapture = await setupMicrophoneCapture(captureCallback, config.microphone);
         }
@@ -326,7 +348,7 @@ export class VAD extends Recognizer {
 
             if (!this.no_translate) {
                 try {
-                    const val = await translators[config.translator_settings.translation_service](data, this.language_src, this.language_target, this.showNotification, this.setConfig);
+                    const val = await translators[config.translator_settings.translation_service](transcript, this.language_src, this.language_target, this.showNotification, this.setConfig);
                     
                     result[1] = val
                 } catch (e) {
