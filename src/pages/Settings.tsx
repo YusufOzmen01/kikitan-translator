@@ -7,7 +7,7 @@ import Box from '@mui/material/Box';
 
 import { appLogDir } from '@tauri-apps/api/path';
 
-import { IconButton, FormControlLabel, FormGroup, Checkbox, TextField, Select, MenuItem, Button, Slider } from "@mui/material";
+import { IconButton, FormControlLabel, FormGroup, Checkbox, TextField, Select, MenuItem, Button, Slider, LinearProgress } from "@mui/material";
 
 import {
     Close,
@@ -17,7 +17,7 @@ import {
 import { Config, DEFAULT_CONFIG, speed_presets } from "../util/config";
 
 import { localization } from "../util/localization";
-import { Lang } from "../util/constants";
+import { DAILY_TOKEN_LIMIT, Lang } from "../util/constants";
 import { open } from "@tauri-apps/plugin-shell";
 
 type CustomTabPanelProps = {
@@ -84,10 +84,10 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                 color: config.light_mode ? 'black' : '#94A3B8'
             },
             '& .MuiOutlinedInput-notchedOutline': {
-                borderColor: config.light_mode ? 'black' : '#94A3B8',
+                borderColor: config.light_mode ? 'black' : 'white',
             },
             '&:hover .MuiOutlinedInput-notchedOutline': {
-                borderColor: config.light_mode ? 'black' : '#94A3B8',
+                borderColor: config.light_mode ? 'black' : 'white',
             },
             '.MuiTabs-scrollButtons.Mui-disabled': {
                 opacity: 0.3
@@ -102,7 +102,7 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                     <Tabs textColor="inherit" value={page} onChange={handleChange} variant="scrollable" scrollButtons="auto">
                         <Tab label={localization.vrchat_settings[lang]} {...a11yProps(0)} />
                         <Tab label={localization.message_history[lang]} {...a11yProps(1)} />
-                        <Tab label={localization.data_out[lang]} {...a11yProps(2)} />
+                        <Tab label={localization.translator_settings[lang]} {...a11yProps(2)} />
                         <Tab label={localization.advanced_settings[lang]} {...a11yProps(3)} />
                     </Tabs>
                 </Box>
@@ -144,55 +144,6 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                                 }
                             })
                         }} />} label={localization.disable_kikitan_when_muted[lang]} />
-                        <div className="flex transition-all">
-                            <TextField slotProps={{
-                                inputLabel: {
-                                    style: { color: config.light_mode ? "black" : '#94A3B8' }
-                                },
-                                htmlInput: {
-                                    style: { color: config.light_mode ? "black" : '#fff' }
-                                }
-                            }} className="mt-2 w-48" value={config.vrchat_settings.osc_address} id="outlined-basic" label={localization.osc_address[lang]} variant="outlined" onChange={(e) => {
-                                setConfig({
-                                    ...config,
-                                    vrchat_settings: {
-                                        ...config.vrchat_settings,
-                                        osc_address: e.target.value
-                                    }
-                                })
-                            }} />
-                            <TextField slotProps={{
-                                inputLabel: {
-                                    style: { color: config.light_mode ? "black" : '#94A3B8' },
-                                },
-                                htmlInput: {
-                                    style: { color: config.light_mode ? "black" : '#fff' }
-                                }
-                            }} className="ml-2 mt-2 w-48" value={config.vrchat_settings.osc_port} id="outlined-basic" label={localization.osc_port[lang]} variant="outlined" type="number" onChange={(e) => {
-                                setConfig({
-                                    ...config,
-                                    vrchat_settings: {
-                                        ...config.vrchat_settings,
-                                        osc_port: parseInt(e.target.value)
-                                    }
-                                })
-                            }} />
-                            <IconButton className={"duration-300 ml-2 " + ((config.vrchat_settings.osc_address == DEFAULT_CONFIG.vrchat_settings.osc_address && config.vrchat_settings.osc_port == DEFAULT_CONFIG.vrchat_settings.osc_port) ? "opacity-0" : "opacity-100")} disabled={
-                                config.vrchat_settings.osc_address == DEFAULT_CONFIG.vrchat_settings.osc_address &&
-                                config.vrchat_settings.osc_port == DEFAULT_CONFIG.vrchat_settings.osc_port}
-                                onClick={() => {
-                                    setConfig({
-                                        ...config,
-                                        vrchat_settings: {
-                                            ...config.vrchat_settings,
-                                            osc_address: DEFAULT_CONFIG.vrchat_settings.osc_address,
-                                            osc_port: DEFAULT_CONFIG.vrchat_settings.osc_port
-                                        }
-                                    })
-                                }}>
-                                <History />
-                            </IconButton>
-                        </div>
                         <p className={`mt-2 ${config.light_mode ? "text-black" : "text-slate-400"}`}>{localization.chatbox_update_speed[lang]}</p>
                         <Select sx={{
                             color: config.light_mode ? 'black' : 'white',
@@ -294,6 +245,148 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                 </CustomTabPanel>
                 <CustomTabPanel className="flex" value={page} index={2}>
                     <FormGroup>
+                        <div className="grid grid-rows-1 grid-cols-2 gap-24">
+                            <div id="settings">
+                                <p className={`mt-2 ${config.light_mode ? "text-black" : "text-slate-400"}`}>{localization.translation_service[lang]}</p>
+                                <Select sx={{
+                                    color: config.light_mode ? 'black' : 'white',
+                                    '& .MuiOutlinedInput-notchedOutline': {
+                                        borderColor: config.light_mode ? 'black' : '#94A3B8',
+                                    },
+                                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                                        borderColor: config.light_mode ? 'black' : '#94A3B8',
+                                    },
+                                }} MenuProps={{
+                                    sx: {
+                                        "& .MuiPaper-root": {
+                                            backgroundColor: config.light_mode ? '#94A3B8' : '#020617',
+                                        }
+                                    }
+                                }} className="w-96" value={config.translator_settings.translation_service} onChange={(e) => {
+                                    setConfig({
+                                        ...config,
+                                        translator_settings: {
+                                            ...config.translator_settings,
+                                            translation_service: parseInt(e.target.value.toString())
+                                        }
+                                    })
+                                }}>
+                                    <MenuItem sx={{ color: config.light_mode ? 'black' : 'white' }} value={0}>Google Translate ({localization.default[lang]})</MenuItem>
+                                    <MenuItem sx={{ color: config.light_mode ? 'black' : 'white' }} value={1}>Microsoft Bing</MenuItem>
+                                    <MenuItem sx={{ color: config.light_mode ? 'black' : 'white' }} value={2}>Groq Llama3.3-70b ({localization.requires_free_api_key[lang]}, {localization.recommended[lang]})</MenuItem>
+                                </Select>
+
+                                <p className={`mt-2 ${config.light_mode ? "text-black" : "text-slate-400"}`}>{localization.recognition_service[lang]}</p>
+                                <Select sx={{
+                                    color: config.light_mode ? 'black' : 'white',
+                                    '& .MuiOutlinedInput-notchedOutline': {
+                                        borderColor: config.light_mode ? 'black' : '#94A3B8',
+                                    },
+                                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                                        borderColor: config.light_mode ? 'black' : '#94A3B8',
+                                    },
+                                }} MenuProps={{
+                                    sx: {
+                                        "& .MuiPaper-root": {
+                                            backgroundColor: config.light_mode ? '#94A3B8' : '#020617',
+                                        }
+                                    }
+                                }} className="w-96" value={config.translator_settings.recognition_service} onChange={(e) => {
+                                    setConfig({
+                                        ...config,
+                                        translator_settings: {
+                                            ...config.translator_settings,
+                                            recognition_service: parseInt(e.target.value.toString())
+                                        }
+                                    })
+                                }}>
+                                    <MenuItem sx={{ color: config.light_mode ? 'black' : 'white' }} value={0}>Microsoft Bing ({localization.default[lang]})</MenuItem>
+                                    <MenuItem sx={{ color: config.light_mode ? 'black' : 'white' }} value={1}>Groq Whisper-Large-V3 ({localization.requires_free_api_key[lang]})</MenuItem>
+                                    <MenuItem sx={{ color: config.light_mode ? 'black' : 'white' }} value={2}>WebSpeech ({localization.legacy_not_recommended[lang]})</MenuItem>
+
+                                </Select>
+                            </div>
+                            <div id="api-keys">
+                                <div id="grok-api-key">
+                                    <p className={`mt-2 ${config.light_mode ? "text-black" : "text-slate-400"}`}>Groq {localization.api_key[lang]}</p>
+                                    <div className="flex gap-2">
+                                        <TextField
+                                            sx={{
+                                                '& .MuiOutlinedInput-root.Mui-disabled': {
+                                                    '& .MuiOutlinedInput-notchedOutline': {
+                                                        borderColor: config.light_mode ? 'rgba(0, 0, 0, 0.4)' : 'rgba(148, 163, 184, 0.4)',
+                                                    },
+                                                },
+                                                '& .MuiInputBase-input.Mui-disabled': {
+                                                    WebkitTextFillColor: config.light_mode ? 'rgba(0, 0, 0, 0.5)' : 'rgba(148, 163, 184, 0.5)',
+                                                },
+                                            }}
+                                            slotProps={{
+                                                inputLabel: {
+                                                    style: { color: config.light_mode ? "black" : '#94A3B8' },
+                                                },
+                                                htmlInput: {
+                                                    style: { color: config.light_mode ? "black" : '#fff' }
+                                                }
+                                            }}
+                                            className="ml-2 mt-2 w-48"
+                                            value={config.groq.api_key}
+                                            id="outlined-basic"
+                                            disabled={(config.translator_settings.translation_service != 2) && (config.translator_settings.recognition_service != 1)}
+                                            variant="outlined"
+                                            type="password"
+                                            color={config.groq.api_key.length == 0 ? "warning" : "primary"}
+                                            onChange={(e) => {
+                                                setConfig({
+                                                    ...config,
+                                                    groq: {
+                                                        ...config.groq,
+                                                        api_key: e.target.value.trim()
+                                                    }
+                                                })
+                                            }}
+                                        />
+                                        <Button variant="contained" color={config.groq.api_key.length == 0 ? "warning" : "primary"} disabled={(config.translator_settings.translation_service != 2) && (config.translator_settings.recognition_service != 1)} className="w-32 h-14" onClick={async () => {
+                                            open("https://console.groq.com/keys")
+                                        }}><p className="text-sm">{localization.get_api_key[lang]}</p></Button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <FormControlLabel className="mt-2" control={<Checkbox checked={config.translator_settings.desktop_translation} onChange={(e) => {
+                            setConfig({
+                                ...config,
+                                translator_settings: {
+                                    ...config.translator_settings,
+                                    desktop_translation: e.target.checked
+                                }
+                            })
+                        }} />} label={localization.enable_desktop_capture[lang]} />
+                        <div className="flex gap-4">
+                            <div>
+                                <p className={`mt-2 ${config.light_mode ? "text-black" : "text-slate-400"}`}>{localization.groq_token_usage[lang]}</p>
+                                <p>{config.groq.used_tokens}/{DAILY_TOKEN_LIMIT}</p>
+                                <LinearProgress variant="determinate" className="w-64" value={(config.groq.used_tokens/DAILY_TOKEN_LIMIT) * 100} />
+                            </div>
+                            <div className="mt-2">
+                                <Button variant="contained" className="w-[110px] h-[52px]" disabled={config.groq.used_tokens == 0} onClick={async () => {
+                                setConfig({
+                                    ...config,
+                                    groq: {
+                                        ...config.groq,
+                                        used_tokens: 0
+                                    }
+                                })
+                            }}>{localization.reset_usage[lang]}</Button>
+                            </div>
+                        </div>
+                    </FormGroup>
+                </CustomTabPanel>
+                <CustomTabPanel className="flex" value={page} index={3}>
+                    <FormGroup>
+                        <Button variant="contained" onClick={async () => {
+                            open(await appLogDir())
+                        }}>{localization.open_logs[lang]}</Button>
                         <FormControlLabel control={<Checkbox checked={config.data_out.enable_user_data} onChange={(e) => {
                             setConfig({
                                 ...config,
@@ -313,57 +406,56 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                             })
                         }} />} label={localization.enable_desktop_data[lang]} />
                     </FormGroup>
-                </CustomTabPanel>
-                <CustomTabPanel className="flex" value={page} index={3}>
                     <FormGroup>
-                        <Button variant="contained" onClick={async () => {
-                            open(await appLogDir())
-                        }}>{localization.open_logs[lang]}</Button>
-                        <FormControlLabel control={<Checkbox checked={config.testing.desktop_capture} onChange={(e) => {
-                            setConfig({
-                                ...config,
-                                testing: {
-                                    ...config.testing,
-                                    desktop_capture: e.target.checked
+                        <div className="flex transition-all gap-2">
+                            <TextField slotProps={{
+                                inputLabel: {
+                                    style: { color: config.light_mode ? "black" : '#94A3B8' }
+                                },
+                                htmlInput: {
+                                    style: { color: config.light_mode ? "black" : '#fff' }
                                 }
-                            })
-                        }} />} label={localization.enable_desktop_capture[lang]} />
-                        <FormControlLabel control={<Checkbox checked={config.testing.use_edge_translate} onChange={(e) => {
-                            setConfig({
-                                ...config,
-                                testing: {
-                                    ...config.testing,
-                                    use_edge_translate: e.target.checked
+                            }} className="mt-2 w-48" value={config.vrchat_settings.osc_address} id="outlined-basic" label={localization.osc_address[lang]} variant="outlined" onChange={(e) => {
+                                setConfig({
+                                    ...config,
+                                    vrchat_settings: {
+                                        ...config.vrchat_settings,
+                                        osc_address: e.target.value
+                                    }
+                                })
+                            }} />
+                            <TextField slotProps={{
+                                inputLabel: {
+                                    style: { color: config.light_mode ? "black" : '#94A3B8' },
+                                },
+                                htmlInput: {
+                                    style: { color: config.light_mode ? "black" : '#fff' }
                                 }
-                            })
-                        }} />} label={localization.use_edge_translate[lang]} />
-                    </FormGroup>
-                    <FormGroup>
-                        <FormControlLabel control={<Checkbox checked={config.groq.translate_enabled} onChange={(e) => {
-                            setConfig({
-                                ...config,
-                                groq: {
-                                    ...config.groq,
-                                    translate_enabled: e.target.checked
-                                }
-                            })
-                        }} />} label={localization.enable_groq_translate[lang]} />
-                        <TextField slotProps={{
-                            inputLabel: {
-                                style: { color: config.light_mode ? "black" : '#94A3B8' },
-                            },
-                            htmlInput: {
-                                style: { color: config.light_mode ? "black" : '#fff' }
-                            }
-                        }} className="ml-2 mt-2 w-48" value={config.groq.api_key} id="outlined-basic" label={localization.api_key[lang]} variant="outlined" type="password" onChange={(e) => {
-                            setConfig({
-                                ...config,
-                                groq: {
-                                    ...config.groq,
-                                    api_key: e.target.value
-                                }
-                            })
-                        }} />
+                            }} className="ml-2 mt-2 w-48" value={config.vrchat_settings.osc_port} id="outlined-basic" label={localization.osc_port[lang]} variant="outlined" type="number" onChange={(e) => {
+                                setConfig({
+                                    ...config,
+                                    vrchat_settings: {
+                                        ...config.vrchat_settings,
+                                        osc_port: parseInt(e.target.value)
+                                    }
+                                })
+                            }} />
+                            <IconButton className={"duration-300 ml-2 " + ((config.vrchat_settings.osc_address == DEFAULT_CONFIG.vrchat_settings.osc_address && config.vrchat_settings.osc_port == DEFAULT_CONFIG.vrchat_settings.osc_port) ? "opacity-0" : "opacity-100")} disabled={
+                                config.vrchat_settings.osc_address == DEFAULT_CONFIG.vrchat_settings.osc_address &&
+                                config.vrchat_settings.osc_port == DEFAULT_CONFIG.vrchat_settings.osc_port}
+                                onClick={() => {
+                                    setConfig({
+                                        ...config,
+                                        vrchat_settings: {
+                                            ...config.vrchat_settings,
+                                            osc_address: DEFAULT_CONFIG.vrchat_settings.osc_address,
+                                            osc_port: DEFAULT_CONFIG.vrchat_settings.osc_port
+                                        }
+                                    })
+                                }}>
+                                <History />
+                            </IconButton>
+                        </div>
                     </FormGroup>
                 </CustomTabPanel>
             </div>

@@ -6,15 +6,18 @@ import {
     Button,
     TextField,
     IconButton,
-    Tooltip
+    Tooltip,
+    CircularProgress,
+    Snackbar,
+    Alert,
+    Slide
 } from "@mui/material";
 
-import { info, warn } from "@tauri-apps/plugin-log";
+import { error, info, warn } from "@tauri-apps/plugin-log";
 
 import {
     X as XIcon,
     GitHub as GitHubIcon,
-    SwapHoriz as SwapHorizIcon,
     Favorite as FavoriteIcon,
     KeyboardVoice as KeyboardVoiceIcon,
     PlayArrow as PlayArrowIcon,
@@ -22,6 +25,9 @@ import {
     Keyboard,
     History as HistoryIcon,
     Close as CloseIcon,
+    Mic as MicIcon,
+    Translate as TranslateIcon,
+    SwapHoriz as SwapHorizIcon
 } from "@mui/icons-material";
 
 import { invoke } from "@tauri-apps/api/core";
@@ -47,6 +53,8 @@ import {
     send_user_translation
 } from "../util/data_out";
 import { send_notification_text } from "../util/overlay";
+import { VAD } from "../recognizers/VAD";
+import { WebSpeech } from "../recognizers/WebSpeech";
 
 type KikitanProps = {
     config: Config;
@@ -68,6 +76,7 @@ export default function Kikitan({
 }: KikitanProps) {
     const [detecting, setDetecting] = React.useState(false);
     const [srStatus, setSRStatus] = React.useState(true);
+    const [srLoading, setSRLoading] = React.useState(false)
     const [vrcMuted, setVRCMuted] = React.useState(false);
     const [startedSpeaking, setStartedSpeaking] = React.useState(false);
 
@@ -96,15 +105,40 @@ export default function Kikitan({
 
     const textInputRef = React.useRef<HTMLInputElement>(null);
 
+    const [notification, setNotification] = React.useState<{
+        open: boolean;
+        message: string;
+        severity: "success" | "error" | "warning" | "info";
+    }>({ open: false, message: "", severity: "info" });
+
+    const showNotification = (message: string, severity: "success" | "error" | "warning" | "info" = "info") => {
+        setNotification({ open: true, message, severity });
+    };
+
     const enableDesktopCapture = () => {
         desktopSR?.stop();
 
-        desktopSR = new EdgeSTT(
-            targetLanguage,
-            sourceLanguage,
-            true,
-            false
-        );
+        switch (config.translator_settings.recognition_service) {
+            case 0: // Microsoft Bing
+                desktopSR = new EdgeSTT(targetLanguage, sourceLanguage, true, false, null, showNotification, setConfig)
+                info(`[DESKTOP CAPTURE] Using EdgeSTT for recognition`);
+
+                break;
+            case 1: // Groq
+                desktopSR = new VAD(targetLanguage, sourceLanguage, true, false, null, showNotification, setConfig)
+                info(`[DESKTOP CAPTURE] Using Groq for recognition`);
+
+                break;
+            case 2: // WebSpeech, legacy
+                error(`[DESKTOP CAPTURE] Cannot use WebSpeech for desktop capture!`);
+
+                showNotification(localization.cannot_use_webspeech_for_desktop_translation[lang], "warning")
+                return;
+            default:
+                error(`[DESKTOP CAPTURE] Unknown recognizer! ${config.translator_settings.recognition_service}`);
+
+                return;
+        }
 
         desktopSR.onResult(async (result: string[], isFinal: boolean) => {
             if (config.data_out.enable_desktop_data) {
@@ -128,11 +162,35 @@ export default function Kikitan({
 
         info(`[SR] Initializing SR...`);
 
-        sr = new EdgeSTT(sourceLanguage, targetLanguage, false, config.mode == 1);
-        info("[SR] Using WebSpeech for recognition");
+        if ((config.translator_settings.translation_service == 2 || config.translator_settings.recognition_service == 1) && config.groq.api_key.length == 0) {
+            showNotification(localization.no_api_key_configured_for_groq[lang], "warning")
+        }
+
+        switch (config.translator_settings.recognition_service) {
+            case 0: // Microsoft Bing
+                sr = new EdgeSTT(sourceLanguage, targetLanguage, false, config.mode == 1, setSRLoading, showNotification, setConfig)
+                info(`[SR] Using EdgeSTT for recognition`);
+
+                break;
+            case 1: // Groq
+                sr = new VAD(sourceLanguage, targetLanguage, false, config.mode == 1, setSRLoading, showNotification, setConfig)
+                info(`[SR] Using Groq for recognition`);
+
+                break;
+            case 2: // WebSpeech, legacy
+                sr = new WebSpeech(sourceLanguage, targetLanguage, config.mode == 1, setSRLoading, showNotification, setConfig)
+                info(`[SR] Using WebSoeech for recognition`);
+
+                break;
+            default:
+                error(`[SR] Unknown recognizer! ${config.translator_settings.recognition_service}`);
+
+                return;
+        }
 
         sr.onResult((result: string[], isFinal: boolean) => {
             setDetecting(!isFinal);
+
             setResult(result);
         });
 
@@ -143,7 +201,7 @@ export default function Kikitan({
     const restartDesktopSR = () => {
         const cfg = load_config();
 
-        if (cfg.testing.desktop_capture) {
+        if (cfg.translator_settings.desktop_translation) {
             info("[DESKTOP CAPTURE] Starting desktop capture...");
 
             enableDesktopCapture();
@@ -187,8 +245,7 @@ export default function Kikitan({
         setDetection(result[0]);
         setStartedSpeaking(detecting);
 
-        if (
-            (config.mode == 1 || config.vrchat_settings.send_typing_status_while_talking) && config.vrchat_settings.enable_chatbox) {
+        if ((config.mode == 1 || config.vrchat_settings.send_typing_status_while_talking) && config.vrchat_settings.enable_chatbox) {
             invoke("send_typing", {
                 address: config.vrchat_settings.osc_address,
                 port: `${config.vrchat_settings.osc_port}`,
@@ -198,7 +255,15 @@ export default function Kikitan({
         if (config.data_out.enable_user_data) {
             send_user_recognition(result[0], !detecting);
 
-            if (!detecting) send_user_translation(result[1]);
+            if (!detecting && config.mode == 0) send_user_translation(result[1]);
+        }
+
+        if (config.mode == 1 && config.vrchat_settings.enable_chatbox && !detecting) {
+            invoke("send_message", {
+                address: config.vrchat_settings.osc_address,
+                port: `${config.vrchat_settings.osc_port}`,
+                msg: result[0],
+            })
         }
 
         if (!detecting && result.length != 0 && result[1].length != 0) {
@@ -274,7 +339,7 @@ export default function Kikitan({
                 invoke("send_message", {
                     address: config.vrchat_settings.osc_address,
                     port: `${config.vrchat_settings.osc_port}`,
-                    msg: config.mode == 1 ? current_detection : config.vrchat_settings.only_translation
+                    msg: config.vrchat_settings.only_translation
                         ? current_translation
                         : config.vrchat_settings.translation_first
                             ? `${current_translation} (${current_detection})`
@@ -332,14 +397,32 @@ export default function Kikitan({
         });
 
         if (sr == null) {
+            invoke("get_microphone_list").then((data) => {
+                const d = data as { name: string, sample_rate: number }[];
+                if (d.filter(val => val.name == load_config().microphone).length == 0) {
+                    showNotification(localization.microphone_updated[lang], "warning")
+
+                    setConfig({
+                        ...config,
+                        microphone: d[0].name
+                    })
+                    restartSR();
+                }
+
+                setMicrophones(d)
+            })
+
             setInterval(() => {
                 invoke("get_microphone_list").then((data) => {
                     const d = data as { name: string, sample_rate: number }[];
-                    if (d.filter(val => val.name == config.microphone).length == 0) {
+                    if (d.filter(val => val.name == load_config().microphone).length == 0) {
+                        showNotification(localization.microphone_updated[lang], "warning")
+
                         setConfig({
                             ...config,
                             microphone: d[0].name
                         })
+                        restartSR();
                     }
 
                     setMicrophones(d)
@@ -559,6 +642,7 @@ export default function Kikitan({
                                     color: config.light_mode
                                         ? "black"
                                         : "white",
+                                    textAlign: "right",
                                     "& .MuiOutlinedInput-notchedOutline": {
                                         borderColor: config.light_mode
                                             ? "black"
@@ -635,6 +719,7 @@ export default function Kikitan({
                                 })}
                             </Select>
                             <div className="mt-7">
+                                <MicIcon className="ml-3" />
                                 <Button
                                     onClick={() => {
                                         const new_t = sourceLanguage.includes(
@@ -661,27 +746,22 @@ export default function Kikitan({
                                             target_language: new_t,
                                         });
                                     }}
-                                >
-                                    <SwapHorizIcon />
-                                </Button>
+                                > <SwapHorizIcon /> </Button>
                             </div>
                         </div>
                     </div>
                     <div>
-                        <div
-                            className={`w-96 h-48 outline outline-1 transition-all rounded-md ${config.light_mode
-                                ? "text-black outline-slate-800"
-                                : "text-slate-200 outline-slate-400"
-                                } font-bold text-center ${srStatus ? "" : "bg-gray-400"
-                                }`}
-                        >
-                            <p
-                                className={`transition-all duration-300 align-middle`}
-                            >
+                        <div className={`w-96 h-48 outline outline-1 transition-all rounded-md ${config.light_mode
+                            ? "text-black outline-slate-800"
+                            : "text-slate-200 outline-slate-400"
+                            } font-bold text-center ${srStatus ? "" : "bg-gray-400"
+                            }`}>
+                            <p className={`transition-all duration-300 align-middle`} >
                                 {translated}
                             </p>
                         </div>
                         <div>
+                            <TranslateIcon className="mr-3" />
                             <Select
                                 sx={{
                                     color: config.light_mode
@@ -764,7 +844,14 @@ export default function Kikitan({
                 <Button
                     variant="outlined"
                     size="medium"
-                    color={srStatus ? "error" : "success"}
+                    color={srStatus ? !srLoading ? "error" : "inherit" : "success"}
+                    disabled={srLoading}
+                    sx={{
+                        '&.Mui-disabled': {
+                            borderColor: config.light_mode ? 'rgba(0, 0, 0, 0.4)' : 'rgba(148, 163, 184, 0.5)',
+                            color: config.light_mode ? 'rgba(0, 0, 0, 0.4)' : 'rgba(148, 163, 184, 0.5)',
+                        },
+                    }}
                     onClick={() => {
                         invoke("send_disable_mic", {
                             data: !srStatus,
@@ -776,15 +863,9 @@ export default function Kikitan({
                     }}
                 >
                     <p>
-                        {!srStatus
-                            ? localization.start[lang]
-                            : localization.stop[lang]}
-                    </p>{" "}
-                    {srStatus ? (
-                        <PauseIcon fontSize="small" />
-                    ) : (
-                        <PlayArrowIcon fontSize="small" />
-                    )}
+                        {!srStatus ? localization.start[lang] : !srLoading ? localization.stop[lang] : ""}
+                    </p>
+                    {srStatus ? !srLoading ? (<PauseIcon fontSize="small" />) : (<CircularProgress color="inherit" size={16} />) : (<PlayArrowIcon fontSize="small" />)}
                 </Button>
                 {config.message_history.enabled && (
                     <Tooltip title={localization.message_history[lang]}>
@@ -927,12 +1008,28 @@ export default function Kikitan({
                     >
                         <img
                             src="/discordlogo.webp"
-                            className={config.light_mode ? "" : "invert"}
+                            className="invert"
                             width={18}
                         />
                     </Button>
                 </div>
             </div>
+            <Snackbar
+                open={notification.open}
+                autoHideDuration={5000}
+                onClose={() => setNotification(prev => ({ ...prev, open: false }))}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                TransitionComponent={Slide}
+            >
+                <Alert
+                    onClose={() => setNotification(prev => ({ ...prev, open: false }))}
+                    severity={notification.severity}
+                    variant="filled"
+                    sx={{ width: "100%" }}
+                >
+                    {notification.message}
+                </Alert>
+            </Snackbar>
         </>
     );
 }
