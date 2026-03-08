@@ -1,7 +1,13 @@
-export default async function (text: string, source: string, target: string) {
-    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${source}&tl=${target}&dt=t&dt=bd&dj=1&q=${text.replace("%/g", "%25")}`
+export default async function (text: string, source: string, target: string, showNotification: ((message: string, severity: "success" | "error" | "warning" | "info") => void) | null = null) {
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${source}&tl=${target}&dt=t&dt=bd&dj=1&q=${encodeURI(text)}`
     
     const res = await fetch(url)
+    if (res.status != 200) {
+        showNotification?.(`[GOOGLE TRANSLATE] Error translating text: ${res.status}`, "error");
+
+        return 
+    }
+
     const data = await res.json()
 
     let final = ""

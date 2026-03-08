@@ -1,9 +1,10 @@
 import { Recognizer } from "./recognizer";
-import { error, info, error as logError } from "@tauri-apps/plugin-log";
+import { error, info } from "@tauri-apps/plugin-log";
 import { setupMicrophoneCapture, setupSystemAudioCapture } from "../util/audiocapture";
-import google_translate from "../translators/google_translate";
 import { invoke } from "@tauri-apps/api/core";
-import { load_config } from "../util/config";
+import { Config, load_config } from "../util/config";
+
+import google_translate from "../translators/google_translate";
 import edge_translate from "../translators/edge_translate";
 import groq_translate from "../translators/groq_translate";
 
@@ -138,13 +139,15 @@ export class EdgeSTT extends Recognizer {
     currentServiceTag: string | null = null;
     audioStreamActive: boolean = false;
     restartPending: boolean = false;
-    translator: number = 0;
 
     bytesSent: number = 0;
     sample_rate: number = 48000;
     mic: string = "default";
 
     worker_callback: (() => Promise<void>) | null = null;
+    setSRLoading: ((loading: boolean) => void) | null = null;
+    showNotification: ((message: string, severity: "success" | "error" | "warning" | "info") => void) | null = null;
+    setConfig: ((config: Config) => void) | null = null;
 
     current_status: EdgeSTTState = {
         connected: false,
@@ -158,10 +161,16 @@ export class EdgeSTT extends Recognizer {
         language_target: string,
         desktop_capture: boolean = false,
         no_translate: boolean = false,
+        setSRLoading: ((loading: boolean) => void) | null = null,
+        showNotification: ((message: string, severity: "success" | "error" | "warning" | "info") => void) | null = null,
+        setConfig: ((config: Config) => void) | null = null,
     ) {
         super(language_src, language_target);
         this.desktop_capture = desktop_capture;
         this.no_translate = no_translate;
+        this.setSRLoading = setSRLoading;
+        this.showNotification = showNotification;
+        this.setConfig = setConfig;
     }
 
     start() {
@@ -171,6 +180,7 @@ export class EdgeSTT extends Recognizer {
 
     async initConnection() {
         if (!this.running) return;
+        this.setSRLoading?.(true);
 
         await this.cleanup();
 
@@ -184,8 +194,6 @@ export class EdgeSTT extends Recognizer {
         this.current_status.connection_init_time = Date.now();
 
         const config = load_config();
-
-        this.translator = config.testing.use_edge_translate ? 1 : config.groq.translate_enabled ? 2 : 0;
 
         const mics = await invoke("get_microphone_list") as { name: string; sample_rate: number }[];
         this.sample_rate = mics.filter((mic) => mic.name === config.microphone)[0]?.sample_rate || 48000;
@@ -207,7 +215,9 @@ export class EdgeSTT extends Recognizer {
             this.ws.onerror = (ev) => this.onError(ev);
             this.ws.onclose = (ev) => this.onClose(ev);
         } catch (e) {
-            logError(`[EDGE-STT] Failed to init connection: ${e}`);
+            error(`[EDGE-STT] Failed to init connection: ${e}`);
+
+            this.showNotification?.(`[EDGE-STT] Failed to init connection: ${e}`, "error");
             this.current_status.error = true;
             this.current_status.error_message = String(e);
         }
@@ -263,7 +273,7 @@ export class EdgeSTT extends Recognizer {
         } else if (ev.data instanceof ArrayBuffer) {
             const view = new DataView(ev.data);
             if (ev.data.byteLength < 2) return;
-            
+
             const headerLen = view.getUint16(0, false);
             const decoder = new TextDecoder("utf-8");
             const headerBytes = new Uint8Array(ev.data, 2, headerLen);
@@ -287,12 +297,12 @@ export class EdgeSTT extends Recognizer {
                     const data = JSON.parse(jsonPart);
                     if (data?.context?.serviceTag) {
                         this.currentServiceTag = data.context.serviceTag;
-                        
+
                         // info(`[EDGE-STT] Captured Service Tag: ${this.currentServiceTag}`);
                     }
                 }
             } catch (e) {
-                logError(`[EDGE-STT] Error parsing turn.start: ${e}`);
+                error(`[EDGE-STT] Error parsing turn.start: ${e}`);
             }
         }
 
@@ -306,7 +316,7 @@ export class EdgeSTT extends Recognizer {
                     }
                 }
             } catch (e) {
-                logError(`[EDGE-STT] Error parsing speech.hypothesis: ${e}`);
+                error(`[EDGE-STT] Error parsing speech.hypothesis: ${e}`);
             }
         }
 
@@ -316,15 +326,26 @@ export class EdgeSTT extends Recognizer {
                 if (jsonPart) {
                     const parsed = JSON.parse(jsonPart);
                     if (parsed.DisplayText) {
-                        const response = [parsed.DisplayText, ""];
+                        const result = [parsed.DisplayText, ""];
+                        const config = load_config();
 
-                        if (!this.no_translate) response[1] = await translators[this.translator](parsed.DisplayText, this.language_src, this.language_target);
+                        if (!this.no_translate) {
+                            try {
+                                const val = await translators[config.translator_settings.translation_service](parsed.DisplayText, this.language_src, this.language_target, this.showNotification, this.setConfig);
+                                
+                                result[1] = val
+                            } catch (e) {
+                                error(`[EDGE-STT] Error translating using ${config.translator_settings.translation_service}: ${e}`);
 
-                        this.callback?.(response, true);
+                                return
+                            }
+                        }
+
+                        this.callback?.(result, true);
                     }
                 }
             } catch (e) {
-                logError(`[EDGE-STT] Error parsing speech.phrase: ${e}`);
+                error(`[EDGE-STT] Error parsing speech.phrase: ${e}`);
             }
         }
 
@@ -334,10 +355,12 @@ export class EdgeSTT extends Recognizer {
     }
 
     onError(ev: Event) {
-        logError(`[EDGE-STT${this.desktop_capture ? " DESKTOP" : ""}] WebSocket error: ${ev}`);
+        error(`[EDGE-STT${this.desktop_capture ? " DESKTOP" : ""}] WebSocket error: ${ev}`);
         this.current_status.connected = false;
         this.current_status.error = true;
         this.current_status.error_message = "WebSocket error";
+
+        this.showNotification?.(`[EDGE-STT${this.desktop_capture ? " DESKTOP" : ""}] WebSocket error: ${ev}`, "error");
     }
 
     onClose(ev: CloseEvent) {
@@ -386,8 +409,6 @@ export class EdgeSTT extends Recognizer {
         this.sendWavHeader();
 
         this.restartPending = false;
-
-        // info(`[EDGE-STT] Restarted stream. RequestId: ${this.currentRequestId} StreamId: ${this.streamIdCounter} Offset: ${currentOffset}`);
     }
 
     sendWavHeader() {
@@ -444,31 +465,33 @@ export class EdgeSTT extends Recognizer {
             this.worker_callback = await setupSystemAudioCapture(captureCallback);
 
             (async () => {
-                    const res: boolean = await invoke("is_desktop_overlay_running");
-                    if (res) info("[OVERLAY] Overlay is already running!");
-                    else {
-                        try {
-                            info(
-                                "[OVERLAY] Starting desktop overlay...",
-                            );
+                const res: boolean = await invoke("is_desktop_overlay_running");
+                if (res) info("[OVERLAY] Overlay is already running!");
+                else {
+                    try {
+                        info(
+                            "[OVERLAY] Starting desktop overlay...",
+                        );
 
-                            await invoke("start_desktop_overlay");
-                            await new Promise((resolve) =>
-                                setTimeout(resolve, 2000),
-                            );
-                        } catch (error) {
-                            info(
-                                `[OVERLAY] Failed to start desktop overlay: ${error}`,
-                            );
-                            info(
-                                "[OVERLAY] Desktop overlay functionality will be disabled.",
-                            );
-                        }
+                        await invoke("start_desktop_overlay");
+                        await new Promise((resolve) =>
+                            setTimeout(resolve, 2000),
+                        );
+                    } catch (error) {
+                        info(
+                            `[OVERLAY] Failed to start desktop overlay: ${error}`,
+                        );
+                        info(
+                            "[OVERLAY] Desktop overlay functionality will be disabled.",
+                        );
                     }
-                })();
+                }
+            })();
         } else {
             this.worker_callback = await setupMicrophoneCapture(captureCallback, this.mic);
         }
+
+        this.setSRLoading?.(false);
     }
 
     wsSendText(msg: string) {
@@ -497,10 +520,12 @@ export class EdgeSTT extends Recognizer {
         if (this.worker_callback != null) {
             this.worker_callback().then(() => {
                 info(`[EDGE-STT${this.desktop_capture ? " DESKTOP" : ""}] Audio capture stopped!`);
-                
+
                 this.worker_callback = null;
             }).catch((e) => {
-                logError(`[EDGE-STT] Error stopping audio capture: ${e}`);
+                error(`[EDGE-STT] Error stopping audio capture: ${e}`);
+
+                this.showNotification?.(`[EDGE-STT] Error stopping audio capture: ${e}`, "error");
             });
         }
 
@@ -526,14 +551,14 @@ export class EdgeSTT extends Recognizer {
 
     async manual_trigger(data: string) {
         const result = [data, ""];
-        for (let i = 0; i < 3; i++) {
-            try {
-                await translators[this.translator](data, this.language_src, this.language_target);
-            } catch (e) {
-                error("[WEBSPEECH] Error translating using translate!: " + e)
-            }
+        const config = load_config();
 
-            break
+        try {
+            const val = await translators[config.translator_settings.translation_service](data, this.language_src, this.language_target, this.showNotification, this.setConfig);
+            
+            result[1] = val
+        } catch (e) {
+            error(`[EDGE-STT] Error translating using ${config.translator_settings.translation_service}: ${e}`);
         }
 
         this.callback?.(result, true);

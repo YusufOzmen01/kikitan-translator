@@ -7,14 +7,22 @@ import {
 } from '@tauri-apps/plugin-log';
 
 import google_translate from "../translators/google_translate";
+import edge_translate from "../translators/edge_translate";
+import groq_translate from "../translators/groq_translate";
+import { Config, load_config } from "../util/config";
+
+const translators = [google_translate, edge_translate, groq_translate];
 
 export class WebSpeech extends Recognizer {
     recognition: SpeechRecognition;
     no_translate: boolean = false;
-    jp_omit_questionmark: boolean = false;
-    callback: ((result: string[], final: boolean) => void) | null = null
 
-    constructor(language_src: string, language_target: string, no_translate: boolean = false, jp_omit_questionmark: boolean = false) {
+    callback: ((result: string[], final: boolean) => void) | null = null
+    setSRLoading: ((loading: boolean) => void) | null = null;
+    showNotification: ((message: string, severity: "success" | "error" | "warning" | "info") => void) | null = null;
+    setConfig: ((config: Config) => void) | null = null;
+
+    constructor(language_src: string, language_target: string, no_translate: boolean = false, setSRLoading: ((loading: boolean) => void) | null = null, showNotification: ((message: string, severity: "success" | "error" | "warning" | "info") => void) | null = null, setConfig: ((config: Config) => void) | null = null) {
         super(language_src, language_target);
 
         this.recognition = new window.webkitSpeechRecognition();
@@ -23,17 +31,26 @@ export class WebSpeech extends Recognizer {
         this.recognition.continuous = true
         this.recognition.lang = language_src;
         this.no_translate = no_translate;
-        this.jp_omit_questionmark = jp_omit_questionmark
+        this.setSRLoading = setSRLoading;
+        this.showNotification = showNotification;
+        this.setConfig = setConfig;
     }
 
     start() {
         this.running = true;
+        this.setSRLoading?.(true);
         try {
             this.recognition.start();
-
-            info("[WEBSPEECH] Recognition started!")
         } catch (e) {
             error("[WEBSPEECH] Error starting recognition: " + e)
+
+            this.showNotification?.("[WEBSPEECH] Error starting recognition: " + e, "error");
+        }
+
+        this.recognition.onstart = () => {
+            this.setSRLoading?.(false);
+
+            info("[WEBSPEECH] Recognition started!")
         }
 
         this.recognition.onend = () => {
@@ -57,7 +74,11 @@ export class WebSpeech extends Recognizer {
         }
 
         this.recognition.onerror = (e) => {
-            if (e.message.trim().length != 0) error("[WEBSPEECH] Error: " + e.message)
+            if (e.message.trim().length != 0) {
+                error("[WEBSPEECH] Error: " + e.message)
+
+                this.showNotification?.("[WEBSPEECH] Error: " + e.message, "error");
+            }
 
             if (this.running) {
                 setTimeout(() => {
@@ -103,30 +124,26 @@ export class WebSpeech extends Recognizer {
 
         this.recognition.onresult = async (event) => {
             if (event.results.length > 0) {
-                let transcript = event.results[event.results.length - 1][0].transcript.trim()
+                const transcript = event.results[event.results.length - 1][0].transcript.trim()
                 const isFinal = event.results[event.results.length - 1].isFinal
-                
-                if (this.language_src == "ja" && this.jp_omit_questionmark) {
-                    transcript = transcript.replace("？", "")
-                }
 
                 const result = [transcript, ""]
 
-                
+
                 callback(result, false);
 
                 if (isFinal && !this.no_translate) {
-                    for (let i = 0; i < 3; i++) {
-                        try {
-                            result[1] = await google_translate(transcript, this.language_src, this.language_target);
-                        } catch (e) {
-                            error("[WEBSPEECH] Error translating using google translate!: " + e)
-                        }
+                    const config = load_config();
 
-                        callback(result, isFinal);
+                    try {
+                        const val = await translators[config.translator_settings.translation_service](transcript, this.language_src, this.language_target, this.showNotification, this.setConfig);
 
-                        break
+                        result[1] = val
+                    } catch (e) {
+                        error(`[EDGE-STT] Error translating using ${config.translator_settings.translation_service}: ${e}`);
                     }
+
+                    callback(result, isFinal);
                 } else {
                     callback(result, isFinal && this.no_translate);
                 }
@@ -140,15 +157,15 @@ export class WebSpeech extends Recognizer {
 
     async manual_trigger(data: string) {
         const result = [data, ""];
-        if (!this.no_translate) {
-            for (let i = 0; i < 3; i++) {
-                try {
-                    result[1] = await google_translate(data, this.language_src, this.language_target);
-                } catch (e) {
-                    error("[WEBSPEECH] Error translating using google translate!: " + e)
-                }
+        const config = load_config();
 
-                break
+        if (!this.no_translate) {
+            try {
+                const val = await translators[config.translator_settings.translation_service](data, this.language_src, this.language_target, this.showNotification, this.setConfig);
+                
+                result[1] = val
+            } catch (e) {
+                error(`[EDGE-STT] Error translating using ${config.translator_settings.translation_service}: ${e}`);
             }
         }
 
