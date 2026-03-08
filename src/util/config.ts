@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { invoke } from "@tauri-apps/api/core";
-import { langSource, langTo } from "./constants"
+import { Lang, langSource, langTo } from "./constants"
 
 import {
     debug
@@ -24,9 +23,6 @@ export type Config = {
     light_mode: boolean,
     mode: number,
     microphone: string,
-    language_settings: {
-        japanese_omit_questionmark: boolean,
-    },
     vrchat_settings: {
         enable_chatbox: boolean,
         translation_first: boolean,
@@ -46,26 +42,25 @@ export type Config = {
         enable_user_data: boolean,
         enable_desktop_data: boolean
     },
+    translator_settings: {
+        translation_service: number, // Google Translate = 0, Microsoft Bing = 1, Groq = 2
+        recognition_service: number, // Microsoft Bing = 0, Groq = 1, WebSpeech API = 2
+
+        desktop_translation: boolean
+    },
     groq: {
         api_key: string,
-        translate_enabled: boolean,
-        recognition_enabled: boolean,
-    }
-    testing: {
-        desktop_capture: boolean,
-        use_edge_translate: boolean,
+        used_tokens: number,
+        last_used_day: number
     }
 }
 
 export const DEFAULT_CONFIG: Config = {
-    source_language: "en-US",
+    source_language: "en",
     target_language: "ja",
     mode: 0,
     microphone: "default",
     light_mode: false,
-    language_settings: {
-        japanese_omit_questionmark: true
-    },
     vrchat_settings: {
         enable_chatbox: true,
         translation_first: true,
@@ -85,14 +80,16 @@ export const DEFAULT_CONFIG: Config = {
         enable_user_data: false,
         enable_desktop_data: false
     },
-    testing: {
-        desktop_capture: false,
-        use_edge_translate: false,
+    translator_settings: {
+        translation_service: 0,
+        recognition_service: 0,
+
+        desktop_translation: false
     },
     groq: {
         api_key: "",
-        translate_enabled: false,
-        recognition_enabled: false,
+        used_tokens: 0,
+        last_used_day: 0
     }
 }
 
@@ -142,27 +139,15 @@ export function load_config(): Config {
     const config = validate_config(JSON.parse(val))
     update_config(config)
 
-    sendConfigDataToVRC(config)
-
     return config
 }
 
 export function update_config(config: Config) {
-    sendConfigDataToVRC(config)
-
     localStorage.setItem("config", JSON.stringify(config))
 }
 
-function sendConfigDataToVRC(config: Config) {
-    invoke("send_disable_desktop", {
-        data: !config.testing.desktop_capture,
-        address: config.vrchat_settings.osc_address,
-        port: `${config.vrchat_settings.osc_port}`,
-    });
+export function get_language(): Lang {
+    const language = localStorage.getItem("lang") as Lang | null
 
-    invoke("send_disable_chatbox", {
-        data: !config.vrchat_settings.enable_chatbox,
-        address: config.vrchat_settings.osc_address,
-        port: `${config.vrchat_settings.osc_port}`,
-    });
+    return language ?? "en"
 }
