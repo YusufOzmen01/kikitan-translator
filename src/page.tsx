@@ -107,14 +107,6 @@ function App() {
 
   React.useEffect(() => {
     if (!quickstartVisible) {
-      // fetch(ANNOUNCEMENT_GIST_URL).then(async data => {
-      //   const json = (await data.json()) as Announcement
-
-      //   setAnnouncementVisible(json.show ? localStorage.getItem("last-viewed-announcement")! == json.date ? false : true : false)
-      //   setAnnouncementData(json)
-      //   localStorage.setItem("last-viewed-announcement", json.date.toString());
-      // })
-
       getVersion().then((version) => {
         setAppVersion(version)
         setChangelogsVisible(localStorage.getItem("changelogsViewed") != version)
