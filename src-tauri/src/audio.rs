@@ -1,22 +1,14 @@
-/*
-    Note: This section is pretty much vibe coded with my own fixes and adjustments done to it
-    I would love to accept a PR that would be a better implementation for this usecase
-    However, since it works fine at the moment, I will not bother with a reimplementation
-    If anyone wants to rewrite it, feel free to make a PR and I will merge it after testing it
-*/
-
-use std::sync::{Arc, Mutex};
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
 use std::thread;
 use std::time::Duration;
-use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
-use tauri::{Emitter};
+
 use base64::{engine::general_purpose, Engine as _};
+use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
+use cpal::{Device, SupportedStreamConfig};
 use once_cell::sync::Lazy;
 use serde::Serialize;
-
-struct CaptureState {
-    stop_flag: bool,
-}
+use tauri::Emitter;
 
 #[derive(Serialize)]
 pub struct MicrophoneInfo {
@@ -24,11 +16,128 @@ pub struct MicrophoneInfo {
     pub sample_rate: u32,
 }
 
-static CAPTURE_STATE: Lazy<Arc<Mutex<Option<CaptureState>>>> =
-    Lazy::new(|| Arc::new(Mutex::new(None)));
+struct CaptureHandle {
+    stop: Arc<AtomicBool>,
+    running: Arc<AtomicBool>,
+}
 
-static MIC_CAPTURE_STATE: Lazy<Arc<Mutex<Option<CaptureState>>>> =
-    Lazy::new(|| Arc::new(Mutex::new(None)));
+impl CaptureHandle {
+    fn new() -> Self {
+        Self {
+            stop: Arc::new(AtomicBool::new(false)),
+            running: Arc::new(AtomicBool::new(false)),
+        }
+    }
+
+    fn stop_and_wait(&self) {
+        self.stop.store(true, Ordering::Release);
+        for _ in 0..80 {
+            if !self.running.load(Ordering::Acquire) {
+                return;
+            }
+            thread::sleep(Duration::from_millis(25));
+        }
+    }
+
+    fn try_start(&self) -> Result<(Arc<AtomicBool>, Arc<AtomicBool>), String> {
+        self.stop.store(false, Ordering::Release);
+        self.running
+            .compare_exchange(false, true, Ordering::AcqRel, Ordering::Acquire)
+            .map_err(|_| "Previous capture is still running".to_string())?;
+        Ok((Arc::clone(&self.stop), Arc::clone(&self.running)))
+    }
+
+    fn request_stop(&self) {
+        self.stop.store(true, Ordering::Release);
+    }
+}
+
+struct RunningGuard(Arc<AtomicBool>);
+
+impl Drop for RunningGuard {
+    fn drop(&mut self) {
+        self.0.store(false, Ordering::Release);
+    }
+}
+
+static DESKTOP_CAPTURE: Lazy<CaptureHandle> = Lazy::new(CaptureHandle::new);
+static MIC_CAPTURE: Lazy<CaptureHandle> = Lazy::new(CaptureHandle::new);
+
+const CHUNK_SIZE: usize = 4096;
+
+fn start_capture(
+    handle: &CaptureHandle,
+    app: tauri::AppHandle,
+    event_name: &'static str,
+    device_fn: impl FnOnce() -> Result<(Device, SupportedStreamConfig), String> + Send + 'static,
+) -> Result<(), String> {
+    handle.stop_and_wait();
+    let (stop, running) = handle.try_start()?;
+
+    thread::spawn(move || {
+        let _guard = RunningGuard(Arc::clone(&running));
+
+        let (device, config) = match device_fn() {
+            Ok(pair) => pair,
+            Err(e) => {
+                eprintln!("[audio] Device error: {e}");
+                return;
+            }
+        };
+
+        let sample_rate = config.sample_rate().0;
+        let channels = config.channels() as usize;
+
+        let stop_cb = Arc::clone(&stop);
+        let mut buffer: Vec<f32> = Vec::with_capacity(CHUNK_SIZE);
+
+        let stream = device.build_input_stream::<f32, _, _>(
+            &config.into(),
+            move |data: &[f32], _| {
+                if stop_cb.load(Ordering::Relaxed) {
+                    return;
+                }
+                for frame in data.chunks(channels) {
+                    buffer.push(frame[0]);
+                    if buffer.len() >= CHUNK_SIZE {
+                        let bytes: Vec<u8> =
+                            buffer.iter().flat_map(|s| s.to_le_bytes()).collect();
+                        let b64 = general_purpose::STANDARD.encode(&bytes);
+                        let _ = app.emit(
+                            event_name,
+                            serde_json::json!({
+                                "chunk": b64,
+                                "sampleRate": sample_rate,
+                            }),
+                        );
+                        buffer.clear();
+                    }
+                }
+            },
+            |err| eprintln!("[audio] Stream error: {err:?}"),
+            None,
+        );
+
+        let stream = match stream {
+            Ok(s) => s,
+            Err(e) => {
+                eprintln!("[audio] Failed to build stream: {e:?}");
+                return;
+            }
+        };
+
+        if let Err(e) = stream.play() {
+            eprintln!("[audio] Failed to play stream: {e:?}");
+            return;
+        }
+
+        while !stop.load(Ordering::Acquire) {
+            thread::sleep(Duration::from_millis(50));
+        }
+    });
+
+    Ok(())
+}
 
 #[tauri::command]
 pub fn get_microphone_list() -> Result<Vec<MicrophoneInfo>, String> {
@@ -71,227 +180,40 @@ pub fn get_microphone_list() -> Result<Vec<MicrophoneInfo>, String> {
 
 #[tauri::command]
 pub fn start_desktop_audio_capture(app: tauri::AppHandle) -> Result<(), String> {
-    // Signal any existing capture to stop
-    {
-        let mut guard = CAPTURE_STATE.lock().unwrap();
-        if let Some(state) = guard.as_mut() {
-            state.stop_flag = true;
-        }
-    }
-
-    // Wait for existing capture thread to clean up
-    for _ in 0..40 {
-        let guard = CAPTURE_STATE.lock().unwrap();
-        if guard.is_none() {
-            break;
-        }
-        drop(guard);
-        thread::sleep(Duration::from_millis(50));
-    }
-
-    let mut state_guard = CAPTURE_STATE.lock().unwrap();
-    if state_guard.is_some() {
-        return Err("Previous desktop capture did not stop in time".into());
-    }
-    *state_guard = Some(CaptureState { stop_flag: false });
-    drop(state_guard);
-
-    let state_arc = CAPTURE_STATE.clone();
-    let app_handle = app.clone();
-
-    thread::spawn(move || {
+    start_capture(&DESKTOP_CAPTURE, app, "audio-chunk", || {
         let host = cpal::default_host();
         let device = host
             .default_output_device()
-            .expect("No default output device (needed for WASAPI loopback)");
-
-        // Default config of the output device (we’ll request f32)
-        let config = device.default_output_config().unwrap();
-        let sample_rate = config.sample_rate().0;
-        let channels = config.channels() as usize;
-        let buffer_size = 4096;
-
-        let mut buffer: Vec<f32> = Vec::with_capacity(buffer_size);
-
-        let state_clone = state_arc.clone();
-
-        let stream = device.build_input_stream::<f32, _, _>(
-            &config.into(),
-            move |data: &[f32], _| {
-                for frame in data.chunks(channels) {
-                    buffer.push(frame[0]); // take first channel
-                    if buffer.len() >= buffer_size {
-                        // Convert Float32 to bytes
-                        let mut bytes = Vec::with_capacity(buffer.len() * 4);
-                        for &sample in &buffer {
-                            bytes.extend_from_slice(&sample.to_le_bytes());
-                        }
-                        let b64 = general_purpose::STANDARD.encode(&bytes);
-
-                        let _ = app_handle.emit(
-                            "audio-chunk",
-                            serde_json::json!({
-                                "chunk": b64,
-                                "sampleRate": sample_rate
-                            }),
-                        );
-
-                        buffer.clear();
-                    }
-                }
-            },
-            move |err| eprintln!("Audio error: {:?}", err),
-            None,
-        );
-
-        let stream = match stream {
-            Ok(s) => s,
-            Err(e) => {
-                eprintln!("Failed to build input stream: {:?}", e);
-                return;
-            }
-        };
-
-        stream.play().expect("Failed to start stream");
-
-        // run until stop_flag set or state cleared
-        loop {
-            {
-                let guard = state_clone.lock().unwrap();
-                match &*guard {
-                    Some(state) if state.stop_flag => break,
-                    None => break,
-                    _ => {}
-                }
-            }
-            thread::sleep(Duration::from_millis(50));
-        }
-
-        // Clean up state after stream is dropped
-        let mut guard = state_clone.lock().unwrap();
-        *guard = None;
-    });
-
-    Ok(())
+            .ok_or("No default output device (needed for WASAPI loopback)")?;
+        let config = device
+            .default_output_config()
+            .map_err(|e| format!("Failed to get output config: {e}"))?;
+        Ok((device, config))
+    })
 }
 
 #[tauri::command]
 pub fn stop_desktop_audio_capture() {
-    let mut state_guard = CAPTURE_STATE.lock().unwrap();
-    if let Some(state) = state_guard.as_mut() {
-        state.stop_flag = true;
-    }
+    DESKTOP_CAPTURE.request_stop();
 }
 
 #[tauri::command]
 pub fn start_microphone_audio_capture(app: tauri::AppHandle, mic: String) -> Result<(), String> {
-    // Signal any existing capture to stop
-    {
-        let mut guard = MIC_CAPTURE_STATE.lock().unwrap();
-        if let Some(state) = guard.as_mut() {
-            state.stop_flag = true;
-        }
-    }
-
-    // Wait for existing capture thread to clean up
-    for _ in 0..40 {
-        let guard = MIC_CAPTURE_STATE.lock().unwrap();
-        if guard.is_none() {
-            break;
-        }
-        drop(guard);
-        thread::sleep(Duration::from_millis(50));
-    }
-
-    let mut state_guard = MIC_CAPTURE_STATE.lock().unwrap();
-    if state_guard.is_some() {
-        return Err("Previous microphone capture did not stop in time".into());
-    }
-    *state_guard = Some(CaptureState { stop_flag: false });
-    drop(state_guard);
-
-    let state_arc = MIC_CAPTURE_STATE.clone();
-    let app_handle = app.clone();
-
-    thread::spawn(move || {
+    start_capture(&MIC_CAPTURE, app, "mic-audio-chunk", move || {
         let host = cpal::default_host();
-
-        let device = host.input_devices()
-            .expect("Failed to enumerate input devices")
+        let device = host
+            .input_devices()
+            .map_err(|e| format!("Failed to enumerate input devices: {e}"))?
             .find(|d| d.name().unwrap_or_default().trim() == mic.trim())
-            .unwrap_or_else(|| panic!("Microphone '{}' not found", mic));
-
-        let config = device.default_input_config()
-            .expect("Failed to get default input config");
-        let sample_rate = config.sample_rate().0;
-        let channels = config.channels() as usize;
-        let buffer_size = 4096;
-
-        let mut buffer: Vec<f32> = Vec::with_capacity(buffer_size);
-
-        let state_clone = state_arc.clone();
-
-        let stream = device.build_input_stream::<f32, _, _>(
-            &config.into(),
-            move |data: &[f32], _| {
-                for frame in data.chunks(channels) {
-                    buffer.push(frame[0]); // take first channel
-                    if buffer.len() >= buffer_size {
-                        let mut bytes = Vec::with_capacity(buffer.len() * 4);
-                        for &sample in &buffer {
-                            bytes.extend_from_slice(&sample.to_le_bytes());
-                        }
-                        let b64 = general_purpose::STANDARD.encode(&bytes);
-
-                        let _ = app_handle.emit(
-                            "mic-audio-chunk",
-                            serde_json::json!({
-                                "chunk": b64,
-                                "sampleRate": sample_rate
-                            }),
-                        );
-
-                        buffer.clear();
-                    }
-                }
-            },
-            move |err| eprintln!("Mic audio error: {:?}", err),
-            None,
-        );
-
-        let stream = match stream {
-            Ok(s) => s,
-            Err(e) => {
-                eprintln!("Failed to build mic input stream: {:?}", e);
-                return;
-            }
-        };
-
-        stream.play().expect("Failed to start mic stream");
-
-        loop {
-            {
-                let guard = state_clone.lock().unwrap();
-                match &*guard {
-                    Some(state) if state.stop_flag => break,
-                    None => break,
-                    _ => {}
-                }
-            }
-            thread::sleep(Duration::from_millis(50));
-        }
-
-        let mut guard = state_clone.lock().unwrap();
-        *guard = None;
-    });
-
-    Ok(())
+            .ok_or_else(|| format!("Microphone '{mic}' not found"))?;
+        let config = device
+            .default_input_config()
+            .map_err(|e| format!("Failed to get input config: {e}"))?;
+        Ok((device, config))
+    })
 }
 
 #[tauri::command]
 pub fn stop_microphone_audio_capture() {
-    let mut state_guard = MIC_CAPTURE_STATE.lock().unwrap();
-    if let Some(state) = state_guard.as_mut() {
-        state.stop_flag = true;
-    }
+    MIC_CAPTURE.request_stop();
 }
