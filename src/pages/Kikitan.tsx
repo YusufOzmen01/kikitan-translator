@@ -67,6 +67,7 @@ let sr: Recognizer | null = null;
 let desktopSR: Recognizer | null = null;
 let detectionQueue: string[][] = [];
 let lock = false;
+let restartTimeout: NodeJS.Timeout | null = null;
 
 export default function Kikitan({
     config,
@@ -226,10 +227,14 @@ export default function Kikitan({
             sr?.stop();
             desktopSR?.stop();
 
-            setTimeout(() => {
+            if (restartTimeout) {
+                clearTimeout(restartTimeout);
+            }
+
+            restartTimeout = setTimeout(() => {
                 restartSR();
                 restartDesktopSR();
-            }, 1000);
+            }, 500);
         }
 
         setLanguageUpdate(false);
@@ -721,20 +726,10 @@ export default function Kikitan({
                             <div className="mt-7">
                                 <MicIcon className="ml-3" />
                                 <Button
+                                    disabled={languageUpdate}
                                     onClick={() => {
-                                        const new_t = sourceLanguage.includes(
-                                            "en-"
-                                        )
-                                            ? "en"
-                                            : sourceLanguage.includes("es-")
-                                                ? "es"
-                                                : sourceLanguage;
-                                        const new_s =
-                                            targetLanguage == "en"
-                                                ? "en-US"
-                                                : targetLanguage == "es"
-                                                    ? "es-ES"
-                                                    : targetLanguage;
+                                        const new_t = sourceLanguage;
+                                        const new_s = targetLanguage;
 
                                         setTargetLanguage(new_t);
                                         setSourceLanguage(new_s);

@@ -463,7 +463,6 @@ export class EdgeSTT extends Recognizer {
 
         if (this.desktop_capture) {
             this.worker_callback = await setupSystemAudioCapture(captureCallback);
-            
 
             (async () => {
                 const res: boolean = await invoke("is_desktop_overlay_running");
