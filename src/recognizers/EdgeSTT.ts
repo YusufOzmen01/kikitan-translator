@@ -384,6 +384,16 @@ export class EdgeSTT extends Recognizer {
         this.currentRequestId = generateUuid();
         this.streamIdCounter++;
 
+        if (this.streamIdCounter > 10) {
+            this.running = false;
+            this.ws.close();
+
+            info(`[EDGE-STT${this.desktop_capture ? " DESKTOP" : ""}] Reinitializing connection after ${this.streamIdCounter} turns...`);
+            this.initConnection();
+
+            return;
+        }
+
         const bytesPerSecond = this.sample_rate * CHANNELS * (BITS_PER_SAMPLE / 8);
         const secondsSent = this.bytesSent / bytesPerSecond;
         const offset100ns = Math.floor(secondsSent * 10_000_000);

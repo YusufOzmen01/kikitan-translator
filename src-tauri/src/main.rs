@@ -1,10 +1,12 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use tauri_plugin_log::{RotationStrategy, Target, TargetKind, fern};
+
+mod audio;
 mod data_out;
 mod filesys;
 mod process_manager;
-mod audio;
 mod vrc_commands;
 
 fn main() {
@@ -13,7 +15,16 @@ fn main() {
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_fs::init())
-        .plugin(tauri_plugin_log::Builder::new().build())
+        .plugin(
+            tauri_plugin_log::Builder::new()
+                .clear_targets()
+                .rotation_strategy(RotationStrategy::KeepAll)
+                .targets([Target::new(TargetKind::Dispatch(
+                    fern::Dispatch::new()
+                        .chain(fern::DateBased::new("logs/", "Kikitan Translator-%Y-%m-%d-%h-%M-%s.log")),
+                ))])
+                .build(),
+        )
         .invoke_handler(tauri::generate_handler![
             vrc_commands::send_typing,
             vrc_commands::send_message,
