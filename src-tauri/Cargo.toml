@@ -22,7 +22,7 @@ rosc = "0.10.1"
 tauri-plugin-shell = "2.0.0-rc.0"
 tauri-plugin-fs = "2"
 tokio = { version = "1.29.1", features = ["full"] }
-tauri-plugin-log = { version = "2.0.0-rc", features = ["date-based"]}
+tauri-plugin-log = "2.0.0-rc"
 reqwest = { version = "0.11.18", features = ["stream"] }
 futures-util = "0.3.31"
 zip-extract = { version = "0.2.1", features = ["lzma"] }
@@ -30,6 +30,7 @@ tauri-plugin-os = "2"
 cpal = "0.15.2"
 base64 = "0.22.1"
 once_cell = "1.20.3"
+chrono = "0.4.31"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem and the built-in dev server is disabled.

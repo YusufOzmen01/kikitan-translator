@@ -1,7 +1,8 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use tauri_plugin_log::{RotationStrategy, Target, TargetKind, fern};
+use tauri_plugin_log::{Target, TargetKind,};
+use chrono::Local;
 
 mod audio;
 mod data_out;
@@ -10,6 +11,8 @@ mod process_manager;
 mod vrc_commands;
 
 fn main() {
+    let log_filename = format!("{}", Local::now().format("%Y-%m-%d %H:%M:%S"));
+
     tauri::Builder::default()
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
@@ -17,12 +20,18 @@ fn main() {
         .plugin(tauri_plugin_fs::init())
         .plugin(
             tauri_plugin_log::Builder::new()
-                .clear_targets()
-                .rotation_strategy(RotationStrategy::KeepAll)
-                .targets([Target::new(TargetKind::Dispatch(
-                    fern::Dispatch::new()
-                        .chain(fern::DateBased::new("logs/", "Kikitan Translator-%Y-%m-%d-%h-%M-%s.log")),
-                ))])
+                .target(Target::new(TargetKind::LogDir {
+                    file_name: Some(log_filename.replace(":", "-")),
+                }))
+                .format(|out, message, record| {
+                    let now = Local::now().format("%Y-%m-%d %H:%M:%S");
+                    out.finish(format_args!(
+                        "[{}] [{}] {}",
+                        now,
+                        record.level(),
+                        message
+                    ))
+                })
                 .build(),
         )
         .invoke_handler(tauri::generate_handler![

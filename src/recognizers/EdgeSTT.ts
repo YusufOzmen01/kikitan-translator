@@ -178,9 +178,10 @@ export class EdgeSTT extends Recognizer {
         this.initConnection();
     }
 
-    async initConnection() {
-        if (!this.running) return;
+    async initConnection(ignore: boolean | null = null) {
+        if (!this.running && !ignore) return;
         this.setSRLoading?.(true);
+        this.running = false;
 
         await this.cleanup();
 
@@ -384,12 +385,10 @@ export class EdgeSTT extends Recognizer {
         this.currentRequestId = generateUuid();
         this.streamIdCounter++;
 
-        if (this.streamIdCounter > 10) {
-            this.running = false;
-            this.ws.close();
-
+        if (this.streamIdCounter > 20) {
             info(`[EDGE-STT${this.desktop_capture ? " DESKTOP" : ""}] Reinitializing connection after ${this.streamIdCounter} turns...`);
-            this.initConnection();
+            this.stop()
+            this.initConnection(true);
 
             return;
         }
