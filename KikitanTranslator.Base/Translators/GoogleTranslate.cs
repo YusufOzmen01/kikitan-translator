@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using Newtonsoft.Json;
+using Serilog;
 
 namespace KikitanTranslator.Base.Translators;
 
@@ -30,7 +31,9 @@ public class GoogleTranslate : ITranslator
         {
             if (response.StatusCode != HttpStatusCode.OK)
             {
-                return null; // TODO: Log
+                Log.Error($"\x1b[34m[GT]   Google Translate returned {response.StatusCode}");
+                
+                return null;
             }
             
             using(Stream stream = response.GetResponseStream())
@@ -39,7 +42,9 @@ public class GoogleTranslate : ITranslator
             {
                 if (resp == null)
                 {
-                    return null; // TODO: Log
+                    Log.Error($"\x1b[34m[GT]   Response deserialization returned null");
+                    
+                    return null;
                 }
 
                 var final = "";

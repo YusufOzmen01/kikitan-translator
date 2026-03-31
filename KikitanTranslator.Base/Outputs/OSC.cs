@@ -10,17 +10,11 @@ public class OSC : IOutput
     
     public void Send(string recognized, string translated, bool final)
     {
-        if (!final)
-        {
-            OscChatbox.SetIsTyping(true);
-        }
-        else
-        {
-            OscChatbox.SetIsTyping(false);
-            
-            if (AppConfig.ConfigObject.TranslationOnly) OscChatbox.SendMessage(translated, true);
-            else OscChatbox.SendMessage($"{translated} ({recognized})", true);
-        }
+        OscChatbox.SetIsTyping(!final);
+        if (!final) return;
+        
+        if (AppConfig.ConfigObject.TranslationOnly) OscChatbox.SendMessage(translated, true);
+        else OscChatbox.SendMessage($"{translated} ({recognized})", true);
     }
 
     public bool IsDelayed() => true;

@@ -1,4 +1,5 @@
-﻿using SoundFlow.Abstracts.Devices;
+﻿using Serilog;
+using SoundFlow.Abstracts.Devices;
 using SoundFlow.Backends.MiniAudio;
 using SoundFlow.Enums;
 using SoundFlow.Structs;
@@ -10,7 +11,8 @@ public class Microphone : ICapture
     public event OnData? OnDataReceived;
     private MiniAudioEngine _engine;
     private DeviceInfo? _device;
-    private AudioCaptureDevice _captureDevice;
+    private AudioCaptureDevice? _captureDevice;
+    private bool _paused;
     
     public Microphone()
     {
@@ -24,6 +26,7 @@ public class Microphone : ICapture
 
     public void Start()
     {
+        Log.Information("\x1b[33m[MIC]  Starting capture");
         var audioFormat = new AudioFormat
         {
             SampleRate = 16000,
@@ -36,23 +39,43 @@ public class Microphone : ICapture
         {
             _device = _engine.CaptureDevices.First(d => d.IsDefault);
             
-            // TODO: Log
+            Log.Warning($"\x1b[33m[MIC]  No microphone was selected, using the default device ({_device.Value.Name}) for capture");
         }
-
+        
         _captureDevice = _engine.InitializeCaptureDevice(_device, audioFormat);
         _captureDevice.OnAudioProcessed += AudioProcessCallback;
         _captureDevice.Start();
         
-        // TODO: Log
+        Log.Information("\x1b[33m[MIC]  Capture has started");
     }
 
     public void Stop()
     {
-        _captureDevice.Stop();
-        _captureDevice.Dispose();
+        if (_captureDevice == null) return;
         
-        // TODO: Log
+        _captureDevice.Stop();
+        
+        Log.Information("\x1b[33m[MIC]  Capture has stopped");
     }
 
-    private void AudioProcessCallback(Span<float> samples, Capability capability) => OnDataReceived?.Invoke(samples.ToArray());
+    public void Pause()
+    {
+        Log.Verbose("\x1b[33m[MIC]  Capture paused");
+        
+        _paused = true;
+    }
+
+    public void Resume()
+    {
+        Log.Verbose("\x1b[33m[MIC]  Capture resumed");
+        
+        _paused = false;
+    }
+
+    private void AudioProcessCallback(Span<float> samples, Capability capability)
+    {
+        if (_paused) return;
+        
+        OnDataReceived?.Invoke(samples.ToArray());
+    }
 }

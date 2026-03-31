@@ -6,28 +6,13 @@ using KikitanTranslator.Recognizers;
 using KikitanTranslator.Utility;
 
 Console.OutputEncoding = System.Text.Encoding.UTF8;
+Logger.Initialize();
 
-var mic = new Microphone();
-int selected = 0;
-for (int i = 0; i < mic.GetDevices().Length; i++)
-{
-    if (mic.GetDevices()[i].IsDefault)
-    {
-        selected = i;
-        
-        break;
-    }
-}
-mic.SetDevice(mic.GetDevices()[selected]);
 
 AppConfig.Load();
 
-var bing = new Bing(mic);
-var google = new GoogleTranslate();
-
-var kikitan = new Kikitan(null, bing, google);
+var kikitan = new Kikitan(new Bing(new Microphone()), new GoogleTranslate());
 kikitan.AddOutput(new OSC());
-kikitan.AddOutput(new ConsoleOut());
 kikitan.Start();
 
 while (true) {}

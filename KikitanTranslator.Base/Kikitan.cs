@@ -1,14 +1,13 @@
 ﻿using KikitanTranslator.Base.Outputs;
 using KikitanTranslator.Base.Translators;
-using KikitanTranslator.Logger;
 using KikitanTranslator.Recognizers;
 using KikitanTranslator.Utility;
+using Serilog;
 
 namespace KikitanTranslator.Base;
 
 public class Kikitan
 {
-    private ILogger _logger;
     private IRecognizer _recognizer;
     private ITranslator _translator;
     private List<IOutput> _outputs = [];
@@ -17,15 +16,14 @@ public class Kikitan
 
     private bool _running;
 
-    public Kikitan(ILogger logger, IRecognizer recognizer, ITranslator translator)
+    public Kikitan(IRecognizer recognizer, ITranslator translator)
     {
-        _logger = logger;
         _recognizer = recognizer;
         _translator = translator;
 
         recognizer.OnRecognitionReceived += OnRecognition;
         
-        // TODO: Log
+        Log.Information("\x1b[36m[KKTN] Subsystem is ready");
     }
 
     public void AddOutput(IOutput output) => _outputs.Add(output);
@@ -37,7 +35,7 @@ public class Kikitan
         
         Task.Run(QueueWorker);
         
-        // TODO: Log
+        Log.Information("\x1b[36m[KKTN] Subsystem has started");
     }
 
     public void Stop()
@@ -45,7 +43,7 @@ public class Kikitan
         _recognizer.Stop();
         _running = false;
         
-        // TODO: Log
+        Log.Information("\x1b[36m[KKTN] Subsystem has stopped");
     }
 
     private void OnRecognition(string text, bool final)
@@ -85,9 +83,11 @@ public class Kikitan
             var texts = _queue.First();
             _queue.RemoveAt(0);
             
-            // TODO: Log
+            Log.Verbose("\x1b[36m[KKTN] Processing new delayed translation");
             
-            foreach (var output in _outputs.Where(v => !v.IsDelayed())) output.Send(texts[0], texts[1], true);
+            foreach (var output in _outputs.Where(v => v.IsDelayed())) output.Send(texts[0], texts[1], true);
+            Log.Verbose($"\x1b[36m[KKTN] Waiting {texts[1].Length * AppConfig.ConfigObject.ChatboxWaitPerCharMs}ms...");
+            
             await Task.Delay(texts[1].Length * AppConfig.ConfigObject.ChatboxWaitPerCharMs);
         }
     }

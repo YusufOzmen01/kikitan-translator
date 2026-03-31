@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
+using Serilog;
 
 namespace KikitanTranslator.Utility;
 
@@ -86,7 +87,7 @@ public class ConfigObject : INotifyPropertyChanged
         }
     }
 
-    [JsonProperty("translation_only")] private bool _translationOnly = true;
+    [JsonProperty("translation_only")] private bool _translationOnly = false;
 
     [JsonIgnore]
     public bool TranslationOnly
@@ -118,7 +119,7 @@ public class ConfigObject : INotifyPropertyChanged
         }
     }
 
-    [JsonProperty("chatbox_wait_per_char_ms")] private int _chatboxWaitPerCharMs = 10;
+    [JsonProperty("chatbox_wait_per_char_ms")] private int _chatboxWaitPerCharMs = 30;
 
     [JsonIgnore]
     public int ChatboxWaitPerCharMs
@@ -252,17 +253,19 @@ public static class AppConfig
         return appFolder;
     }
 
-    public static void Load() => Load(Path.Combine(GetAppFolder(), "config.json"));
+    public static void Load() => Load(Path.Join(GetAppFolder(), "config.json"));
 
     public static void Load(string configPath)
     {
         if (!Path.Exists(configPath))
         {
-            // TODO: Log
+            Log.Warning("\x1b[35m[CFG]  Specified path is nonexistent (perhaps first launch?). Using the default configuration");
 
             ConfigObject = new ConfigObject();
             ConfigObject.PropertyChanged += OnConfigPropertyChanged;
             _currentConfigPath = configPath;
+            
+            SaveConfig();
 
             return;
         }
@@ -272,7 +275,7 @@ public static class AppConfig
             ConfigObject? cfg = JsonConvert.DeserializeObject<ConfigObject>(File.ReadAllText(configPath));
             if (cfg == null)
             {
-                // TODO: Log
+                Log.Error("\x1b[35m[CFG]  Deserialization result returned null!");
 
                 return;
             }
@@ -281,20 +284,20 @@ public static class AppConfig
             ConfigObject.PropertyChanged += OnConfigPropertyChanged;
             _currentConfigPath = configPath;
             
-            // TODO: Log
+            Log.Information($"\x1b[35m[CFG]  Loaded from {configPath}");
         }
         catch (Exception e)
         {
-            // TODO: Log
+            Log.Error($"\x1b[35m[CFG]  Error occured while trying to load the config file!: {e}");
 
             return;
         }
     }
     
     public static void SaveConfig() {
-        File.WriteAllText(_currentConfigPath, JsonConvert.SerializeObject(ConfigObject));
+        File.WriteAllText(_currentConfigPath, JsonConvert.SerializeObject(ConfigObject, Formatting.Indented));
         
-        // TODO: Log
+        Log.Verbose($"\x1b[35m[CFG]  Saved to {_currentConfigPath}");
     }
     private static void OnConfigPropertyChanged(object sender, PropertyChangedEventArgs e) => SaveConfig();
 }

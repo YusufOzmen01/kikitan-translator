@@ -9,4 +9,6 @@ public interface ICapture
     
     public void Start();
     public void Stop();
+    public void Pause();
+    public void Resume();
 }
