@@ -30,7 +30,7 @@ public class GoogleTranslate : ITranslator
         {
             if (response.StatusCode != HttpStatusCode.OK)
             {
-                return null; // TODO: Add logging
+                return null; // TODO: Log
             }
             
             using(Stream stream = response.GetResponseStream())
@@ -39,7 +39,7 @@ public class GoogleTranslate : ITranslator
             {
                 if (resp == null)
                 {
-                    return null; // TODO: Add logging
+                    return null; // TODO: Log
                 }
 
                 var final = "";

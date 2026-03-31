@@ -34,20 +34,24 @@ public class Microphone : ICapture
 
         if (_device == null)
         {
-            _device = _engine.CaptureDevices.FirstOrDefault();
+            _device = _engine.CaptureDevices.First(d => d.IsDefault);
             
-            Console.WriteLine($"No audio device specified, using default one {_device.Value.Name}");
+            // TODO: Log
         }
 
         _captureDevice = _engine.InitializeCaptureDevice(_device, audioFormat);
         _captureDevice.OnAudioProcessed += AudioProcessCallback;
         _captureDevice.Start();
+        
+        // TODO: Log
     }
 
     public void Stop()
     {
         _captureDevice.Stop();
         _captureDevice.Dispose();
+        
+        // TODO: Log
     }
 
     private void AudioProcessCallback(Span<float> samples, Capability capability) => OnDataReceived?.Invoke(samples.ToArray());

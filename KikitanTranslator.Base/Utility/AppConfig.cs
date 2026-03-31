@@ -22,7 +22,7 @@ public class ConfigObject : INotifyPropertyChanged
         }
     }
 
-    [JsonProperty("target_language")] private string _targetLanguage = "jp";
+    [JsonProperty("target_language")] private string _targetLanguage = "ja";
 
     [JsonIgnore]
     public string TargetLanguage
@@ -118,17 +118,17 @@ public class ConfigObject : INotifyPropertyChanged
         }
     }
 
-    [JsonProperty("chatbox_update_speed")] private int _chatboxUpdateSpeed = 0;
+    [JsonProperty("chatbox_wait_per_char_ms")] private int _chatboxWaitPerCharMs = 10;
 
     [JsonIgnore]
-    public int ChatboxUpdateSpeed
+    public int ChatboxWaitPerCharMs
     {
-        get => _chatboxUpdateSpeed;
+        get => _chatboxWaitPerCharMs;
         set
         {
-            if (_chatboxUpdateSpeed != value)
+            if (_chatboxWaitPerCharMs != value)
             {
-                _chatboxUpdateSpeed = value;
+                _chatboxWaitPerCharMs = value;
                 OnPropertyChanged();
             }
         }
@@ -280,6 +280,8 @@ public static class AppConfig
             ConfigObject = cfg;
             ConfigObject.PropertyChanged += OnConfigPropertyChanged;
             _currentConfigPath = configPath;
+            
+            // TODO: Log
         }
         catch (Exception e)
         {
@@ -289,6 +291,10 @@ public static class AppConfig
         }
     }
     
-    public static void SaveConfig() => File.WriteAllText(_currentConfigPath, JsonConvert.SerializeObject(ConfigObject));
+    public static void SaveConfig() {
+        File.WriteAllText(_currentConfigPath, JsonConvert.SerializeObject(ConfigObject));
+        
+        // TODO: Log
+    }
     private static void OnConfigPropertyChanged(object sender, PropertyChangedEventArgs e) => SaveConfig();
 }

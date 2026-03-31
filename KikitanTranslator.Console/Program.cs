@@ -24,10 +24,10 @@ AppConfig.Load();
 
 var bing = new Bing(mic);
 var google = new GoogleTranslate();
-var osc = new OSC();
 
 var kikitan = new Kikitan(null, bing, google);
-kikitan.AddOutput(osc);
+kikitan.AddOutput(new OSC());
+kikitan.AddOutput(new ConsoleOut());
 kikitan.Start();
 
 while (true) {}

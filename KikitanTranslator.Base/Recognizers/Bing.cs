@@ -45,10 +45,14 @@ public class Bing : IRecognizer
         _streamIdCounter = 1;
         _currentStreamTag = null;
         _bytesSend = 0;
+        
+        // TODO: Log
     }
     
     public void Start(string language)
     {
+        // TODO: Log
+        
         _language = language;
         var url = $"wss://speech.platform.bing.com/speech/recognition/edge/interactive/v1?TrustedClientToken={Constants.BING_TRUSTED_TOKEN}&Sec-MS-GEC={GenerateSecMsSec()}&Sec-MS-GEC-Version={Constants.BING_MS_VERSION}&language={_language}&profanity=raw";
 
@@ -64,6 +68,7 @@ public class Bing : IRecognizer
         _client.ReconnectionHappened.Subscribe(async info =>
         {
             Reset();
+            // TODO: Log
             
             var configPayload = new
             {
@@ -86,6 +91,7 @@ public class Bing : IRecognizer
             };
             
             _client.Send(CreateTextMessage("speech.config", JsonConvert.SerializeObject(configPayload), "application/json", null));
+            // TODO: Log
             
             var contextPayload = new
             {
@@ -100,9 +106,11 @@ public class Bing : IRecognizer
 
             await Task.Delay(100);
             _client.Send(CreateTextMessage("speech.context", JsonConvert.SerializeObject(contextPayload), null, _currentRequestId));
+            // TODO: Log
             
             await Task.Delay(100);
             _client.Send(CreateBinaryMessage("audio", $"{_streamIdCounter}", _currentRequestId, CreateWavHeader(), "audio/x-wav"));
+            // TODO: Log
             
             _capture.OnDataReceived += samples =>
             {
@@ -123,7 +131,9 @@ public class Bing : IRecognizer
                 _bytesSend += byteArray.Length;
                 _client.Send(CreateBinaryMessage("audio", $"{_streamIdCounter}", _currentRequestId, byteArray, null));
             };
+            
             _capture.Start();
+            // TODO: Log
         });
         
         _client.MessageReceived.Subscribe(message =>
@@ -183,7 +193,7 @@ public class Bing : IRecognizer
 
         if (_streamIdCounter >= RESTART_LIMIT)
         {
-            Console.WriteLine("Restarting recognizer...");
+            // TODO: Log
             
             Stop();
             Start(_language);
@@ -221,9 +231,11 @@ public class Bing : IRecognizer
         };
         
         _client.Send(CreateTextMessage("speech.context", JsonConvert.SerializeObject(contextPayload), "application/json", _currentRequestId));
-
+        // TODO: Log
+        
         await Task.Delay(100);
         _client.Send(CreateBinaryMessage("audio", $"{_streamIdCounter}", _currentRequestId, CreateWavHeader(), "audio/x-wav"));
+        // TODO: Log
     }
     
     private (string, string) ParseWebsocketMessage(string msg)

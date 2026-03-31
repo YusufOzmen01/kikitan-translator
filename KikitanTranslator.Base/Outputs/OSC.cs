@@ -22,4 +22,6 @@ public class OSC : IOutput
             else OscChatbox.SendMessage($"{translated} ({recognized})", true);
         }
     }
+
+    public bool IsDelayed() => true;
 }

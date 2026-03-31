@@ -3,4 +3,5 @@
 public interface IOutput
 {
     public void Send(string recognized, string translated, bool final);
+    public bool IsDelayed();
 }
