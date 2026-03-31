@@ -64,8 +64,7 @@ public class Bing : IRecognizer
         _client.ReconnectionHappened.Subscribe(async info =>
         {
             Reset();
-            Console.WriteLine($"Connection successful!");
-
+            
             var configPayload = new
             {
                 context = new
@@ -99,10 +98,10 @@ public class Bing : IRecognizer
                 }
             };
 
-            await Task.Delay(50);
+            await Task.Delay(100);
             _client.Send(CreateTextMessage("speech.context", JsonConvert.SerializeObject(contextPayload), null, _currentRequestId));
             
-            await Task.Delay(50);
+            await Task.Delay(100);
             _client.Send(CreateBinaryMessage("audio", $"{_streamIdCounter}", _currentRequestId, CreateWavHeader(), "audio/x-wav"));
             
             _capture.OnDataReceived += samples =>
@@ -135,8 +134,6 @@ public class Bing : IRecognizer
                 case "turn.start":
                     TurnStart? start = JsonConvert.DeserializeObject<TurnStart>(json);
                     _currentStreamTag = start?.Context.ServiceTag;
-                
-                    Console.WriteLine($"Received a new stream tag: {_currentStreamTag}");
                     
                     break;
                 case "turn.end":
@@ -225,7 +222,7 @@ public class Bing : IRecognizer
         
         _client.Send(CreateTextMessage("speech.context", JsonConvert.SerializeObject(contextPayload), "application/json", _currentRequestId));
 
-        await Task.Delay(50);
+        await Task.Delay(100);
         _client.Send(CreateBinaryMessage("audio", $"{_streamIdCounter}", _currentRequestId, CreateWavHeader(), "audio/x-wav"));
     }
     

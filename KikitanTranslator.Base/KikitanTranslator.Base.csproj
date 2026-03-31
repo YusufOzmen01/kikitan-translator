@@ -16,4 +16,8 @@
       <Content Remove="C:\Users\Yusuf\.nuget\packages\soundflow\1.4.0\contentFiles\any\net8.0\STATEMENT.md" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\KikitanTranslator.Resources\KikitanTranslator.Resources.csproj" />
+    </ItemGroup>
+
 </Project>

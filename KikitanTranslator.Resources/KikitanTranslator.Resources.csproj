@@ -1,0 +1,51 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Update="LanguageResources\languages.resx">
+        <Generator>PublicResXFileCodeGenerator</Generator>
+        <LastGenOutput>languages.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+      <EmbeddedResource Update="LanguageResources\languages.ja.resx">
+        <Generator>PublicResXFileCodeGenerator</Generator>
+        <LastGenOutput>languages.ja.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+      <EmbeddedResource Update="LanguageResources\languages.ko.resx">
+        <Generator>PublicResXFileCodeGenerator</Generator>
+        <LastGenOutput>languages.ko.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+      <EmbeddedResource Update="LanguageResources\languages.zh.resx">
+        <Generator>ResXFileCodeGenerator</Generator>
+        <LastGenOutput>languages.zh.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="LanguageResources\languages.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>languages.resx</DependentUpon>
+      </Compile>
+      <Compile Update="LanguageResources\languages.ja.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>languages.ja.resx</DependentUpon>
+      </Compile>
+      <Compile Update="LanguageResources\languages.ko.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>languages.ko.resx</DependentUpon>
+      </Compile>
+      <Compile Update="LanguageResources\languages.zh.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>languages.zh.resx</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
+</Project>

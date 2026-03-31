@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KikitanTranslator.Photino",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KikitanTranslator.Overlay", "KikitanTranslator.Overlay\KikitanTranslator.Overlay.csproj", "{6784D02E-E607-4FB8-86F4-FDBCB0FDF97E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KikitanTranslator.Resources", "KikitanTranslator.Resources\KikitanTranslator.Resources.csproj", "{B19C4F22-2A24-4CBB-ACDD-BFA53895AE36}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{6784D02E-E607-4FB8-86F4-FDBCB0FDF97E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6784D02E-E607-4FB8-86F4-FDBCB0FDF97E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6784D02E-E607-4FB8-86F4-FDBCB0FDF97E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B19C4F22-2A24-4CBB-ACDD-BFA53895AE36}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B19C4F22-2A24-4CBB-ACDD-BFA53895AE36}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B19C4F22-2A24-4CBB-ACDD-BFA53895AE36}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B19C4F22-2A24-4CBB-ACDD-BFA53895AE36}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
