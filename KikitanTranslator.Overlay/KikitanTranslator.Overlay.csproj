@@ -1,16 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <OutputType>WinExe</OutputType>
+        <OutputType>Exe</OutputType>
         <TargetFramework>net9.0-windows</TargetFramework>
-        <RootNamespace>Desktop_Image_Overlay</RootNamespace>
+        <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <UseWindowsForms>true</UseWindowsForms>
         <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="OVRSharp" Version="1.2.0" />
+        <PackageReference Include="OVRSharp" Version="1.2.0" />
     </ItemGroup>
-
 </Project>

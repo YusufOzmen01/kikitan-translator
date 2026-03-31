@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+      <PackageReference Include="SoundFlow" Version="1.4.0" />
+      <PackageReference Include="Websocket.Client" Version="5.3.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Remove="C:\Users\Yusuf\.nuget\packages\soundflow\1.4.0\contentFiles\any\net8.0\STATEMENT.md" />
+    </ItemGroup>
+
+</Project>

@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KikitanTranslator.Base", "KikitanTranslator.Base\KikitanTranslator.Base.csproj", "{C3E4B945-F892-467F-9BA2-2ADC173AEB09}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KikitanTranslator.Console", "KikitanTranslator.Console\KikitanTranslator.Console.csproj", "{B65E0D63-6480-4AC9-A721-5ECBA76A70EC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KikitanTranslator.Photino", "KikitanTranslator.Photino\KikitanTranslator.Photino.csproj", "{01510166-CFC7-42BD-9E66-BD3F798048F6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KikitanTranslator.Overlay", "KikitanTranslator.Overlay\KikitanTranslator.Overlay.csproj", "{6784D02E-E607-4FB8-86F4-FDBCB0FDF97E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C3E4B945-F892-467F-9BA2-2ADC173AEB09}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C3E4B945-F892-467F-9BA2-2ADC173AEB09}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C3E4B945-F892-467F-9BA2-2ADC173AEB09}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C3E4B945-F892-467F-9BA2-2ADC173AEB09}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B65E0D63-6480-4AC9-A721-5ECBA76A70EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B65E0D63-6480-4AC9-A721-5ECBA76A70EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B65E0D63-6480-4AC9-A721-5ECBA76A70EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B65E0D63-6480-4AC9-A721-5ECBA76A70EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{01510166-CFC7-42BD-9E66-BD3F798048F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01510166-CFC7-42BD-9E66-BD3F798048F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01510166-CFC7-42BD-9E66-BD3F798048F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01510166-CFC7-42BD-9E66-BD3F798048F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6784D02E-E607-4FB8-86F4-FDBCB0FDF97E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6784D02E-E607-4FB8-86F4-FDBCB0FDF97E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6784D02E-E607-4FB8-86F4-FDBCB0FDF97E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6784D02E-E607-4FB8-86F4-FDBCB0FDF97E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
