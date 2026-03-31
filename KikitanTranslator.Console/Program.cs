@@ -1,6 +1,9 @@
-﻿using KikitanTranslator.Base.Translators;
+﻿using KikitanTranslator.Base;
+using KikitanTranslator.Base.Outputs;
+using KikitanTranslator.Base.Translators;
 using KikitanTranslator.Capture;
 using KikitanTranslator.Recognizers;
+using KikitanTranslator.Utility;
 
 Console.OutputEncoding = System.Text.Encoding.UTF8;
 
@@ -17,16 +20,15 @@ for (int i = 0; i < mic.GetDevices().Length; i++)
 }
 mic.SetDevice(mic.GetDevices()[selected]);
 
+AppConfig.Load();
+
 var bing = new Bing(mic);
 var google = new GoogleTranslate();
+var osc = new OSC();
 
-bing.OnRecognitionReceived += (text, final) =>
-{
-    if (final) Console.WriteLine($"{text}: {google.Translate(text, "ja", "en")}");
-    else Console.WriteLine($"User speaking: {text}");
-};
-
-bing.Start("ja");
+var kikitan = new Kikitan(null, bing, google);
+kikitan.AddOutput(osc);
+kikitan.Start();
 
 while (true) {}
 
