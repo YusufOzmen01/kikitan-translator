@@ -13,6 +13,7 @@ AppConfig.Load();
 
 var kikitan = new Kikitan(new Bing(new Microphone()), new GoogleTranslate());
 kikitan.AddOutput(new OSC());
+kikitan.AddOutput(new ConsoleOut());
 kikitan.Start();
 
 while (true) {}
