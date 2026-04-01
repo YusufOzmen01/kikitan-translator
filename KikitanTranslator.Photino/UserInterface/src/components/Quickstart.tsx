@@ -1,5 +1,4 @@
 import * as React from "react"
-import { Config } from "../util/config"
 
 import {
     GitHub,
@@ -10,34 +9,29 @@ import Scroll from "./Scroll"
 import { localization } from "../util/localization";
 import { Box, Button, Checkbox, FormControlLabel, FormGroup, MenuItem, Select } from "@mui/material";
 import { Lang } from "../util/constants";
-import { invoke } from "@tauri-apps/api/core";
 
-type QuickstartMenuProps = {
-    config: Config,
-    setLang: (value: React.SetStateAction<Lang>) => void,
-    setConfig: (value: React.SetStateAction<Config>) => void,
-    lang: Lang
-}
+const lang = "en"
+const LIGHT_MODE = false
 
-export default function QuickstartMenu({ config, setLang, lang, setConfig }: QuickstartMenuProps) {
+export default function QuickstartMenu() {
     const [quickstartPage, setQuickstartPage] = React.useState(0)
 
     return <>
-        <div className={`absolute z-10 flex flex-col justify-between w-10/12 h-5/6 outline outline-2 rounded  ${!config.light_mode ? "bg-slate-950 outline-slate-950" : "bg-white outline-white"}`}>
+        <div className={`absolute z-10 flex flex-col justify-between w-10/12 h-5/6 outline outline-2 rounded  ${!LIGHT_MODE ? "bg-slate-950 outline-slate-950" : "bg-white outline-white"}`}>
             <div className='relative mt-2 ml-2 mr-2 h-64'>
                 <div className={`absolute inset-0 transition-all flex justify-center ease-in-out ${quickstartPage == 0 ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
                     <div className='absolute mt-28 flex flex-col items-center'>
-                        <Scroll light_mode={config.light_mode}></Scroll>
+                        <Scroll light_mode={LIGHT_MODE}></Scroll>
 
                         <div className='mt-16 absolute flex flex-row items-center'>
                             <Translate className='mr-8 outline-2 ' />
                             <Select sx={{
-                                color: config.light_mode ? 'black' : 'white',
+                                color: LIGHT_MODE ? 'black' : 'white',
                                 '& .MuiOutlinedInput-notchedOutline': {
-                                    borderColor: config.light_mode ? 'black' : 'white',
+                                    borderColor: LIGHT_MODE ? 'black' : 'white',
                                 },
                                 '&:hover .MuiOutlinedInput-notchedOutline': {
-                                    borderColor: config.light_mode ? 'black' : 'white',
+                                    borderColor: LIGHT_MODE ? 'black' : 'white',
                                 },
                             }} variant='outlined' className="mt-auto mr-8" value={lang} onChange={(e) => {
                                 setLang(e.target.value as Lang)
@@ -83,16 +77,16 @@ export default function QuickstartMenu({ config, setLang, lang, setConfig }: Qui
                 <Box sx={{
                     width: '100%',
                     '& .MuiSvgIcon-root': {
-                        color: config.light_mode ? 'black' : '#94A3B8'
+                        color: LIGHT_MODE ? 'black' : '#94A3B8'
                     },
                     '& .MuiOutlinedInput-notchedOutline': {
-                        borderColor: config.light_mode ? 'black' : '#94A3B8',
+                        borderColor: LIGHT_MODE ? 'black' : '#94A3B8',
                     },
                     '&:hover .MuiOutlinedInput-notchedOutline': {
-                        borderColor: config.light_mode ? 'black' : '#94A3B8',
+                        borderColor: LIGHT_MODE ? 'black' : '#94A3B8',
                     },
                     '& .MuiFormControlLabel-root.Mui-disabled .MuiFormControlLabel-label': {
-                        color: config.light_mode ? '#666666' : '#4f4f4f'
+                        color: LIGHT_MODE ? '#666666' : '#4f4f4f'
                     }
                 }} >
                     <div className={'absolute inset-0 transition-all space-y-2 flex flex-col items-center ease-in-out ' + (quickstartPage == 3 ? "opacity-100" : "opacity-0 pointer-events-none")}>
@@ -173,14 +167,14 @@ export default function QuickstartMenu({ config, setLang, lang, setConfig }: Qui
             <div className='mb-2 flex justify-center space-x-4'>
                 <Button sx={{
                     '&.Mui-disabled': {
-                        color: config.light_mode ? '#666666 !important' : '#4f4f4f !important',
-                        borderColor: config.light_mode ? '#666666 !important' : '#4f4f4f !important'
+                        color: LIGHT_MODE ? '#666666 !important' : '#4f4f4f !important',
+                        borderColor: LIGHT_MODE ? '#666666 !important' : '#4f4f4f !important'
                     }
                 }} variant='contained' disabled={quickstartPage == 0} onClick={() => { setQuickstartPage(quickstartPage - 1) }}>{localization.previous[lang]}</Button>
                 {!(quickstartPage == 5) && <Button sx={{
                     '&.Mui-disabled': {
-                        color: config.light_mode ? '#666666 !important' : '#4f4f4f !important',
-                        borderColor: config.light_mode ? '#666666 !important' : '#4f4f4f !important'
+                        color: LIGHT_MODE ? '#666666 !important' : '#4f4f4f !important',
+                        borderColor: LIGHT_MODE ? '#666666 !important' : '#4f4f4f !important'
                     }
                 }} className='ml-4' variant='contained' disabled={quickstartPage > 3} onClick={() => { setQuickstartPage(quickstartPage + 1) }}>{localization.next[lang]}</Button>}
             </div>

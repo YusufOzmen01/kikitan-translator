@@ -5,8 +5,6 @@ import Tab from '@mui/material/Tab';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 
-import { appLogDir } from '@tauri-apps/api/path';
-
 import { IconButton, FormControlLabel, FormGroup, Checkbox, TextField, Select, MenuItem, Button, Slider, LinearProgress } from "@mui/material";
 
 import {
@@ -18,7 +16,6 @@ import { Config, DEFAULT_CONFIG, speed_presets } from "../util/config";
 
 import { localization } from "../util/localization";
 import { DAILY_TOKEN_LIMIT, Lang } from "../util/constants";
-import { open } from "@tauri-apps/plugin-shell";
 
 type CustomTabPanelProps = {
     children: React.ReactNode;

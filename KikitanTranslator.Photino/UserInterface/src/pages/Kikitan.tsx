@@ -13,8 +13,6 @@ import {
     Slide
 } from "@mui/material";
 
-import { error, info, warn } from "@tauri-apps/plugin-log";
-
 import {
     X as XIcon,
     GitHub as GitHubIcon,
@@ -30,74 +28,32 @@ import {
     SwapHoriz as SwapHorizIcon
 } from "@mui/icons-material";
 
-import { invoke } from "@tauri-apps/api/core";
-import { listen } from "@tauri-apps/api/event";
-import { open } from "@tauri-apps/plugin-shell";
-
 import {
-    calculateMinWaitTime,
-    Lang,
     langSource,
     langTo,
 } from "../util/constants";
 
-import { Config, load_config, MessageHistoryItem } from "../util/config";
-import { Recognizer } from "../recognizers/recognizer";
-import { EdgeSTT } from "../recognizers/EdgeSTT";
+const LIGHT_MODE = false;
 
 import { localization } from "../util/localization";
-import {
-    send_desktop_recognition,
-    send_desktop_translation,
-    send_user_recognition,
-    send_user_translation
-} from "../util/data_out";
-import { send_notification_text } from "../util/overlay";
-import { VAD } from "../recognizers/VAD";
-import { WebSpeech } from "../recognizers/WebSpeech";
 
-type KikitanProps = {
-    config: Config;
-    setConfig: (config: Config) => void;
-    lang: Lang;
-    settingsVisible: boolean;
-};
+const SOURCE_LANGUAGE = "en"
+const TARGET_LANGUAGE = "ja"
+const lang = "en"
 
-let sr: Recognizer | null = null;
-let desktopSR: Recognizer | null = null;
-let detectionQueue: string[][] = [];
-let lock = false;
-let restartTimeout: NodeJS.Timeout | null = null;
-
-export default function Kikitan({
-    config,
-    setConfig,
-    lang,
-    settingsVisible
-}: KikitanProps) {
+export default function Kikitan() {
     const [detecting, setDetecting] = React.useState(false);
     const [srStatus, setSRStatus] = React.useState(true);
     const [srLoading, setSRLoading] = React.useState(false)
-    const [vrcMuted, setVRCMuted] = React.useState(false);
-    const [startedSpeaking, setStartedSpeaking] = React.useState(false);
-
-    const [result, setResult] = React.useState<string[]>([]);
+    
     const [detection, setDetection] = React.useState<string>("");
     const [translated, setTranslated] = React.useState("");
-    const [desktopResult, setDesktopResult] = React.useState("");
 
-    const [microphones, setMicrophones] = React.useState<{ name: string, sample_rate: number }[]>([])
+    const [microphones, setMicrophones] = React.useState<string[]>([])
+    const [currentMicrophone, setCurrentMicrophone] = React.useState<string>("")
 
-    const [triggerUpdate, setTriggerUpdate] = React.useState(false);
-
-    const [sourceLanguage, setSourceLanguage] = React.useState(
-        config.source_language
-    );
-    const [targetLanguage, setTargetLanguage] = React.useState(
-        config.target_language
-    );
-
-    const [languageUpdate, setLanguageUpdate] = React.useState(false);
+    const [sourceLanguage, setSourceLanguage] = React.useState(SOURCE_LANGUAGE);
+    const [targetLanguage, setTargetLanguage] = React.useState(TARGET_LANGUAGE);
 
     const [showMessageHistory, setShowMessageHistory] = React.useState(false);
 
@@ -116,332 +72,9 @@ export default function Kikitan({
         setNotification({ open: true, message, severity });
     };
 
-    const enableDesktopCapture = () => {
-        desktopSR?.stop();
-
-        switch (config.translator_settings.recognition_service) {
-            case 0: // Microsoft Bing
-                desktopSR = new EdgeSTT(targetLanguage, sourceLanguage, true, false, null, showNotification, setConfig)
-                info(`[DESKTOP CAPTURE] Using EdgeSTT for recognition`);
-
-                break;
-            case 1: // Groq
-                desktopSR = new VAD(targetLanguage, sourceLanguage, true, false, null, showNotification, setConfig)
-                info(`[DESKTOP CAPTURE] Using Groq for recognition`);
-
-                break;
-            case 2: // WebSpeech, legacy
-                error(`[DESKTOP CAPTURE] Cannot use WebSpeech for desktop capture!`);
-
-                showNotification(localization.cannot_use_webspeech_for_desktop_translation[lang], "warning")
-                return;
-            default:
-                error(`[DESKTOP CAPTURE] Unknown recognizer! ${config.translator_settings.recognition_service}`);
-
-                return;
-        }
-
-        desktopSR.onResult(async (result: string[], isFinal: boolean) => {
-            if (config.data_out.enable_desktop_data) {
-                send_desktop_recognition(result[0], isFinal);
-
-                if (isFinal) send_desktop_translation(result[1]);
-            }
-
-            if (isFinal) {
-                console.log("[DESKTOP CAPTURE] Result: " + result);
-
-                setDesktopResult(result[1]);
-            }
-        });
-
-        desktopSR.start();
-    };
-
-    const restartSR = () => {
-        sr?.stop();
-
-        info(`[SR] Initializing SR...`);
-
-        if ((config.translator_settings.translation_service == 2 || config.translator_settings.recognition_service == 1) && config.groq.api_key.length == 0) {
-            showNotification(localization.no_api_key_configured_for_groq[lang], "warning")
-        }
-
-        switch (config.translator_settings.recognition_service) {
-            case 0: // Microsoft Bing
-                sr = new EdgeSTT(sourceLanguage, targetLanguage, false, config.mode == 1, setSRLoading, showNotification, setConfig)
-                info(`[SR] Using EdgeSTT for recognition`);
-
-                break;
-            case 1: // Groq
-                sr = new VAD(sourceLanguage, targetLanguage, false, config.mode == 1, setSRLoading, showNotification, setConfig)
-                info(`[SR] Using Groq for recognition`);
-
-                break;
-            case 2: // WebSpeech, legacy
-                sr = new WebSpeech(sourceLanguage, targetLanguage, config.mode == 1, setSRLoading, showNotification, setConfig)
-                info(`[SR] Using WebSoeech for recognition`);
-
-                break;
-            default:
-                error(`[SR] Unknown recognizer! ${config.translator_settings.recognition_service}`);
-
-                return;
-        }
-
-        sr.onResult((result: string[], isFinal: boolean) => {
-            setDetecting(!isFinal);
-
-            setResult(result);
-        });
-
-        info("[SR] Starting recognition");
-        sr?.start();
-    };
-
-    const restartDesktopSR = () => {
-        const cfg = load_config();
-
-        if (cfg.translator_settings.desktop_translation) {
-            info("[DESKTOP CAPTURE] Starting desktop capture...");
-
-            enableDesktopCapture();
-        } else {
-            desktopSR?.stop();
-            desktopSR = null;
-        }
-    };
-
     React.useEffect(() => {
-        send_notification_text(desktopResult, (config.source_language == "ja" || config.source_language == "ko" || config.source_language == "zh"));
-    }, [desktopResult]);
-
-    React.useEffect(() => {
-        if (!languageUpdate) return;
-        info(
-            `[LANGUAGE] Changing language (${sourceLanguage} - ${targetLanguage}) - sr=${sr != null
-            }`
-        );
-
-        if (sr) {
-            sr?.stop();
-            desktopSR?.stop();
-
-            if (restartTimeout) {
-                clearTimeout(restartTimeout);
-            }
-
-            restartTimeout = setTimeout(() => {
-                restartSR();
-                restartDesktopSR();
-            }, 500);
-        }
-
-        setLanguageUpdate(false);
-    }, [languageUpdate]);
-
-    React.useEffect(() => {
-        if (vrcMuted && !startedSpeaking && config.vrchat_settings.disable_kikitan_when_muted) {
-            console.log("Skipping this");
-
-            return;
-        }
-
-        setDetection(result[0]);
-        setStartedSpeaking(detecting);
-
-        if ((config.mode == 1 || config.vrchat_settings.send_typing_status_while_talking) && config.vrchat_settings.enable_chatbox) {
-            invoke("send_typing", {
-                address: config.vrchat_settings.osc_address,
-                port: `${config.vrchat_settings.osc_port}`,
-            });
-        }
-
-        if (config.data_out.enable_user_data) {
-            send_user_recognition(result[0], !detecting);
-
-            if (!detecting && config.mode == 0) send_user_translation(result[1]);
-        }
-
-        if (config.mode == 1 && config.vrchat_settings.enable_chatbox && !detecting) {
-            invoke("send_message", {
-                address: config.vrchat_settings.osc_address,
-                port: `${config.vrchat_settings.osc_port}`,
-                msg: result[0],
-            })
-        }
-
-        if (!detecting && result.length != 0 && result[1].length != 0) {
-            detectionQueue = [...detectionQueue, result];
-
-            info(
-                `[QUEUE] Updating queue. Current queue length: ${detectionQueue.length}`
-            );
-        }
-    }, [result, detecting]);
-
-    React.useEffect(() => {
-        info(`[SR] SR status=${srStatus}`);
-
-        if (sr == null) {
-            warn("[SR] SR is currently null, so ignoring the changes");
-
-            return;
-        }
-
-        if (srStatus) {
-            info("[SR] Starting SR...");
-            sr.start();
-            desktopSR?.start();
-        } else {
-            info("[SR] Stopping SR...");
-            sr.stop();
-            desktopSR?.stop();
-        }
-    }, [srStatus]);
-
-    React.useEffect(() => {
-        (async () => {
-            if (detectionQueue.length == 0 || lock) return;
-
-            const current = detectionQueue[0];
-            detectionQueue = detectionQueue.slice(1);
-
-            lock = true;
-
-            info(
-                `[QUEUE] Processing the queue. Current queue length: ${detectionQueue.length}`
-            );
-
-            const current_detection = current[0];
-            const current_translation = current[1];
-
-            if (config.mode == 0) setTranslated(current_translation);
-
-            if (config.message_history.enabled) {
-                const newHistoryItem: MessageHistoryItem = {
-                    source: current_detection,
-                    translation: current_translation,
-                    timestamp: Date.now(),
-                };
-
-                const updatedItems = [
-                    newHistoryItem,
-                    ...config.message_history.items,
-                ].slice(0, config.message_history.max_items);
-
-                setConfig({
-                    ...config,
-                    message_history: {
-                        ...config.message_history,
-                        items: updatedItems,
-                    },
-                });
-            }
-
-            if (config.vrchat_settings.enable_chatbox) {
-                info("[TRANSLATION] Sending the message to chatbox...");
-                invoke("send_message", {
-                    address: config.vrchat_settings.osc_address,
-                    port: `${config.vrchat_settings.osc_port}`,
-                    msg: config.vrchat_settings.only_translation
-                        ? current_translation
-                        : config.vrchat_settings.translation_first
-                            ? `${current_translation} (${current_detection})`
-                            : `${current_detection} (${current_translation})`,
-                });
-            }
-
-            await new Promise((r) =>
-                setTimeout(
-                    r,
-                    calculateMinWaitTime(
-                        current_translation,
-                        config.vrchat_settings.chatbox_update_speed
-                    )
-                )
-            );
-
-            lock = false;
-        })();
-
-        setTimeout(() => {
-            setTriggerUpdate(!triggerUpdate);
-        }, 100);
-    }, [triggerUpdate]);
-
-    React.useEffect(() => {
-        listen<boolean>("vrchat-mute", (event) => {
-            info(`[OSC] Received mute status ${event.payload}`);
-            setVRCMuted(event.payload);
-        });
-
-        listen<boolean>("disable-kikitan-mic", (event) => {
-            info(`[OSC] Received disable mic ${event.payload}`);
-
-            setSRStatus(!event.payload);
-        });
-
-        listen<boolean>("disable-kikitan-desktop", (event) => {
-            info(`[OSC] Received disable desktop capture ${event.payload}`);
-
-            if (event.payload) desktopSR?.stop();
-            else desktopSR?.start();
-        });
-
-        listen<boolean>("disable-kikitan-chatbox", (event) => {
-            info(`[OSC] Received disable chatbox ${event.payload}`);
-
-            setConfig({
-                ...config,
-                vrchat_settings: {
-                    ...config.vrchat_settings,
-                    enable_chatbox: !event.payload,
-                },
-            });
-        });
-
-        if (sr == null) {
-            invoke("get_microphone_list").then((data) => {
-                const d = data as { name: string, sample_rate: number }[];
-                if (d.filter(val => val.name == load_config().microphone).length == 0) {
-                    showNotification(localization.microphone_updated[lang], "warning")
-
-                    setConfig({
-                        ...config,
-                        microphone: d[0].name
-                    })
-                    restartSR();
-                }
-
-                setMicrophones(d)
-            })
-
-            setInterval(() => {
-                invoke("get_microphone_list").then((data) => {
-                    const d = data as { name: string, sample_rate: number }[];
-                    if (d.filter(val => val.name == load_config().microphone).length == 0) {
-                        showNotification(localization.microphone_updated[lang], "warning")
-
-                        setConfig({
-                            ...config,
-                            microphone: d[0].name
-                        })
-                        restartSR();
-                    }
-
-                    setMicrophones(d)
-                })
-            }, 1000)
-        }
+        // TODO: Get microphone list
     }, []);
-
-    React.useEffect(() => {
-        if (settingsVisible == false && srStatus) {
-            restartSR();
-            restartDesktopSR();
-        }
-    }, [settingsVisible]);
 
     const formatTimestamp = (timestamp: number) => {
         const date = new Date(timestamp);
@@ -462,15 +95,15 @@ export default function Kikitan({
                     }
                 >
                     <div
-                        className={`flex flex-col w-10/12 h-96 outline outline-1 ${config.light_mode
+                        className={`flex flex-col w-10/12 h-96 outline outline-1 ${LIGHT_MODE
                             ? "outline-white"
                             : "outline-slate-900"
-                            } rounded ${config.light_mode ? "bg-white" : "bg-slate-950"
+                            } rounded ${LIGHT_MODE ? "bg-white" : "bg-slate-950"
                             } p-4 overflow-hidden`}
                     >
                         <div className="flex justify-between items-center mb-4">
                             <h2
-                                className={`text-xl font-bold ${config.light_mode
+                                className={`text-xl font-bold ${LIGHT_MODE
                                     ? "text-black"
                                     : "text-white"
                                     }`}
@@ -480,7 +113,7 @@ export default function Kikitan({
                             <IconButton
                                 onClick={() => setShowMessageHistory(false)}
                                 sx={{
-                                    color: config.light_mode
+                                    color: LIGHT_MODE
                                         ? "rgba(0, 0, 0, 0.87)"
                                         : "#ffffff",
                                 }}
@@ -489,64 +122,64 @@ export default function Kikitan({
                             </IconButton>
                         </div>
 
-                        <div
-                            className="overflow-y-auto flex-grow mb-4"
-                            style={{ maxHeight: "calc(100% - 4rem)" }}
-                        >
-                            {config.message_history.items.length === 0 ? (
-                                <div className="flex items-center justify-center h-full">
-                                    <span
-                                        className={`text-sm italic ${config.light_mode
-                                            ? "text-gray-500"
-                                            : "text-gray-400"
-                                            }`}
-                                    >
-                                        {localization.no_history[lang]}
-                                    </span>
-                                </div>
-                            ) : (
-                                <div className="space-y-4">
-                                    {config.message_history.items.map(
-                                        (item, index) => (
-                                            <div
-                                                key={index}
-                                                className={`p-3 rounded-md ${config.light_mode
-                                                    ? "bg-gray-100"
-                                                    : "bg-slate-900"
-                                                    }`}
-                                            >
-                                                <div
-                                                    className={`text-xs mb-1 ${config.light_mode
-                                                        ? "text-gray-500"
-                                                        : "text-gray-400"
-                                                        }`}
-                                                >
-                                                    {formatTimestamp(
-                                                        item.timestamp
-                                                    )}
-                                                </div>
-                                                <div
-                                                    className={`font-medium ${config.light_mode
-                                                        ? "text-black"
-                                                        : "text-white"
-                                                        }`}
-                                                >
-                                                    {item.source}
-                                                </div>
-                                                <div
-                                                    className={`mt-1 ${config.light_mode
-                                                        ? "text-gray-800"
-                                                        : "text-gray-300"
-                                                        }`}
-                                                >
-                                                    {item.translation}
-                                                </div>
-                                            </div>
-                                        )
-                                    )}
-                                </div>
-                            )}
-                        </div>
+                        {/*<div*/}
+                        {/*    className="overflow-y-auto flex-grow mb-4"*/}
+                        {/*    style={{ maxHeight: "calc(100% - 4rem)" }}*/}
+                        {/*>*/}
+                        {/*    {config.message_history.items.length === 0 ? (*/}
+                        {/*        <div className="flex items-center justify-center h-full">*/}
+                        {/*            <span*/}
+                        {/*                className={`text-sm italic ${LIGHT_MODE*/}
+                        {/*                    ? "text-gray-500"*/}
+                        {/*                    : "text-gray-400"*/}
+                        {/*                    }`}*/}
+                        {/*            >*/}
+                        {/*                {localization.no_history[lang]}*/}
+                        {/*            </span>*/}
+                        {/*        </div>*/}
+                        {/*    ) : (*/}
+                        {/*        <div className="space-y-4">*/}
+                        {/*            {config.message_history.items.map(*/}
+                        {/*                (item, index) => (*/}
+                        {/*                    <div*/}
+                        {/*                        key={index}*/}
+                        {/*                        className={`p-3 rounded-md ${LIGHT_MODE*/}
+                        {/*                            ? "bg-gray-100"*/}
+                        {/*                            : "bg-slate-900"*/}
+                        {/*                            }`}*/}
+                        {/*                    >*/}
+                        {/*                        <div*/}
+                        {/*                            className={`text-xs mb-1 ${LIGHT_MODE*/}
+                        {/*                                ? "text-gray-500"*/}
+                        {/*                                : "text-gray-400"*/}
+                        {/*                                }`}*/}
+                        {/*                        >*/}
+                        {/*                            {formatTimestamp(*/}
+                        {/*                                item.timestamp*/}
+                        {/*                            )}*/}
+                        {/*                        </div>*/}
+                        {/*                        <div*/}
+                        {/*                            className={`font-medium ${LIGHT_MODE*/}
+                        {/*                                ? "text-black"*/}
+                        {/*                                : "text-white"*/}
+                        {/*                                }`}*/}
+                        {/*                        >*/}
+                        {/*                            {item.source}*/}
+                        {/*                        </div>*/}
+                        {/*                        <div*/}
+                        {/*                            className={`mt-1 ${LIGHT_MODE*/}
+                        {/*                                ? "text-gray-800"*/}
+                        {/*                                : "text-gray-300"*/}
+                        {/*                                }`}*/}
+                        {/*                        >*/}
+                        {/*                            {item.translation}*/}
+                        {/*                        </div>*/}
+                        {/*                    </div>*/}
+                        {/*                )*/}
+                        {/*            )}*/}
+                        {/*        </div>*/}
+                        {/*    )}*/}
+                        {/*</div>*/}
                     </div>
                 </div>
 
@@ -559,10 +192,10 @@ export default function Kikitan({
                     }
                 >
                     <div
-                        className={`flex flex-col justify-center w-7/12 h-2/6 outline outline-1 ${config.light_mode
+                        className={`flex flex-col justify-center w-7/12 h-2/6 outline outline-1 ${LIGHT_MODE
                             ? "outline-white"
                             : "outline-slate-900"
-                            } rounded ${config.light_mode ? "bg-white" : "bg-slate-950"
+                            } rounded ${LIGHT_MODE ? "bg-white" : "bg-slate-950"
                             }`}
                     >
                         <div className="flex flex-row justify-center gap-2">
@@ -570,14 +203,14 @@ export default function Kikitan({
                                 slotProps={{
                                     inputLabel: {
                                         style: {
-                                            color: config.light_mode
+                                            color: LIGHT_MODE
                                                 ? "black"
                                                 : "#94A3B8",
                                         },
                                     },
                                     htmlInput: {
                                         style: {
-                                            color: config.light_mode
+                                            color: LIGHT_MODE
                                                 ? "black"
                                                 : "#fff",
                                         },
@@ -591,7 +224,7 @@ export default function Kikitan({
                                 variant="outlined"
                                 onKeyDown={(e) => {
                                     if (e.key == "Enter") {
-                                        sr?.manual_trigger(textInputValue);
+                                        // TODO: Send manual text
 
                                         setTextInputVisible(false);
                                         setTextInputValue("");
@@ -605,7 +238,8 @@ export default function Kikitan({
                                 variant="contained"
                                 className="w-12"
                                 onClick={() => {
-                                    sr?.manual_trigger(textInputValue);
+                                    // TODO: Send manual text
+                                    
                                     setTextInputVisible(false);
                                     setTextInputValue("");
                                 }}
@@ -631,10 +265,10 @@ export default function Kikitan({
                     <div>
                         <div
                             className={`mr-16 w-96 h-48 outline outline-1 transition-all rounded-md font-bold text-center ${detecting
-                                ? "italic " + config.light_mode
+                                ? "italic " + LIGHT_MODE
                                     ? "text-slate-400 outline-slate-800"
                                     : "text-slate-200 outline-slate-400"
-                                : config.light_mode
+                                : LIGHT_MODE
                                     ? "text-black"
                                     : "text-slate-200"
                                 } ${srStatus ? "" : "bg-gray-400"}`}
@@ -644,43 +278,43 @@ export default function Kikitan({
                         <div className="flex">
                             <Select
                                 sx={{
-                                    color: config.light_mode
+                                    color: LIGHT_MODE
                                         ? "black"
                                         : "white",
                                     textAlign: "right",
                                     "& .MuiOutlinedInput-notchedOutline": {
-                                        borderColor: config.light_mode
+                                        borderColor: LIGHT_MODE
                                             ? "black"
                                             : "#94A3B8",
                                     },
                                     "&:hover .MuiOutlinedInput-notchedOutline":
                                     {
-                                        borderColor: config.light_mode
+                                        borderColor: LIGHT_MODE
                                             ? "black"
                                             : "#94A3B8",
                                     },
                                     "& .MuiSvgIcon-root": {
-                                        color: config.light_mode
+                                        color: LIGHT_MODE
                                             ? "black"
                                             : "#94A3B8",
                                     },
                                     "&.Mui-disabled": {
-                                        color: config.light_mode
+                                        color: LIGHT_MODE
                                             ? "black"
                                             : "white",
                                         "& .MuiOutlinedInput-notchedOutline": {
-                                            borderColor: config.light_mode
+                                            borderColor: LIGHT_MODE
                                                 ? "black"
                                                 : "#94A3B8",
                                         },
                                         "&:hover .MuiOutlinedInput-notchedOutline":
                                         {
-                                            borderColor: config.light_mode
+                                            borderColor: LIGHT_MODE
                                                 ? "black"
                                                 : "#94A3B8",
                                         },
                                         "& .MuiSvgIcon-root": {
-                                            color: config.light_mode
+                                            color: LIGHT_MODE
                                                 ? "black"
                                                 : "#94A3B8",
                                         },
@@ -689,7 +323,7 @@ export default function Kikitan({
                                 MenuProps={{
                                     sx: {
                                         "& .MuiPaper-root": {
-                                            backgroundColor: config.light_mode
+                                            backgroundColor: LIGHT_MODE
                                                 ? "#94A3B8"
                                                 : "#020617",
                                         },
@@ -699,19 +333,14 @@ export default function Kikitan({
                                 value={sourceLanguage}
                                 onChange={(e) => {
                                     setSourceLanguage(e.target.value);
-                                    setLanguageUpdate(true);
-
-                                    setConfig({
-                                        ...config,
-                                        source_language: e.target.value,
-                                    });
+                                    // TODO: Change source language
                                 }}
                             >
                                 {langSource.map((element) => {
                                     return (
                                         <MenuItem
                                             sx={{
-                                                color: config.light_mode
+                                                color: LIGHT_MODE
                                                     ? "black"
                                                     : "white",
                                             }}
@@ -726,27 +355,21 @@ export default function Kikitan({
                             <div className="mt-7">
                                 <MicIcon className="ml-3" />
                                 <Button
-                                    disabled={languageUpdate}
                                     onClick={() => {
                                         const new_t = sourceLanguage;
                                         const new_s = targetLanguage;
 
                                         setTargetLanguage(new_t);
                                         setSourceLanguage(new_s);
-                                        setLanguageUpdate(true);
 
-                                        setConfig({
-                                            ...config,
-                                            source_language: new_s,
-                                            target_language: new_t,
-                                        });
+                                        // TODO: Change both source and target language
                                     }}
                                 > <SwapHorizIcon /> </Button>
                             </div>
                         </div>
                     </div>
                     <div>
-                        <div className={`w-96 h-48 outline outline-1 transition-all rounded-md ${config.light_mode
+                        <div className={`w-96 h-48 outline outline-1 transition-all rounded-md ${LIGHT_MODE
                             ? "text-black outline-slate-800"
                             : "text-slate-200 outline-slate-400"
                             } font-bold text-center ${srStatus ? "" : "bg-gray-400"
@@ -759,22 +382,22 @@ export default function Kikitan({
                             <TranslateIcon className="mr-3" />
                             <Select
                                 sx={{
-                                    color: config.light_mode
+                                    color: LIGHT_MODE
                                         ? "black"
                                         : "white",
                                     "& .MuiOutlinedInput-notchedOutline": {
-                                        borderColor: config.light_mode
+                                        borderColor: LIGHT_MODE
                                             ? "black"
                                             : "#94A3B8",
                                     },
                                     "&:hover .MuiOutlinedInput-notchedOutline":
                                     {
-                                        borderColor: config.light_mode
+                                        borderColor: LIGHT_MODE
                                             ? "black"
                                             : "#94A3B8",
                                     },
                                     "& .MuiSvgIcon-root": {
-                                        color: config.light_mode
+                                        color: LIGHT_MODE
                                             ? "black"
                                             : "#94A3B8",
                                     },
@@ -782,7 +405,7 @@ export default function Kikitan({
                                 MenuProps={{
                                     sx: {
                                         "& .MuiPaper-root": {
-                                            backgroundColor: config.light_mode
+                                            backgroundColor: LIGHT_MODE
                                                 ? "#94A3B8"
                                                 : "#020617",
                                         },
@@ -792,19 +415,14 @@ export default function Kikitan({
                                 value={targetLanguage}
                                 onChange={(e) => {
                                     setTargetLanguage(e.target.value);
-                                    setLanguageUpdate(true);
-
-                                    setConfig({
-                                        ...config,
-                                        target_language: e.target.value,
-                                    });
+                                    // TODO: Change target language
                                 }}
                             >
                                 {langTo.map((element) => {
                                     return (
                                         <MenuItem
                                             sx={{
-                                                color: config.light_mode
+                                                color: LIGHT_MODE
                                                     ? "black"
                                                     : "white",
                                             }}
@@ -843,17 +461,11 @@ export default function Kikitan({
                     disabled={srLoading}
                     sx={{
                         '&.Mui-disabled': {
-                            borderColor: config.light_mode ? 'rgba(0, 0, 0, 0.4)' : 'rgba(148, 163, 184, 0.5)',
-                            color: config.light_mode ? 'rgba(0, 0, 0, 0.4)' : 'rgba(148, 163, 184, 0.5)',
+                            borderColor: LIGHT_MODE ? 'rgba(0, 0, 0, 0.4)' : 'rgba(148, 163, 184, 0.5)',
+                            color: LIGHT_MODE ? 'rgba(0, 0, 0, 0.4)' : 'rgba(148, 163, 184, 0.5)',
                         },
                     }}
                     onClick={() => {
-                        invoke("send_disable_mic", {
-                            data: !srStatus,
-                            address: config.vrchat_settings.osc_address,
-                            port: `${config.vrchat_settings.osc_port}`,
-                        });
-
                         setSRStatus(!srStatus);
                     }}
                 >
@@ -862,7 +474,7 @@ export default function Kikitan({
                     </p>
                     {srStatus ? !srLoading ? (<PauseIcon fontSize="small" />) : (<CircularProgress color="inherit" size={16} />) : (<PlayArrowIcon fontSize="small" />)}
                 </Button>
-                {config.message_history.enabled && (
+                {/* TODO: Message history */ true && (
                     <Tooltip title={localization.message_history[lang]}>
                         <Button
                             variant="outlined"
@@ -880,42 +492,42 @@ export default function Kikitan({
                     <KeyboardVoiceIcon fontSize="small" className="mt-3" />
                     <Select
                         sx={{
-                            color: config.light_mode
+                            color: LIGHT_MODE
                                 ? "black"
                                 : "white",
                             "& .MuiOutlinedInput-notchedOutline": {
-                                borderColor: config.light_mode
+                                borderColor: LIGHT_MODE
                                     ? "black"
                                     : "#94A3B8",
                             },
                             "&:hover .MuiOutlinedInput-notchedOutline":
                             {
-                                borderColor: config.light_mode
+                                borderColor: LIGHT_MODE
                                     ? "black"
                                     : "#94A3B8",
                             },
                             "& .MuiSvgIcon-root": {
-                                color: config.light_mode
+                                color: LIGHT_MODE
                                     ? "black"
                                     : "#94A3B8",
                             },
                             "&.Mui-disabled": {
-                                color: config.light_mode
+                                color: LIGHT_MODE
                                     ? "black"
                                     : "white",
                                 "& .MuiOutlinedInput-notchedOutline": {
-                                    borderColor: config.light_mode
+                                    borderColor: LIGHT_MODE
                                         ? "black"
                                         : "#94A3B8",
                                 },
                                 "&:hover .MuiOutlinedInput-notchedOutline":
                                 {
-                                    borderColor: config.light_mode
+                                    borderColor: LIGHT_MODE
                                         ? "black"
                                         : "#94A3B8",
                                 },
                                 "& .MuiSvgIcon-root": {
-                                    color: config.light_mode
+                                    color: LIGHT_MODE
                                         ? "black"
                                         : "#94A3B8",
                                 },
@@ -924,37 +536,32 @@ export default function Kikitan({
                         MenuProps={{
                             sx: {
                                 "& .MuiPaper-root": {
-                                    backgroundColor: config.light_mode
+                                    backgroundColor: LIGHT_MODE
                                         ? "#94A3B8"
                                         : "#020617",
                                 },
                             },
                         }}
                         className="ml-4 h-12 w-52"
-                        value={config.microphone}
+                        value={currentMicrophone}
                         onChange={(e) => {
-                            setConfig({
-                                ...config,
-                                microphone: e.target.value as string
-                            })
-
-                            setTimeout(() => {
-                                restartSR();
-                            }, 250)
+                            setCurrentMicrophone(e.target.value)
+                            
+                            // TODO: Update microphone
                         }}
                     >
                         {microphones.map((element) => {
                             return (
                                 <MenuItem
                                     sx={{
-                                        color: config.light_mode
+                                        color: LIGHT_MODE
                                             ? "black"
                                             : "white",
                                     }}
-                                    key={element.name}
-                                    value={element.name}
+                                    key={element}
+                                    value={element}
                                 >
-                                    {(element.name.includes("(") && element.name.includes(")")) ? element.name.match(/\(([^)]+)\)/)?.[1] : element.name}
+                                    {(element.includes("(") && element.includes(")")) ? element.match(/\(([^)]+)\)/)?.[1] : element}
                                 </MenuItem>
                             );
                         })}

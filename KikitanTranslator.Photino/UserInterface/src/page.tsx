@@ -10,7 +10,6 @@ import {
   MenuItem,
   Button,
   IconButton,
-  CircularProgress
 } from '@mui/material';
 
 import {
@@ -21,127 +20,44 @@ import {
   Favorite
 } from '@mui/icons-material';
 
-import { invoke } from '@tauri-apps/api/core'
-import { open } from '@tauri-apps/plugin-shell'
-
-import SettingsPage from './pages/Settings';
-
-
-import { DEFAULT_CONFIG, load_config, update_config } from './util/config';
-import { Lang } from './util/constants';
-import { getVersion } from '@tauri-apps/api/app';
-
 import Changelogs from './pages/Changelogs';
-
-import { check } from '@tauri-apps/plugin-updater';
-import { relaunch } from '@tauri-apps/plugin-process';
-
 import { localization } from './util/localization';
 
-import translateGT from './translators/google_translate';
-import QuickstartMenu from './components/Quickstart';
+const LIGHT_MODE = false;
+const lang = "en"
+const appVersion = "1.3.0-rc.2"
+const MODE = 0;
+
 function App() {
-  const [quickstartVisible, setQuickstartVisible] = React.useState(true)
+  const [quickstartVisible, setQuickstartVisible] = React.useState(false)
   const [changelogsVisible, setChangelogsVisible] = React.useState(false)
   const [settingsVisible, setSettingsVisible] = React.useState(false)
-  const [updateVisible, setUpdateVisible] = React.useState(false)
   const [donateVisible, setDonateVisible] = React.useState(false)
   const [googleServersErrorVisible, setGoogleServersErrorVisible] = React.useState(false)
-
-  const [config, setConfig] = React.useState(DEFAULT_CONFIG)
-  const [lang, setLang] = React.useState<Lang>("en")
-  const [appVersion, setAppVersion] = React.useState("")
 
   const [loaded, setLoaded] = React.useState(false)
 
   React.useEffect(() => {
-    if (loaded) update_config(config)
-  }, [config])
-
-  React.useEffect(() => {
-    const cfg = load_config()
-    const language = localStorage.getItem("lang") as Lang | null
-
-    setQuickstartVisible(localStorage.getItem("firstTimeSetupComplete") == null || language == null)
-    if (!(localStorage.getItem("firstTimeSetupComplete") == null || language == null)) {
-      getVersion().then((version) => {
-        setAppVersion(version)
-        setChangelogsVisible(localStorage.getItem("changelogsViewed") != version)
-
-        setTimeout(() => localStorage.setItem("changelogsViewed", version), 1000)
-      })
-    }
-
-    setLang(language == null ? "en" : language)
-    setConfig(cfg)
-
-    check().then((update) => {
-      setUpdateVisible(update != null)
-
-      update?.downloadAndInstall().then(() => {
-        relaunch()
-      });
-    });
-
-    translateGT("Hello, how are you?", "en-US", "tr-TR").then((out) => { console.log("Can access to Google servers: " + out) }).catch(err => {
-      console.log(err)
-
-      setGoogleServersErrorVisible(true)
-    })
-
-    invoke("start_vrc_listener")
-
     setTimeout(() => setLoaded(true), 300);
-
-    if (localStorage.getItem("last_donation") == null) {
-      localStorage.setItem("last_donation", "1")
-    } else {
-      const last = parseInt(localStorage.getItem("last_donation")!)
-
-      if ((last + 60 * 60 * 12 * 1000) <= Date.now()) {
-        setDonateVisible(true)
-        localStorage.setItem("last_donation", `${Date.now()}`)
-      }
-    }
   }, [])
-
-  React.useEffect(() => {
-    if (!quickstartVisible) {
-      getVersion().then((version) => {
-        setAppVersion(version)
-        setChangelogsVisible(localStorage.getItem("changelogsViewed") != version)
-
-        setTimeout(() => localStorage.setItem("changelogsViewed", version), 1000)
-      })
-    }
-  }, [quickstartVisible])
 
   return (
     <>
-      <div className={`relative transition-all duration-500 ${!loaded ? "opacity-0 pointer-events-none" : "opacity-100"} ${!config.light_mode ? "bg-slate-950 text-white" : ""}`}>
-        <div className={`transition-all z-20 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute` + (quickstartVisible && lang != null ? " opacity-100" : " opacity-0 pointer-events-none")}>
-          <QuickstartMenu config={config} setLang={setLang} lang={lang} setConfig={setConfig}></QuickstartMenu>
-        </div>
-
-        <div className={'transition-all z-30 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (updateVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
-          <div className={`flex flex-col justify-center w-10/12 h-5/6 outline outline-1 ${config.light_mode ? "outline-white" : "outline-slate-950"} rounded ${config.light_mode ? "bg-white" : "bg-slate-950"}`}>
-            <div className='flex flex-row justify-center'>
-              <CircularProgress></CircularProgress>
-              <p className='ml-4 text-4xl'>{localization.updating[lang]}</p>
-            </div>
-          </div>
-        </div>
+      <div className={`relative transition-all duration-500 ${!loaded ? "opacity-0 pointer-events-none" : "opacity-100"} ${!LIGHT_MODE ? "bg-slate-950 text-white" : ""}`}>
+        {/*<div className={`transition-all z-20 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute` + (quickstartVisible && lang != null ? " opacity-100" : " opacity-0 pointer-events-none")}>*/}
+        {/*  <QuickstartMenu config={config} setLang={setLang} lang={lang} setConfig={setConfig}></QuickstartMenu>*/}
+        {/*</div>*/}
 
         <div className={'transition-all z-30 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (donateVisible && !quickstartVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
-          <div className={`flex flex-col justify-center w-6/12 h-3/6 outline outline-1 ${config.light_mode ? "outline-white" : "outline-slate-950"} rounded ${config.light_mode ? "bg-white" : "bg-slate-950"}`}>
+          <div className={`flex flex-col justify-center w-6/12 h-3/6 outline outline-1 ${LIGHT_MODE ? "outline-white" : "outline-slate-950"} rounded ${LIGHT_MODE ? "bg-white" : "bg-slate-950"}`}>
             <div className='flex flex-row justify-center'>
               <p className='ml-4 text-md text-center'>{localization.donation_text[lang]}</p>
             </div>
             <div className='flex justify-center mt-4 gap-2'>
-              <Button variant="contained" color="secondary" className='w-48' onClick={() => { open("https://buymeacoffee.com/sergiomarquina") }}><Favorite className='mr-2' /><p className='text-xs'>Buy Me a Coffee</p></Button>
+              <Button variant="contained" color="secondary" className='w-48' onClick={() => { /* TODO: BUYMEACOFFEE LINK */ }}><Favorite className='mr-2' /><p className='text-xs'>Buy Me a Coffee</p></Button>
               <Button sx={{
                 backgroundColor: "#fc4d50"
-              }} variant="contained" className='w-48' onClick={() => { invoke("open_url", { url: "https://booth.pm/en/items/6073050" }) }}>
+              }} variant="contained" className='w-48' onClick={() => { /* TODO: OPEN BOOTH LINK */ }}>
                 <img src="/boothlogo.svg" width={24} className="mr-2"></img>
                 <p className="mt-0.5"><p className='text-xs'>Booth.pm</p></p>
               </Button>
@@ -151,7 +67,7 @@ function App() {
         </div>
 
         <div className={'transition-all z-10 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (googleServersErrorVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
-          <div className={`flex flex-col justify-center w-10/12 h-3/6 outline outline-1 ${config.light_mode ? "outline-white" : "outline-slate-950"} outline-gray-200 rounded ${config.light_mode ? "bg-white" : "bg-slate-950"}`}>
+          <div className={`flex flex-col justify-center w-10/12 h-3/6 outline outline-1 ${LIGHT_MODE ? "outline-white" : "outline-slate-950"} outline-gray-200 rounded ${LIGHT_MODE ? "bg-white" : "bg-slate-950"}`}>
             <div className='flex flex-row justify-center'>
               <p className='ml-4 text-md text-center'>{localization.unable_to_access_google_servers[lang]}</p>
             </div>
@@ -161,15 +77,15 @@ function App() {
           </div>
         </div>
 
-        <div className={'transition-all z-30 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (settingsVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
-          <div className={`flex flex-col justify-between  w-10/12 h-5/6 outline outline-1 ${config.light_mode ? "outline-slate-400" : "outline-slate-950"} rounded bg-white`}>
-            <SettingsPage lang={lang} config={config} setConfig={setConfig} closeCallback={() => setSettingsVisible(false)} />
-          </div>
-        </div>
+        {/*<div className={'transition-all z-30 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (settingsVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>*/}
+        {/*  <div className={`flex flex-col justify-between  w-10/12 h-5/6 outline outline-1 ${LIGHT_MODE ? "outline-slate-400" : "outline-slate-950"} rounded bg-white`}>*/}
+        {/*    <SettingsPage lang={lang} config={config} setConfig={setConfig} closeCallback={() => setSettingsVisible(false)} />*/}
+        {/*  </div>*/}
+        {/*</div>*/}
         {!quickstartVisible && changelogsVisible &&
           <div className={'transition-all z-30 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (changelogsVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
-            <div className={`flex flex-col justify-between  w-10/12 h-5/6 outline outline-1 ${config.light_mode ? "outline-slate-400" : "outline-slate-950"} rounded bg-white`}>
-              <Changelogs light_mode={config.light_mode} lang={lang} closeCallback={() => setChangelogsVisible(false)} />
+            <div className={`flex flex-col justify-between  w-10/12 h-5/6 outline outline-1 ${LIGHT_MODE ? "outline-slate-400" : "outline-slate-950"} rounded bg-white`}>
+              <Changelogs light_mode={LIGHT_MODE} lang={lang} closeCallback={() => setChangelogsVisible(false)} />
             </div>
           </div>
         }
@@ -193,11 +109,8 @@ function App() {
                   '& .MuiSvgIcon-root': {
                     color: 'white'
                   }
-                }} variant='outlined' className="ml-4 mr-2" value={config.mode} onChange={(e) => {
-                  setConfig({ ...config, mode: parseInt(e.target.value.toString()) })
-                  setTimeout(() => { setLoaded(false) }, 100)
-
-                  setTimeout(() => { window.location.reload() }, 300)
+                }} variant='outlined' className="ml-4 mr-2" value={MODE} onChange={(_) => {
+                  /* TODO: Update mode change */
                 }}>
                   <MenuItem value={0}>{localization.translation[lang]}</MenuItem>
                   <MenuItem value={1}>{localization.stt_only[lang]}</MenuItem>
@@ -208,11 +121,9 @@ function App() {
                     color: 'white'
                   }
                 }} onClick={() => {
-                  setConfig({
-                    ...config, light_mode: !config.light_mode
-                  })
+                  /* TODO: Toggle light mode */
                 }}>
-                  {config.light_mode ? <NightsStay /> : <WbSunny />}
+                  {LIGHT_MODE ? <NightsStay /> : <WbSunny />}
                 </IconButton>
                 <IconButton sx={{
                   color: 'white',
@@ -234,7 +145,7 @@ function App() {
             </Toolbar>
           </AppBar>
           <div className='flex flex-1 items-center align-middle flex-col mt-8'>
-            {loaded && !quickstartVisible && <Kikitan lang={lang} config={config} setConfig={setConfig} settingsVisible={settingsVisible}></Kikitan>}
+            {loaded && !quickstartVisible && <Kikitan />}
           </div>
         </div>
       </div>
