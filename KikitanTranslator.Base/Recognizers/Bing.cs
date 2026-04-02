@@ -12,15 +12,14 @@ using Websocket.Client;
 
 namespace KikitanTranslator.Recognizers;
 
-public class Bing : IRecognizer
+public class Bing(ICapture capture) : IRecognizer
 {
     public event OnRecognition? OnRecognitionReceived;
 
-    private ICapture _capture;
+    private ICapture _capture = capture;
     private WebsocketClient _client;
 
-    private bool _running;
-    private bool _captureRunning;
+    private RecognizerStatus _status;
 
     private string _connectionId;
     private string _currentRequestId;
@@ -31,11 +30,6 @@ public class Bing : IRecognizer
     private long _bytesSend;
     
     private readonly uint RESTART_LIMIT = 20;
-    
-    public Bing(ICapture capture)
-    {
-        _capture = capture;
-    }
 
     private void Reset()
     {
@@ -52,6 +46,7 @@ public class Bing : IRecognizer
     public void Start(string language)
     {
         Log.Information("\x1b[32m[BING] Starting Bing recognizer...");
+        _status = RecognizerStatus.Connecting;
         
         _language = language;
         var url = $"wss://speech.platform.bing.com/speech/recognition/edge/interactive/v1?TrustedClientToken={Constants.BING_TRUSTED_TOKEN}&Sec-MS-GEC={GenerateSecMsSec()}&Sec-MS-GEC-Version={Constants.BING_MS_VERSION}&language={_language}&profanity=raw";
@@ -145,6 +140,8 @@ public class Bing : IRecognizer
                 case "turn.start":
                     TurnStart? start = JsonConvert.DeserializeObject<TurnStart>(json);
                     _currentStreamTag = start?.Context.ServiceTag;
+
+                    _status = RecognizerStatus.Running;
                     
                     break;
                 case "turn.end":
@@ -167,9 +164,13 @@ public class Bing : IRecognizer
                     break;
             }
         });
-        _client.DisconnectionHappened.Subscribe(info =>
+        _client.DisconnectionHappened.Subscribe(async info =>
         {
             Log.Error($"\x1b[32m[BING] Websocket connection has closed. Reason: {info.Type}");
+
+            await Task.Delay(1000);
+            
+            Start(_language);
         });
 
         _client.Start();
@@ -177,15 +178,15 @@ public class Bing : IRecognizer
 
     public void Stop()
     {
-        _captureRunning = false;
         _capture.Stop();
         _client.Stop(WebSocketCloseStatus.NormalClosure, "User request");
         _client.Dispose();
+         _status = RecognizerStatus.NotStarted;
         
         Log.Information("\x1b[32m[BING] Bing recognizer has stopped");
     }
     
-    public RecognizerStatus Status() => _running ? RecognizerStatus.Running : RecognizerStatus.NotStarted;
+    public RecognizerStatus Status() => _status;
 
     private async void RestartTurn()
     {
@@ -270,14 +271,12 @@ public class Bing : IRecognizer
     
     private string CreateTextMessage(string path, string body, string? contentType, string? requestId)
     {
-        List<string> headers = new();
-        headers.Add($"X-Timestamp:{GetTimestamp()}");
-        headers.Add($"Path:{path}");
+        List<string> headers = [$"X-Timestamp:{GetTimestamp()}", $"Path:{path}"];
 
         if (requestId != null) headers.Add($"X-RequestId:{requestId}");
         if (contentType != null) headers.Add($"Content-Type:{contentType}");
 
-        return $"{String.Join("\r\n", headers)}\r\n\r\n{body}";
+        return $"{string.Join("\r\n", headers)}\r\n\r\n{body}";
     }
     private byte[] CreateBinaryMessage(string path, string? streamId, string requestId, byte[] data, string? contentType)
     {
@@ -346,22 +345,4 @@ public class Bing : IRecognizer
         return Convert.ToHexString(hash);
     }
     private string GetTimestamp() => DateTime.UtcNow.ToString("yyyy-MM-ddTHH\\:mm\\:ssZ", CultureInfo.InvariantCulture);
-    
-    private void WriteUInt16(ushort value, ref List<byte> buffer)
-    {
-        buffer.Add((byte)(value & 0xFF));
-        buffer.Add((byte)((value >> 8) & 0xFF));
-    }
-
-    private void WriteUInt32(uint value, ref List<byte> buffer)
-    {
-        buffer.Add((byte)(value & 0xFF));
-        buffer.Add((byte)((value >> 8) & 0xFF));
-        buffer.Add((byte)((value >> 16) & 0xFF));
-        buffer.Add((byte)((value >> 24) & 0xFF));
-    }
-    private void WriteString(string value, ref List<byte> buffer)
-    {
-        foreach (var t in value) buffer.Add((byte) t); 
-    }
 }

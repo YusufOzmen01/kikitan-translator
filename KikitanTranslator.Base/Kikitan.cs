@@ -23,7 +23,7 @@ public class Kikitan
 
         recognizer.OnRecognitionReceived += OnRecognition;
         
-        Log.Information("\x1b[36m[KKTN] Subsystem is ready");
+        Log.Information("\x1b[36m[KKTN] Kikitan is starting up");
     }
 
     public void AddOutput(IOutput output) => _outputs.Add(output);
@@ -34,8 +34,6 @@ public class Kikitan
         _running = true;
         
         Task.Run(QueueWorker);
-        
-        Log.Information("\x1b[36m[KKTN] Subsystem has started");
     }
 
     public void Stop()
@@ -43,7 +41,7 @@ public class Kikitan
         _recognizer.Stop();
         _running = false;
         
-        Log.Information("\x1b[36m[KKTN] Subsystem has stopped");
+        Log.Information("\x1b[36m[KKTN] Kikitan has stopped");
     }
 
     private void OnRecognition(string text, bool final)
