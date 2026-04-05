@@ -7,6 +7,22 @@ namespace KikitanTranslator.Utility;
 
 public class ConfigObject : INotifyPropertyChanged
 {
+    [JsonProperty("language")] private string _language = "en";
+
+    [JsonIgnore]
+    public string Language
+    {
+        get => _language;
+        set
+        {
+            if (_language != value)
+            {
+                _language = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+    
     [JsonProperty("source_language")] private string _sourceLanguage = "en";
 
     [JsonIgnore]
@@ -239,9 +255,12 @@ public class ConfigObject : INotifyPropertyChanged
     }
 }
 
+public delegate void OnConfigUpdate();
+
 public static class AppConfig
 {
     public static ConfigObject ConfigObject;
+    public static event OnConfigUpdate? OnUpdate;
     private static string _currentConfigPath;
 
     public static string GetAppFolder()
@@ -299,5 +318,11 @@ public static class AppConfig
         
         Log.Verbose($"\x1b[35m[CFG]  Saved to {_currentConfigPath}");
     }
-    private static void OnConfigPropertyChanged(object sender, PropertyChangedEventArgs e) => SaveConfig();
+
+    private static void OnConfigPropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        SaveConfig();
+        
+        OnUpdate?.Invoke();   
+    }
 }

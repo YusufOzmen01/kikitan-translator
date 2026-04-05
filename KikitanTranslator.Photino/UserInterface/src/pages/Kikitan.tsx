@@ -25,7 +25,7 @@ import {
     Close as CloseIcon,
     Mic as MicIcon,
     Translate as TranslateIcon,
-    SwapHoriz as SwapHorizIcon
+    SwapHoriz as SwapHorizIcon, Lan
 } from "@mui/icons-material";
 
 import {
@@ -36,24 +36,22 @@ import {
 const LIGHT_MODE = false;
 
 import { localization } from "../util/localization";
-
-const SOURCE_LANGUAGE = "en"
-const TARGET_LANGUAGE = "ja"
-const lang = "en"
+import {getConfig, getMicrophones, registerRecognitionCallback, setConfig} from "../util/photino.ts";
 
 export default function Kikitan() {
+    const [lang, setLang] = React.useState<"en" | "jp" | "cn" | "kr" | "tr">("en")
+    const [sourceLanguage, setSourceLanguage] = React.useState("en")
+    const [targetLanguage, setTargetLanguage] = React.useState("en")
+    
     const [detecting, setDetecting] = React.useState(false);
     const [srStatus, setSRStatus] = React.useState(true);
     const [srLoading, setSRLoading] = React.useState(false)
     
     const [detection, setDetection] = React.useState<string>("");
-    const [translated, setTranslated] = React.useState("");
+    const [translation, setTranslation] = React.useState("");
 
-    const [microphones, setMicrophones] = React.useState<string[]>([])
+    const [microphones, setMicrophones] = React.useState<{name: string, default: boolean}[]>([])
     const [currentMicrophone, setCurrentMicrophone] = React.useState<string>("")
-
-    const [sourceLanguage, setSourceLanguage] = React.useState(SOURCE_LANGUAGE);
-    const [targetLanguage, setTargetLanguage] = React.useState(TARGET_LANGUAGE);
 
     const [showMessageHistory, setShowMessageHistory] = React.useState(false);
 
@@ -71,9 +69,34 @@ export default function Kikitan() {
     const showNotification = (message: string, severity: "success" | "error" | "warning" | "info" = "info") => {
         setNotification({ open: true, message, severity });
     };
-
+    
     React.useEffect(() => {
-        // TODO: Get microphone list
+        // @ts-ignore
+        setInterval(async () => {
+            const config = await getConfig();
+            
+            setLang(config.language);
+            setSourceLanguage(config.source_language);
+            setTargetLanguage(config.target_language);
+            setCurrentMicrophone(config.microphone);
+
+            const mics = await getMicrophones();
+            mics.sort((a, _) => a.default ? -1 : 1)
+            
+            if (mics.filter(a => a.name == config.microphone).length == 0) {
+                showNotification(localization.microphone_updated[lang], "warning")
+                
+                setConfig("microphone", mics[0].name)
+            }
+
+            setMicrophones(mics);
+        }, 100);
+        
+        registerRecognitionCallback((r, t, f) => {
+            setDetecting(!f);
+            setDetection(r);
+            setTranslation(t);
+        });
     }, []);
 
     const formatTimestamp = (timestamp: number) => {
@@ -375,7 +398,7 @@ export default function Kikitan() {
                             } font-bold text-center ${srStatus ? "" : "bg-gray-400"
                             }`}>
                             <p className={`transition-all duration-300 align-middle`} >
-                                {translated}
+                                {translation}
                             </p>
                         </div>
                         <div>
@@ -545,9 +568,7 @@ export default function Kikitan() {
                         className="ml-4 h-12 w-52"
                         value={currentMicrophone}
                         onChange={(e) => {
-                            setCurrentMicrophone(e.target.value)
-                            
-                            // TODO: Update microphone
+                            setConfig("microphone", e.target.value)
                         }}
                     >
                         {microphones.map((element) => {
@@ -558,10 +579,10 @@ export default function Kikitan() {
                                             ? "black"
                                             : "white",
                                     }}
-                                    key={element}
-                                    value={element}
+                                    key={element.name}
+                                    value={element.name}
                                 >
-                                    {(element.includes("(") && element.includes(")")) ? element.match(/\(([^)]+)\)/)?.[1] : element}
+                                    {(element.name.includes("(") && element.name.includes(")")) ? element.name.match(/\(([^)]+)\)/)?.[1] : element.name}{element.default ? ` (${localization.default[lang]})` : ""}
                                 </MenuItem>
                             );
                         })}

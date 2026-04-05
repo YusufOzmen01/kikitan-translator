@@ -62,6 +62,8 @@ public class Bing(ICapture capture) : IRecognizer
         
         _client.ReconnectionHappened.Subscribe(async info =>
         {
+            if (_status == RecognizerStatus.Running) return;
+            
             Reset();
             Log.Verbose("\x1b[32m[BING] Websocket connection established");
             await Task.Delay(100);
@@ -100,33 +102,15 @@ public class Bing(ICapture capture) : IRecognizer
                 }
             };
 
-            await Task.Delay(50);
+            await Task.Delay(100);
             _client.Send(CreateTextMessage("speech.context", JsonConvert.SerializeObject(contextPayload), null, _currentRequestId));
             Log.Verbose("\x1b[32m[BING] Speech context has been sent");
             
-            await Task.Delay(50);
+            await Task.Delay(100);
             _client.Send(CreateBinaryMessage("audio", $"{_streamIdCounter}", _currentRequestId, CreateWavHeader(), "audio/x-wav"));
             Log.Verbose("\x1b[32m[BING] Wav header has been sent");
-            
-            _capture.OnDataReceived += samples =>
-            {
-                var byteArray = new byte[samples.Length * 2]; 
 
-                for (int i = 0; i < samples.Length; i++)
-                {
-                    float sample = samples[i];
-                    if (sample > 1.0f) sample = 1.0f;
-                    if (sample < -1.0f) sample = -1.0f;
-                    
-                    short shortSample = (short)(sample * short.MaxValue);
-                    
-                    byteArray[i * 2] = (byte)(shortSample & 0xFF);
-                    byteArray[i * 2 + 1] = (byte)((shortSample >> 8) & 0xFF);
-                }
-
-                _bytesSend += byteArray.Length;
-                _client.Send(CreateBinaryMessage("audio", $"{_streamIdCounter}", _currentRequestId, byteArray, null));
-            };
+            _capture.OnDataReceived += OnAudioData;
             
             _capture.Start();
             Log.Information("\x1b[32m[BING] Bing recognizer has started");
@@ -140,7 +124,7 @@ public class Bing(ICapture capture) : IRecognizer
                 case "turn.start":
                     TurnStart? start = JsonConvert.DeserializeObject<TurnStart>(json);
                     _currentStreamTag = start?.Context.ServiceTag;
-
+                    
                     _status = RecognizerStatus.Running;
                     
                     break;
@@ -167,7 +151,9 @@ public class Bing(ICapture capture) : IRecognizer
         _client.DisconnectionHappened.Subscribe(async info =>
         {
             Log.Error($"\x1b[32m[BING] Websocket connection has closed. Reason: {info.Type}");
+            _status = RecognizerStatus.NotStarted;
 
+            if (info.Type != DisconnectionType.ByServer) return;
             await Task.Delay(1000);
             
             Start(_language);
@@ -180,13 +166,33 @@ public class Bing(ICapture capture) : IRecognizer
     {
         _capture.Stop();
         _client.Stop(WebSocketCloseStatus.NormalClosure, "User request");
-        _client.Dispose();
+        _capture.OnDataReceived -= OnAudioData;
          _status = RecognizerStatus.NotStarted;
-        
+         
         Log.Information("\x1b[32m[BING] Bing recognizer has stopped");
     }
     
     public RecognizerStatus Status() => _status;
+
+    private void OnAudioData(float[] samples)
+    {
+        var byteArray = new byte[samples.Length * 2]; 
+
+        for (int i = 0; i < samples.Length; i++)
+        {
+            float sample = samples[i];
+            if (sample > 1.0f) sample = 1.0f;
+            if (sample < -1.0f) sample = -1.0f;
+                    
+            short shortSample = (short)(sample * short.MaxValue);
+                    
+            byteArray[i * 2] = (byte)(shortSample & 0xFF);
+            byteArray[i * 2 + 1] = (byte)((shortSample >> 8) & 0xFF);
+        }
+
+        _bytesSend += byteArray.Length;
+        _client.Send(CreateBinaryMessage("audio", $"{_streamIdCounter}", _currentRequestId, byteArray, null));
+    }
 
     private async void RestartTurn()
     {
@@ -345,4 +351,10 @@ public class Bing(ICapture capture) : IRecognizer
         return Convert.ToHexString(hash);
     }
     private string GetTimestamp() => DateTime.UtcNow.ToString("yyyy-MM-ddTHH\\:mm\\:ssZ", CultureInfo.InvariantCulture);
+
+    public void Dispose()
+    {
+        Stop();
+        _client.Dispose();
+    }
 }

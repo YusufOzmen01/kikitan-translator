@@ -1,4 +1,5 @@
-﻿using Serilog;
+﻿using KikitanTranslator.Utility;
+using Serilog;
 using SoundFlow.Abstracts.Devices;
 using SoundFlow.Backends.MiniAudio;
 using SoundFlow.Enums;
@@ -9,23 +10,16 @@ namespace KikitanTranslator.Capture;
 public class Microphone : ICapture
 {
     public event OnData? OnDataReceived;
-    private MiniAudioEngine _engine;
-    private DeviceInfo? _device;
     private AudioCaptureDevice? _captureDevice;
     private bool _paused;
     
-    public Microphone()
-    {
-        _engine = new MiniAudioEngine();
-    }
-
-    public DeviceInfo[] GetDevices() => _engine.CaptureDevices;
-    public void SetDevice(DeviceInfo device) => _device = device;
-
     public uint GetSampleRate() => 16000;
 
     public void Start()
     {
+        var engine = new MiniAudioEngine();
+        DeviceInfo? device;
+        
         Log.Information("\x1b[33m[MIC]  Starting capture");
         var audioFormat = new AudioFormat
         {
@@ -35,14 +29,28 @@ public class Microphone : ICapture
             Layout = ChannelLayout.Mono
         };
 
-        if (_device == null)
+        if (AppConfig.ConfigObject.Microphone.Length == 0)
         {
-            _device = _engine.CaptureDevices.First(d => d.IsDefault);
-            
-            Log.Warning($"\x1b[33m[MIC]  No microphone was selected, using the default device ({_device.Value.Name}) for capture");
+            device = engine.CaptureDevices.First(d => d.IsDefault);
+                
+            Log.Warning($"\x1b[33m[MIC]  No microphone was selected, using the default device ({device.Value.Name}) for capture");
+        }
+        else
+        {
+            device = engine.CaptureDevices.First(d => d.Name == AppConfig.ConfigObject.Microphone);
+            if (device == null)
+            {
+                device = engine.CaptureDevices.First(d => d.IsDefault);
+
+                AppConfig.ConfigObject.Microphone = device.Value.Name;
+                    
+                Log.Warning($"\x1b[33m[MIC]  No microphone was selected, using the default device ({device.Value.Name}) for capture");
+            }
         }
         
-        _captureDevice = _engine.InitializeCaptureDevice(_device, audioFormat);
+        Log.Information($"\x1b[33m[MIC]  Starting capture using {device.Value.Name}");
+        
+        _captureDevice = engine.InitializeCaptureDevice(device, audioFormat);
         _captureDevice.OnAudioProcessed += AudioProcessCallback;
         _captureDevice.Start();
         

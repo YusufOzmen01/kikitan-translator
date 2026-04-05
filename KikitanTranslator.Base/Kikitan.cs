@@ -6,7 +6,7 @@ using Serilog;
 
 namespace KikitanTranslator.Base;
 
-public class Kikitan
+public class Kikitan : IDisposable
 {
     private IRecognizer _recognizer;
     private ITranslator _translator;
@@ -88,5 +88,13 @@ public class Kikitan
             
             await Task.Delay(texts[1].Length * AppConfig.ConfigObject.ChatboxWaitPerCharMs);
         }
+    }
+
+    public void ManualTranslate(string text) => OnRecognition(text, true);
+
+    public void Dispose()
+    {
+        _recognizer.Dispose();
+        _translator.Dispose();
     }
 }

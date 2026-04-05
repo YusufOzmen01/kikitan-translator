@@ -9,7 +9,7 @@ public enum RecognizerStatus
 
 public delegate void OnRecognition(string text, bool final);
 
-public interface IRecognizer
+public interface IRecognizer : IDisposable
 {
     public void Start(string language);
     public void Stop();

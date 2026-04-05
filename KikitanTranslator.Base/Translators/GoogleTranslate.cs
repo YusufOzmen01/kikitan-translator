@@ -57,4 +57,9 @@ public class GoogleTranslate : ITranslator
             }
         }
     }
+
+    public void Dispose()
+    {
+        
+    }
 }

@@ -7,4 +7,20 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+        <PackageReference Include="Photino.NET" Version="4.0.16"/>
+        <PackageReference Include="Photino.NET.Server" Version="4.0.12"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="wwwroot\**">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\KikitanTranslator.Base\KikitanTranslator.Base.csproj" />
+    </ItemGroup>
+
 </Project>

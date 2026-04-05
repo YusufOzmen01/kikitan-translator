@@ -4,6 +4,24 @@ export const GROQ_MODEL = "llama-3.3-70b-versatile"
 
 export const DAILY_TOKEN_LIMIT = 100000;
 
+export type config = {
+    language: "en" | "jp" | "cn" | "kr";
+    source_language: string;
+    target_language: string;
+    light_mode: boolean;
+    speech_to_text_only: boolean;
+    microphone: string;
+    translation_only: boolean;
+    disable_when_muted: boolean;
+    chatbox_wait_per_char_ms: number;
+    osc_port: number;
+    send_to_chatbox: boolean;
+    send_user_data: boolean;
+    recognizer: number;
+    translator: number;
+    desktop_translation: boolean;
+}
+
 export const langSource = [
     {
         name: {

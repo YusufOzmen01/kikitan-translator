@@ -22,6 +22,7 @@ import {
 
 import Changelogs from './pages/Changelogs';
 import { localization } from './util/localization';
+import {getMicrophones} from "./util/photino.ts";
 
 const LIGHT_MODE = false;
 const lang = "en"
