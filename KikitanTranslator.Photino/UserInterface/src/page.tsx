@@ -22,7 +22,7 @@ import {
 
 import Changelogs from './pages/Changelogs';
 import { localization } from './util/localization';
-import {controlKikitan, getConfig, setConfig} from "./util/photino.ts";
+import {controlKikitan, getConfig, openURL, setConfig} from "./util/photino.ts";
 import QuickstartMenu from "./components/Quickstart.tsx";
 import SettingsPage from "./pages/Settings.tsx";
 
@@ -33,7 +33,6 @@ function App() {
   const [changelogsVisible, setChangelogsVisible] = React.useState(false)
   const [settingsVisible, setSettingsVisible] = React.useState(false)
   const [donateVisible, setDonateVisible] = React.useState(false)
-  const [googleServersErrorVisible, setGoogleServersErrorVisible] = React.useState(false)
   const [lightMode, setLightMode] = React.useState<boolean>(false)
   
   const [mode, setMode] = React.useState<number>(0)
@@ -53,6 +52,17 @@ function App() {
       setLightMode(config.light_mode)
       setQuickstartVisible(!config.quickstart_viewed)
     }, 100);
+
+    if (localStorage.getItem("last_donation") == null) {
+      localStorage.setItem("last_donation", "1")
+    } else {
+      const last = parseInt(localStorage.getItem("last_donation")!)
+  
+      if ((last + 60 * 60 * 12 * 1000) <= Date.now()) {
+        setDonateVisible(true)
+        localStorage.setItem("last_donation", `${Date.now()}`)
+      }
+    }
   }, [])
 
   return (
@@ -67,26 +77,15 @@ function App() {
             <div className='flex flex-row justify-center'>
               <p className='ml-4 text-md text-center'>{localization.donation_text[lang]}</p>
             </div>
-            <div className='flex justify-center mt-4 gap-2'>
-              <Button variant="contained" color="secondary" className='w-48' onClick={() => { /* TODO: BUYMEACOFFEE LINK */ }}><Favorite className='mr-2' /><p className='text-xs'>Buy Me a Coffee</p></Button>
+            <div className='flex justify-center mt-4 gap-2 ml-4 mr-4'>
+              <Button variant="contained" color="secondary" className='w-48' onClick={() => { openURL("https://buymeacoffee.com/sergiomarquina") }}><Favorite className='mr-2' /><p className='text-xs'>Buy Me a Coffee</p></Button>
               <Button sx={{
                 backgroundColor: "#fc4d50"
-              }} variant="contained" className='w-48' onClick={() => { /* TODO: OPEN BOOTH LINK */ }}>
+              }} variant="contained" className='w-48' onClick={() => { openURL("https://booth.pm/en/items/6073050") }}>
                 <img src="/boothlogo.svg" width={24} className="mr-2"></img>
                 <p className="mt-0.5"><p className='text-xs'>Booth.pm</p></p>
               </Button>
               <Button variant="contained" className='w-48' onClick={() => { setDonateVisible(false) }}><p className='text-xs'>{localization.close_menu[lang]}</p></Button>
-            </div>
-          </div>
-        </div>
-
-        <div className={'transition-all z-10 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (googleServersErrorVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
-          <div className={`flex flex-col justify-center w-10/12 h-3/6 outline outline-1 ${lightMode ? "outline-white" : "outline-slate-950"} outline-gray-200 rounded ${lightMode ? "bg-white" : "bg-slate-950"}`}>
-            <div className='flex flex-row justify-center'>
-              <p className='ml-4 text-md text-center'>{localization.unable_to_access_google_servers[lang]}</p>
-            </div>
-            <div className='flex flex-row justify-center mt-4'>
-              <Button variant="contained" className='w-32' onClick={() => { setGoogleServersErrorVisible(false) }}>{localization.close_menu[lang]}</Button>
             </div>
           </div>
         </div>
