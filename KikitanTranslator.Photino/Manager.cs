@@ -21,6 +21,7 @@ public class Manager
     private bool _running;
 
     public event OnKikitanData? OnMicrophoneData;
+    public event OnRecognizerStatus? OnRecognizerStatusData;
 
     public Manager()
     {
@@ -41,7 +42,8 @@ public class Manager
         {
             _microphoneKikitan.AddOutput(new OSC());
         } // TODO: Data out via OSC for other apps
-        
+
+        _microphoneKikitan.OnRecognizerStatusChanged += OnRecognizerStatusData;
         _microphoneKikitan.Start();
 
         _running = true;

@@ -2,6 +2,7 @@
 
 const pendingRequests = new Map();
 var recognitionCallback: ((r: string, t: string, f: boolean) => void) | null = null;
+var statusCallback: ((status: number) => void) | null = null;
 
 export function init() {
     // @ts-ignore
@@ -12,6 +13,10 @@ export function init() {
         if (response.method == "recognition") {
             recognitionCallback?.(data.transcription, data.translation, data.final);
 
+            return;
+        } else if (response.method == "status") {
+            statusCallback?.(data.status);
+            
             return;
         }
 
@@ -71,4 +76,8 @@ export function controlKikitan(status: boolean) {
 
 export function registerRecognitionCallback(callback: (r: string, t: string, f: boolean) => void) {
     recognitionCallback = callback;
+}
+
+export function registerStatusCallback(callback: (status: number) => void) {
+    statusCallback = callback;
 }

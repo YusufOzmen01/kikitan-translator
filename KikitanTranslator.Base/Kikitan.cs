@@ -15,6 +15,8 @@ public class Kikitan : IDisposable
     private List<string[]> _queue = [];
 
     private bool _running;
+    
+    public event OnRecognizerStatus? OnRecognizerStatusChanged;
 
     public Kikitan(IRecognizer recognizer, ITranslator translator)
     {
@@ -22,6 +24,7 @@ public class Kikitan : IDisposable
         _translator = translator;
 
         recognizer.OnRecognitionReceived += OnRecognition;
+        recognizer.OnRecognizerStatusChanged += OnRecognizerStatus;
         
         Log.Information("\x1b[36m[KKTN] Kikitan is starting up");
     }
@@ -67,6 +70,8 @@ public class Kikitan : IDisposable
         }
     }
 
+    private void OnRecognizerStatus(RecognizerStatus status) => OnRecognizerStatusChanged?.Invoke(status);
+
     private async void QueueWorker()
     {
         while (_running)
@@ -94,6 +99,7 @@ public class Kikitan : IDisposable
 
     public void Dispose()
     {
+        _running = false;
         _recognizer.Dispose();
         _translator.Dispose();
     }

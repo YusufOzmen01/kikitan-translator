@@ -25,7 +25,7 @@ import {
     Close as CloseIcon,
     Mic as MicIcon,
     Translate as TranslateIcon,
-    SwapHoriz as SwapHorizIcon, Lan
+    SwapHoriz as SwapHorizIcon,
 } from "@mui/icons-material";
 
 import {
@@ -36,7 +36,14 @@ import {
 const LIGHT_MODE = false;
 
 import { localization } from "../util/localization";
-import {getConfig, getMicrophones, registerRecognitionCallback, setConfig} from "../util/photino.ts";
+import {
+    controlKikitan,
+    getConfig,
+    getMicrophones,
+    registerRecognitionCallback,
+    registerStatusCallback,
+    setConfig
+} from "../util/photino.ts";
 
 export default function Kikitan() {
     const [lang, setLang] = React.useState<"en" | "jp" | "cn" | "kr" | "tr">("en")
@@ -97,12 +104,19 @@ export default function Kikitan() {
             setDetection(r);
             setTranslation(t);
         });
+        
+        registerStatusCallback((status) => {
+            console.log(status)
+            
+            setSRLoading(status == 1);
+            setSRStatus(status == 2);
+        });
     }, []);
 
-    const formatTimestamp = (timestamp: number) => {
-        const date = new Date(timestamp);
-        return date.toLocaleTimeString();
-    };
+    // const formatTimestamp = (timestamp: number) => {
+    //     const date = new Date(timestamp);
+    //     return date.toLocaleTimeString();
+    // };
 
     return (
         <>
@@ -489,13 +503,13 @@ export default function Kikitan() {
                         },
                     }}
                     onClick={() => {
-                        setSRStatus(!srStatus);
+                        controlKikitan(!srStatus)
                     }}
                 >
                     <p>
                         {!srStatus ? localization.start[lang] : !srLoading ? localization.stop[lang] : ""}
                     </p>
-                    {srStatus ? !srLoading ? (<PauseIcon fontSize="small" />) : (<CircularProgress color="inherit" size={16} />) : (<PlayArrowIcon fontSize="small" />)}
+                    {srLoading ? (<CircularProgress color="inherit" size={16} />) : srStatus ? (<PauseIcon fontSize="small" />) : (<PlayArrowIcon fontSize="small" />)}
                 </Button>
                 {/* TODO: Message history */ true && (
                     <Tooltip title={localization.message_history[lang]}>

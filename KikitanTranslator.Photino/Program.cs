@@ -68,17 +68,20 @@ public class Program
             })
             .Load(appUrl);
 
-        manager.OnMicrophoneData += (recognized, translated, final) =>
+        manager.OnMicrophoneData += (recognized, translated, final) => wSender?.SendWebMessage(JsonConvert.SerializeObject(new Message
         {
-            var data = JsonConvert.SerializeObject(new Message
+            Method = "recognition",
+            Data = JsonConvert.SerializeObject(new RecognitionData { Transcription = recognized, Translation = translated, Final = final })
+        }));
+        
+        manager.OnRecognizerStatusData += status => wSender?.SendWebMessage(JsonConvert.SerializeObject(new Message
+        {
+            Method = "status",
+            Data = JsonConvert.SerializeObject(new
             {
-                Method = "recognition",
-                Data = JsonConvert.SerializeObject(new RecognitionData
-                    { Transcription = recognized, Translation = translated, Final = final })
-            });
-            
-            wSender?.SendWebMessage(data);
-        };
+                status = status
+            })
+        }));
         
         manager.Start();
         

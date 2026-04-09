@@ -22,7 +22,6 @@ import {
 
 import Changelogs from './pages/Changelogs';
 import { localization } from './util/localization';
-import {getMicrophones} from "./util/photino.ts";
 
 const LIGHT_MODE = false;
 const lang = "en"
@@ -39,6 +38,9 @@ function App() {
   const [loaded, setLoaded] = React.useState(false)
 
   React.useEffect(() => {
+    // @ts-ignore
+    if (window.external.receiveMessage == undefined) window.location.reload();
+    
     setTimeout(() => setLoaded(true), 300);
   }, [])
 

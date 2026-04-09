@@ -52,12 +52,11 @@ function a11yProps(index: number) {
 
 type SettingsProps = {
     closeCallback: () => void;
-    config: Config;
     setConfig: (config: Config) => void;
     lang: Lang;
 }
 
-export default function Settings({ closeCallback, config, setConfig, lang }: SettingsProps) {
+export default function Settings({ closeCallback }: SettingsProps) {
     const [page, setPage] = React.useState(0);
 
     const handleChange = (_event: React.SyntheticEvent, newValue: number) => {

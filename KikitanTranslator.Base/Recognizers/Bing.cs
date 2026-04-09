@@ -15,6 +15,7 @@ namespace KikitanTranslator.Recognizers;
 public class Bing(ICapture capture) : IRecognizer
 {
     public event OnRecognition? OnRecognitionReceived;
+    public event OnRecognizerStatus? OnRecognizerStatusChanged;
 
     private ICapture _capture = capture;
     private WebsocketClient _client;
@@ -46,7 +47,7 @@ public class Bing(ICapture capture) : IRecognizer
     public void Start(string language)
     {
         Log.Information("\x1b[32m[BING] Starting Bing recognizer...");
-        _status = RecognizerStatus.Connecting;
+        ChangeRecognizerStatus(RecognizerStatus.Connecting);
         
         _language = language;
         var url = $"wss://speech.platform.bing.com/speech/recognition/edge/interactive/v1?TrustedClientToken={Constants.BING_TRUSTED_TOKEN}&Sec-MS-GEC={GenerateSecMsSec()}&Sec-MS-GEC-Version={Constants.BING_MS_VERSION}&language={_language}&profanity=raw";
@@ -125,7 +126,7 @@ public class Bing(ICapture capture) : IRecognizer
                     TurnStart? start = JsonConvert.DeserializeObject<TurnStart>(json);
                     _currentStreamTag = start?.Context.ServiceTag;
                     
-                    _status = RecognizerStatus.Running;
+                    ChangeRecognizerStatus(RecognizerStatus.Running);
                     
                     break;
                 case "turn.end":
@@ -151,7 +152,7 @@ public class Bing(ICapture capture) : IRecognizer
         _client.DisconnectionHappened.Subscribe(async info =>
         {
             Log.Error($"\x1b[32m[BING] Websocket connection has closed. Reason: {info.Type}");
-            _status = RecognizerStatus.NotStarted;
+            ChangeRecognizerStatus(RecognizerStatus.NotStarted);
 
             if (info.Type != DisconnectionType.ByServer) return;
             await Task.Delay(1000);
@@ -167,7 +168,7 @@ public class Bing(ICapture capture) : IRecognizer
         _capture.Stop();
         _client.Stop(WebSocketCloseStatus.NormalClosure, "User request");
         _capture.OnDataReceived -= OnAudioData;
-         _status = RecognizerStatus.NotStarted;
+        ChangeRecognizerStatus(RecognizerStatus.NotStarted);
          
         Log.Information("\x1b[32m[BING] Bing recognizer has stopped");
     }
@@ -251,6 +252,12 @@ public class Bing(ICapture capture) : IRecognizer
         
         await Task.Delay(25);
         _capture.Resume();
+    }
+
+    private void ChangeRecognizerStatus(RecognizerStatus status)
+    {
+        _status = status;
+        OnRecognizerStatusChanged?.Invoke(status);
     }
     
     private (string, string) ParseWebsocketMessage(string msg)

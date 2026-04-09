@@ -35,17 +35,17 @@ public class Microphone : ICapture
                 
             Log.Warning($"\x1b[33m[MIC]  No microphone was selected, using the default device ({device.Value.Name}) for capture");
         }
-        else
+        else if (engine.CaptureDevices.Any(d => d.Name == AppConfig.ConfigObject.Microphone))
         {
             device = engine.CaptureDevices.First(d => d.Name == AppConfig.ConfigObject.Microphone);
-            if (device == null)
-            {
-                device = engine.CaptureDevices.First(d => d.IsDefault);
-
-                AppConfig.ConfigObject.Microphone = device.Value.Name;
+        }
+        else
+        {
+            device = engine.CaptureDevices.First(d => d.IsDefault);
                     
-                Log.Warning($"\x1b[33m[MIC]  No microphone was selected, using the default device ({device.Value.Name}) for capture");
-            }
+            Log.Warning($"\x1b[33m[MIC]  The selected mic ({AppConfig.ConfigObject.Microphone}) is not available. Switching to the system default ({device.Value.Name})");
+            
+            AppConfig.ConfigObject.Microphone = device.Value.Name;
         }
         
         Log.Information($"\x1b[33m[MIC]  Starting capture using {device.Value.Name}");
