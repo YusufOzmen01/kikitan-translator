@@ -262,6 +262,22 @@ public class ConfigObject : INotifyPropertyChanged
             }
         }
     }
+    
+    [JsonProperty("groq_api_key")] private string _groqApiKey = "";
+
+    [JsonIgnore]
+    public string GroqApiKey
+    {
+        get => _groqApiKey;
+        set
+        {
+            if (_groqApiKey != value)
+            {
+                _groqApiKey = value;
+                OnPropertyChanged();
+            }
+        }
+    }
 
     public event PropertyChangedEventHandler? PropertyChanged;
 

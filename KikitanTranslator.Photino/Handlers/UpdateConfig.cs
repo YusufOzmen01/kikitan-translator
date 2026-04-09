@@ -68,11 +68,11 @@ public class UpdateConfig(Manager manager) : IHandler
                 
                 break;
             case "recognizer":
-                AppConfig.ConfigObject.Recognizer = (int) d.Value;
+                AppConfig.ConfigObject.Recognizer = Convert.ToInt32((long) d.Value);
                 
                 break;
             case "translator":
-                AppConfig.ConfigObject.Translator = (int) d.Value;
+                AppConfig.ConfigObject.Translator = Convert.ToInt32((long) d.Value);
                 
                 break;
             case "desktop_translation":
@@ -81,6 +81,10 @@ public class UpdateConfig(Manager manager) : IHandler
                 break;
             case "quickstart_viewed":
                 AppConfig.ConfigObject.QuickstartViewed = (bool) d.Value;
+                
+                break;
+            case "groq_api_key":
+                AppConfig.ConfigObject.GroqApiKey = (string) d.Value;
                 
                 break;
             default:

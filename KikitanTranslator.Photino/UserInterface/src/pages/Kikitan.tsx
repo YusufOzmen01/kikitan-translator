@@ -118,7 +118,7 @@ export default function Kikitan() {
                     timestamp: Date.now()
                 })
                 
-                localStorage.setItem("history", JSON.stringify(copy))
+                sessionStorage.setItem("history", JSON.stringify(copy))
                 setMessageHistory(copy)
             }
         });
@@ -130,7 +130,7 @@ export default function Kikitan() {
             setSRStatus(status == 2);
         });
         
-        if (localStorage.getItem("history") != null) setMessageHistory(JSON.parse(localStorage.getItem("history")!))
+        if (sessionStorage.getItem("history") != null) setMessageHistory(JSON.parse(sessionStorage.getItem("history")!))
         
         controlKikitan(true)
     }, []);
@@ -526,17 +526,16 @@ export default function Kikitan() {
                     </p>
                     {srLoading ? (<CircularProgress color="inherit" size={16} />) : srStatus ? (<PauseIcon fontSize="small" />) : (<PlayArrowIcon fontSize="small" />)}
                 </Button>
-                {messageHistory.length > 0 && (
-                    <Tooltip title={localization.message_history[lang]}>
-                        <Button
-                            variant="outlined"
-                            size="medium"
-                            onClick={() => setShowMessageHistory(true)}
-                        >
-                            <HistoryIcon fontSize="small" />
-                        </Button>
-                    </Tooltip>
-                )}
+                <Tooltip title={localization.message_history[lang]}>
+                    <Button
+                        variant="outlined"
+                        size="medium"
+                        disabled={messageHistory.length == 0}
+                        onClick={() => setShowMessageHistory(true)}
+                    >
+                        <HistoryIcon fontSize="small" />
+                    </Button>
+                </Tooltip>
             </div>
 
             <div id="social-links" className="align-middle">

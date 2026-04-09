@@ -15,6 +15,7 @@ export type config = {
     translator: number;
     desktop_translation: boolean;
     quickstart_viewed: boolean;
+    groq_api_key: string;
 }
 
 export const langSource = [

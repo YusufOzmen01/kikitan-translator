@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Photino.NET;
+using Serilog;
 
 namespace KikitanTranslator.Photino.Handlers;
 
@@ -22,7 +23,9 @@ public class MessageHandler
             Message? m = JsonConvert.DeserializeObject<Message>(msg);
             if (m == null)
             {
-                return; // TODO: Log
+                Log.Error($"\x1b[41m[MSGH] Unable to deserialize message");
+                
+                return;
             }
 
             foreach (var handler in _handlers)
@@ -35,14 +38,10 @@ public class MessageHandler
                     break;
                 }
             }
-
-            // TODO: Log
         }
-        catch
+        catch (Exception e)
         {
-            // TODO: Log
-
-            return;
+            Log.Error($"\x1b[40m[MSGH] An error occured while trying to handle the message [{msg}]: {e}");
         }
     }
 }
