@@ -39,7 +39,7 @@ import { localization } from "../util/localization";
 import {
     controlKikitan,
     getConfig,
-    getMicrophones,
+    getMicrophones, manualTranslate,
     registerRecognitionCallback,
     registerStatusCallback,
     setConfig
@@ -261,7 +261,7 @@ export default function Kikitan() {
                                 variant="outlined"
                                 onKeyDown={(e) => {
                                     if (e.key == "Enter") {
-                                        // TODO: Send manual text
+                                        manualTranslate(textInputValue)
 
                                         setTextInputVisible(false);
                                         setTextInputValue("");
@@ -275,7 +275,7 @@ export default function Kikitan() {
                                 variant="contained"
                                 className="w-12"
                                 onClick={() => {
-                                    // TODO: Send manual text
+                                    manualTranslate(textInputValue)
                                     
                                     setTextInputVisible(false);
                                     setTextInputValue("");
@@ -369,8 +369,7 @@ export default function Kikitan() {
                                 className="mt-4 ml-auto h-14"
                                 value={sourceLanguage}
                                 onChange={(e) => {
-                                    setSourceLanguage(e.target.value);
-                                    // TODO: Change source language
+                                    setConfig("source_language", e.target.value)
                                 }}
                             >
                                 {langSource.map((element) => {
@@ -396,10 +395,8 @@ export default function Kikitan() {
                                         const new_t = sourceLanguage;
                                         const new_s = targetLanguage;
 
-                                        setTargetLanguage(new_t);
-                                        setSourceLanguage(new_s);
-
-                                        // TODO: Change both source and target language
+                                        setConfig("source_language", new_s)
+                                        setConfig("target_language", new_t)
                                     }}
                                 > <SwapHorizIcon /> </Button>
                             </div>
@@ -451,8 +448,7 @@ export default function Kikitan() {
                                 className="mt-4"
                                 value={targetLanguage}
                                 onChange={(e) => {
-                                    setTargetLanguage(e.target.value);
-                                    // TODO: Change target language
+                                    setConfig("target_language", e.target.value)
                                 }}
                             >
                                 {langTo.map((element) => {

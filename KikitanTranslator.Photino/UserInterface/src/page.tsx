@@ -25,7 +25,7 @@ import { localization } from './util/localization';
 
 const LIGHT_MODE = false;
 const lang = "en"
-const appVersion = "1.3.0-rc.2"
+const appVersion = "2.0.0-rc.1"
 const MODE = 0;
 
 function App() {
