@@ -6,6 +6,13 @@ var statusCallback: ((status: number) => void) | null = null;
 
 export function init() {
     // @ts-ignore
+    if (window.external.receiveMessage == undefined) {
+        window.location.reload()
+        
+        return;
+    }
+    
+    // @ts-ignore
     window.external.receiveMessage(message => {
         const response = JSON.parse(message);
         var data = JSON.parse(response.data);

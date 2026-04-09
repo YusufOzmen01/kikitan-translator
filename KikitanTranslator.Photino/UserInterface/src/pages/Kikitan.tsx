@@ -33,8 +33,6 @@ import {
     langTo,
 } from "../util/constants";
 
-const LIGHT_MODE = false;
-
 import { localization } from "../util/localization";
 import {
     controlKikitan,
@@ -49,6 +47,9 @@ export default function Kikitan() {
     const [lang, setLang] = React.useState<"en" | "jp" | "cn" | "kr" | "tr">("en")
     const [sourceLanguage, setSourceLanguage] = React.useState("en")
     const [targetLanguage, setTargetLanguage] = React.useState("en")
+    const [lightMode, setLightMode] = React.useState<boolean>(false)
+    const [sttOnly, setSttOnly] = React.useState<boolean>(false)
+    const [messageHistory, setMessageHistory] = React.useState<{ source: string, translation: string, timestamp: number }[]>([])
     
     const [detecting, setDetecting] = React.useState(false);
     const [srStatus, setSRStatus] = React.useState(true);
@@ -86,6 +87,8 @@ export default function Kikitan() {
             setSourceLanguage(config.source_language);
             setTargetLanguage(config.target_language);
             setCurrentMicrophone(config.microphone);
+            setLightMode(config.light_mode)
+            setSttOnly(config.speech_to_text_only)
 
             const mics = await getMicrophones();
             mics.sort((a, _) => a.default ? -1 : 1)
@@ -103,6 +106,21 @@ export default function Kikitan() {
             setDetecting(!f);
             setDetection(r);
             setTranslation(t);
+            
+            if (f) {
+                var copy = messageHistory;
+                
+                if (copy.length >= 50) copy = copy.slice(1)
+
+                copy.unshift({
+                    source: r,
+                    translation: t,
+                    timestamp: Date.now()
+                })
+                
+                localStorage.setItem("history", JSON.stringify(copy))
+                setMessageHistory(copy)
+            }
         });
         
         registerStatusCallback((status) => {
@@ -111,17 +129,18 @@ export default function Kikitan() {
             setSRLoading(status == 1);
             setSRStatus(status == 2);
         });
+        
+        if (localStorage.getItem("history") != null) setMessageHistory(JSON.parse(localStorage.getItem("history")!))
     }, []);
 
-    // const formatTimestamp = (timestamp: number) => {
-    //     const date = new Date(timestamp);
-    //     return date.toLocaleTimeString();
-    // };
+    const formatTimestamp = (timestamp: number) => {
+        const date = new Date(timestamp);
+        return date.toLocaleTimeString();
+    };
 
     return (
         <>
             <div id="main" className="relative transition-all">
-                {/* Message History Modal */}
                 <div
                     id="message-history"
                     className={
@@ -132,15 +151,15 @@ export default function Kikitan() {
                     }
                 >
                     <div
-                        className={`flex flex-col w-10/12 h-96 outline outline-1 ${LIGHT_MODE
+                        className={`flex flex-col w-10/12 h-96 outline outline-1 ${lightMode
                             ? "outline-white"
                             : "outline-slate-900"
-                            } rounded ${LIGHT_MODE ? "bg-white" : "bg-slate-950"
+                            } rounded ${lightMode ? "bg-white" : "bg-slate-950"
                             } p-4 overflow-hidden`}
                     >
                         <div className="flex justify-between items-center mb-4">
                             <h2
-                                className={`text-xl font-bold ${LIGHT_MODE
+                                className={`text-xl font-bold ${lightMode
                                     ? "text-black"
                                     : "text-white"
                                     }`}
@@ -150,7 +169,7 @@ export default function Kikitan() {
                             <IconButton
                                 onClick={() => setShowMessageHistory(false)}
                                 sx={{
-                                    color: LIGHT_MODE
+                                    color: lightMode
                                         ? "rgba(0, 0, 0, 0.87)"
                                         : "#ffffff",
                                 }}
@@ -159,64 +178,62 @@ export default function Kikitan() {
                             </IconButton>
                         </div>
 
-                        {/*<div*/}
-                        {/*    className="overflow-y-auto flex-grow mb-4"*/}
-                        {/*    style={{ maxHeight: "calc(100% - 4rem)" }}*/}
-                        {/*>*/}
-                        {/*    {config.message_history.items.length === 0 ? (*/}
-                        {/*        <div className="flex items-center justify-center h-full">*/}
-                        {/*            <span*/}
-                        {/*                className={`text-sm italic ${LIGHT_MODE*/}
-                        {/*                    ? "text-gray-500"*/}
-                        {/*                    : "text-gray-400"*/}
-                        {/*                    }`}*/}
-                        {/*            >*/}
-                        {/*                {localization.no_history[lang]}*/}
-                        {/*            </span>*/}
-                        {/*        </div>*/}
-                        {/*    ) : (*/}
-                        {/*        <div className="space-y-4">*/}
-                        {/*            {config.message_history.items.map(*/}
-                        {/*                (item, index) => (*/}
-                        {/*                    <div*/}
-                        {/*                        key={index}*/}
-                        {/*                        className={`p-3 rounded-md ${LIGHT_MODE*/}
-                        {/*                            ? "bg-gray-100"*/}
-                        {/*                            : "bg-slate-900"*/}
-                        {/*                            }`}*/}
-                        {/*                    >*/}
-                        {/*                        <div*/}
-                        {/*                            className={`text-xs mb-1 ${LIGHT_MODE*/}
-                        {/*                                ? "text-gray-500"*/}
-                        {/*                                : "text-gray-400"*/}
-                        {/*                                }`}*/}
-                        {/*                        >*/}
-                        {/*                            {formatTimestamp(*/}
-                        {/*                                item.timestamp*/}
-                        {/*                            )}*/}
-                        {/*                        </div>*/}
-                        {/*                        <div*/}
-                        {/*                            className={`font-medium ${LIGHT_MODE*/}
-                        {/*                                ? "text-black"*/}
-                        {/*                                : "text-white"*/}
-                        {/*                                }`}*/}
-                        {/*                        >*/}
-                        {/*                            {item.source}*/}
-                        {/*                        </div>*/}
-                        {/*                        <div*/}
-                        {/*                            className={`mt-1 ${LIGHT_MODE*/}
-                        {/*                                ? "text-gray-800"*/}
-                        {/*                                : "text-gray-300"*/}
-                        {/*                                }`}*/}
-                        {/*                        >*/}
-                        {/*                            {item.translation}*/}
-                        {/*                        </div>*/}
-                        {/*                    </div>*/}
-                        {/*                )*/}
-                        {/*            )}*/}
-                        {/*        </div>*/}
-                        {/*    )}*/}
-                        {/*</div>*/}
+                        <div
+                            className="overflow-y-auto flex-grow mb-4"
+                            style={{ maxHeight: "calc(100% - 4rem)" }}
+                        >
+                            {messageHistory.length === 0 ? (
+                                <div className="flex items-center justify-center h-full">
+                                    <span
+                                        className={`text-sm italic ${lightMode
+                                            ? "text-gray-500"
+                                            : "text-gray-400"
+                                            }`}
+                                    >
+                                        {localization.no_history[lang]}
+                                    </span>
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    {messageHistory.map(
+                                        (item, index) => (
+                                            <div
+                                                key={index}
+                                                className={`p-3 rounded-md ${lightMode
+                                                    ? "bg-gray-100"
+                                                    : "bg-slate-900"
+                                                    }`}
+                                            >
+                                                <div
+                                                    className={`text-xs mb-1 ${lightMode
+                                                        ? "text-gray-500"
+                                                        : "text-gray-400"
+                                                        }`}
+                                                >
+                                                    {formatTimestamp(item.timestamp)}
+                                                </div>
+                                                <div
+                                                    className={`font-medium ${lightMode
+                                                        ? "text-black"
+                                                        : "text-white"
+                                                        }`}
+                                                >
+                                                    {item.source}
+                                                </div>
+                                                <div
+                                                    className={`mt-1 ${lightMode
+                                                        ? "text-gray-800"
+                                                        : "text-gray-300"
+                                                        }`}
+                                                >
+                                                    {item.translation}
+                                                </div>
+                                            </div>
+                                        )
+                                    )}
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
 
@@ -229,10 +246,10 @@ export default function Kikitan() {
                     }
                 >
                     <div
-                        className={`flex flex-col justify-center w-7/12 h-2/6 outline outline-1 ${LIGHT_MODE
+                        className={`flex flex-col justify-center w-7/12 h-2/6 outline outline-1 ${lightMode
                             ? "outline-white"
                             : "outline-slate-900"
-                            } rounded ${LIGHT_MODE ? "bg-white" : "bg-slate-950"
+                            } rounded ${lightMode ? "bg-white" : "bg-slate-950"
                             }`}
                     >
                         <div className="flex flex-row justify-center gap-2">
@@ -240,14 +257,14 @@ export default function Kikitan() {
                                 slotProps={{
                                     inputLabel: {
                                         style: {
-                                            color: LIGHT_MODE
+                                            color: lightMode
                                                 ? "black"
                                                 : "#94A3B8",
                                         },
                                     },
                                     htmlInput: {
                                         style: {
-                                            color: LIGHT_MODE
+                                            color: lightMode
                                                 ? "black"
                                                 : "#fff",
                                         },
@@ -302,56 +319,56 @@ export default function Kikitan() {
                     <div>
                         <div
                             className={`mr-16 w-96 h-48 outline outline-1 transition-all rounded-md font-bold text-center ${detecting
-                                ? "italic " + LIGHT_MODE
+                                ? "italic " + lightMode
                                     ? "text-slate-400 outline-slate-800"
                                     : "text-slate-200 outline-slate-400"
-                                : LIGHT_MODE
+                                : lightMode
                                     ? "text-black"
                                     : "text-slate-200"
-                                } ${srStatus ? "" : "bg-gray-400"}`}
+                                } ${srStatus ? "" : lightMode ? "bg-gray-400" : "bg-gray-700"}`}
                         >
                             <p className="align-middle">{detection}</p>
                         </div>
                         <div className="flex">
                             <Select
                                 sx={{
-                                    color: LIGHT_MODE
+                                    color: lightMode
                                         ? "black"
                                         : "white",
                                     textAlign: "right",
                                     "& .MuiOutlinedInput-notchedOutline": {
-                                        borderColor: LIGHT_MODE
+                                        borderColor: lightMode
                                             ? "black"
                                             : "#94A3B8",
                                     },
                                     "&:hover .MuiOutlinedInput-notchedOutline":
                                     {
-                                        borderColor: LIGHT_MODE
+                                        borderColor: lightMode
                                             ? "black"
                                             : "#94A3B8",
                                     },
                                     "& .MuiSvgIcon-root": {
-                                        color: LIGHT_MODE
+                                        color: lightMode
                                             ? "black"
                                             : "#94A3B8",
                                     },
                                     "&.Mui-disabled": {
-                                        color: LIGHT_MODE
+                                        color: lightMode
                                             ? "black"
                                             : "white",
                                         "& .MuiOutlinedInput-notchedOutline": {
-                                            borderColor: LIGHT_MODE
+                                            borderColor: lightMode
                                                 ? "black"
                                                 : "#94A3B8",
                                         },
                                         "&:hover .MuiOutlinedInput-notchedOutline":
                                         {
-                                            borderColor: LIGHT_MODE
+                                            borderColor: lightMode
                                                 ? "black"
                                                 : "#94A3B8",
                                         },
                                         "& .MuiSvgIcon-root": {
-                                            color: LIGHT_MODE
+                                            color: lightMode
                                                 ? "black"
                                                 : "#94A3B8",
                                         },
@@ -360,7 +377,7 @@ export default function Kikitan() {
                                 MenuProps={{
                                     sx: {
                                         "& .MuiPaper-root": {
-                                            backgroundColor: LIGHT_MODE
+                                            backgroundColor: lightMode
                                                 ? "#94A3B8"
                                                 : "#020617",
                                         },
@@ -376,7 +393,7 @@ export default function Kikitan() {
                                     return (
                                         <MenuItem
                                             sx={{
-                                                color: LIGHT_MODE
+                                                color: lightMode
                                                     ? "black"
                                                     : "white",
                                             }}
@@ -403,35 +420,35 @@ export default function Kikitan() {
                         </div>
                     </div>
                     <div>
-                        <div className={`w-96 h-48 outline outline-1 transition-all rounded-md ${LIGHT_MODE
+                        <div className={`w-96 h-48 outline outline-1 transition-all rounded-md ${lightMode
                             ? "text-black outline-slate-800"
                             : "text-slate-200 outline-slate-400"
-                            } font-bold text-center ${srStatus ? "" : "bg-gray-400"
+                            } font-bold text-center ${(srStatus && !sttOnly) ? "" : lightMode ? "bg-gray-400" : "bg-gray-700"
                             }`}>
                             <p className={`transition-all duration-300 align-middle`} >
-                                {translation}
+                                {sttOnly ? localization.translation_disabled[lang] : translation}
                             </p>
                         </div>
                         <div>
                             <TranslateIcon className="mr-3" />
                             <Select
                                 sx={{
-                                    color: LIGHT_MODE
+                                    color: lightMode
                                         ? "black"
                                         : "white",
                                     "& .MuiOutlinedInput-notchedOutline": {
-                                        borderColor: LIGHT_MODE
+                                        borderColor: lightMode
                                             ? "black"
                                             : "#94A3B8",
                                     },
                                     "&:hover .MuiOutlinedInput-notchedOutline":
                                     {
-                                        borderColor: LIGHT_MODE
+                                        borderColor: lightMode
                                             ? "black"
                                             : "#94A3B8",
                                     },
                                     "& .MuiSvgIcon-root": {
-                                        color: LIGHT_MODE
+                                        color: lightMode
                                             ? "black"
                                             : "#94A3B8",
                                     },
@@ -439,7 +456,7 @@ export default function Kikitan() {
                                 MenuProps={{
                                     sx: {
                                         "& .MuiPaper-root": {
-                                            backgroundColor: LIGHT_MODE
+                                            backgroundColor: lightMode
                                                 ? "#94A3B8"
                                                 : "#020617",
                                         },
@@ -455,7 +472,7 @@ export default function Kikitan() {
                                     return (
                                         <MenuItem
                                             sx={{
-                                                color: LIGHT_MODE
+                                                color: lightMode
                                                     ? "black"
                                                     : "white",
                                             }}
@@ -494,8 +511,8 @@ export default function Kikitan() {
                     disabled={srLoading}
                     sx={{
                         '&.Mui-disabled': {
-                            borderColor: LIGHT_MODE ? 'rgba(0, 0, 0, 0.4)' : 'rgba(148, 163, 184, 0.5)',
-                            color: LIGHT_MODE ? 'rgba(0, 0, 0, 0.4)' : 'rgba(148, 163, 184, 0.5)',
+                            borderColor: lightMode ? 'rgba(0, 0, 0, 0.4)' : 'rgba(148, 163, 184, 0.5)',
+                            color: lightMode ? 'rgba(0, 0, 0, 0.4)' : 'rgba(148, 163, 184, 0.5)',
                         },
                     }}
                     onClick={() => {
@@ -525,42 +542,42 @@ export default function Kikitan() {
                     <KeyboardVoiceIcon fontSize="small" className="mt-3" />
                     <Select
                         sx={{
-                            color: LIGHT_MODE
+                            color: lightMode
                                 ? "black"
                                 : "white",
                             "& .MuiOutlinedInput-notchedOutline": {
-                                borderColor: LIGHT_MODE
+                                borderColor: lightMode
                                     ? "black"
                                     : "#94A3B8",
                             },
                             "&:hover .MuiOutlinedInput-notchedOutline":
                             {
-                                borderColor: LIGHT_MODE
+                                borderColor: lightMode
                                     ? "black"
                                     : "#94A3B8",
                             },
                             "& .MuiSvgIcon-root": {
-                                color: LIGHT_MODE
+                                color: lightMode
                                     ? "black"
                                     : "#94A3B8",
                             },
                             "&.Mui-disabled": {
-                                color: LIGHT_MODE
+                                color: lightMode
                                     ? "black"
                                     : "white",
                                 "& .MuiOutlinedInput-notchedOutline": {
-                                    borderColor: LIGHT_MODE
+                                    borderColor: lightMode
                                         ? "black"
                                         : "#94A3B8",
                                 },
                                 "&:hover .MuiOutlinedInput-notchedOutline":
                                 {
-                                    borderColor: LIGHT_MODE
+                                    borderColor: lightMode
                                         ? "black"
                                         : "#94A3B8",
                                 },
                                 "& .MuiSvgIcon-root": {
-                                    color: LIGHT_MODE
+                                    color: lightMode
                                         ? "black"
                                         : "#94A3B8",
                                 },
@@ -569,7 +586,7 @@ export default function Kikitan() {
                         MenuProps={{
                             sx: {
                                 "& .MuiPaper-root": {
-                                    backgroundColor: LIGHT_MODE
+                                    backgroundColor: lightMode
                                         ? "#94A3B8"
                                         : "#020617",
                                 },
@@ -585,7 +602,7 @@ export default function Kikitan() {
                             return (
                                 <MenuItem
                                     sx={{
-                                        color: LIGHT_MODE
+                                        color: lightMode
                                             ? "black"
                                             : "white",
                                     }}

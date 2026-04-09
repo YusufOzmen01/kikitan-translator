@@ -59,7 +59,7 @@ public class Kikitan : IDisposable
             return;
         }
         
-        var translated = _translator.Translate(text, AppConfig.ConfigObject.SourceLanguage,
+        var translated = AppConfig.ConfigObject.SpeechToTextOnly ? "" : _translator.Translate(text, AppConfig.ConfigObject.SourceLanguage,
             AppConfig.ConfigObject.TargetLanguage);
 
         if (translated != null)

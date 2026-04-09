@@ -22,11 +22,9 @@ import {
 
 import Changelogs from './pages/Changelogs';
 import { localization } from './util/localization';
+import {getConfig, setConfig} from "./util/photino.ts";
 
-const LIGHT_MODE = false;
-const lang = "en"
 const appVersion = "2.0.0-rc.1"
-const MODE = 0;
 
 function App() {
   const [quickstartVisible, setQuickstartVisible] = React.useState(false)
@@ -34,25 +32,35 @@ function App() {
   const [settingsVisible, setSettingsVisible] = React.useState(false)
   const [donateVisible, setDonateVisible] = React.useState(false)
   const [googleServersErrorVisible, setGoogleServersErrorVisible] = React.useState(false)
+  const [lightMode, setLightMode] = React.useState<boolean>(false)
+  
+  const [mode, setMode] = React.useState<number>(0)
+  const [lang, setLang] = React.useState<"en" | "jp" | "cn" | "kr" | "tr">("en")
 
   const [loaded, setLoaded] = React.useState(false)
 
   React.useEffect(() => {
-    // @ts-ignore
-    if (window.external.receiveMessage == undefined) window.location.reload();
-    
     setTimeout(() => setLoaded(true), 300);
+
+    // @ts-ignore
+    setInterval(async () => {
+      const config = await getConfig();
+
+      setLang(config.language);
+      setMode(config.speech_to_text_only ? 1 : 0)
+      setLightMode(config.light_mode)
+    }, 100);
   }, [])
 
   return (
     <>
-      <div className={`relative transition-all duration-500 ${!loaded ? "opacity-0 pointer-events-none" : "opacity-100"} ${!LIGHT_MODE ? "bg-slate-950 text-white" : ""}`}>
+      <div className={`relative transition-all duration-500 ${!loaded ? "opacity-0 pointer-events-none" : "opacity-100"} ${!lightMode ? "bg-slate-950 text-white" : ""}`}>
         {/*<div className={`transition-all z-20 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute` + (quickstartVisible && lang != null ? " opacity-100" : " opacity-0 pointer-events-none")}>*/}
         {/*  <QuickstartMenu config={config} setLang={setLang} lang={lang} setConfig={setConfig}></QuickstartMenu>*/}
         {/*</div>*/}
 
         <div className={'transition-all z-30 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (donateVisible && !quickstartVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
-          <div className={`flex flex-col justify-center w-6/12 h-3/6 outline outline-1 ${LIGHT_MODE ? "outline-white" : "outline-slate-950"} rounded ${LIGHT_MODE ? "bg-white" : "bg-slate-950"}`}>
+          <div className={`flex flex-col justify-center w-6/12 h-3/6 outline outline-1 ${lightMode ? "outline-white" : "outline-slate-950"} rounded ${lightMode ? "bg-white" : "bg-slate-950"}`}>
             <div className='flex flex-row justify-center'>
               <p className='ml-4 text-md text-center'>{localization.donation_text[lang]}</p>
             </div>
@@ -70,7 +78,7 @@ function App() {
         </div>
 
         <div className={'transition-all z-10 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (googleServersErrorVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
-          <div className={`flex flex-col justify-center w-10/12 h-3/6 outline outline-1 ${LIGHT_MODE ? "outline-white" : "outline-slate-950"} outline-gray-200 rounded ${LIGHT_MODE ? "bg-white" : "bg-slate-950"}`}>
+          <div className={`flex flex-col justify-center w-10/12 h-3/6 outline outline-1 ${lightMode ? "outline-white" : "outline-slate-950"} outline-gray-200 rounded ${lightMode ? "bg-white" : "bg-slate-950"}`}>
             <div className='flex flex-row justify-center'>
               <p className='ml-4 text-md text-center'>{localization.unable_to_access_google_servers[lang]}</p>
             </div>
@@ -81,14 +89,14 @@ function App() {
         </div>
 
         {/*<div className={'transition-all z-30 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (settingsVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>*/}
-        {/*  <div className={`flex flex-col justify-between  w-10/12 h-5/6 outline outline-1 ${LIGHT_MODE ? "outline-slate-400" : "outline-slate-950"} rounded bg-white`}>*/}
+        {/*  <div className={`flex flex-col justify-between  w-10/12 h-5/6 outline outline-1 ${lightMode ? "outline-slate-400" : "outline-slate-950"} rounded bg-white`}>*/}
         {/*    <SettingsPage lang={lang} config={config} setConfig={setConfig} closeCallback={() => setSettingsVisible(false)} />*/}
         {/*  </div>*/}
         {/*</div>*/}
         {!quickstartVisible && changelogsVisible &&
           <div className={'transition-all z-30 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (changelogsVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
-            <div className={`flex flex-col justify-between  w-10/12 h-5/6 outline outline-1 ${LIGHT_MODE ? "outline-slate-400" : "outline-slate-950"} rounded bg-white`}>
-              <Changelogs light_mode={LIGHT_MODE} lang={lang} closeCallback={() => setChangelogsVisible(false)} />
+            <div className={`flex flex-col justify-between  w-10/12 h-5/6 outline outline-1 ${lightMode ? "outline-slate-400" : "outline-slate-950"} rounded bg-white`}>
+              <Changelogs light_mode={lightMode} lang={lang} closeCallback={() => setChangelogsVisible(false)} />
             </div>
           </div>
         }
@@ -112,9 +120,7 @@ function App() {
                   '& .MuiSvgIcon-root': {
                     color: 'white'
                   }
-                }} variant='outlined' className="ml-4 mr-2" value={MODE} onChange={(_) => {
-                  /* TODO: Update mode change */
-                }}>
+                }} variant='outlined' className="ml-4 mr-2" value={mode} onChange={(e) => setConfig("speech_to_text_only", e.target.value == 1)}>
                   <MenuItem value={0}>{localization.translation[lang]}</MenuItem>
                   <MenuItem value={1}>{localization.stt_only[lang]}</MenuItem>
                 </Select>
@@ -123,10 +129,8 @@ function App() {
                   '& .MuiSvgIcon-root': {
                     color: 'white'
                   }
-                }} onClick={() => {
-                  /* TODO: Toggle light mode */
-                }}>
-                  {LIGHT_MODE ? <NightsStay /> : <WbSunny />}
+                }} onClick={() => setConfig("light_mode", !lightMode)}>
+                  {lightMode ? <NightsStay /> : <WbSunny />}
                 </IconButton>
                 <IconButton sx={{
                   color: 'white',

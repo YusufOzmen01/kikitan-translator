@@ -203,13 +203,6 @@ export const localization = {
         kr: "음성 인식 전용 (STT)",
         tr: "Sadece Sesli Metin (STT)",
     },
-    translation_disabled: {
-        en: "Translation is disabled. Enable translation from the setting above.",
-        jp: "翻訳が無効になっています。上記の設定から翻訳を有効にしてください。",
-        cn: "翻译已禁用。请从上面的设置中启用翻译。",
-        kr: "번역이 비활성화되었습니다. 위 설정에서 번역을 활성화하세요.",
-        tr: "Çeviri devre dışı. Yukarıdaki ayarları kullanarak çeviriyi etkinleştirin.",
-    },
     language_settings: {
         en: "Language Settings",
         jp: "言語設定",
@@ -524,5 +517,12 @@ export const localization = {
         cn: "无法将WebSpeech用于桌面翻译！如果您想使用它，请更改识别器服务！",
         kr: "데스크톱 번역에 WebSpeech를 사용할 수 없습니다! 사용하려면 인식기 서비스를 변경하세요!",
         tr: "WebSpeech'i masaüstü çeviri için kullanamazsınız! Kullanmak istiyorsanız tanımlayıcı hizmetini değiştirin!",
+    },
+    translation_disabled: {
+        en: "Translation is disabled. You can enable it by switching from Speech-to-Text mode to Translation mode.",
+        jp: "翻訳は無効になっています。音声認識モードから翻訳モードに切り替えると有効にできます。",
+        cn: "翻译已禁用。切换从语音转文字模式到翻译模式即可启用。",
+        kr: "번역이 비활성화되었습니다. 음성 인식 모드에서 번역 모드로 전환하면 활성화할 수 있습니다.",
+        tr: "Çeviri devre dışı. Konuşmadan Metne modundan Çeviri moduna geçerek etkinleştirebilirsiniz."
     }
 };
