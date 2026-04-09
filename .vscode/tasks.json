@@ -14,6 +14,51 @@
             "problemMatcher": "$msCompile"
         },
         {
+            "label": "build-photino",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/KikitanTranslator.Photino/KikitanTranslator.Photino.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary;ForceNoAlign"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "build-and-vite",
+            "dependsOn": ["build-photino", "vite-dev"],
+            "dependsOrder": "parallel"
+        },
+        {
+            "label": "vite-dev",
+            "type": "shell",
+            "command": "$p = (Get-NetTCPConnection -LocalPort 1420 -ErrorAction SilentlyContinue).OwningProcess; if ($p) { Stop-Process -Id $p -Force }; npm run dev",
+            "options": {
+                "cwd": "${workspaceFolder}/KikitanTranslator.Photino/UserInterface",
+                "shell": {
+                    "executable": "powershell.exe",
+                    "args": ["-NoProfile", "-Command"]
+                }
+            },
+            "isBackground": true,
+            "problemMatcher": {
+                "pattern": {
+                    "regexp": "^$"
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "VITE",
+                    "endsPattern": "Local:"
+                }
+            },
+            "presentation": {
+                "reveal": "silent",
+                "panel": "dedicated",
+                "label": "Vite Dev Server"
+            }
+        },
+        {
             "label": "publish",
             "command": "dotnet",
             "type": "process",
