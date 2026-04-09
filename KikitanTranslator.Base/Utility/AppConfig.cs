@@ -7,6 +7,22 @@ namespace KikitanTranslator.Utility;
 
 public class ConfigObject : INotifyPropertyChanged
 {
+    [JsonProperty("quickstart_viewed")] private bool _quickstartViewed;
+
+    [JsonIgnore]
+    public bool QuickstartViewed
+    {
+        get => _quickstartViewed;
+        set
+        {
+            if (_quickstartViewed != value)
+            {
+                _quickstartViewed = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+    
     [JsonProperty("language")] private string _language = "en";
 
     [JsonIgnore]

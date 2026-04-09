@@ -81,6 +81,14 @@ export function controlKikitan(status: boolean) {
     }));
 }
 
+export function openURL(url: string) {
+    // @ts-ignore
+    window.external.sendMessage(JSON.stringify({
+        method: "open_url",
+        data: url
+    }));
+}
+
 export function registerRecognitionCallback(callback: (r: string, t: string, f: boolean) => void) {
     recognitionCallback = callback;
 }

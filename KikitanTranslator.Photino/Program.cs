@@ -83,8 +83,6 @@ public class Program
             })
         }));
         
-        manager.Start();
-        
         window.WaitForClose();
     }
 }

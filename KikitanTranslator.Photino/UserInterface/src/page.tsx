@@ -22,12 +22,13 @@ import {
 
 import Changelogs from './pages/Changelogs';
 import { localization } from './util/localization';
-import {getConfig, setConfig} from "./util/photino.ts";
+import {controlKikitan, getConfig, setConfig} from "./util/photino.ts";
+import QuickstartMenu from "./components/Quickstart.tsx";
 
 const appVersion = "2.0.0-rc.1"
 
 function App() {
-  const [quickstartVisible, setQuickstartVisible] = React.useState(false)
+  const [quickstartVisible, setQuickstartVisible] = React.useState(true)
   const [changelogsVisible, setChangelogsVisible] = React.useState(false)
   const [settingsVisible, setSettingsVisible] = React.useState(false)
   const [donateVisible, setDonateVisible] = React.useState(false)
@@ -49,15 +50,16 @@ function App() {
       setLang(config.language);
       setMode(config.speech_to_text_only ? 1 : 0)
       setLightMode(config.light_mode)
+      setQuickstartVisible(!config.quickstart_viewed)
     }, 100);
   }, [])
 
   return (
     <>
       <div className={`relative transition-all duration-500 ${!loaded ? "opacity-0 pointer-events-none" : "opacity-100"} ${!lightMode ? "bg-slate-950 text-white" : ""}`}>
-        {/*<div className={`transition-all z-20 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute` + (quickstartVisible && lang != null ? " opacity-100" : " opacity-0 pointer-events-none")}>*/}
-        {/*  <QuickstartMenu config={config} setLang={setLang} lang={lang} setConfig={setConfig}></QuickstartMenu>*/}
-        {/*</div>*/}
+        <div className={`transition-all z-20 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute` + (quickstartVisible && lang != null ? " opacity-100" : " opacity-0 pointer-events-none")}>
+          <QuickstartMenu></QuickstartMenu>
+        </div>
 
         <div className={'transition-all z-30 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (donateVisible && !quickstartVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
           <div className={`flex flex-col justify-center w-6/12 h-3/6 outline outline-1 ${lightMode ? "outline-white" : "outline-slate-950"} rounded ${lightMode ? "bg-white" : "bg-slate-950"}`}>
@@ -137,7 +139,10 @@ function App() {
                   '& .MuiSvgIcon-root': {
                     color: 'white'
                   }
-                }} onClick={() => { setQuickstartVisible(true); }}>
+                }} onClick={() => {
+                  controlKikitan(false)
+                  setConfig("quickstart_viewed", false)
+                }}>
                   <Translate />
                 </IconButton>
                 <IconButton sx={{

@@ -131,6 +131,8 @@ export default function Kikitan() {
         });
         
         if (localStorage.getItem("history") != null) setMessageHistory(JSON.parse(localStorage.getItem("history")!))
+        
+        controlKikitan(true)
     }, []);
 
     const formatTimestamp = (timestamp: number) => {
@@ -524,7 +526,7 @@ export default function Kikitan() {
                     </p>
                     {srLoading ? (<CircularProgress color="inherit" size={16} />) : srStatus ? (<PauseIcon fontSize="small" />) : (<PlayArrowIcon fontSize="small" />)}
                 </Button>
-                {/* TODO: Message history */ true && (
+                {messageHistory.length > 0 && (
                     <Tooltip title={localization.message_history[lang]}>
                         <Button
                             variant="outlined"

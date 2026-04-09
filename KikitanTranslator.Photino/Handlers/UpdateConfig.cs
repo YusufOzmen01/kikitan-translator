@@ -1,5 +1,6 @@
 ﻿using KikitanTranslator.Utility;
 using Newtonsoft.Json;
+using Serilog;
 
 namespace KikitanTranslator.Photino.Handlers;
 
@@ -78,12 +79,14 @@ public class UpdateConfig(Manager manager) : IHandler
                 AppConfig.ConfigObject.DesktopTranslation = (bool) d.Value;
                 
                 break;
-            case "swap_languages":
-            {
-                (AppConfig.ConfigObject.SourceLanguage, AppConfig.ConfigObject.TargetLanguage) = (AppConfig.ConfigObject.TargetLanguage, AppConfig.ConfigObject.SourceLanguage);
-
+            case "quickstart_viewed":
+                AppConfig.ConfigObject.QuickstartViewed = (bool) d.Value;
+                
                 break;
-            }
+            default:
+                Log.Warning($"\x1b[35m[CFG]  Received an unknown field {d.Field} with value {d.Value} while trying to update the config!");
+                
+                break;
         }
         
         manager.RestartIfRunning();

@@ -8,33 +8,47 @@ import {
 import Scroll from "./Scroll"
 import { localization } from "../util/localization";
 import { Box, Button, Checkbox, FormControlLabel, FormGroup, MenuItem, Select } from "@mui/material";
-import { Lang } from "../util/constants";
-
-const lang = "en"
-const LIGHT_MODE = false
+import {getConfig, openURL, setConfig} from "../util/photino.ts";
 
 export default function QuickstartMenu() {
     const [quickstartPage, setQuickstartPage] = React.useState(0)
+    const [lang, setLang] = React.useState<"en" | "jp" | "cn" | "kr" | "tr">("en")
+    
+    const [lightMode, setLightMode] = React.useState<boolean>(false)
+    const [disableKikitanWhenMuted, setDisableKikitanWhenMuted] = React.useState<boolean>(false)
+    const [translationOnly, setTranslationOnly] = React.useState<boolean>(false)
+    
+    React.useEffect(() => {
+        // @ts-ignore
+        setInterval(async () => {
+            const config = await getConfig();
+
+            setLang(config.language);
+            setLightMode(config.light_mode)
+            setDisableKikitanWhenMuted(config.disable_when_muted)
+            setTranslationOnly(config.translation_only)
+        });
+    }, []);
 
     return <>
-        <div className={`absolute z-10 flex flex-col justify-between w-10/12 h-5/6 outline outline-2 rounded  ${!LIGHT_MODE ? "bg-slate-950 outline-slate-950" : "bg-white outline-white"}`}>
+        <div className={`absolute z-10 flex flex-col justify-between w-10/12 h-5/6 outline outline-2 rounded  ${!lightMode ? "bg-slate-950 outline-slate-950" : "bg-white outline-white"}`}>
             <div className='relative mt-2 ml-2 mr-2 h-64'>
                 <div className={`absolute inset-0 transition-all flex justify-center ease-in-out ${quickstartPage == 0 ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
                     <div className='absolute mt-28 flex flex-col items-center'>
-                        <Scroll light_mode={LIGHT_MODE}></Scroll>
+                        <Scroll light_mode={lightMode}></Scroll>
 
                         <div className='mt-16 absolute flex flex-row items-center'>
                             <Translate className='mr-8 outline-2 ' />
                             <Select sx={{
-                                color: LIGHT_MODE ? 'black' : 'white',
+                                color: lightMode ? 'black' : 'white',
                                 '& .MuiOutlinedInput-notchedOutline': {
-                                    borderColor: LIGHT_MODE ? 'black' : 'white',
+                                    borderColor: lightMode ? 'black' : 'white',
                                 },
                                 '&:hover .MuiOutlinedInput-notchedOutline': {
-                                    borderColor: LIGHT_MODE ? 'black' : 'white',
+                                    borderColor: lightMode ? 'black' : 'white',
                                 },
                             }} variant='outlined' className="mt-auto mr-8" value={lang} onChange={(e) => {
-                                setLang(e.target.value as Lang)
+                                setConfig("language", e.target.value)
                             }}>
 
                                 <MenuItem value={"en"}>English</MenuItem>
@@ -77,16 +91,16 @@ export default function QuickstartMenu() {
                 <Box sx={{
                     width: '100%',
                     '& .MuiSvgIcon-root': {
-                        color: LIGHT_MODE ? 'black' : '#94A3B8'
+                        color: lightMode ? 'black' : '#94A3B8'
                     },
                     '& .MuiOutlinedInput-notchedOutline': {
-                        borderColor: LIGHT_MODE ? 'black' : '#94A3B8',
+                        borderColor: lightMode ? 'black' : '#94A3B8',
                     },
                     '&:hover .MuiOutlinedInput-notchedOutline': {
-                        borderColor: LIGHT_MODE ? 'black' : '#94A3B8',
+                        borderColor: lightMode ? 'black' : '#94A3B8',
                     },
                     '& .MuiFormControlLabel-root.Mui-disabled .MuiFormControlLabel-label': {
-                        color: LIGHT_MODE ? '#666666' : '#4f4f4f'
+                        color: lightMode ? '#666666' : '#4f4f4f'
                     }
                 }} >
                     <div className={'absolute inset-0 transition-all space-y-2 flex flex-col items-center ease-in-out ' + (quickstartPage == 3 ? "opacity-100" : "opacity-0 pointer-events-none")}>
@@ -94,42 +108,8 @@ export default function QuickstartMenu() {
                             <p className='text-4xl bold text-center'>{localization.change_basic_settings[lang]}</p>
                         </div>
                         <FormGroup>
-                            <FormControlLabel control={<Checkbox checked={config.vrchat_settings.disable_kikitan_when_muted} onChange={(e) => {
-                                setConfig({
-                                    ...config,
-                                    vrchat_settings: {
-                                        ...config.vrchat_settings,
-                                        disable_kikitan_when_muted: e.target.checked
-                                    }
-                                })
-                            }} />} label={localization.disable_kikitan_when_muted[lang]} />
-                            <FormControlLabel control={<Checkbox checked={config.vrchat_settings.translation_first} onChange={(e) => {
-                                setConfig({
-                                    ...config,
-                                    vrchat_settings: {
-                                        ...config.vrchat_settings,
-                                        translation_first: e.target.checked
-                                    }
-                                })
-                            }} />} label={localization.translation_first[lang]} />
-                            <FormControlLabel control={<Checkbox checked={config.vrchat_settings.send_typing_status_while_talking} onChange={(e) => {
-                                setConfig({
-                                    ...config,
-                                    vrchat_settings: {
-                                        ...config.vrchat_settings,
-                                        send_typing_status_while_talking: e.target.checked
-                                    }
-                                })
-                            }} />} label={localization.send_typing_while_talking[lang]} />
-                            <FormControlLabel control={<Checkbox checked={config.vrchat_settings.only_translation} onChange={(e) => {
-                                setConfig({
-                                    ...config,
-                                    vrchat_settings: {
-                                        ...config.vrchat_settings,
-                                        only_translation: e.target.checked
-                                    }
-                                })
-                            }} />} label={localization.only_send_translation[lang]} />
+                            <FormControlLabel control={<Checkbox checked={disableKikitanWhenMuted} onChange={(e) => setConfig("disable_when_muted", e.target.checked)} />} label={localization.disable_kikitan_when_muted[lang]} />
+                            <FormControlLabel control={<Checkbox checked={translationOnly} onChange={(e) => setConfig("translation_only", e.target.checked)} />} label={localization.only_send_translation[lang]} />
                         </FormGroup>
                     </div>
                 </Box>
@@ -139,26 +119,25 @@ export default function QuickstartMenu() {
                         <p className='text-xl mt-8 bold text-center'>{localization.thank_you[lang]}</p>
                         <p className='text-lg mt-20 text-center'>{localization.thank_you_details[lang]}</p>
                     </div>
-                    <Button disabled={quickstartPage != 4} className={'w-70'} variant='contained' startIcon={< GitHub />} onClick={async () => { open("https://github.com/YusufOzmen01/kikitan-translator") }}>{localization.open_repo[lang]}</Button>
+                    <Button disabled={quickstartPage != 4} className={'w-70'} variant='contained' startIcon={< GitHub />} onClick={async () => { openURL("https://github.com/YusufOzmen01/kikitan-translator") }}>{localization.open_repo[lang]}</Button>
                     <div className="flex gap-2">
                         <Button sx={{
                             backgroundColor: "#ffde06",
                             color: "black"
-                        }} disabled={quickstartPage != 4} variant="contained" className='w-52 h-9' onClick={() => { invoke("open_url", { url: "https://buymeacoffee.com/sergiomarquina" }) }}>
+                        }} disabled={quickstartPage != 4} variant="contained" className='w-52 h-9' onClick={() => { openURL("https://buymeacoffee.com/sergiomarquina") }}>
                             <img src="/buymeacoffeelogo.svg" width={36}></img>
                             <p className="mt-0.5">Buy Me a Coffee</p>
                         </Button>
 
                         <Button sx={{
                             backgroundColor: "#fc4d50"
-                        }} disabled={quickstartPage != 4} variant="contained" className='w-52' onClick={() => { invoke("open_url", { url: "https://booth.pm/en/items/6073050" }) }}>
+                        }} disabled={quickstartPage != 4} variant="contained" className='w-52' onClick={() => { openURL("https://booth.pm/en/items/6073050") }}>
                             <img src="/boothlogo.svg" width={24} className="mr-2"></img>
                             <p className="mt-0.5">Booth.pm</p>
                         </Button>
                     </div>
                     <Button disabled={quickstartPage != 4} className={'w-48'} variant='contained' onClick={async () => {
-                        window.localStorage.setItem("firstTimeSetupComplete", "true");
-                        localStorage.setItem("lang", lang);
+                        setConfig("quickstart_viewed", true)
 
                         window.location.reload()
                     }}>{localization.close_menu[lang]}</Button>
@@ -167,14 +146,14 @@ export default function QuickstartMenu() {
             <div className='mb-2 flex justify-center space-x-4'>
                 <Button sx={{
                     '&.Mui-disabled': {
-                        color: LIGHT_MODE ? '#666666 !important' : '#4f4f4f !important',
-                        borderColor: LIGHT_MODE ? '#666666 !important' : '#4f4f4f !important'
+                        color: lightMode ? '#666666 !important' : '#4f4f4f !important',
+                        borderColor: lightMode ? '#666666 !important' : '#4f4f4f !important'
                     }
                 }} variant='contained' disabled={quickstartPage == 0} onClick={() => { setQuickstartPage(quickstartPage - 1) }}>{localization.previous[lang]}</Button>
                 {!(quickstartPage == 5) && <Button sx={{
                     '&.Mui-disabled': {
-                        color: LIGHT_MODE ? '#666666 !important' : '#4f4f4f !important',
-                        borderColor: LIGHT_MODE ? '#666666 !important' : '#4f4f4f !important'
+                        color: lightMode ? '#666666 !important' : '#4f4f4f !important',
+                        borderColor: lightMode ? '#666666 !important' : '#4f4f4f !important'
                     }
                 }} className='ml-4' variant='contained' disabled={quickstartPage > 3} onClick={() => { setQuickstartPage(quickstartPage + 1) }}>{localization.next[lang]}</Button>}
             </div>
