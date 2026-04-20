@@ -5,6 +5,7 @@ using KikitanTranslator.Capture;
 using KikitanTranslator.Recognizers;
 using KikitanTranslator.Utility;
 using SoundFlow.Backends.MiniAudio;
+using SoundFlow.Backends.MiniAudio.Enums;
 using SoundFlow.Structs;
 
 namespace KikitanTranslator.Photino;
@@ -23,18 +24,21 @@ public class Manager
     public event OnKikitanData? OnMicrophoneData;
     public event OnRecognizerStatus? OnRecognizerStatusData;
 
+    private Microphone _mic;
+
     public Manager()
     {
         _translator = new GoogleTranslate();
+        _mic = new Microphone();
     }
 
-    public DeviceInfo[] GetMicrophones() => new MiniAudioEngine().CaptureDevices;
+    public DeviceInfo[] GetMicrophones() => _mic.GetCaptureDevices();
     
     public void Start()
     {
         IRecognizer r;
-        if (AppConfig.ConfigObject.Recognizer == 0) r = new Bing(new Microphone());
-        else r = new Bing(new Microphone()); // TODO: Use another one
+        if (AppConfig.ConfigObject.Recognizer == 0) r = new Bing(_mic);
+        else r = new Bing(_mic); // TODO: Use another one
         
         _microphoneKikitan = new Kikitan(r, _translator);
         _microphoneKikitan.AddOutput(new Custom((recognized, translated, final) => OnMicrophoneData?.Invoke(recognized, translated, final)));

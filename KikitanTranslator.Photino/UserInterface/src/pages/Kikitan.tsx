@@ -596,6 +596,8 @@ export default function Kikitan() {
                         className="ml-4 h-12 w-52"
                         value={currentMicrophone}
                         onChange={(e) => {
+                            console.log(e.target.value)
+
                             setConfig("microphone", e.target.value)
                         }}
                     >

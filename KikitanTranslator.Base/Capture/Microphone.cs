@@ -2,6 +2,7 @@
 using Serilog;
 using SoundFlow.Abstracts.Devices;
 using SoundFlow.Backends.MiniAudio;
+using SoundFlow.Backends.MiniAudio.Enums;
 using SoundFlow.Enums;
 using SoundFlow.Structs;
 
@@ -12,12 +13,26 @@ public class Microphone : ICapture
     public event OnData? OnDataReceived;
     private AudioCaptureDevice? _captureDevice;
     private bool _paused;
+    private MiniAudioEngine _engine;
     
     public uint GetSampleRate() => 16000;
 
+    public Microphone()
+    {
+        #if WINDOWS
+        _engine = new MiniAudioEngine();
+        #else
+        _engine = new MiniAudioEngine(backendPriority:[MiniAudioBackend.Oss]);
+        #endif
+    }
+
+    public DeviceInfo[] GetCaptureDevices() => _engine.CaptureDevices;
+
     public void Start()
     {
-        var engine = new MiniAudioEngine();
+        _engine.UpdateAudioDevicesInfo();
+        if (_captureDevice != null) Stop();
+
         DeviceInfo? device;
         
         Log.Information("\x1b[33m[MIC]  Starting capture");
@@ -31,17 +46,17 @@ public class Microphone : ICapture
 
         if (AppConfig.ConfigObject.Microphone.Length == 0)
         {
-            device = engine.CaptureDevices.First(d => d.IsDefault);
+            device = _engine.CaptureDevices.First(d => d.IsDefault);
                 
             Log.Warning($"\x1b[33m[MIC]  No microphone was selected, using the default device ({device.Value.Name}) for capture");
         }
-        else if (engine.CaptureDevices.Any(d => d.Name == AppConfig.ConfigObject.Microphone))
+        else if (_engine.CaptureDevices.Any(d => d.Name == AppConfig.ConfigObject.Microphone))
         {
-            device = engine.CaptureDevices.First(d => d.Name == AppConfig.ConfigObject.Microphone);
+            device = _engine.CaptureDevices.First(d => d.Name == AppConfig.ConfigObject.Microphone);
         }
         else
         {
-            device = engine.CaptureDevices.First(d => d.IsDefault);
+            device = _engine.CaptureDevices.First(d => d.IsDefault);
                     
             Log.Warning($"\x1b[33m[MIC]  The selected mic ({AppConfig.ConfigObject.Microphone}) is not available. Switching to the system default ({device.Value.Name})");
             
@@ -50,9 +65,20 @@ public class Microphone : ICapture
         
         Log.Information($"\x1b[33m[MIC]  Starting capture using {device.Value.Name}");
         
-        _captureDevice = engine.InitializeCaptureDevice(device, audioFormat);
-        _captureDevice.OnAudioProcessed += AudioProcessCallback;
-        _captureDevice.Start();
+        try
+        {
+            _captureDevice = _engine.InitializeCaptureDevice(device, audioFormat);
+            _captureDevice.OnAudioProcessed += AudioProcessCallback;
+            _captureDevice.Start();
+        } catch (Exception e)
+        {
+            Log.Error($"\x1b[33m[MIC]  Error initializing capture: {e}. Restarting with default mic");
+
+            AppConfig.ConfigObject.Microphone = "";
+
+            Start();
+            return;
+        }
         
         Log.Information("\x1b[33m[MIC]  Capture has started");
     }
@@ -62,6 +88,7 @@ public class Microphone : ICapture
         if (_captureDevice == null) return;
         
         _captureDevice.Stop();
+        _captureDevice = null;
         
         Log.Information("\x1b[33m[MIC]  Capture has stopped");
     }

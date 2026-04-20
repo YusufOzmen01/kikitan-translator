@@ -64,11 +64,7 @@ export default function QuickstartMenu() {
                 <div className={'absolute inset-0 transition-all flex justify-center ease-in-out ' + (quickstartPage == 1 ? "opacity-100" : "opacity-0 pointer-events-none")}>
                     <div className='absolute mt-2 flex flex-col items-center'>
                         <p className='text-xl bold text-center'>{localization.quickstart_osc[lang]}</p>
-                        {quickstartPage == 1 &&
-                            <video width={480} autoPlay loop className='mt-4'>
-                                <source src="/OSC.mp4" type="video/mp4"></source>
-                            </video>
-                        }
+
                     </div>
                 </div>
 
