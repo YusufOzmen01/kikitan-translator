@@ -26,7 +26,12 @@ public class Microphone : ICapture
         #endif
     }
 
-    public DeviceInfo[] GetCaptureDevices() => _engine.CaptureDevices;
+    public DeviceInfo[] GetCaptureDevices()
+    {
+        _engine.UpdateAudioDevicesInfo();
+
+        return _engine.CaptureDevices;
+    }
 
     public void Start()
     {
