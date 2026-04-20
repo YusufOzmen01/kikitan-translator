@@ -4,8 +4,6 @@ using KikitanTranslator.Base.Translators;
 using KikitanTranslator.Capture;
 using KikitanTranslator.Recognizers;
 using KikitanTranslator.Utility;
-using SoundFlow.Backends.MiniAudio;
-using SoundFlow.Backends.MiniAudio.Enums;
 using SoundFlow.Structs;
 
 namespace KikitanTranslator.Photino;
@@ -24,13 +22,7 @@ public class Manager
     public event OnKikitanData? OnMicrophoneData;
     public event OnRecognizerStatus? OnRecognizerStatusData;
 
-    private Microphone _mic;
-
-    public Manager()
-    {
-        _translator = new GoogleTranslate();
-        _mic = new Microphone();
-    }
+    private Microphone _mic = new();
 
     public DeviceInfo[] GetMicrophones() => _mic.GetCaptureDevices();
     public bool IsRunning() => _running;
@@ -41,7 +33,10 @@ public class Manager
 
         IRecognizer r;
         if (AppConfig.ConfigObject.Recognizer == 0) r = new Bing(_mic);
-        else r = new Bing(_mic); // TODO: Use another one
+        else r = new GroqRecognizer(_mic);
+        
+        if (AppConfig.ConfigObject.Translator == 0) _translator = new GoogleTranslate();
+        else _translator = new GroqTranslator();
         
         _microphoneKikitan = new Kikitan(r, _translator);
         _microphoneKikitan.AddOutput(new Custom((recognized, translated, final) => OnMicrophoneData?.Invoke(recognized, translated, final)));

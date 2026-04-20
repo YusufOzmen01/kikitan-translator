@@ -15,6 +15,6 @@ public interface IRecognizer : IDisposable
     public void Start(string language);
     public void Stop();
     public RecognizerStatus Status();
-    public event OnRecognition OnRecognitionReceived;
+    public event OnRecognition OnRecognitionReceived;   
     public event OnRecognizerStatus OnRecognizerStatusChanged;
 }

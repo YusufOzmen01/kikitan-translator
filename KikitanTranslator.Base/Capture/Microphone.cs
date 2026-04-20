@@ -4,6 +4,8 @@ using SoundFlow.Abstracts.Devices;
 using SoundFlow.Backends.MiniAudio;
 using SoundFlow.Backends.MiniAudio.Enums;
 using SoundFlow.Enums;
+using SoundFlow.Extensions.WebRtc.Apm;
+using SoundFlow.Extensions.WebRtc.Apm.Modifiers;
 using SoundFlow.Structs;
 
 namespace KikitanTranslator.Capture;
@@ -11,9 +13,11 @@ namespace KikitanTranslator.Capture;
 public class Microphone : ICapture
 {
     public event OnData? OnDataReceived;
-    private AudioCaptureDevice? _captureDevice;
     private bool _paused;
+    
     private MiniAudioEngine _engine;
+    private WebRtcApmModifier? _apmModifier;
+    private AudioCaptureDevice? _captureDevice;
     private SileroVad _vad = new();
     
     public uint GetSampleRate() => 16000;
@@ -73,6 +77,12 @@ public class Microphone : ICapture
             _captureDevice = _engine.InitializeCaptureDevice(device, audioFormat);
             _captureDevice.OnAudioProcessed += AudioProcessCallback;
             _captureDevice.Start();
+            _apmModifier = new WebRtcApmModifier(
+                device: _captureDevice,
+                aecEnabled: true,
+                agc1Enabled: true,
+                hpfEnabled: true
+            );
         } catch (Exception e)
         {
             Log.Error($"\x1b[33m[MIC]  Error initializing capture: {e}. Restarting with default mic");
@@ -91,6 +101,8 @@ public class Microphone : ICapture
         if (_captureDevice == null) return;
         
         _captureDevice.Stop();
+        _apmModifier?.Dispose();
+        _apmModifier = null;
         _captureDevice = null;
         
         Log.Information("\x1b[33m[MIC]  Capture has stopped");
@@ -113,13 +125,12 @@ public class Microphone : ICapture
     private void AudioProcessCallback(Span<float> samples, Capability capability)
     {
         if (_paused) return;
+        _apmModifier?.Process(samples, samples.Length);
         float[] sampleArray = samples.ToArray();
         
         bool part1 = _vad.SpeechDetection(sampleArray.Take(480).ToArray());
         bool part2 = _vad.SpeechDetection(sampleArray.Skip(480).ToArray());
         
-        Console.WriteLine($"Part 1: {part1} - Part 2: {part2}");
-        
-        OnDataReceived?.Invoke(samples.ToArray(), false);
+        OnDataReceived?.Invoke(samples.ToArray(), part1 || part2);
     }
 }
