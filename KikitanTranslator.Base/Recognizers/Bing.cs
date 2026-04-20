@@ -175,7 +175,7 @@ public class Bing(ICapture capture) : IRecognizer
     
     public RecognizerStatus Status() => _status;
 
-    private void OnAudioData(float[] samples)
+    private void OnAudioData(float[] samples, bool speech)
     {
         var byteArray = new byte[samples.Length * 2]; 
 

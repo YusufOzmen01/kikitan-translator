@@ -88,11 +88,7 @@ public class Program
 
         Task.Run(() =>
         {
-            #if WINDOWS
-            var engine = new MiniAudioEngine();
-            #else
-            var engine = new MiniAudioEngine(backendPriority:[MiniAudioBackend.Oss]);
-            #endif
+            var engine = new MiniAudioEngine(backendPriority:[MiniAudioBackend.Wasapi, MiniAudioBackend.Oss]);
 
             List<Mic> mics = new();
 

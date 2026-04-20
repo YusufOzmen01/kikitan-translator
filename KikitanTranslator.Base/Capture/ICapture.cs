@@ -1,6 +1,6 @@
 ﻿namespace KikitanTranslator.Capture;
 
-public delegate void OnData(float[] samples);
+public delegate void OnData(float[] samples, bool speech);
 
 public interface ICapture
 {

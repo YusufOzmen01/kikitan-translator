@@ -14,16 +14,13 @@ public class Microphone : ICapture
     private AudioCaptureDevice? _captureDevice;
     private bool _paused;
     private MiniAudioEngine _engine;
+    private SileroVad _vad = new();
     
     public uint GetSampleRate() => 16000;
 
     public Microphone()
     {
-            #if WINDOWS
-            _engine = new MiniAudioEngine();
-            #else
-            _engine = new MiniAudioEngine(backendPriority:[MiniAudioBackend.Oss]);
-            #endif
+        _engine = new MiniAudioEngine(backendPriority:[MiniAudioBackend.Wasapi, MiniAudioBackend.Oss]);
     }
 
     public DeviceInfo[] GetCaptureDevices()
@@ -116,7 +113,13 @@ public class Microphone : ICapture
     private void AudioProcessCallback(Span<float> samples, Capability capability)
     {
         if (_paused) return;
+        float[] sampleArray = samples.ToArray();
         
-        OnDataReceived?.Invoke(samples.ToArray());
+        bool part1 = _vad.SpeechDetection(sampleArray.Take(480).ToArray());
+        bool part2 = _vad.SpeechDetection(sampleArray.Skip(480).ToArray());
+        
+        Console.WriteLine($"Part 1: {part1} - Part 2: {part2}");
+        
+        OnDataReceived?.Invoke(samples.ToArray(), false);
     }
 }
