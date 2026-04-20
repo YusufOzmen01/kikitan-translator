@@ -38,6 +38,7 @@ import {
     controlKikitan,
     getConfig,
     getMicrophones, manualTranslate,
+    registerMicrophoneListCallback,
     registerRecognitionCallback,
     registerStatusCallback,
     setConfig
@@ -89,23 +90,25 @@ export default function Kikitan() {
             setCurrentMicrophone(config.microphone);
             setLightMode(config.light_mode)
             setSttOnly(config.speech_to_text_only)
-
-            const mics = await getMicrophones();
-            mics.sort((a, _) => a.default ? -1 : 1)
-            
-            if (mics.filter(a => a.name == config.microphone).length == 0) {
-                showNotification(localization.microphone_updated[lang], "warning")
-                
-                setConfig("microphone", mics[0].name)
-            }
-
-            setMicrophones(mics);
         }, 100);
+
+        registerMicrophoneListCallback(async mics => {
+            mics.sort((a, _) => a.default ? -1 : 1)
+
+            // const config = await getConfig();
+            // if (mics.filter(a => a.name == config.microphone).length == 0) {
+            //     showNotification(localization.microphone_updated[lang], "warning")
+                
+            //     setConfig("microphone", microphones[0].name)
+            // }
+
+            setMicrophones(mics);   
+        })
         
         registerRecognitionCallback((r, t, f) => {
             setDetecting(!f);
             setDetection(r);
-            setTranslation(t);
+            if (t.length != 0) setTranslation(t);
             
             if (f) {
                 var copy = messageHistory;

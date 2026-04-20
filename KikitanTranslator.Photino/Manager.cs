@@ -33,9 +33,12 @@ public class Manager
     }
 
     public DeviceInfo[] GetMicrophones() => _mic.GetCaptureDevices();
+    public bool IsRunning() => _running;
     
     public void Start()
     {
+        if (_running) return;
+
         IRecognizer r;
         if (AppConfig.ConfigObject.Recognizer == 0) r = new Bing(_mic);
         else r = new Bing(_mic); // TODO: Use another one

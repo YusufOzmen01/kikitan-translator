@@ -6,6 +6,9 @@ using KikitanTranslator.Utility;
 using Newtonsoft.Json;
 using Photino.NET;
 using Photino.NET.Server;
+using SoundFlow.Backends.MiniAudio;
+using SoundFlow.Backends.MiniAudio.Enums;
+using SoundFlow.Structs;
 
 public class ConfigUpdate
 {
@@ -82,6 +85,31 @@ public class Program
                 status = status
             })
         }));
+
+        Task.Run(() =>
+        {
+            #if WINDOWS
+            var engine = new MiniAudioEngine();
+            #else
+            var engine = new MiniAudioEngine(backendPriority:[MiniAudioBackend.Oss]);
+            #endif
+
+            List<Mic> mics = new();
+
+            while (true)
+            {
+                engine.UpdateAudioDevicesInfo();
+                foreach (var mic in engine.CaptureDevices)
+                {
+                    mics.Add(new Mic { Name = mic.Name, Default = mic.IsDefault});
+                }
+
+                wSender?.SendWebMessage(JsonConvert.SerializeObject(new Message { Method = "microphone_list", Data = JsonConvert.SerializeObject(mics.ToArray()) }));
+                mics.Clear();
+
+                Task.Delay(500);
+            }
+        });
         
         window.WaitForClose();
     }

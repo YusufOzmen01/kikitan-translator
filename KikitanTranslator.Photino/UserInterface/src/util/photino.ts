@@ -3,6 +3,7 @@
 const pendingRequests = new Map();
 var recognitionCallback: ((r: string, t: string, f: boolean) => void) | null = null;
 var statusCallback: ((status: number) => void) | null = null;
+var microphoneListCallback: ((mics: {name: string, default: boolean}[]) => void) | null = null;
 
 export function init() {
     // @ts-ignore
@@ -25,23 +26,15 @@ export function init() {
             statusCallback?.(data.status);
             
             return;
+        } else if (response.method == "microphone_list") {
+            microphoneListCallback?.(data);
+            
+            return;
         }
 
         const resolve = pendingRequests.get(response.method);
         resolve(JSON.parse(response.data));
         pendingRequests.delete(response.method);
-    });
-}
-
-export async function getMicrophones(): Promise<{name: string, default: boolean}[]> {
-    return new Promise((resolve, _) => {
-        pendingRequests.set("get_microphones", resolve);
-        
-        // @ts-ignore
-        window.external.sendMessage(JSON.stringify({
-            method: "get_microphones",
-            data: ""
-        }));
     });
 }
 
@@ -95,4 +88,8 @@ export function registerRecognitionCallback(callback: (r: string, t: string, f: 
 
 export function registerStatusCallback(callback: (status: number) => void) {
     statusCallback = callback;
+}
+
+export function registerMicrophoneListCallback(callback: (mics: {name: string, default: boolean}[]) => void) {
+    microphoneListCallback = callback;
 }

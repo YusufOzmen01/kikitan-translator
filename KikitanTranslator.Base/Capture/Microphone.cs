@@ -19,11 +19,11 @@ public class Microphone : ICapture
 
     public Microphone()
     {
-        #if WINDOWS
-        _engine = new MiniAudioEngine();
-        #else
-        _engine = new MiniAudioEngine(backendPriority:[MiniAudioBackend.Oss]);
-        #endif
+            #if WINDOWS
+            _engine = new MiniAudioEngine();
+            #else
+            _engine = new MiniAudioEngine(backendPriority:[MiniAudioBackend.Oss]);
+            #endif
     }
 
     public DeviceInfo[] GetCaptureDevices()
@@ -52,6 +52,7 @@ public class Microphone : ICapture
         if (AppConfig.ConfigObject.Microphone.Length == 0)
         {
             device = _engine.CaptureDevices.First(d => d.IsDefault);
+            AppConfig.ConfigObject.Microphone = device.Value.Name;
                 
             Log.Warning($"\x1b[33m[MIC]  No microphone was selected, using the default device ({device.Value.Name}) for capture");
         }
