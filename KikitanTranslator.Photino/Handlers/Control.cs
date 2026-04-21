@@ -6,6 +6,8 @@ public class Control(Manager manager) : IHandler
     {
         if (data == "OFF") manager.Stop();
         else manager.Start();
+        
+        manager.SendUpdateToUI();
 
         return "";
     }
