@@ -34,6 +34,7 @@ public class GroqRecognizer : IRecognizer
     public void Start(string language)
     {
         if (_status == RecognizerStatus.Running) return;
+        _status = RecognizerStatus.Connecting;
         
         _speechBuffer.Clear();
         _isCollectingSpeech = false;
