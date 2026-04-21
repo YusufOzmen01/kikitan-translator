@@ -52,11 +52,11 @@ public class UpdateConfig(Manager manager) : IHandler
                 
                 break;
             case "chatbox_wait_per_char_ms":
-                AppConfig.ConfigObject.ChatboxWaitPerCharMs = (int) d.Value;
+                AppConfig.ConfigObject.ChatboxWaitPerCharMs = Convert.ToInt32((long) d.Value);
                 
                 break;
             case "osc_port":
-                AppConfig.ConfigObject.OscPort = (int) d.Value;
+                AppConfig.ConfigObject.OscPort = Convert.ToInt32((long) d.Value);
                 
                 break;
             case "send_to_chatbox":
