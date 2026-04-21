@@ -6,6 +6,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
+        <ApplicationIcon>Resources/wwwroot/kikitan_logo.ico</ApplicationIcon>
     </PropertyGroup>
 
     <ItemGroup>
