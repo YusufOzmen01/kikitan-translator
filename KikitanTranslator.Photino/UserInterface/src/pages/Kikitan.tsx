@@ -29,6 +29,7 @@ import {
 } from "@mui/icons-material";
 
 import {
+    app_state,
     langSource,
     langTo,
 } from "../util/constants";
@@ -36,31 +37,18 @@ import {
 import { localization } from "../util/localization";
 import {
     controlKikitan,
-    getConfig,
-    getMicrophones, manualTranslate,
-    registerMicrophoneListCallback,
+    manualTranslate, registerMicrophoneChangedCallback,
     registerRecognitionCallback,
-    registerStatusCallback,
     setConfig
 } from "../util/photino.ts";
 
-export default function Kikitan() {
-    const [lang, setLang] = React.useState<"en" | "jp" | "cn" | "kr" | "tr">("en")
-    const [sourceLanguage, setSourceLanguage] = React.useState("en")
-    const [targetLanguage, setTargetLanguage] = React.useState("en")
-    const [lightMode, setLightMode] = React.useState<boolean>(false)
-    const [sttOnly, setSttOnly] = React.useState<boolean>(false)
+export default function Kikitan({ state }: { state: app_state }) {
     const [messageHistory, setMessageHistory] = React.useState<{ source: string, translation: string, timestamp: number }[]>([])
     
     const [detecting, setDetecting] = React.useState(false);
-    const [srStatus, setSRStatus] = React.useState(true);
-    const [srLoading, setSRLoading] = React.useState(false)
     
     const [detection, setDetection] = React.useState<string>("");
     const [translation, setTranslation] = React.useState("");
-
-    const [microphones, setMicrophones] = React.useState<{name: string, default: boolean}[]>([])
-    const [currentMicrophone, setCurrentMicrophone] = React.useState<string>("")
 
     const [showMessageHistory, setShowMessageHistory] = React.useState(false);
 
@@ -79,32 +67,13 @@ export default function Kikitan() {
         setNotification({ open: true, message, severity });
     };
     
+    const getStatusColor = (): "success" | "inherit" | "error" => {
+        // @ts-ignore
+        return ["success", "inherit", "error"][state.status]
+    }
+    
     React.useEffect(() => {
         // @ts-ignore
-        setInterval(async () => {
-            const config = await getConfig();
-            
-            setLang(config.language);
-            setSourceLanguage(config.source_language);
-            setTargetLanguage(config.target_language);
-            setCurrentMicrophone(config.microphone);
-            setLightMode(config.light_mode)
-            setSttOnly(config.speech_to_text_only)
-        }, 100);
-
-        registerMicrophoneListCallback(async mics => {
-            mics.sort((a, _) => a.default ? -1 : 1)
-
-            // const config = await getConfig();
-            // if (mics.filter(a => a.name == config.microphone).length == 0) {
-            //     showNotification(localization.microphone_updated[lang], "warning")
-                
-            //     setConfig("microphone", microphones[0].name)
-            // }
-
-            setMicrophones(mics);   
-        })
-        
         registerRecognitionCallback((r, t, f) => {
             setDetecting(!f);
             setDetection(r);
@@ -126,16 +95,10 @@ export default function Kikitan() {
             }
         });
         
-        registerStatusCallback((status) => {
-            console.log(status)
-            
-            setSRLoading(status == 1);
-            setSRStatus(status == 2);
-        });
+        registerMicrophoneChangedCallback(() => showNotification(localization.microphone_updated[state.config.language], "warning"))
+        controlKikitan(true)
         
         if (sessionStorage.getItem("history") != null) setMessageHistory(JSON.parse(sessionStorage.getItem("history")!))
-        
-        controlKikitan(true)
     }, []);
 
     const formatTimestamp = (timestamp: number) => {
@@ -156,25 +119,25 @@ export default function Kikitan() {
                     }
                 >
                     <div
-                        className={`flex flex-col w-10/12 h-96 outline outline-1 ${lightMode
+                        className={`flex flex-col w-10/12 h-96 outline outline-1 ${state.config.light_mode
                             ? "outline-white"
                             : "outline-slate-900"
-                            } rounded ${lightMode ? "bg-white" : "bg-slate-950"
+                            } rounded ${state.config.light_mode ? "bg-white" : "bg-slate-950"
                             } p-4 overflow-hidden`}
                     >
                         <div className="flex justify-between items-center mb-4">
                             <h2
-                                className={`text-xl font-bold ${lightMode
+                                className={`text-xl font-bold ${state.config.light_mode
                                     ? "text-black"
                                     : "text-white"
                                     }`}
                             >
-                                {localization.message_history[lang]}
+                                {localization.message_history[state.config.language]}
                             </h2>
                             <IconButton
                                 onClick={() => setShowMessageHistory(false)}
                                 sx={{
-                                    color: lightMode
+                                    color: state.config.light_mode
                                         ? "rgba(0, 0, 0, 0.87)"
                                         : "#ffffff",
                                 }}
@@ -190,12 +153,12 @@ export default function Kikitan() {
                             {messageHistory.length === 0 ? (
                                 <div className="flex items-center justify-center h-full">
                                     <span
-                                        className={`text-sm italic ${lightMode
+                                        className={`text-sm italic ${state.config.light_mode
                                             ? "text-gray-500"
                                             : "text-gray-400"
                                             }`}
                                     >
-                                        {localization.no_history[lang]}
+                                        {localization.no_history[state.config.language]}
                                     </span>
                                 </div>
                             ) : (
@@ -204,13 +167,13 @@ export default function Kikitan() {
                                         (item, index) => (
                                             <div
                                                 key={index}
-                                                className={`p-3 rounded-md ${lightMode
+                                                className={`p-3 rounded-md ${state.config.light_mode
                                                     ? "bg-gray-100"
                                                     : "bg-slate-900"
                                                     }`}
                                             >
                                                 <div
-                                                    className={`text-xs mb-1 ${lightMode
+                                                    className={`text-xs mb-1 ${state.config.light_mode
                                                         ? "text-gray-500"
                                                         : "text-gray-400"
                                                         }`}
@@ -218,7 +181,7 @@ export default function Kikitan() {
                                                     {formatTimestamp(item.timestamp)}
                                                 </div>
                                                 <div
-                                                    className={`font-medium ${lightMode
+                                                    className={`font-medium ${state.config.light_mode
                                                         ? "text-black"
                                                         : "text-white"
                                                         }`}
@@ -226,7 +189,7 @@ export default function Kikitan() {
                                                     {item.source}
                                                 </div>
                                                 <div
-                                                    className={`mt-1 ${lightMode
+                                                    className={`mt-1 ${state.config.light_mode
                                                         ? "text-gray-800"
                                                         : "text-gray-300"
                                                         }`}
@@ -251,10 +214,10 @@ export default function Kikitan() {
                     }
                 >
                     <div
-                        className={`flex flex-col justify-center w-7/12 h-2/6 outline outline-1 ${lightMode
+                        className={`flex flex-col justify-center w-7/12 h-2/6 outline outline-1 ${state.config.light_mode
                             ? "outline-white"
                             : "outline-slate-900"
-                            } rounded ${lightMode ? "bg-white" : "bg-slate-950"
+                            } rounded ${state.config.light_mode ? "bg-white" : "bg-slate-950"
                             }`}
                     >
                         <div className="flex flex-row justify-center gap-2">
@@ -262,21 +225,21 @@ export default function Kikitan() {
                                 slotProps={{
                                     inputLabel: {
                                         style: {
-                                            color: lightMode
+                                            color: state.config.light_mode
                                                 ? "black"
                                                 : "#94A3B8",
                                         },
                                     },
                                     htmlInput: {
                                         style: {
-                                            color: lightMode
+                                            color: state.config.light_mode
                                                 ? "black"
                                                 : "#fff",
                                         },
                                     },
                                 }}
                                 inputRef={textInputRef}
-                                placeholder={localization.type_here[lang]}
+                                placeholder={localization.type_here[state.config.language]}
                                 className="mt-2 w-48"
                                 value={textInputValue}
                                 id="outlined-basic"
@@ -303,7 +266,7 @@ export default function Kikitan() {
                                     setTextInputValue("");
                                 }}
                             >
-                                {localization.send[lang]}
+                                {localization.send[state.config.language]}
                             </Button>
                             <Button
                                 variant="contained"
@@ -314,7 +277,7 @@ export default function Kikitan() {
                                     setTextInputValue("");
                                 }}
                             >
-                                {localization.close_menu[lang]}
+                                {localization.close_menu[state.config.language]}
                             </Button>
                         </div>
                     </div>
@@ -324,56 +287,56 @@ export default function Kikitan() {
                     <div>
                         <div
                             className={`mr-16 w-96 h-48 outline outline-1 transition-all rounded-md font-bold text-center ${detecting
-                                ? "italic " + lightMode
+                                ? "italic " + state.config.light_mode
                                     ? "text-slate-400 outline-slate-800"
                                     : "text-slate-200 outline-slate-400"
-                                : lightMode
+                                : state.config.light_mode
                                     ? "text-black"
                                     : "text-slate-200"
-                                } ${srStatus ? "" : lightMode ? "bg-gray-400" : "bg-gray-700"}`}
+                                } ${state.status == 2 ? "" : state.config.light_mode ? "bg-gray-400" : "bg-gray-700"}`}
                         >
                             <p className="align-middle">{detection}</p>
                         </div>
                         <div className="flex">
                             <Select
                                 sx={{
-                                    color: lightMode
+                                    color: state.config.light_mode
                                         ? "black"
                                         : "white",
                                     textAlign: "right",
                                     "& .MuiOutlinedInput-notchedOutline": {
-                                        borderColor: lightMode
+                                        borderColor: state.config.light_mode
                                             ? "black"
                                             : "#94A3B8",
                                     },
                                     "&:hover .MuiOutlinedInput-notchedOutline":
                                     {
-                                        borderColor: lightMode
+                                        borderColor: state.config.light_mode
                                             ? "black"
                                             : "#94A3B8",
                                     },
                                     "& .MuiSvgIcon-root": {
-                                        color: lightMode
+                                        color: state.config.light_mode
                                             ? "black"
                                             : "#94A3B8",
                                     },
                                     "&.Mui-disabled": {
-                                        color: lightMode
+                                        color: state.config.light_mode
                                             ? "black"
                                             : "white",
                                         "& .MuiOutlinedInput-notchedOutline": {
-                                            borderColor: lightMode
+                                            borderColor: state.config.light_mode
                                                 ? "black"
                                                 : "#94A3B8",
                                         },
                                         "&:hover .MuiOutlinedInput-notchedOutline":
                                         {
-                                            borderColor: lightMode
+                                            borderColor: state.config.light_mode
                                                 ? "black"
                                                 : "#94A3B8",
                                         },
                                         "& .MuiSvgIcon-root": {
-                                            color: lightMode
+                                            color: state.config.light_mode
                                                 ? "black"
                                                 : "#94A3B8",
                                         },
@@ -382,14 +345,14 @@ export default function Kikitan() {
                                 MenuProps={{
                                     sx: {
                                         "& .MuiPaper-root": {
-                                            backgroundColor: lightMode
+                                            backgroundColor: state.config.light_mode
                                                 ? "#94A3B8"
                                                 : "#020617",
                                         },
                                     },
                                 }}
                                 className="mt-4 ml-auto h-14"
-                                value={sourceLanguage}
+                                value={state.config.source_language}
                                 onChange={(e) => {
                                     setConfig("source_language", e.target.value)
                                 }}
@@ -398,14 +361,14 @@ export default function Kikitan() {
                                     return (
                                         <MenuItem
                                             sx={{
-                                                color: lightMode
+                                                color: state.config.light_mode
                                                     ? "black"
                                                     : "white",
                                             }}
                                             key={element.code}
                                             value={element.code}
                                         >
-                                            {element.name[lang]}
+                                            {element.name[state.config.language]}
                                         </MenuItem>
                                     );
                                 })}
@@ -414,46 +377,43 @@ export default function Kikitan() {
                                 <MicIcon className="ml-3" />
                                 <Button
                                     onClick={() => {
-                                        const new_t = sourceLanguage;
-                                        const new_s = targetLanguage;
-
-                                        setConfig("source_language", new_s)
-                                        setConfig("target_language", new_t)
+                                        setConfig("source_language", state.config.source_language)
+                                        setConfig("target_language", state.config.target_language)
                                     }}
                                 > <SwapHorizIcon /> </Button>
                             </div>
                         </div>
                     </div>
                     <div>
-                        <div className={`w-96 h-48 outline outline-1 transition-all rounded-md ${lightMode
+                        <div className={`w-96 h-48 outline outline-1 transition-all rounded-md ${state.config.light_mode
                             ? "text-black outline-slate-800"
                             : "text-slate-200 outline-slate-400"
-                            } font-bold text-center ${(srStatus && !sttOnly) ? "" : lightMode ? "bg-gray-400" : "bg-gray-700"
+                            } font-bold text-center ${(state.status == 2 && !state.config.speech_to_text_only) ? "" : state.config.light_mode ? "bg-gray-400" : "bg-gray-700"
                             }`}>
                             <p className={`transition-all duration-300 align-middle`} >
-                                {sttOnly ? localization.translation_disabled[lang] : translation}
+                                {state.config.speech_to_text_only ? localization.translation_disabled[state.config.language] : translation}
                             </p>
                         </div>
                         <div>
                             <TranslateIcon className="mr-3" />
                             <Select
                                 sx={{
-                                    color: lightMode
+                                    color: state.config.light_mode
                                         ? "black"
                                         : "white",
                                     "& .MuiOutlinedInput-notchedOutline": {
-                                        borderColor: lightMode
+                                        borderColor: state.config.light_mode
                                             ? "black"
                                             : "#94A3B8",
                                     },
                                     "&:hover .MuiOutlinedInput-notchedOutline":
                                     {
-                                        borderColor: lightMode
+                                        borderColor: state.config.light_mode
                                             ? "black"
                                             : "#94A3B8",
                                     },
                                     "& .MuiSvgIcon-root": {
-                                        color: lightMode
+                                        color: state.config.light_mode
                                             ? "black"
                                             : "#94A3B8",
                                     },
@@ -461,14 +421,14 @@ export default function Kikitan() {
                                 MenuProps={{
                                     sx: {
                                         "& .MuiPaper-root": {
-                                            backgroundColor: lightMode
+                                            backgroundColor: state.config.light_mode
                                                 ? "#94A3B8"
                                                 : "#020617",
                                         },
                                     },
                                 }}
                                 className="mt-4"
-                                value={targetLanguage}
+                                value={state.config.target_language}
                                 onChange={(e) => {
                                     setConfig("target_language", e.target.value)
                                 }}
@@ -477,14 +437,14 @@ export default function Kikitan() {
                                     return (
                                         <MenuItem
                                             sx={{
-                                                color: lightMode
+                                                color: state.config.light_mode
                                                     ? "black"
                                                     : "white",
                                             }}
                                             key={element.code}
                                             value={element.code}
                                         >
-                                            {element.name[lang]}
+                                            {element.name[state.config.language]}
                                         </MenuItem>
                                     );
                                 })}
@@ -497,7 +457,7 @@ export default function Kikitan() {
                 <Button
                     variant="outlined"
                     size="medium"
-                    disabled={!srStatus}
+                    disabled={state.status != 2}
                     onClick={() => {
                         if (!textInputVisible) {
                             textInputRef.current?.focus();
@@ -506,30 +466,30 @@ export default function Kikitan() {
                         setTextInputVisible(!textInputVisible);
                     }}
                 >
-                    <p>{localization.text[lang]}</p>{" "}
+                    <p>{localization.text[state.config.language]}</p>{" "}
                     {<Keyboard className="ml-2" fontSize="small" />}
                 </Button>
                 <Button
                     variant="outlined"
                     size="medium"
-                    color={srStatus ? !srLoading ? "error" : "inherit" : "success"}
-                    disabled={srLoading}
+                    color={getStatusColor()}
+                    disabled={state.status == 1}
                     sx={{
                         '&.Mui-disabled': {
-                            borderColor: lightMode ? 'rgba(0, 0, 0, 0.4)' : 'rgba(148, 163, 184, 0.5)',
-                            color: lightMode ? 'rgba(0, 0, 0, 0.4)' : 'rgba(148, 163, 184, 0.5)',
+                            borderColor: state.config.light_mode ? 'rgba(0, 0, 0, 0.4)' : 'rgba(148, 163, 184, 0.5)',
+                            color: state.config.light_mode ? 'rgba(0, 0, 0, 0.4)' : 'rgba(148, 163, 184, 0.5)',
                         },
                     }}
                     onClick={() => {
-                        controlKikitan(!srStatus)
+                        controlKikitan(state.status == 0)
                     }}
                 >
                     <p>
-                        {!srStatus ? localization.start[lang] : !srLoading ? localization.stop[lang] : ""}
+                        {state.status == 0 ? localization.start[state.config.language] : state.status == 2 ? localization.stop[state.config.language] : ""}
                     </p>
-                    {srLoading ? (<CircularProgress color="inherit" size={16} />) : srStatus ? (<PauseIcon fontSize="small" />) : (<PlayArrowIcon fontSize="small" />)}
+                    {state.status == 1 ? (<CircularProgress color="inherit" size={16} />) : state.status == 2 ? (<PauseIcon fontSize="small" />) : (<PlayArrowIcon fontSize="small" />)}
                 </Button>
-                <Tooltip title={localization.message_history[lang]}>
+                <Tooltip title={localization.message_history[state.config.language]}>
                     <Button
                         variant="outlined"
                         size="medium"
@@ -546,42 +506,42 @@ export default function Kikitan() {
                     <KeyboardVoiceIcon fontSize="small" className="mt-3" />
                     <Select
                         sx={{
-                            color: lightMode
+                            color: state.config.light_mode
                                 ? "black"
                                 : "white",
                             "& .MuiOutlinedInput-notchedOutline": {
-                                borderColor: lightMode
+                                borderColor: state.config.light_mode
                                     ? "black"
                                     : "#94A3B8",
                             },
                             "&:hover .MuiOutlinedInput-notchedOutline":
                             {
-                                borderColor: lightMode
+                                borderColor: state.config.light_mode
                                     ? "black"
                                     : "#94A3B8",
                             },
                             "& .MuiSvgIcon-root": {
-                                color: lightMode
+                                color: state.config.light_mode
                                     ? "black"
                                     : "#94A3B8",
                             },
                             "&.Mui-disabled": {
-                                color: lightMode
+                                color: state.config.light_mode
                                     ? "black"
                                     : "white",
                                 "& .MuiOutlinedInput-notchedOutline": {
-                                    borderColor: lightMode
+                                    borderColor: state.config.light_mode
                                         ? "black"
                                         : "#94A3B8",
                                 },
                                 "&:hover .MuiOutlinedInput-notchedOutline":
                                 {
-                                    borderColor: lightMode
+                                    borderColor: state.config.light_mode
                                         ? "black"
                                         : "#94A3B8",
                                 },
                                 "& .MuiSvgIcon-root": {
-                                    color: lightMode
+                                    color: state.config.light_mode
                                         ? "black"
                                         : "#94A3B8",
                                 },
@@ -590,32 +550,32 @@ export default function Kikitan() {
                         MenuProps={{
                             sx: {
                                 "& .MuiPaper-root": {
-                                    backgroundColor: lightMode
+                                    backgroundColor: state.config.light_mode
                                         ? "#94A3B8"
                                         : "#020617",
                                 },
                             },
                         }}
                         className="ml-4 h-12 w-52"
-                        value={currentMicrophone}
+                        value={state.config.microphone}
                         onChange={(e) => {
                             console.log(e.target.value)
 
                             setConfig("microphone", e.target.value)
                         }}
                     >
-                        {microphones.map((element) => {
+                        {state.microphones.map((element) => {
                             return (
                                 <MenuItem
                                     sx={{
-                                        color: lightMode
+                                        color: state.config.light_mode
                                             ? "black"
                                             : "white",
                                     }}
                                     key={element.name}
                                     value={element.name}
                                 >
-                                    {(element.name.includes("(") && element.name.includes(")")) ? element.name.match(/\(([^)]+)\)/)?.[1] : element.name}{element.default ? ` (${localization.default[lang]})` : ""}
+                                    {(element.name.includes("(") && element.name.includes(")")) ? element.name.match(/\(([^)]+)\)/)?.[1] : element.name}{element.default ? ` (${localization.default[state.config.language]})` : ""}
                                 </MenuItem>
                             );
                         })}

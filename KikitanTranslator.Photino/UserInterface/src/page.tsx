@@ -22,36 +22,34 @@ import {
 
 import Changelogs from './pages/Changelogs';
 import { localization } from './util/localization';
-import {controlKikitan, getConfig, openURL, setConfig} from "./util/photino.ts";
+import {controlKikitan, openURL, registerStateCallback, sendAppState, setConfig} from "./util/photino.ts";
 import QuickstartMenu from "./components/Quickstart.tsx";
 import SettingsPage from "./pages/Settings.tsx";
+import {app_state} from "./util/constants.ts";
 
 const appVersion = "2.0.0-rc.1"
 
 function App() {
-  const [quickstartVisible, setQuickstartVisible] = React.useState(true)
   const [changelogsVisible, setChangelogsVisible] = React.useState(false)
   const [settingsVisible, setSettingsVisible] = React.useState(false)
   const [donateVisible, setDonateVisible] = React.useState(false)
-  const [lightMode, setLightMode] = React.useState<boolean>(false)
   
-  const [mode, setMode] = React.useState<number>(0)
-  const [lang, setLang] = React.useState<"en" | "jp" | "cn" | "kr" | "tr">("en")
+  const [stateUpdated, setStateUpdated] = React.useState<boolean>(false)
+  // @ts-ignore
+  const [appState, setAppState] = React.useState<app_state>({});
 
   const [loaded, setLoaded] = React.useState(false)
 
   React.useEffect(() => {
     setTimeout(() => setLoaded(true), 300);
-
-    // @ts-ignore
-    setInterval(async () => {
-      const config = await getConfig();
-
-      setLang(config.language);
-      setMode(config.speech_to_text_only ? 1 : 0)
-      setLightMode(config.light_mode)
-      setQuickstartVisible(!config.quickstart_viewed)
-    }, 100);
+    
+    sendAppState()
+    registerStateCallback(state => {
+      console.log(state)
+      
+      setAppState(state)
+      setStateUpdated(!stateUpdated)
+    })
 
     if (localStorage.getItem("last_donation") == null) {
       localStorage.setItem("last_donation", "1")
@@ -64,18 +62,18 @@ function App() {
       }
     }
   }, [])
-
+  
   return (
     <>
-      <div className={`relative transition-all duration-500 ${!loaded ? "opacity-0 pointer-events-none" : "opacity-100"} ${!lightMode ? "bg-slate-950 text-white" : ""}`}>
-        <div className={`transition-all z-20 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute` + (quickstartVisible && lang != null ? " opacity-100" : " opacity-0 pointer-events-none")}>
-          <QuickstartMenu></QuickstartMenu>
+      {appState.config != undefined && <div className={`relative transition-all duration-500 ${!loaded ? "opacity-0 pointer-events-none" : "opacity-100"} ${!appState.config.light_mode ? "bg-slate-950 text-white" : ""}`}>
+        <div className={`transition-all z-20 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute` + (!appState.config.quickstart_viewed && appState.config.language != null ? " opacity-100" : " opacity-0 pointer-events-none")}>
+          <QuickstartMenu state={appState}></QuickstartMenu>
         </div>
 
-        <div className={'transition-all z-30 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (donateVisible && !quickstartVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
-          <div className={`flex flex-col justify-center w-6/12 h-3/6 outline outline-1 ${lightMode ? "outline-white" : "outline-slate-950"} rounded ${lightMode ? "bg-white" : "bg-slate-950"}`}>
+        <div className={'transition-all z-30 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (donateVisible && !appState.config.quickstart_viewed ? " opacity-100" : " opacity-0 pointer-events-none")}>
+          <div className={`flex flex-col justify-center w-6/12 h-3/6 outline outline-1 ${appState.config.light_mode ? "outline-white" : "outline-slate-950"} rounded ${appState.config.light_mode ? "bg-white" : "bg-slate-950"}`}>
             <div className='flex flex-row justify-center'>
-              <p className='ml-4 text-md text-center'>{localization.donation_text[lang]}</p>
+              <p className='ml-4 text-md text-center'>{localization.donation_text[appState.config.language]}</p>
             </div>
             <div className='flex justify-center mt-4 gap-2 ml-4 mr-4'>
               <Button variant="contained" color="secondary" className='w-48' onClick={() => { openURL("https://buymeacoffee.com/sergiomarquina") }}><Favorite className='mr-2' /><p className='text-xs'>Buy Me a Coffee</p></Button>
@@ -85,25 +83,25 @@ function App() {
                 <img src="/boothlogo.svg" width={24} className="mr-2"></img>
                 <p className="mt-0.5"><p className='text-xs'>Booth.pm</p></p>
               </Button>
-              <Button variant="contained" className='w-48' onClick={() => { setDonateVisible(false) }}><p className='text-xs'>{localization.close_menu[lang]}</p></Button>
+              <Button variant="contained" className='w-48' onClick={() => { setDonateVisible(false) }}><p className='text-xs'>{localization.close_menu[appState.config.language]}</p></Button>
             </div>
           </div>
         </div>
 
         <div className={'transition-all z-30 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (settingsVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
-          <div className={`flex flex-col justify-between  w-10/12 h-5/6 outline outline-1 ${lightMode ? "outline-slate-400" : "outline-slate-950"} rounded bg-white`}>
-            <SettingsPage closeCallback={() => {
+          <div className={`flex flex-col justify-between  w-10/12 h-5/6 outline outline-1 ${appState.config.light_mode ? "outline-slate-400" : "outline-slate-950"} rounded bg-white`}>
+            <SettingsPage state={appState} closeCallback={() => {
               setSettingsVisible(false)
               controlKikitan(true)
             }} />
           </div>
         </div>
-        {!quickstartVisible && changelogsVisible &&
-          <div className={'transition-all z-30 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (changelogsVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
-            <div className={`flex flex-col justify-between  w-10/12 h-5/6 outline outline-1 ${lightMode ? "outline-slate-400" : "outline-slate-950"} rounded bg-white`}>
-              <Changelogs light_mode={lightMode} lang={lang} closeCallback={() => setChangelogsVisible(false)} />
+        {appState.config.quickstart_viewed && changelogsVisible &&
+            <div className={'transition-all z-30 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (changelogsVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
+              <div className={`flex flex-col justify-between  w-10/12 h-5/6 outline outline-1 ${appState.config.light_mode ? "outline-slate-400" : "outline-slate-950"} rounded bg-white`}>
+                <Changelogs state={appState} closeCallback={() => setChangelogsVisible(false)} />
+              </div>
             </div>
-          </div>
         }
 
         <div className="flex flex-col h-screen z-0">
@@ -125,17 +123,17 @@ function App() {
                   '& .MuiSvgIcon-root': {
                     color: 'white'
                   }
-                }} variant='outlined' className="ml-4 mr-2" value={mode} onChange={(e) => setConfig("speech_to_text_only", e.target.value == 1)}>
-                  <MenuItem value={0}>{localization.translation[lang]}</MenuItem>
-                  <MenuItem value={1}>{localization.stt_only[lang]}</MenuItem>
+                }} variant='outlined' className="ml-4 mr-2" value={appState.config.speech_to_text_only ? 1 : 0} onChange={(e) => setConfig("speech_to_text_only", e.target.value == 1)}>
+                  <MenuItem value={0}>{localization.translation[appState.config.language]}</MenuItem>
+                  <MenuItem value={1}>{localization.stt_only[appState.config.language]}</MenuItem>
                 </Select>
                 <IconButton sx={{
                   color: 'white',
                   '& .MuiSvgIcon-root': {
                     color: 'white'
                   }
-                }} onClick={() => setConfig("light_mode", !lightMode)}>
-                  {lightMode ? <NightsStay /> : <WbSunny />}
+                }} onClick={() => setConfig("light_mode", !appState.config.light_mode)}>
+                  {appState.config.light_mode ? <NightsStay /> : <WbSunny />}
                 </IconButton>
                 <IconButton sx={{
                   color: 'white',
@@ -153,7 +151,7 @@ function App() {
                   '& .MuiSvgIcon-root': {
                     color: 'white'
                   }
-                }} onClick={() => { 
+                }} onClick={() => {
                   controlKikitan(false)
                   setSettingsVisible(true)
                 }}>
@@ -163,10 +161,10 @@ function App() {
             </Toolbar>
           </AppBar>
           <div className='flex flex-1 items-center align-middle flex-col mt-8'>
-            {loaded && !quickstartVisible && <Kikitan />}
+            {loaded && appState.config.quickstart_viewed && <Kikitan state={appState} />}
           </div>
         </div>
-      </div>
+      </div>}
     </>
   )
 }
