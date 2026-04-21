@@ -18,6 +18,12 @@ export type config = {
     groq_api_key: string;
 }
 
+export type app_state = {
+    microphones: { name: string, default: boolean }[];
+    config: config;
+    status: 0 | 1 | 2;
+}
+
 export const langSource = [
     {
         name: {

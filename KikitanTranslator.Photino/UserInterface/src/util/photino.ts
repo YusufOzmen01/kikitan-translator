@@ -1,9 +1,9 @@
-﻿import {config} from "./constants.ts";
+﻿import {app_state} from "./constants.ts";
 
 const pendingRequests = new Map();
 var recognitionCallback: ((r: string, t: string, f: boolean) => void) | null = null;
-var statusCallback: ((status: number) => void) | null = null;
-var microphoneListCallback: ((mics: {name: string, default: boolean}[]) => void) | null = null;
+var stateCallback: ((state: app_state) => void) | null = null;
+var microphoneChangedCallback: (() => void) | null = null;
 
 export function init() {
     // @ts-ignore
@@ -16,21 +16,22 @@ export function init() {
     // @ts-ignore
     window.external.receiveMessage(message => {
         const response = JSON.parse(message);
-        var data = JSON.parse(response.data);
+        if (response.method == "mic_changed") {
+            microphoneChangedCallback?.();
 
+            return;
+        }
+        
+        const data = JSON.parse(response.data);
         if (response.method == "recognition") {
             recognitionCallback?.(data.transcription, data.translation, data.final);
 
             return;
-        } else if (response.method == "status") {
-            statusCallback?.(data.status);
+        } else if (response.method == "state") {
+            stateCallback?.(data);
             
             return;
-        } else if (response.method == "microphone_list") {
-            microphoneListCallback?.(data);
-            
-            return;
-        }
+        } 
 
         const resolve = pendingRequests.get(response.method);
         resolve(JSON.parse(response.data));
@@ -44,18 +45,6 @@ export function setConfig(field: string, value: any) {
         method: "update_config",
         data: JSON.stringify({ field, value })
     }));
-}
-
-export async function getConfig(): Promise<config> {
-    return new Promise((resolve, _) => {
-        pendingRequests.set("get_config", resolve);
-
-        // @ts-ignore
-        window.external.sendMessage(JSON.stringify({
-            method: "get_config",
-            data: ""
-        }));
-    });
 }
 
 export function manualTranslate(data: string) {
@@ -82,14 +71,22 @@ export function openURL(url: string) {
     }));
 }
 
+export function sendAppState() {
+    // @ts-ignore
+    window.external.sendMessage(JSON.stringify({
+        method: "send_app_state",
+        data: ""
+    }));
+}
+
 export function registerRecognitionCallback(callback: (r: string, t: string, f: boolean) => void) {
     recognitionCallback = callback;
 }
 
-export function registerStatusCallback(callback: (status: number) => void) {
-    statusCallback = callback;
+export function registerStateCallback(callback: (state: app_state) => void) {
+    stateCallback = callback;
 }
 
-export function registerMicrophoneListCallback(callback: (mics: {name: string, default: boolean}[]) => void) {
-    microphoneListCallback = callback;
+export function registerMicrophoneChangedCallback(callback: () => void) {
+    microphoneChangedCallback = callback;
 }
