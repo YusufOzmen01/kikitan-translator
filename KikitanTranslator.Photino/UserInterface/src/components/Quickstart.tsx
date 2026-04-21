@@ -38,7 +38,6 @@ export default function QuickstartMenu({ state }: { state: app_state }) {
                                 <MenuItem value={"jp"}>日本語</MenuItem>
                                 <MenuItem value={"cn"}>中文</MenuItem>
                                 <MenuItem value={"kr"}>한국어</MenuItem>
-                                <MenuItem value={"tr"}>Türkçe</MenuItem>
                             </Select>
                         </div>
                     </div>
@@ -60,7 +59,6 @@ export default function QuickstartMenu({ state }: { state: app_state }) {
                                 jp: "/mode_select_screenshots/jp.png",
                                 cn: "/mode_select_screenshots/cn.png",
                                 kr: "/mode_select_screenshots/kr.png",
-                                tr: "/mode_select_screenshots/tr.png"
                             }[state.config.language]
                         } width={240} />
                         <p className='text-md mt-4 text-center'>{localization.mode_selection_details[state.config.language]}</p>
@@ -117,8 +115,6 @@ export default function QuickstartMenu({ state }: { state: app_state }) {
                     </div>
                     <Button disabled={quickstartPage != 4} className={'w-48'} variant='contained' onClick={async () => {
                         setConfig("quickstart_viewed", true)
-
-                        window.location.reload()
                     }}>{localization.close_menu[state.config.language]}</Button>
                 </div>
             </div>

@@ -16,7 +16,6 @@ export default function Scroll({ light_mode }: ScrollProps) {
                     "言語を選択してください",
                     "选择语言",
                     "언어를 선택하세요",
-                    "Dilinizi seçin",
                     "Choose your language",
 
                 ].map((item, index) => (

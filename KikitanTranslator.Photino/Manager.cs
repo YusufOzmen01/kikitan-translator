@@ -98,7 +98,12 @@ public class Manager
 
     public void Start()
     {
-        if (_running) return;
+        if (_running)
+        {
+            RestartIfRunning();
+
+            return;
+        }
 
         IRecognizer r;
         if (AppConfig.ConfigObject.Recognizer == 0) r = new Bing(_mic);
