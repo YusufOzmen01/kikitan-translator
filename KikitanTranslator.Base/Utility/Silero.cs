@@ -25,12 +25,12 @@ public sealed class SileroVad : IDisposable
 
     public float Threshold { get; set; } = 0.5f;
 
-    public SileroVad()
+    public SileroVad(string path)
     {
         var options = new SessionOptions();
         options.AppendExecutionProvider_CPU();
 
-        _session = new InferenceSession("wwwroot/silero_vad.onnx", options);
+        _session = new InferenceSession(path, options);
         ResetState();
     }
 

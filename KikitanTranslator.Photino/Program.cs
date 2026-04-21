@@ -4,6 +4,7 @@ using KikitanTranslator.Photino;
 using KikitanTranslator.Photino.Handlers;
 using KikitanTranslator.Utility;
 using Photino.NET;
+using Photino.NET.Server;
 
 public class Program
 {
@@ -16,8 +17,7 @@ public class Program
         string appUrl = "http://localhost:1420";
 #else
         PhotinoServer.CreateStaticFileServer(args, out string baseUrl).RunAsync();
-
-        string appUrl = $"{"asd"}/index.html";
+        string appUrl = $"{baseUrl}/index.html";
 #endif
         Console.OutputEncoding = System.Text.Encoding.UTF8;
         Logger.Initialize();
@@ -37,7 +37,11 @@ public class Program
             .SetTitle(windowTitle)
             .SetUseOsDefaultSize(false)
             .SetMinSize(width, height)
+            #if DEBUG
+            .SetIconFile("Resources/wwwroot/kikitan_logo.ico")
+            #else
             .SetIconFile("wwwroot/kikitan_logo.ico")
+            #endif
             .SetSize(new Size(width, height))
             .Center()
             .SetResizable(true)

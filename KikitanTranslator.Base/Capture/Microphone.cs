@@ -18,13 +18,14 @@ public class Microphone : ICapture
     private MiniAudioEngine _engine;
     private WebRtcApmModifier? _apmModifier;
     private AudioCaptureDevice? _captureDevice;
-    private SileroVad _vad = new();
+    private SileroVad _vad;
     
     public uint GetSampleRate() => 16000;
 
-    public Microphone()
+    public Microphone(string sileroModelPath)
     {
         _engine = new MiniAudioEngine(backendPriority:[MiniAudioBackend.Wasapi, MiniAudioBackend.Oss]);
+        _vad = new(sileroModelPath);
     }
 
     public DeviceInfo[] GetCaptureDevices()

@@ -41,7 +41,11 @@ public class Manager
     private Kikitan? _desktopKikitan;
 
     private ITranslator _translator;
-    private Microphone _mic = new();
+    #if DEBUG
+    private Microphone _mic = new("Resources/wwwroot/silero_vad.onnx");
+    #else 
+    private Microphone _mic = new("wwwroot/silero_vad.onnx");
+    #endif
     private AppState _appState = new () { Microphones = [] };
     private bool _running;
 

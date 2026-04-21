@@ -1,10 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <OutputType>Exe</OutputType>
-        <TargetFramework>net9.0</TargetFramework>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     </PropertyGroup>
 
     <ItemGroup>
@@ -12,16 +13,33 @@
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
         <PackageReference Include="Photino.NET" Version="4.0.16"/>
         <PackageReference Include="Photino.NET.Server" Version="4.0.12"/>
+        <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="9.0.0" />
     </ItemGroup>
-
+    
     <ItemGroup>
+        <EmbeddedResource Include="Resources\wwwroot\**" />
+    </ItemGroup>
+    
+    <ItemGroup Condition="'$(Configuration)' != 'Release'">
         <Content Include="wwwroot\**">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\KikitanTranslator.Base\KikitanTranslator.Base.csproj" />
+        <ProjectReference Include="..\KikitanTranslator.Base\KikitanTranslator.Base.csproj" />
     </ItemGroup>
 
+    <Target Name="NpmBuild" BeforeTargets="CopyDistToWwwroot" Condition="'$(Configuration)' == 'Release'">
+        <Exec Command="npm run build" WorkingDirectory="$(MSBuildProjectDirectory)\UserInterface" />
+    </Target>
+
+    <Target Name="CopyDistToWwwroot" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
+        <ItemGroup>
+            <DistFiles Include="$(MSBuildProjectDirectory)\UserInterface\dist\**\*" />
+            <ResourceFiles Include="$(MSBuildProjectDirectory)\Resources\wwwroot\**\*" />
+        </ItemGroup>
+        <Copy SourceFiles="@(DistFiles)" DestinationFiles="@(DistFiles->'$(OutputPath)wwwroot\%(RecursiveDir)%(Filename)%(Extension)')" />
+        <Copy SourceFiles="@(ResourceFiles)" DestinationFiles="@(ResourceFiles->'$(OutputPath)wwwroot\%(RecursiveDir)%(Filename)%(Extension)')" />
+    </Target>
 </Project>
