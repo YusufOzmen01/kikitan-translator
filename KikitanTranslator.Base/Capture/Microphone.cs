@@ -41,7 +41,6 @@ public class Microphone : ICapture
 
         DeviceInfo? device;
         
-        Log.Information("\x1b[33m[MIC]  Starting capture");
         var audioFormat = new AudioFormat
         {
             SampleRate = 16000,
