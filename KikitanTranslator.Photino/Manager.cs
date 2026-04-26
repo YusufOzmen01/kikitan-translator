@@ -84,7 +84,7 @@ public class Manager
         
         Task.Run(async () =>
         {
-            var mgr = new UpdateManager(new GithubSource("https://github.com/YusufOzmen01/velopack-test", null, false));
+            var mgr = new UpdateManager(new GithubSource("https://github.com/YusufOzmen01/kikitan-translator", null, false));
 
             var newVersion = await mgr.CheckForUpdatesAsync();
             _appState.ServerVersion = newVersion?.TargetFullRelease.Version.ToString();
