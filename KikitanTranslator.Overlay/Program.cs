@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-namespace Desktop_Image_Overlay;
+namespace KikitanTranslator.Overlay;
 
 static class Program
 {
@@ -24,32 +24,45 @@ static class Program
     [STAThread]
     static void Main()
     {
+        if (Process.GetProcessesByName("KikitanTranslator.Overlay").Length > 1)
+        {
+            Console.WriteLine("Another overlay is running!");
+            
+            return;
+        }
+        
         Task.Run(() =>
         {
-            while (true) if (Process.GetProcessesByName("app").Length == 0) Environment.Exit(0);
+            while (true)
+                if (Process.GetProcessesByName("KikitanTranslator.Photino").Length == 0)
+                {
+                    Console.WriteLine("Kikitan is not running!");
+                    
+                    Environment.Exit(0);
+                }
         });
         
-        var server = new HttpServer("http://localhost:18554/");
+        Console.OutputEncoding = System.Text.Encoding.UTF8;
+        
+        var server = new OverlayServer();
 
-        if (Process.GetProcessesByName("vrserver").Length != 0)
-        {
-            OpenVROverlay overlay = new OpenVROverlay();
-            
-            server.StartOpenVR(overlay);
-            overlay.ImageLoop();
-        }
+        if (Process.GetProcessesByName("vrserver").Length != 0) server.StartOpenVR(new OpenVROverlay());
         
         RECT rect;
         IntPtr hWnd = FindWindow(null, "VRChat");
-        if (hWnd != IntPtr.Zero && GetWindowRect(hWnd, out rect))
+        if (Screen.PrimaryScreen != null)
         {
-            Rectangle bounds = new Rectangle(
-                rect.Left,
-                rect.Top,
-                rect.Right - rect.Left,
-                rect.Bottom - rect.Top
-            );
-
+            Rectangle bounds = Screen.PrimaryScreen.Bounds;
+            if (hWnd != IntPtr.Zero && GetWindowRect(hWnd, out rect))
+            {
+                bounds = new Rectangle(
+                    rect.Left,
+                    rect.Top,
+                    rect.Right - rect.Left,
+                    rect.Bottom - rect.Top
+                );
+            }
+        
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             

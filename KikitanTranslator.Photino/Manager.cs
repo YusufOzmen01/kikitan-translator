@@ -1,4 +1,6 @@
-﻿using KikitanTranslator.Base;
+﻿using System.IO.MemoryMappedFiles;
+using System.Runtime.InteropServices;
+using KikitanTranslator.Base;
 using KikitanTranslator.Base.Outputs;
 using KikitanTranslator.Base.Translators;
 using KikitanTranslator.Capture;
@@ -12,8 +14,6 @@ using SoundFlow.Backends.MiniAudio.Enums;
 using SoundFlow.Structs;
 
 namespace KikitanTranslator.Photino;
-
-public delegate void OnKikitanData(string recognized, string translated, bool final);
 
 public class Mic
 {
@@ -35,6 +35,18 @@ public class RecognitionData
     [JsonProperty("final")] public bool Final;
 }
 
+[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+public struct OverlayState
+{
+    public bool NoLanguageSpace;
+    public int Time;
+
+    private const int TextMaxChars = 256;
+
+    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = TextMaxChars)]
+    public string Text;
+}
+
 public class Manager
 {
     private Kikitan? _microphoneKikitan;
@@ -50,6 +62,8 @@ public class Manager
     #endif
     private AppState _appState = new () { Microphones = [] };
     private bool _running;
+
+    private OverlayWriter writer = new();
 
     public PhotinoWindow? WindowHandle;
 
@@ -134,7 +148,10 @@ public class Manager
         _desktopKikitan = new Kikitan(rDesktop, _translator, true);
         _desktopKikitan.AddOutput(new Custom((recognized, translated, final) =>
         {
-            Console.WriteLine($"R: {recognized} | T: {translated} | F: {final}");
+            var text = AppConfig.ConfigObject.SpeechToTextOnly ? recognized : translated;
+            var time = text.Length * AppConfig.ConfigObject.ChatboxWaitPerCharMs;
+            
+            writer.Write(new OverlayPipeData { Text = text, NoLanguageSpace = AppConfig.ConfigObject.TargetLanguage == "ja" || AppConfig.ConfigObject.TargetLanguage == "ko" || AppConfig.ConfigObject.TargetLanguage == "cn", Time = time < 5000 ? 5000 : time});
         }));
 
         _microphoneKikitan.OnRecognizerStatusChanged += s =>

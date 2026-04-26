@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace Desktop_Image_Overlay;
+namespace KikitanTranslator.Overlay;
 
 public partial class Form1 : Form
 {

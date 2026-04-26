@@ -1,8 +1,7 @@
-﻿using OVRSharp;
-using Valve.VR;
+﻿using Valve.VR;
 using Application = OVRSharp.Application;
 
-namespace Desktop_Image_Overlay;
+namespace KikitanTranslator.Overlay;
 
 public class ImageData
 {
@@ -12,7 +11,7 @@ public class ImageData
 
 public class OpenVROverlay : Application
 {
-    private Overlay overlay;
+    private OVRSharp.Overlay overlay;
     private List<ImageData> images;
 
     private float overlayDistance = -1.5f;
@@ -22,7 +21,7 @@ public class OpenVROverlay : Application
     {
         Console.WriteLine("Starting overlay...");
 
-        overlay = new Overlay("kikitan-overlay", "Kikitan Overlay");
+        overlay = new OVRSharp.Overlay("kikitan-overlay", "Kikitan Overlay");
 
         overlay.WidthInMeters = 0.8f;
         overlay.Alpha = 1.0f;

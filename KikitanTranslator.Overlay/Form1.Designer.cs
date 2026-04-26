@@ -1,4 +1,4 @@
-﻿namespace Desktop_Image_Overlay;
+﻿namespace KikitanTranslator.Overlay;
 
 partial class Form1
 {
