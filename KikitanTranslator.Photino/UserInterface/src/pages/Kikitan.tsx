@@ -377,8 +377,8 @@ export default function Kikitan({ state }: { state: app_state }) {
                                 <MicIcon className="ml-3" />
                                 <Button
                                     onClick={() => {
-                                        setConfig("source_language", state.config.source_language)
-                                        setConfig("target_language", state.config.target_language)
+                                        setConfig("source_language", state.config.target_language)
+                                        setConfig("target_language", state.config.source_language)
                                     }}
                                 > <SwapHorizIcon /> </Button>
                             </div>
