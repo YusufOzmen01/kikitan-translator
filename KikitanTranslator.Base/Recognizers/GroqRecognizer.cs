@@ -25,6 +25,8 @@ public class GroqRecognizer : IRecognizer
     private readonly Queue<(float[] samples, bool speech)> _frameQueue = new();
     private readonly SemaphoreSlim _processingSemaphore = new(1, 1);
 
+    private string _language;
+
     public GroqRecognizer(ICapture capture)
     {
         _capture = capture;
@@ -39,6 +41,8 @@ public class GroqRecognizer : IRecognizer
         _speechBuffer.Clear();
         _isCollectingSpeech = false;
         _capture.Start();
+
+        _language = language;
 
         SetStatus(RecognizerStatus.Running);
         Log.Information("\x1b[93m[GROQ] Started Groq recognizer");
@@ -134,7 +138,7 @@ public class GroqRecognizer : IRecognizer
                 { new StringContent("whisper-large-v3"), "model" },
                 { new StringContent("0"), "temperature" },
                 { new StringContent("verbose_json"), "response_format" },
-                { new StringContent(AppConfig.ConfigObject.SourceLanguage), "language" },
+                { new StringContent(_language), "language" },
             };
 
             using var request = new HttpRequestMessage(HttpMethod.Post, "https://api.groq.com/openai/v1/audio/transcriptions");

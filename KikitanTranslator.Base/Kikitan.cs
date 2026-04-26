@@ -15,16 +15,19 @@ public class Kikitan : IDisposable
     private List<string[]> _queue = [];
 
     private bool _running;
+    private bool _isLoopback;
     
     public event OnRecognizerStatus? OnRecognizerStatusChanged;
 
-    public Kikitan(IRecognizer recognizer, ITranslator translator)
+    public Kikitan(IRecognizer recognizer, ITranslator translator, bool loopback)
     {
         _recognizer = recognizer;
         _translator = translator;
 
         recognizer.OnRecognitionReceived += OnRecognition;
         recognizer.OnRecognizerStatusChanged += OnRecognizerStatus;
+
+        _isLoopback = loopback;
         
         Log.Information("\x1b[36m[KKTN] Kikitan is starting up");
     }
@@ -33,7 +36,7 @@ public class Kikitan : IDisposable
 
     public void Start()
     {
-        _recognizer.Start(AppConfig.ConfigObject.SourceLanguage);
+        _recognizer.Start(_isLoopback ? AppConfig.ConfigObject.TargetLanguage : AppConfig.ConfigObject.SourceLanguage);
         _running = true;
         
         Task.Run(QueueWorker);
@@ -58,10 +61,9 @@ public class Kikitan : IDisposable
 
             return;
         }
-        
-        var translated = AppConfig.ConfigObject.SpeechToTextOnly ? "" : _translator.Translate(text, AppConfig.ConfigObject.SourceLanguage,
-            AppConfig.ConfigObject.TargetLanguage);
 
+        var translated = AppConfig.ConfigObject.SpeechToTextOnly ? "" : _isLoopback ? _translator.Translate(text, AppConfig.ConfigObject.TargetLanguage, AppConfig.ConfigObject.SourceLanguage) : _translator.Translate(text, AppConfig.ConfigObject.SourceLanguage, AppConfig.ConfigObject.TargetLanguage);
+        
         if (translated != null)
         {
             _queue.Add([text, translated]);

@@ -11,7 +11,7 @@ Logger.Initialize();
 
 AppConfig.Load();
 
-var kikitan = new Kikitan(new Bing(new Microphone("silero_vad.onnx")), new GoogleTranslate());
+var kikitan = new Kikitan(new Bing(new Microphone("silero_vad.onnx")), new GoogleTranslate(), false);
 kikitan.AddOutput(new OSC());
 kikitan.AddOutput(new ConsoleOut());
 kikitan.Start();

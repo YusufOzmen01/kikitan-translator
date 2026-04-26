@@ -47,7 +47,7 @@ public class Microphone : ICapture
             SampleRate = 16000,
             Channels = 1,
             Format = SampleFormat.S16,
-            Layout = ChannelLayout.Mono
+            Layout = ChannelLayout.Mono 
         };
 
         if (AppConfig.ConfigObject.Microphone.Length == 0)

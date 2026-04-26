@@ -42,8 +42,10 @@ public class Manager
 
     private ITranslator _translator;
     #if DEBUG
+    private Loopback _loopback = new("Resources/wwwroot/silero_vad.onnx");
     private Microphone _mic = new("Resources/wwwroot/silero_vad.onnx");
     #else 
+    private Loopback _loopback = new("wwwroot/silero_vad.onnx");
     private Microphone _mic = new("wwwroot/silero_vad.onnx");
     #endif
     private AppState _appState = new () { Microphones = [] };
@@ -109,17 +111,31 @@ public class Manager
             return;
         }
 
-        IRecognizer r;
-        if (AppConfig.ConfigObject.Recognizer == 0) r = new Bing(_mic);
-        else r = new GroqRecognizer(_mic);
+        IRecognizer rMic, rDesktop;
+        if (AppConfig.ConfigObject.Recognizer == 0)
+        {
+            rMic = new Bing(_mic);
+            rDesktop = new Bing(_loopback);
+        }
+        else
+        {
+            rMic = new GroqRecognizer(_mic);
+            rDesktop = new GroqRecognizer(_loopback);
+        }
 
         if (AppConfig.ConfigObject.Translator == 0) _translator = new GoogleTranslate();
         else _translator = new GroqTranslator();
 
-        _microphoneKikitan = new Kikitan(r, _translator);
+        _microphoneKikitan = new Kikitan(rMic, _translator, false);
         _microphoneKikitan.AddOutput(new Custom(SendRecognitionData));
         if (AppConfig.ConfigObject.SendToChatbox)
             _microphoneKikitan.AddOutput(new OSC()); // TODO: Data out via OSC for other apps
+
+        _desktopKikitan = new Kikitan(rDesktop, _translator, true);
+        _desktopKikitan.AddOutput(new Custom((recognized, translated, final) =>
+        {
+            Console.WriteLine($"R: {recognized} | T: {translated} | F: {final}");
+        }));
 
         _microphoneKikitan.OnRecognizerStatusChanged += s =>
         {
@@ -128,23 +144,19 @@ public class Manager
             SendUpdateToUI();
         };
         _microphoneKikitan.Start();
-
+        _desktopKikitan.Start();
+        
         _running = true;
-
-        // if (_desktopKikitan != null) _desktopKikitan.Start();
         SendUpdateToUI();
     }
 
     public void Stop()
     {
-        if (_microphoneKikitan != null)
-        {
-            _microphoneKikitan.Dispose();
-        }
+        _microphoneKikitan?.Dispose();
+        _desktopKikitan?.Dispose();
 
         _running = false;
-
-        // if (_desktopKikitan != null) _desktopKikitan.Stop();
+        
         SendUpdateToUI();
     }
 
