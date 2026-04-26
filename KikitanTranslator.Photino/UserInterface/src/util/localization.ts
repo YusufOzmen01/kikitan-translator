@@ -307,6 +307,18 @@ export const localization = {
         cn: "Kikitan是免费的，将来也会一直免费。不过，任何形式的支持都非常欢迎！由于我还是一名学生，收到的每一份支持都能让我生活得更好。如果您喜欢使用Kikitan，欢迎考虑捐赠！",
         kr: "Kikitan은 무료이며 앞으로도 항상 무료입니다. 그래도 어떤 형태의 지원이든 큰 힘이 됩니다! 아직 학생이기 때문에 받는 모든 것이 생활에 도움이 됩니다. Kikitan을 즐겁게 사용하고 계신다면 후원을 고려해 주세요!",
     },
+    new_update_available: {
+        en: "A new update is available!",
+        jp: "新しいアップデートがあります！",
+        cn: "有新的更新可用！",
+        kr: "새로운 업데이트가 있습니다!"
+    },
+    update: {
+        en: "Update",
+        jp: "アップデート",
+        cn: "更新",
+        kr: "업데이트"
+    },
     advanced_settings: {
         en: "Advanced Settings",
         jp: "詳細設定",

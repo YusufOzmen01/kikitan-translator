@@ -33,7 +33,7 @@ public class MessageHandler
                 if (handler.Key == m.Method)
                 {
                     var d = handler.Value.OnDataReceived(m.Data);
-                    if (d.Length != 0) conn.Send(JsonConvert.SerializeObject(new Message { Method = m.Method, Data = d }));
+                    if (!string.IsNullOrEmpty(d)) conn.Send(JsonConvert.SerializeObject(new Message { Method = m.Method, Data = d }));
                     
                     break;
                 }

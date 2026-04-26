@@ -6,6 +6,8 @@ using KikitanTranslator.Utility;
 using Photino.NET;
 using Photino.NET.Server;
 using Serilog;
+using Velopack;
+using Velopack.Sources;
 
 public class Program
 {
@@ -23,24 +25,27 @@ public class Program
         Console.OutputEncoding = System.Text.Encoding.UTF8;
         Logger.Initialize();
         AppConfig.Load();
+        
+        VelopackApp.Build().Run();
 
         bool noUI = Array.Exists(args, e => e.Trim().Contains("--no-ui"));
 
         var connector = new Connector();
         var manager = new Manager(noUI, connector);
         var messageHandler = new MessageHandler();
-        
+
         messageHandler.RegisterHandler("manual_translate", new ManualTranslate(manager));
         messageHandler.RegisterHandler("control", new Control(manager));
         messageHandler.RegisterHandler("update_config", new UpdateConfig(manager));
         messageHandler.RegisterHandler("send_app_state", new SendState(manager));
         messageHandler.RegisterHandler("quit", new Quit());
         messageHandler.RegisterHandler("open_url", new OpenURL());
+        messageHandler.RegisterHandler("update", new UpdateApp());
 
         if (noUI)
         {
             connector.OnConnectorData += messageHandler.HandleMessage;
-            
+
             Log.Information("[APP] No UI requested, starting the websocket");
             connector.StartWebsocket();
 
@@ -49,18 +54,18 @@ public class Program
                 while (true) Task.Delay(1000);
             }).GetAwaiter().GetResult();
         }
-        
+
         string windowTitle = "Kikitan Translator";
 
         var window = new PhotinoWindow()
             .SetTitle(windowTitle)
             .SetUseOsDefaultSize(false)
             .SetMinSize(width, height)
-            #if DEBUG
+#if DEBUG
             .SetIconFile("Resources/wwwroot/kikitan_logo.ico")
-            #else
+#else
             .SetIconFile("wwwroot/kikitan_logo.ico")
-            #endif
+#endif
             .SetSize(new Size(width, height))
             .Center()
             .SetResizable(true)
@@ -68,7 +73,7 @@ public class Program
             .RegisterWebMessageReceivedHandler((sender, s) =>
             {
                 connector.WindowHandle = (PhotinoWindow)sender!;
-                
+
                 messageHandler.HandleMessage(s, connector);
             })
             .Load(appUrl);

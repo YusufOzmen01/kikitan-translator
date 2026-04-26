@@ -1,4 +1,5 @@
 export type config = {
+    update_waiting: boolean;
     language: "en" | "jp" | "cn" | "kr";
     source_language: string;
     target_language: string;
@@ -22,6 +23,8 @@ export type app_state = {
     microphones: { name: string, default: boolean }[];
     config: config;
     status: 0 | 1 | 2;
+    app_version: string;
+    server_version: string;
 }
 
 export const langSource = [

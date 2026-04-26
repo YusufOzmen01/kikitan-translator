@@ -14,6 +14,9 @@ using Serilog;
 using SoundFlow.Backends.MiniAudio;
 using SoundFlow.Backends.MiniAudio.Enums;
 using SoundFlow.Structs;
+using Velopack;
+using Velopack.Locators;
+using Velopack.Sources;
 
 namespace KikitanTranslator.Photino;
 
@@ -28,6 +31,8 @@ public class AppState
     [JsonProperty("microphones")] public Mic[] Microphones;
     [JsonProperty("config")] public ConfigObject Config;
     [JsonProperty("status")] public int Status;
+    [JsonProperty("app_version")] public string? AppVersion;
+    [JsonProperty("server_version")] public string? ServerVersion;
 }
 
 public class RecognitionData
@@ -74,7 +79,18 @@ public class Manager
     public Manager(bool noUI, Connector connector)
     {
         _appState.Config = AppConfig.ConfigObject;
+        _appState.AppVersion = VelopackLocator.Current.CurrentlyInstalledVersion?.ToString();
         _connector = connector;
+        
+        Task.Run(async () =>
+        {
+            var mgr = new UpdateManager(new GithubSource("https://github.com/YusufOzmen01/velopack-test", null, false));
+
+            var newVersion = await mgr.CheckForUpdatesAsync();
+            _appState.ServerVersion = newVersion?.TargetFullRelease.Version.ToString();
+            
+            SendUpdateToUI();
+        });
         
         AppConfig.OnUpdate += () =>
         {

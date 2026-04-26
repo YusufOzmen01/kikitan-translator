@@ -79,10 +79,18 @@ export function sendAppState() {
     }));
 }
 
-export function sendQuit() {
+export function quit() {
     // @ts-ignore
     window.external.sendMessage(JSON.stringify({
         method: "quit",
+        data: ""
+    }));
+}
+
+export function update() {
+    // @ts-ignore
+    window.external.sendMessage(JSON.stringify({
+        method: "update",
         data: ""
     }));
 }
