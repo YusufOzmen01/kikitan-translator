@@ -79,6 +79,14 @@ export function sendAppState() {
     }));
 }
 
+export function sendQuit() {
+    // @ts-ignore
+    window.external.sendMessage(JSON.stringify({
+        method: "quit",
+        data: ""
+    }));
+}
+
 export function registerRecognitionCallback(callback: (r: string, t: string, f: boolean) => void) {
     recognitionCallback = callback;
 }

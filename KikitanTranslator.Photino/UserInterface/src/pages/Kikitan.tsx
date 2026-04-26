@@ -37,7 +37,7 @@ import {
 import { localization } from "../util/localization";
 import {
     controlKikitan,
-    manualTranslate, registerMicrophoneChangedCallback,
+    manualTranslate, openURL, registerMicrophoneChangedCallback,
     registerRecognitionCallback,
     setConfig
 } from "../util/photino.ts";
@@ -587,7 +587,7 @@ export default function Kikitan({ state }: { state: app_state }) {
                         size="small"
                         className="h-8"
                         onClick={() => {
-                            open("https://twitter.com/marquina_osu");
+                            openURL("https://twitter.com/marquina_osu");
                         }}
                     >
                         <XIcon fontSize="small" />
@@ -597,7 +597,7 @@ export default function Kikitan({ state }: { state: app_state }) {
                         size="small"
                         className="h-8"
                         onClick={() => {
-                            open("https://buymeacoffee.com/sergiomarquina");
+                            openURL("https://buymeacoffee.com/sergiomarquina");
                         }}
                     >
                         <FavoriteIcon fontSize="small" />
@@ -607,7 +607,7 @@ export default function Kikitan({ state }: { state: app_state }) {
                         size="small"
                         className="h-8"
                         onClick={() => {
-                            open(
+                            openURL(
                                 "https://github.com/YusufOzmen01/kikitan-translator"
                             );
                         }}
@@ -619,7 +619,7 @@ export default function Kikitan({ state }: { state: app_state }) {
                         size="small"
                         className="h-8"
                         onClick={() => {
-                            open("https://discord.gg/jpkYCgpBGV");
+                            openURL("https://discord.gg/jpkYCgpBGV");
                         }}
                     >
                         <img

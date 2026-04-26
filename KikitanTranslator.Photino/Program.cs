@@ -35,6 +35,7 @@ public class Program
         messageHandler.RegisterHandler("update_config", new UpdateConfig(manager));
         messageHandler.RegisterHandler("send_app_state", new SendState(manager));
         messageHandler.RegisterHandler("quit", new Quit());
+        messageHandler.RegisterHandler("open_url", new OpenURL());
 
         if (noUI)
         {
