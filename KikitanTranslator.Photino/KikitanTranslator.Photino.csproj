@@ -47,4 +47,23 @@
         <Copy SourceFiles="@(DistFiles)" DestinationFiles="@(DistFiles->'$(OutputPath)wwwroot\%(RecursiveDir)%(Filename)%(Extension)')" />
         <Copy SourceFiles="@(ResourceFiles)" DestinationFiles="@(ResourceFiles->'$(OutputPath)wwwroot\%(RecursiveDir)%(Filename)%(Extension)')" />
     </Target>
+
+    <Target Name="BuildAndCopyOverlay"
+            AfterTargets="CopyDistToWwwroot"
+            Condition="'$(Configuration)' == 'Release' AND '$(RuntimeIdentifier)' == 'win-x64'">
+
+        <MSBuild
+                Projects="$(MSBuildThisFileDirectory)..\KikitanTranslator.Overlay\KikitanTranslator.Overlay.csproj"
+                Targets="Restore;Build"
+                Properties="Configuration=$(Configuration);RuntimeIdentifier=win-x64;SelfContained=false" />
+
+        <ItemGroup>
+            <OverlayFiles Include="$(MSBuildThisFileDirectory)..\KikitanTranslator.Overlay\bin\$(Configuration)\net10.0-windows\win-x64\**\*" />
+        </ItemGroup>
+
+        <Copy
+                SourceFiles="@(OverlayFiles)"
+                DestinationFolder="$(OutDir)" />
+
+    </Target>
 </Project>

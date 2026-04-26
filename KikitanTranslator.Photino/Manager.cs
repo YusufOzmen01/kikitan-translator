@@ -1,4 +1,5 @@
-﻿using System.IO.MemoryMappedFiles;
+﻿using System.Diagnostics;
+using System.IO.MemoryMappedFiles;
 using System.Runtime.InteropServices;
 using KikitanTranslator.Base;
 using KikitanTranslator.Base.Outputs;
@@ -79,6 +80,15 @@ public class Manager
 
             SendUpdateToUI();
         };
+
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            Process proc = new Process();
+            proc.StartInfo.FileName = "KikitanTranslator.Overlay.exe";
+            proc.StartInfo.CreateNoWindow = true;
+            proc.StartInfo.UseShellExecute = false;
+            proc.Start();
+        }
         
         Task.Run(() =>
         {
