@@ -1,0 +1,83 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
+        <ApplicationIcon>Resources/wwwroot/kikitan_logo.ico</ApplicationIcon>
+        
+        <Version>2.0.0</Version>
+        <PackageId>com.github.yusufozmen01.kikitan-translator</PackageId>
+        <Title>Kikitan Translator</Title>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)' == 'Release' And '$(RuntimeIdentifier)' == ''">
+        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Fleck" Version="1.2.0" />
+        <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.24.4" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+        <PackageReference Include="Photino.NET" Version="4.0.16"/>
+        <PackageReference Include="Photino.NET.Server" Version="4.0.12"/>
+        <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="9.0.0" />
+        <PackageReference Include="Velopack" Version="0.0.1298" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Include="Resources\wwwroot\**" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(Configuration)' != 'Release'">
+        <Content Include="wwwroot\**">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\KikitanTranslator.Base\KikitanTranslator.Base.csproj" />
+    </ItemGroup>
+
+    <Target Name="NpmBuild" BeforeTargets="CopyDistToWwwroot" Condition="'$(Configuration)' == 'Release'">
+        <Exec Command="npm run build" WorkingDirectory="$(MSBuildProjectDirectory)\UserInterface" />
+    </Target>
+
+    <Target Name="CopyDistToWwwroot" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
+        <ItemGroup>
+            <DistFiles Include="$(MSBuildProjectDirectory)\UserInterface\dist\**\*" />
+            <ResourceFiles Include="$(MSBuildProjectDirectory)\Resources\wwwroot\**\*" />
+        </ItemGroup>
+        <Copy SourceFiles="@(DistFiles)" DestinationFiles="@(DistFiles->'$(OutputPath)wwwroot\%(RecursiveDir)%(Filename)%(Extension)')" />
+        <Copy SourceFiles="@(ResourceFiles)" DestinationFiles="@(ResourceFiles->'$(OutputPath)wwwroot\%(RecursiveDir)%(Filename)%(Extension)')" />
+    </Target>
+
+    <Target Name="BuildAndCopyOverlay"
+            AfterTargets="CopyDistToWwwroot"
+            Condition="'$(Configuration)' == 'Release' AND '$(RuntimeIdentifier)' == 'win-x64'">
+
+        <MSBuild
+                Projects="$(MSBuildThisFileDirectory)..\KikitanTranslator.Overlay\KikitanTranslator.Overlay.csproj"
+                Targets="Restore;Build"
+                Properties="Configuration=$(Configuration);RuntimeIdentifier=win-x64;SelfContained=false" />
+
+        <ItemGroup>
+            <OverlayFiles Include="$(MSBuildThisFileDirectory)..\KikitanTranslator.Overlay\bin\$(Configuration)\net10.0-windows\win-x64\**\*" />
+        </ItemGroup>
+
+        <Copy
+                SourceFiles="@(OverlayFiles)"
+                DestinationFolder="$(OutDir)" />
+
+    </Target>
+
+    <Target Name="VelopackPack"
+            AfterTargets="BuildAndCopyOverlay"
+            Condition="'$(Configuration)' == 'Release' AND '$(RuntimeIdentifier)' == 'win-x64'">
+        <RemoveDir Directories="$(OutDir)Release" />
+        <Exec Command="vpk pack --packId $(PackageId) --packVersion $(Version) --packDir &quot;$(MSBuildProjectDirectory)\bin\Release\net10.0\win-x64&quot; --mainExe KikitanTranslator.Photino.exe --icon &quot;$(MSBuildProjectDirectory)\Resources\wwwroot\kikitan_logo.ico&quot; --packTitle &quot;$(Title)&quot; -o &quot;$(OutDir)Release&quot;"  />
+    </Target>
+
+</Project>
