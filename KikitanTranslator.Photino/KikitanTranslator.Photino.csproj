@@ -14,6 +14,7 @@
     </PropertyGroup>
     
     <ItemGroup>
+        <PackageReference Include="Fleck" Version="1.2.0" />
         <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.24.4" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
         <PackageReference Include="Photino.NET" Version="4.0.16"/>

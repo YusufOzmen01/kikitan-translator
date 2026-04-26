@@ -41,12 +41,12 @@ public class Bing(ICapture capture) : IRecognizer
         _bytesSend = 0;
         _capture.Stop();
         
-        Log.Information("\x1b[32m[BING] Configuration has been resetted");
+        Log.Information("[BING] Configuration has been resetted");
     }
     
     public void Start(string language)
     {
-        Log.Information("\x1b[32m[BING] Starting Bing recognizer...");
+        Log.Information("[BING] Starting Bing recognizer...");
         ChangeRecognizerStatus(RecognizerStatus.Connecting);
         
         _language = language;
@@ -66,7 +66,7 @@ public class Bing(ICapture capture) : IRecognizer
             if (_status == RecognizerStatus.Running) return;
             
             Reset();
-            Log.Verbose("\x1b[32m[BING] Websocket connection established");
+            Log.Verbose("[BING] Websocket connection established");
             await Task.Delay(100);
             
             var configPayload = new
@@ -90,7 +90,7 @@ public class Bing(ICapture capture) : IRecognizer
             };
             
             _client.Send(CreateTextMessage("speech.config", JsonConvert.SerializeObject(configPayload), "application/json", null));
-            Log.Verbose("\x1b[32m[BING] Speech configuration has been sent");
+            Log.Verbose("[BING] Speech configuration has been sent");
             
             var contextPayload = new
             {
@@ -105,16 +105,16 @@ public class Bing(ICapture capture) : IRecognizer
 
             await Task.Delay(100);
             _client.Send(CreateTextMessage("speech.context", JsonConvert.SerializeObject(contextPayload), null, _currentRequestId));
-            Log.Verbose("\x1b[32m[BING] Speech context has been sent");
+            Log.Verbose("[BING] Speech context has been sent");
             
             await Task.Delay(100);
             _client.Send(CreateBinaryMessage("audio", $"{_streamIdCounter}", _currentRequestId, CreateWavHeader(), "audio/x-wav"));
-            Log.Verbose("\x1b[32m[BING] Wav header has been sent");
+            Log.Verbose("[BING] Wav header has been sent");
 
             _capture.OnDataReceived += OnAudioData;
             
             _capture.Start();
-            Log.Information("\x1b[32m[BING] Bing recognizer has started");
+            Log.Information("[BING] Bing recognizer has started");
         });
         
         _client.MessageReceived.Subscribe(message =>
@@ -151,7 +151,7 @@ public class Bing(ICapture capture) : IRecognizer
         });
         _client.DisconnectionHappened.Subscribe(async info =>
         {
-            Log.Error($"\x1b[32m[BING] Websocket connection has closed. Reason: {info.Type}");
+            Log.Error($"[BING] Websocket connection has closed. Reason: {info.Type}");
             ChangeRecognizerStatus(RecognizerStatus.NotStarted);
 
             if (info.Type != DisconnectionType.ByServer) return;
@@ -170,7 +170,7 @@ public class Bing(ICapture capture) : IRecognizer
         _capture.OnDataReceived -= OnAudioData;
         ChangeRecognizerStatus(RecognizerStatus.NotStarted);
          
-        Log.Information("\x1b[32m[BING] Bing recognizer has stopped");
+        Log.Information("[BING] Bing recognizer has stopped");
     }
     
     public RecognizerStatus Status() => _status;
@@ -204,7 +204,7 @@ public class Bing(ICapture capture) : IRecognizer
 
         if (_streamIdCounter >= RESTART_LIMIT)
         {
-            Log.Verbose("\x1b[32m[BING] Stream ID counter limit has been reached. Restarting Bing recognizer...");
+            Log.Verbose("[BING] Stream ID counter limit has been reached. Restarting Bing recognizer...");
             
             Stop();
             Start(_language);
@@ -244,11 +244,11 @@ public class Bing(ICapture capture) : IRecognizer
         };
         
         _client.Send(CreateTextMessage("speech.context", JsonConvert.SerializeObject(contextPayload), "application/json", _currentRequestId));
-        Log.Verbose("\x1b[32m[BING] Sent speech context");
+        Log.Verbose("[BING] Sent speech context");
         
         await Task.Delay(50);
         _client.Send(CreateBinaryMessage("audio", $"{_streamIdCounter}", _currentRequestId, CreateWavHeader(), "audio/x-wav"));
-        Log.Verbose("\x1b[32m[BING] Sent wav header");
+        Log.Verbose("[BING] Sent wav header");
         
         await Task.Delay(25);
         _capture.Resume();

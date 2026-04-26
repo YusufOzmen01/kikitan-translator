@@ -31,18 +31,18 @@ public class Loopback : ICapture
     {
         _capture.DataAvailable += OnDataAvailable;
         _capture.StartRecording();
-        Log.Information("\x1b[34m[LOOP] Capture has started");
+        Log.Information("[LOOP] Capture has started");
     }
 
     public void Stop()
     {
         _capture.DataAvailable -= OnDataAvailable;
         _capture.StopRecording();
-        Log.Information("\x1b[34m[LOOP] Capture has stopped");
+        Log.Information("[LOOP] Capture has stopped");
     }
 
-    public void Pause()   { _paused = true;  Log.Verbose("\x1b[34m[LOOP] Capture paused"); }
-    public void Resume()  { _paused = false; Log.Verbose("\x1b[34m[LOOP] Capture resumed"); }
+    public void Pause()   { _paused = true;  Log.Verbose("[LOOP] Capture paused"); }
+    public void Resume()  { _paused = false; Log.Verbose("[LOOP] Capture resumed"); }
 
     private void OnDataAvailable(object? sender, WaveInEventArgs e)
     {

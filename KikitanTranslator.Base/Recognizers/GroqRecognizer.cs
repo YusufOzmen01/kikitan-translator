@@ -45,7 +45,7 @@ public class GroqRecognizer : IRecognizer
         _language = language;
 
         SetStatus(RecognizerStatus.Running);
-        Log.Information("\x1b[93m[GROQ] Started Groq recognizer");
+        Log.Information("[GROQ] Started Groq recognizer");
     }
 
     public void Stop()
@@ -62,7 +62,7 @@ public class GroqRecognizer : IRecognizer
         }
 
         SetStatus(RecognizerStatus.NotStarted);
-        Log.Information("\x1b[93m[GROQ] Stopped Groq recognizer");
+        Log.Information("[GROQ] Stopped Groq recognizer");
     }
 
     public RecognizerStatus Status() => _status;
@@ -123,7 +123,7 @@ public class GroqRecognizer : IRecognizer
         var apiKey = AppConfig.ConfigObject.GroqApiKey;
         if (string.IsNullOrWhiteSpace(apiKey))
         {
-            Log.Error("\x1b[93m[GROQ] No API key configured");
+            Log.Error("[GROQ] No API key configured");
             return;
         }
 
@@ -149,7 +149,7 @@ public class GroqRecognizer : IRecognizer
 
             if (!response.IsSuccessStatusCode)
             {
-                Log.Error($"\x1b[93m[GROQ] Whisper API error {(int)response.StatusCode}: {await response.Content.ReadAsStringAsync()}");
+                Log.Error($"[GROQ] Whisper API error {(int)response.StatusCode}: {await response.Content.ReadAsStringAsync()}");
                 return;
             }
 
@@ -161,7 +161,7 @@ public class GroqRecognizer : IRecognizer
         }
         catch (Exception ex)
         {
-            Log.Error($"\x1b[93m[GROQ] Transcription error: {ex.Message}");
+            Log.Error($"[GROQ] Transcription error: {ex.Message}");
         }
     }
 

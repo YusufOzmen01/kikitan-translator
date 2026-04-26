@@ -55,7 +55,7 @@ public class Microphone : ICapture
             device = _engine.CaptureDevices.First(d => d.IsDefault);
             AppConfig.ConfigObject.Microphone = device.Value.Name;
                 
-            Log.Warning($"\x1b[33m[MIC]  No microphone was selected, using the default device ({device.Value.Name}) for capture");
+            Log.Warning($"[MIC]  No microphone was selected, using the default device ({device.Value.Name}) for capture");
         }
         else if (_engine.CaptureDevices.Any(d => d.Name == AppConfig.ConfigObject.Microphone))
         {
@@ -65,12 +65,12 @@ public class Microphone : ICapture
         {
             device = _engine.CaptureDevices.First(d => d.IsDefault);
                     
-            Log.Warning($"\x1b[33m[MIC]  The selected mic ({AppConfig.ConfigObject.Microphone}) is not available. Switching to the system default ({device.Value.Name})");
+            Log.Warning($"[MIC]  The selected mic ({AppConfig.ConfigObject.Microphone}) is not available. Switching to the system default ({device.Value.Name})");
             
             AppConfig.ConfigObject.Microphone = device.Value.Name;
         }
         
-        Log.Information($"\x1b[33m[MIC]  Starting capture using {device.Value.Name}");
+        Log.Information($"[MIC]  Starting capture using {device.Value.Name}");
         
         try
         {
@@ -85,7 +85,7 @@ public class Microphone : ICapture
             );
         } catch (Exception e)
         {
-            Log.Error($"\x1b[33m[MIC]  Error initializing capture: {e}. Restarting with default mic");
+            Log.Error($"[MIC]  Error initializing capture: {e}. Restarting with default mic");
 
             AppConfig.ConfigObject.Microphone = "";
 
@@ -93,7 +93,7 @@ public class Microphone : ICapture
             return;
         }
         
-        Log.Information("\x1b[33m[MIC]  Capture has started");
+        Log.Information("[MIC]  Capture has started");
     }
 
     public void Stop()
@@ -105,19 +105,19 @@ public class Microphone : ICapture
         _apmModifier = null;
         _captureDevice = null;
         
-        Log.Information("\x1b[33m[MIC]  Capture has stopped");
+        Log.Information("[MIC]  Capture has stopped");
     }
 
     public void Pause()
     {
-        Log.Verbose("\x1b[33m[MIC]  Capture paused");
+        Log.Verbose("[MIC]  Capture paused");
         
         _paused = true;
     }
 
     public void Resume()
     {
-        Log.Verbose("\x1b[33m[MIC]  Capture resumed");
+        Log.Verbose("[MIC]  Capture resumed");
         
         _paused = false;
     }

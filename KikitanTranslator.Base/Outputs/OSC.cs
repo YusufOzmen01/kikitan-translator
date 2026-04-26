@@ -20,7 +20,7 @@ public class OSC : IOutput
             else OscChatbox.SendMessage($"{translated} ({recognized})", true);
         } catch (Exception e)
         {
-            Log.Error($"\x1b[38m[OSC]  Error sending OSC message! Reason: {e}");
+            Log.Error($"[OSC]  Error sending OSC message! Reason: {e}");
         }
     }
 

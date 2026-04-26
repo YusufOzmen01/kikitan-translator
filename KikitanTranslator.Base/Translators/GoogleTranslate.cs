@@ -31,7 +31,7 @@ public class GoogleTranslate : ITranslator
         {
             if (response.StatusCode != HttpStatusCode.OK)
             {
-                Log.Error($"\x1b[34m[GT]   Google Translate returned {response.StatusCode}");
+                Log.Error($"[GT]   Google Translate returned {response.StatusCode}");
                 
                 return null;
             }
@@ -42,7 +42,7 @@ public class GoogleTranslate : ITranslator
             {
                 if (resp == null)
                 {
-                    Log.Error($"\x1b[34m[GT]   Response deserialization returned null");
+                    Log.Error($"[GT]   Response deserialization returned null");
                     
                     return null;
                 }

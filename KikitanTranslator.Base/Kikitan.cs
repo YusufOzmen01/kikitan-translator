@@ -29,7 +29,7 @@ public class Kikitan : IDisposable
 
         _isLoopback = loopback;
         
-        Log.Information("\x1b[36m[KKTN] Kikitan is starting up");
+        Log.Information("[KKTN] Kikitan is starting up");
     }
 
     public void AddOutput(IOutput output) => _outputs.Add(output);
@@ -47,7 +47,7 @@ public class Kikitan : IDisposable
         _recognizer.Stop();
         _running = false;
         
-        Log.Information("\x1b[36m[KKTN] Kikitan has stopped");
+        Log.Information("[KKTN] Kikitan has stopped");
     }
 
     private void OnRecognition(string text, bool final)
@@ -88,10 +88,10 @@ public class Kikitan : IDisposable
             var texts = _queue.First();
             _queue.RemoveAt(0);
             
-            Log.Verbose("\x1b[36m[KKTN] Processing new delayed translation");
+            Log.Verbose("[KKTN] Processing new delayed translation");
             
             foreach (var output in _outputs.Where(v => v.IsDelayed())) output.Send(texts[0], texts[1], true);
-            Log.Verbose($"\x1b[36m[KKTN] Waiting {texts[1].Length * AppConfig.ConfigObject.ChatboxWaitPerCharMs}ms...");
+            Log.Verbose($"[KKTN] Waiting {texts[1].Length * AppConfig.ConfigObject.ChatboxWaitPerCharMs}ms...");
             
             await Task.Delay(texts[1].Length * AppConfig.ConfigObject.ChatboxWaitPerCharMs);
         }

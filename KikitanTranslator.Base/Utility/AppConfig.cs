@@ -310,7 +310,7 @@ public static class AppConfig
     {
         if (!Path.Exists(configPath))
         {
-            Log.Warning("\x1b[35m[CFG]  Specified path is nonexistent (perhaps first launch?). Using the default configuration");
+            Log.Warning("[CFG]  Specified path is nonexistent (perhaps first launch?). Using the default configuration");
 
             ConfigObject = new ConfigObject();
             ConfigObject.PropertyChanged += OnConfigPropertyChanged;
@@ -326,7 +326,7 @@ public static class AppConfig
             ConfigObject? cfg = JsonConvert.DeserializeObject<ConfigObject>(File.ReadAllText(configPath));
             if (cfg == null)
             {
-                Log.Error("\x1b[35m[CFG]  Deserialization result returned null!");
+                Log.Error("[CFG]  Deserialization result returned null!");
 
                 return;
             }
@@ -335,11 +335,11 @@ public static class AppConfig
             ConfigObject.PropertyChanged += OnConfigPropertyChanged;
             _currentConfigPath = configPath;
             
-            Log.Information($"\x1b[35m[CFG]  Loaded from {configPath}");
+            Log.Information($"[CFG]  Loaded from {configPath}");
         }
         catch (Exception e)
         {
-            Log.Error($"\x1b[35m[CFG]  Error occured while trying to load the config file!: {e}");
+            Log.Error($"[CFG]  Error occured while trying to load the config file!: {e}");
 
             return;
         }
@@ -348,7 +348,7 @@ public static class AppConfig
     public static void SaveConfig() {
         File.WriteAllText(_currentConfigPath, JsonConvert.SerializeObject(ConfigObject, Formatting.Indented));
         
-        Log.Verbose($"\x1b[35m[CFG]  Saved to {_currentConfigPath}");
+        Log.Verbose($"[CFG]  Saved to {_currentConfigPath}");
     }
 
     private static void OnConfigPropertyChanged(object sender, PropertyChangedEventArgs e)

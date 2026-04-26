@@ -88,7 +88,7 @@ public class UpdateConfig(Manager manager) : IHandler
                 
                 break;
             default:
-                Log.Warning($"\x1b[35m[CFG]  Received an unknown field {d.Field} with value {d.Value} while trying to update the config!");
+                Log.Warning($"[CFG]  Received an unknown field {d.Field} with value {d.Value} while trying to update the config!");
                 
                 break;
         }

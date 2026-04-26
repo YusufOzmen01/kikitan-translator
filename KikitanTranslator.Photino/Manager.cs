@@ -10,6 +10,7 @@ using KikitanTranslator.Recognizers;
 using KikitanTranslator.Utility;
 using Newtonsoft.Json;
 using Photino.NET;
+using Serilog;
 using SoundFlow.Backends.MiniAudio;
 using SoundFlow.Backends.MiniAudio.Enums;
 using SoundFlow.Structs;
@@ -66,13 +67,14 @@ public class Manager
 
     private OverlayWriter writer = new();
 
-    public PhotinoWindow? WindowHandle;
+    private Connector _connector;
 
     public DeviceInfo[] GetMicrophones() => _mic.GetCaptureDevices();
 
-    public Manager()
+    public Manager(bool noUI, Connector connector)
     {
         _appState.Config = AppConfig.ConfigObject;
+        _connector = connector;
         
         AppConfig.OnUpdate += () =>
         {
@@ -81,13 +83,20 @@ public class Manager
             SendUpdateToUI();
         };
 
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !noUI)
         {
-            Process proc = new Process();
-            proc.StartInfo.FileName = "KikitanTranslator.Overlay.exe";
-            proc.StartInfo.CreateNoWindow = true;
-            proc.StartInfo.UseShellExecute = false;
-            proc.Start();
+            if (!Path.Exists("KikitanTranslator.Overlay.exe"))
+            {
+                Log.Warning("Kikitan Overlay doesn't exist! Perhaps a debug build?");
+            }
+            else
+            {
+                Process proc = new Process();
+                proc.StartInfo.FileName = "KikitanTranslator.Overlay.exe";
+                proc.StartInfo.CreateNoWindow = true;
+                proc.StartInfo.UseShellExecute = false;
+                proc.Start();
+            }
         }
         
         Task.Run(() =>
@@ -155,14 +164,17 @@ public class Manager
         if (AppConfig.ConfigObject.SendToChatbox)
             _microphoneKikitan.AddOutput(new OSC()); // TODO: Data out via OSC for other apps
 
-        _desktopKikitan = new Kikitan(rDesktop, _translator, true);
-        _desktopKikitan.AddOutput(new Custom((recognized, translated, final) =>
+        if (AppConfig.ConfigObject.DesktopTranslation)
         {
-            var text = AppConfig.ConfigObject.SpeechToTextOnly ? recognized : translated;
-            var time = text.Length * AppConfig.ConfigObject.ChatboxWaitPerCharMs;
+            _desktopKikitan = new Kikitan(rDesktop, _translator, true);
+            _desktopKikitan.AddOutput(new Custom((recognized, translated, final) =>
+            {
+                var text = AppConfig.ConfigObject.SpeechToTextOnly ? recognized : translated;
+                var time = text.Length * AppConfig.ConfigObject.ChatboxWaitPerCharMs;
             
-            writer.Write(new OverlayPipeData { Text = text, NoLanguageSpace = AppConfig.ConfigObject.TargetLanguage == "ja" || AppConfig.ConfigObject.TargetLanguage == "ko" || AppConfig.ConfigObject.TargetLanguage == "cn", Time = time < 5000 ? 5000 : time});
-        }));
+                writer.Write(new OverlayPipeData { Text = text, NoLanguageSpace = AppConfig.ConfigObject.TargetLanguage == "ja" || AppConfig.ConfigObject.TargetLanguage == "ko" || AppConfig.ConfigObject.TargetLanguage == "cn", Time = time < 5000 ? 5000 : time});
+            }));
+        }
 
         _microphoneKikitan.OnRecognizerStatusChanged += s =>
         {
@@ -170,8 +182,9 @@ public class Manager
             
             SendUpdateToUI();
         };
+        
         _microphoneKikitan.Start();
-        _desktopKikitan.Start();
+        _desktopKikitan?.Start();
         
         _running = true;
         SendUpdateToUI();
@@ -205,7 +218,7 @@ public class Manager
 
     public void SendUpdateToUI()
     {
-        WindowHandle?.SendWebMessage(
+        _connector.Send(
             JsonConvert.SerializeObject(new Message
             {
                 Method = "state",
@@ -215,7 +228,7 @@ public class Manager
 
     private void SendRecognitionData(string recognized, string translated, bool final)
     {
-        WindowHandle?.SendWebMessage(
+        _connector.Send(
             JsonConvert.SerializeObject(new Message
             {
                 Method = "recognition",
@@ -225,7 +238,7 @@ public class Manager
 
     private void SendMicChanged()
     {
-        WindowHandle?.SendWebMessage(
+        _connector.Send(
             JsonConvert.SerializeObject(new Message
             {
                 Method = "mic_changed",

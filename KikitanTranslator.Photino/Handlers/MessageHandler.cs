@@ -16,16 +16,16 @@ public class MessageHandler
 
     public void RegisterHandler(string methodName, IHandler handler) => _handlers.Add(methodName, handler);
 
-    public void HandleMessage(PhotinoWindow window, string msg)
+    public string? HandleMessage(string msg, Connector conn)
     {
         try
         {
             Message? m = JsonConvert.DeserializeObject<Message>(msg);
             if (m == null)
             {
-                Log.Error($"\x1b[41m[MSGH] Unable to deserialize message");
+                Log.Error($"[MSGH] Unable to deserialize message");
                 
-                return;
+                return null;
             }
 
             foreach (var handler in _handlers)
@@ -33,7 +33,7 @@ public class MessageHandler
                 if (handler.Key == m.Method)
                 {
                     var d = handler.Value.OnDataReceived(m.Data);
-                    if (d.Length != 0) window.SendWebMessage(JsonConvert.SerializeObject(new Message { Method = m.Method, Data = d }));
+                    if (d.Length != 0) conn.Send(JsonConvert.SerializeObject(new Message { Method = m.Method, Data = d }));
                     
                     break;
                 }
@@ -41,7 +41,9 @@ public class MessageHandler
         }
         catch (Exception e)
         {
-            Log.Error($"\x1b[40m[MSGH] An error occured while trying to handle the message [{msg}]: {e}");
+            Log.Error($"[MSGH] An error occured while trying to handle the message [{msg}]: {e}");
         }
+
+        return null;
     }
 }

@@ -20,7 +20,7 @@ public class GroqTranslator : ITranslator
         var apiKey = AppConfig.ConfigObject.GroqApiKey;
         if (string.IsNullOrWhiteSpace(apiKey))
         {
-            Log.Error("\x1b[93m[GROQ] No API key configured");
+            Log.Error("[GROQ] No API key configured");
             return null;
         }
 
@@ -48,7 +48,7 @@ public class GroqTranslator : ITranslator
             if (!response.IsSuccessStatusCode)
             {
                 var status = (int)response.StatusCode;
-                Log.Error($"\x1b[93m[GROQ] Translation API error {status}");
+                Log.Error($"[GROQ] Translation API error {status}");
                 return null;
             }
 
@@ -62,7 +62,7 @@ public class GroqTranslator : ITranslator
         }
         catch (Exception ex)
         {
-            Log.Error($"\x1b[93m[GROQ] Translation error: {ex.Message}");
+            Log.Error($"[GROQ] Translation error: {ex.Message}");
             return null;
         }
     }
