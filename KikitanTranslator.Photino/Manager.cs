@@ -81,7 +81,7 @@ public class Manager
     {
         _appState.Config = AppConfig.ConfigObject;
         #if !DEBUG
-        _appState.AppVersion = VelopackLocator.Current.CurrentlyInstalledVersion?.ToString() 
+        _appState.AppVersion = VelopackLocator.Current.CurrentlyInstalledVersion?.ToString();
         #endif
         _appState.IsLinux = !RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
         _connector = connector;
@@ -197,6 +197,8 @@ public class Manager
             {
                 var text = AppConfig.ConfigObject.SpeechToTextOnly ? recognized : translated;
                 var time = text.Length * AppConfig.ConfigObject.ChatboxWaitPerCharMs;
+
+                if (text.Length == 0) return;
             
                 writer.Write(new OverlayPipeData { Text = text, NoLanguageSpace = AppConfig.ConfigObject.TargetLanguage == "ja" || AppConfig.ConfigObject.TargetLanguage == "ko" || AppConfig.ConfigObject.TargetLanguage == "cn", Time = time < 5000 ? 5000 : time});
             }));

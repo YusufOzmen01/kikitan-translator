@@ -62,7 +62,7 @@ public class OverlayServer
         const int canvasWidth = 4000;
         const int canvasHeight = 1250;
         const int maxLines = 8;
-        const float minTextSize = 10f;
+        const float minTextSize = 150f;
         const float paddingX = 100f;
         const float paddingY = 50f;
         float fontSize = 500f;

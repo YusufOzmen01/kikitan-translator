@@ -7,7 +7,7 @@ import {
 
 import Scroll from "./Scroll"
 import { localization } from "../util/localization";
-import { Box, Button, Checkbox, FormControlLabel, FormGroup, MenuItem, Select } from "@mui/material";
+import { Box, Button, MenuItem, Select } from "@mui/material";
 import {openURL, setConfig} from "../util/photino.ts";
 import {app_state} from "../util/constants.ts";
 

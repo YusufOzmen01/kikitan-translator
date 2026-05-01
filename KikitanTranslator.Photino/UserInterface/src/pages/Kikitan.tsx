@@ -525,7 +525,7 @@ export default function Kikitan({ state }: { state: app_state }) {
                                 color: 'white',
                                 backgroundColor: 'gray'
                             }
-                        }} value={state.config.desktop_translation} disabled={state.is_linux} onChange={e => setConfig("desktop_translation", e.target.checked)}></Switch>
+                        }} checked={state.config.desktop_translation} disabled={state.is_linux} onChange={e => setConfig("desktop_translation", e.target.checked)}></Switch>
                     </Tooltip>
                     <p className={`${state.config.desktop_translation ? "" : "opacity-50"} mb-2 mt-[0.4rem]`}>{state.config.desktop_translation ? localization.disable_desktop_capture[state.config.language] : localization.enable_desktop_capture[state.config.language]}</p>
                     

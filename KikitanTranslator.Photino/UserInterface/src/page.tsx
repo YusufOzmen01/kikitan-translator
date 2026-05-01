@@ -69,8 +69,6 @@ function App() {
                 
                 setAppVersion(state.app_version)
                 setNewVersion(state.server_version)
-
-                updateViewed = state.config.update_waiting
             }
             
             setChangelogsVisible(state.config.last_version != state.app_version)
@@ -168,7 +166,10 @@ function App() {
                                     variant="contained"
                                     disabled={updating}
                                     className='w-32 h-12'
-                                    onClick={() => setUpdaterVisible(false)}>
+                                    onClick={() => {
+                                        updateViewed = true;
+                                        setUpdaterVisible(false)
+                                    }}>
                                     <Clear fontSize="small" />
                                     <p className='text-xs'>{localization.close_menu[appState.config.language]}</p>
                                 </Button>
