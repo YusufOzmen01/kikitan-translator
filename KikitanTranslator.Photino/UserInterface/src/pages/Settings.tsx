@@ -14,6 +14,7 @@ import {
     Select,
     MenuItem,
     Button,
+    Tooltip
 } from "@mui/material";
 
 import {
@@ -103,12 +104,16 @@ export default function SettingsPage({ closeCallback, state }: SettingsProps) {
                 </Box>
                 <CustomTabPanel className="flex" value={page} index={0}>
                     <FormGroup>
-                        <FormControlLabel control={<Checkbox checked={state.config.translation_only}
-                                                             onChange={(e) => setConfig("translation_only", e.target.checked)}/>}
-                                          label={localization.only_send_translation[state.config.language]}/>
-                        <FormControlLabel control={<Checkbox checked={state.config.disable_when_muted}
-                                                             onChange={(e) => setConfig("disable_when_muted", e.target.checked)}/>}
-                                          label={localization.disable_kikitan_when_muted[state.config.language]}/>
+                        <Tooltip title={localization.do_not_send_original_tooltip[state.config.language]}>
+                            <FormControlLabel control={<Checkbox checked={state.config.translation_only}
+                                                                 onChange={(e) => setConfig("translation_only", e.target.checked)}/>}
+                                              label={localization.only_send_translation[state.config.language]}/>
+                        </Tooltip>
+                        <Tooltip title={localization.disable_kikitan_when_muted_tooltip[state.config.language]}>
+                            <FormControlLabel control={<Checkbox checked={state.config.disable_when_muted}
+                                                                 onChange={(e) => setConfig("disable_when_muted", e.target.checked)}/>}
+                                              label={localization.disable_kikitan_when_muted[state.config.language]}/>
+                        </Tooltip>
                         <p className={`mt-2 ${state.config.light_mode ? "text-black" : "text-slate-400"}`}>{localization.chatbox_update_speed[state.config.language]}</p>
                         <Select sx={{
                             color: state.config.light_mode ? 'black' : 'white',

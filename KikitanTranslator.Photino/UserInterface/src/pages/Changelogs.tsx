@@ -42,7 +42,7 @@ export default function Changelogs({ closeCallback, state, changelog }: Changelo
                 <h1 className="ml-2 mt-[5px] text-xl font-semibold">{localization.changelogs[state.config.language]}</h1>
             </Box>
 
-            <Markdown remarkPlugins={[remarkGfm]} className="list-disc list-inside text-sm mt-4 ml-8 w-11/12 max-h-80 whitespace-pre text-wrap overflow-y-scroll">{changelog}</Markdown>
+            <Markdown remarkPlugins={[remarkGfm]} className="list-disc list-inside text-sm mt-4 ml-8 w-11/12 max-h-80 whitespace-pre text-wrap overflow-hidden">{changelog}</Markdown>
         </Box>
     </>
 }

@@ -93,7 +93,7 @@ export const localization = {
         en: "Desktop translation only works under Windows at the moment!",
         jp: "デスクトップ翻訳は現在、Windowsのみで動作します！",
         cn: "桌面翻译目前仅在Windows下运行！",
-        kr: "데스크톱 번역은 현재 Windows에서만 작동합니다!"
+        kr: "데스크톱 번역은 현재 Windows에서만 작동합니다!",
     },
     open_win_audio: {
         en: "Open Windows Audio Settings",
@@ -130,6 +130,36 @@ export const localization = {
         jp: "ここからモードを変更できます。翻訳モードでは音声を指定した言語に翻訳し、STTモードでは翻訳なしで音声をテキストに変換します（ゲーム内で声を出したくないがチャットボックスには入力したくない場合に便利です）。",
         cn: "您可以在此处更改模式。翻译模式会将您的语音翻译成指定语言，而STT模式仅将语音转换为文字，不进行翻译（适合不想在游戏中说话、又不想手动输入聊天框的情况）。",
         kr: "여기에서 모드를 변경할 수 있습니다. 번역 모드는 음성을 지정한 언어로 번역하고, STT 모드는 번역 없이 음성을 텍스트로 변환합니다(게임에서 말하고 싶지 않지만 채팅창에 직접 입력하고 싶지 않을 때 유용합니다).",
+    },
+    desktop_translation: {
+        en: "Desktop Translation",
+        jp: "デスクトップ翻訳",
+        cn: "桌面翻译",
+        kr: "데스크톱 번역",
+    },
+    settings_details: {
+        en: "You can access the settings to configure Kikitan by pressing the settings button on top right!",
+        jp: "右上の設定ボタンを押すことで、Kikitanの設定にアクセスできます！",
+        cn: "通过点击右上角的设置按钮，您可以访问Kikitan的设置！",
+        kr: "오른쪽 상단의 설정 버튼을 눌러 Kikitan 설정에 접근할 수 있습니다!",
+    },
+    disable_kikitan_when_muted_tooltip: {
+        en: "Enabling this will make it so that when you're muted in the game, Kikitan will not recognize your voice",
+        jp: "これを有効にすると、ゲーム内でミュートされている間、Kikitanがあなたの声を認識しなくなります",
+        cn: "启用此选项后，当您在游戏中被静音时，Kikitan将不会识别您的声音",
+        kr: "이 기능을 활성화하면 게임에서 음소거 상태일 때 Kikitan이 음성을 인식하지 않습니다",
+    },
+    do_not_send_original_tooltip: {
+        en: "Enabling this will make it so that only the translated text will be sent to the chatbox",
+        jp: "これを有効にすると、翻訳されたテキストのみがチャットボックスに送信されます",
+        cn: "启用此选项后，只有翻译后的文本会被发送到聊天框",
+        kr: "이 기능을 활성화하면 번역된 텍스트만 채팅창으로 전송됩니다",
+    },
+    desktop_translation_details: {
+        en: "You can enable desktop translation from here. When others speak, the app will translate what they're saying and display it. It will appear as a box on the bottom of your main monitor if you're not on VR. If you're on VR, you'll see it appear below the center of your vision (Windows only for now)",
+        jp: "ここからデスクトップ翻訳を有効にできます。他の人が話すと、アプリがその内容を翻訳して表示します。VRを使用していない場合は、メインモニターの下部にボックスとして表示されます。VRを使用している場合は、視野の中央下に表示されます（現在はWindowsのみ）",
+        cn: "您可以从这里启用桌面翻译。当其他人说话时，应用程序会翻译他们所说的内容并显示出来。如果您不在VR中，它将作为一个框显示在主显示器的底部。如果您在VR中，它将出现在您视野中央的下方（目前仅支持Windows）",
+        kr: "여기서 데스크톱 번역을 활성화할 수 있습니다. 다른 사람이 말할 때 앱이 내용을 번역하여 표시합니다. VR을 사용하지 않는 경우 메인 모니터 하단에 박스로 표시됩니다. VR을 사용하는 경우 시야 중앙 아래에 표시됩니다(현재 Windows만 지원)",
     },
     thank_you: {
         en: "Thank you for using Kikitan!",
@@ -302,7 +332,7 @@ export const localization = {
     start: { en: "Start", jp: "開始", cn: "开始", kr: "시작" },
     stop: { en: "Stop", jp: "停止", cn: "停止", kr: "중지" },
     unable_to_access_google_servers: {
-        en: "Unable to access to Google servers. Please make sure your firewall settings are not blocking the requests or if you're located in a country that has Google servers banned (for example China), make sure your VPN is working properly!",
+        en: "Unable to access Google servers. Please make sure your firewall settings are not blocking the requests or if you're located in a country that has Google servers banned (for example China), make sure your VPN is working properly!",
         jp: "Googleサーバーにアクセスできません。ファイアウォールの設定がリクエストをブロックしていないか確認してください。Googleが制限されている国にお住まいの場合（例：中国）は、VPNが正常に動作しているかご確認ください！",
         cn: "无法访问Google服务器。请确保您的防火墙设置未阻止请求。若您位于屏蔽Google的国家（如中国），请确认VPN运行正常！",
         kr: "Google 서버에 접근할 수 없습니다. 방화벽 설정이 요청을 차단하고 있지 않은지 확인하세요. Google이 차단된 국가(예: 중국)에 계신 경우 VPN이 정상 작동 중인지 확인하세요!",
@@ -317,14 +347,13 @@ export const localization = {
         en: "A new update is available!",
         jp: "新しいアップデートがあります！",
         cn: "有新的更新可用！",
-        kr: "새로운 업데이트가 있습니다!"
+        kr: "새로운 업데이트가 있습니다!",
     },
-    
     update: {
         en: "Update",
         jp: "アップデート",
         cn: "更新",
-        kr: "업데이트"
+        kr: "업데이트",
     },
     advanced_settings: {
         en: "Advanced Settings",
