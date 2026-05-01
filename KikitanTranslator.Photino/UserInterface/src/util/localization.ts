@@ -83,11 +83,11 @@ export const localization = {
         cn: "旧版，不推荐，与桌面翻译不兼容",
         kr: "레거시, 권장되지 않음, 데스크톱 번역과 호환되지 않음",
     },
-    disable_desktop_capture: {
-        en: "Disable Desktop Capture",
-        jp: "デスクトップキャプチャを無効にする",
-        cn: "禁用桌面捕获",
-        kr: "데스크톱 캡처 비활성화",
+    desktop_capture_enabled: {
+        en: "Desktop Capture Enabled",
+        jp: "デスクトップキャプチャ有効",
+        cn: "桌面捕获已启用",
+        kr: "데스크톱 캡처 활성화됨",
     },
     desktop_translation_warning: {
         en: "Desktop translation only works under Windows at the moment!",

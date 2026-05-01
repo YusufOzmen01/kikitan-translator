@@ -527,7 +527,7 @@ export default function Kikitan({ state }: { state: app_state }) {
                             }
                         }} checked={state.config.desktop_translation} disabled={state.is_linux} onChange={e => setConfig("desktop_translation", e.target.checked)}></Switch>
                     </Tooltip>
-                    <p className={`${state.config.desktop_translation ? "" : "opacity-50"} mb-2 mt-[0.4rem]`}>{state.config.desktop_translation ? localization.disable_desktop_capture[state.config.language] : localization.enable_desktop_capture[state.config.language]}</p>
+                    <p className={`${state.config.desktop_translation ? "" : "opacity-50"} mb-2 mt-[0.4rem]`}>{state.config.desktop_translation ? localization.desktop_capture_enabled[state.config.language] : localization.enable_desktop_capture[state.config.language]}</p>
                     
                 </div>
                 <div id="default-mic" className="justify-center flex mb-2 ml-2">
