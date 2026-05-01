@@ -87,9 +87,9 @@ export default function SettingsPage({ closeCallback, state }: SettingsProps) {
             }
 
         }} className={`relative w-max h-screen ${state.config.light_mode ? "" : "bg-slate-950 text-slate-200"}`}>
-            <div className="absolute z-10">
+            <div className="absolute z-10 ml-2">
                 <Box className="flex" sx={{borderBottom: 1, borderColor: 'divider'}}>
-                    <IconButton className="ml-2 mr-2" onClick={() => {
+                    <IconButton className="mr-2" onClick={() => {
                         closeCallback();
                     }}>
                         <Close/>
@@ -222,8 +222,6 @@ export default function SettingsPage({ closeCallback, state }: SettingsProps) {
                                 </div>
                             </div>
                         </div>
-                        <FormControlLabel className="mt-2" control={<Checkbox checked={state.config.desktop_translation} onChange={(e) => setConfig("desktop_translation", e.target.checked)}/>}
-                                          label={localization.enable_desktop_capture[state.config.language]}/>
                     </FormGroup>
                 </CustomTabPanel>
                 <CustomTabPanel className="flex" value={page} index={2}>

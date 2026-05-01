@@ -89,6 +89,12 @@ export const localization = {
         cn: "禁用桌面捕获",
         kr: "데스크톱 캡처 비활성화",
     },
+    desktop_translation_warning: {
+        en: "Desktop translation only works under Windows at the moment!",
+        jp: "デスクトップ翻訳は現在、Windowsのみで動作します！",
+        cn: "桌面翻译目前仅在Windows下运行！",
+        kr: "데스크톱 번역은 현재 Windows에서만 작동합니다!"
+    },
     open_win_audio: {
         en: "Open Windows Audio Settings",
         jp: "Windowsのオーディオ設定を開く",
@@ -313,6 +319,7 @@ export const localization = {
         cn: "有新的更新可用！",
         kr: "새로운 업데이트가 있습니다!"
     },
+    
     update: {
         en: "Update",
         jp: "アップデート",

@@ -31,8 +31,9 @@ public class AppState
     [JsonProperty("microphones")] public Mic[] Microphones;
     [JsonProperty("config")] public ConfigObject Config;
     [JsonProperty("status")] public int Status;
-    [JsonProperty("app_version")] public string? AppVersion;
-    [JsonProperty("server_version")] public string? ServerVersion;
+    [JsonProperty("app_version")] public string AppVersion = "Developer Build";
+    [JsonProperty("server_version")] public string ServerVersion = "Developer Build";
+    [JsonProperty("is_linux")] public bool IsLinux;
 }
 
 public class RecognitionData
@@ -79,7 +80,10 @@ public class Manager
     public Manager(bool noUI, Connector connector)
     {
         _appState.Config = AppConfig.ConfigObject;
-        _appState.AppVersion = VelopackLocator.Current.CurrentlyInstalledVersion?.ToString();
+        #if !DEBUG
+        _appState.AppVersion = VelopackLocator.Current.CurrentlyInstalledVersion?.ToString() 
+        #endif
+        _appState.IsLinux = !RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
         _connector = connector;
         
         Task.Run(async () =>
@@ -160,17 +164,9 @@ public class Manager
             return;
         }
 
-        IRecognizer rMic, rDesktop;
-        if (AppConfig.ConfigObject.Recognizer == 0)
-        {
-            rMic = new Bing(_mic);
-            rDesktop = new Bing(_loopback);
-        }
-        else
-        {
-            rMic = new GroqRecognizer(_mic);
-            rDesktop = new GroqRecognizer(_loopback);
-        }
+        IRecognizer rMic;
+        if (AppConfig.ConfigObject.Recognizer == 0) rMic = new Bing(_mic);
+        else rMic = new GroqRecognizer(_mic);
 
         if (AppConfig.ConfigObject.Translator == 0) _translator = new GoogleTranslate();
         else _translator = new GroqTranslator();
@@ -179,19 +175,7 @@ public class Manager
         _microphoneKikitan.AddOutput(new Custom(SendRecognitionData));
         if (AppConfig.ConfigObject.SendToChatbox)
             _microphoneKikitan.AddOutput(new OSC()); // TODO: Data out via OSC for other apps
-
-        if (AppConfig.ConfigObject.DesktopTranslation)
-        {
-            _desktopKikitan = new Kikitan(rDesktop, _translator, true);
-            _desktopKikitan.AddOutput(new Custom((recognized, translated, final) =>
-            {
-                var text = AppConfig.ConfigObject.SpeechToTextOnly ? recognized : translated;
-                var time = text.Length * AppConfig.ConfigObject.ChatboxWaitPerCharMs;
-            
-                writer.Write(new OverlayPipeData { Text = text, NoLanguageSpace = AppConfig.ConfigObject.TargetLanguage == "ja" || AppConfig.ConfigObject.TargetLanguage == "ko" || AppConfig.ConfigObject.TargetLanguage == "cn", Time = time < 5000 ? 5000 : time});
-            }));
-        }
-
+        
         _microphoneKikitan.OnRecognizerStatusChanged += s =>
         {
             _appState.Status = (int)s;
@@ -200,7 +184,25 @@ public class Manager
         };
         
         _microphoneKikitan.Start();
-        _desktopKikitan?.Start();
+
+        if (AppConfig.ConfigObject.DesktopTranslation)
+        {
+            IRecognizer rDesktop;
+            
+            if (AppConfig.ConfigObject.Recognizer == 0) rDesktop = new Bing(_loopback);
+            else rDesktop = new GroqRecognizer(_loopback);
+            
+            _desktopKikitan = new Kikitan(rDesktop, _translator, true);
+            _desktopKikitan.AddOutput(new Custom((recognized, translated, final) =>
+            {
+                var text = AppConfig.ConfigObject.SpeechToTextOnly ? recognized : translated;
+                var time = text.Length * AppConfig.ConfigObject.ChatboxWaitPerCharMs;
+            
+                writer.Write(new OverlayPipeData { Text = text, NoLanguageSpace = AppConfig.ConfigObject.TargetLanguage == "ja" || AppConfig.ConfigObject.TargetLanguage == "ko" || AppConfig.ConfigObject.TargetLanguage == "cn", Time = time < 5000 ? 5000 : time});
+            }));
+            
+            _desktopKikitan?.Start();
+        }
         
         _running = true;
         SendUpdateToUI();

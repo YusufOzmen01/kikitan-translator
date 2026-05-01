@@ -10,7 +10,8 @@ import {
     CircularProgress,
     Snackbar,
     Alert,
-    Slide
+    Slide,
+    Switch,
 } from "@mui/material";
 
 import {
@@ -502,6 +503,13 @@ export default function Kikitan({ state }: { state: app_state }) {
             </div>
 
             <div id="social-links" className="align-middle">
+                <div className="justify-center flex mb-2">
+                    <Tooltip title={state.is_linux ? localization.desktop_translation_warning[state.config.language] : ""}>
+                        <Switch value={state.config.desktop_translation} disabled={state.is_linux} onChange={e => setConfig("desktop_translation", e.target.checked)}></Switch>
+                    </Tooltip>
+                    <p className={`${state.config.desktop_translation ? "" : "opacity-50"} mb-2 mt-[0.4rem]`}>{state.config.desktop_translation ? localization.disable_desktop_capture[state.config.language] : localization.enable_desktop_capture[state.config.language]}</p>
+                    
+                </div>
                 <div id="default-mic" className="justify-center flex mb-2 ml-2">
                     <KeyboardVoiceIcon fontSize="small" className="mt-3" />
                     <Select

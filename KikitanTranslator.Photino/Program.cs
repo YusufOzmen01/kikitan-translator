@@ -11,7 +11,7 @@ using Velopack.Sources;
 
 public class Program
 {
-    private static readonly int width = 900, height = 550;
+    private static readonly int width = 900, height = 600;
 
     [STAThread]
     public static void Main(string[] args)
