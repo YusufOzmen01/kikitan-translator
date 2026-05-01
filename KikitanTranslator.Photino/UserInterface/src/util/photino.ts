@@ -1,9 +1,11 @@
 ﻿import {app_state} from "./constants.ts";
 
 const pendingRequests = new Map();
-var recognitionCallback: ((r: string, t: string, f: boolean) => void) | null = null;
-var stateCallback: ((state: app_state) => void) | null = null;
-var microphoneChangedCallback: (() => void) | null = null;
+let recognitionCallback: ((r: string, t: string, f: boolean) => void) | null = null;
+let stateCallback: ((state: app_state) => void) | null = null;
+let microphoneChangedCallback: (() => void) | null = null;
+let notificationCallback: ((msg: string, level: number) => void) | null = null;
+
 
 export function init() {
     // @ts-ignore
@@ -31,7 +33,12 @@ export function init() {
             stateCallback?.(data);
             
             return;
-        } 
+        }
+        else if (response.method == "notification") {
+            notificationCallback?.(data.msg, data.level);
+
+            return;
+        }
 
         const resolve = pendingRequests.get(response.method);
         resolve(JSON.parse(response.data));
@@ -105,4 +112,8 @@ export function registerStateCallback(callback: (state: app_state) => void) {
 
 export function registerMicrophoneChangedCallback(callback: () => void) {
     microphoneChangedCallback = callback;
+}
+
+export function registerNotificationCallback(callback: (msg: string, level: number) => void) {
+    notificationCallback = callback;
 }

@@ -38,7 +38,7 @@ import {
 import { localization } from "../util/localization";
 import {
     controlKikitan,
-    manualTranslate, openURL, registerMicrophoneChangedCallback,
+    manualTranslate, openURL, registerMicrophoneChangedCallback, registerNotificationCallback,
     registerRecognitionCallback,
     setConfig
 } from "../util/photino.ts";
@@ -97,6 +97,7 @@ export default function Kikitan({ state }: { state: app_state }) {
         });
         
         registerMicrophoneChangedCallback(() => showNotification(localization.microphone_updated[state.config.language], "warning"))
+        registerNotificationCallback((msg: string, level: number) => showNotification(msg, level == 1 ? "warning" : level == 2 ? "error" : level == 3 ? "success" : "info"))
         controlKikitan(true)
         
         if (sessionStorage.getItem("history") != null) setMessageHistory(JSON.parse(sessionStorage.getItem("history")!))
