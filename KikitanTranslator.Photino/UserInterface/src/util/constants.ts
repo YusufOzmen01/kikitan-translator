@@ -27,6 +27,7 @@ export type app_state = {
     app_version: string;
     server_version: string;
     is_linux: boolean;
+    is_appimage: boolean;
 }
 
 export const langSource = [

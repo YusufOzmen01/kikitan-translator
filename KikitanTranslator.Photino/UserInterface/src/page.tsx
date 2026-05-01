@@ -10,7 +10,8 @@ import {
     MenuItem,
     Button,
     IconButton,
-    CircularProgress
+    CircularProgress,
+    Tooltip
 } from '@mui/material';
 
 import {
@@ -126,35 +127,61 @@ function App() {
                 <div
                     className={'transition-all z-30 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (updaterVisible && appState.config.quickstart_viewed ? " opacity-100" : " opacity-0 pointer-events-none")}>
                     <div
-                        className={`flex flex-row items-center w-96 h-48 outline outline-1 ${appState.config.light_mode ? "outline-white" : "outline-slate-950"} rounded ${appState.config.light_mode ? "bg-white" : "bg-slate-950"} px-4 gap-4`}>
+                        className={`flex flex-row items-center w-96 ${appState.is_linux && !appState.is_appimage ? "h-80" : "h-48"} outline outline-1 ${appState.config.light_mode ? "outline-white" : "outline-slate-950"} rounded ${appState.config.light_mode ? "bg-white" : "bg-slate-950"} px-4 gap-4`}>
                         
-                        <div className={`flex flex-col flex-1 transition-opacity duration-240 ${(updating && !showProgress) ? "opacity-0" : "opacity-100"}`}>
-                            <p className={`${showProgress ? "text-4xl" : "text-3xl"} text-center`}>{updaterText}</p>
-                            {!showProgress && <p className="text-md italic text-slate-600 text-center">{newVersion}</p>}
-                        </div>
-                        
-                        <div className="relative flex flex-col gap-2" style={{ width: 128, height: 104 }}>
-                            <div className={`transition-opacity duration-300 ${updating ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
-                                <Button
-                                    variant="contained"
-                                    disabled={updating}
-                                    color="success"
-                                    className='w-32 h-12'
-                                    onClick={() => {
-                                        setUpdating(true)
-                                        setTimeout(() => {
-                                            setShowProgress(true)
-                                            setUpdaterText(localization.updating[appState.config.language])
-                                            update()
-                                        }, 300)
-                                    }}>
-                                    <p className='text-md'>
-                                        <DownloadOutlined fontSize="small" />
-                                        {localization.update[appState.config.language]}
-                                    </p>
-                                </Button>
+                        {!appState.is_linux || appState.is_appimage && 
+                        <>
+                            <div className={`flex flex-col flex-1 transition-opacity duration-240 ${(updating && !showProgress) ? "opacity-0" : "opacity-100"}`}>
+                                <p className={`${showProgress ? "text-4xl" : "text-3xl"} text-center`}>{updaterText}</p>
+                                {!showProgress && <p className="text-md italic text-slate-600 text-center">{newVersion}</p>}
                             </div>
-                            <div className={`transition-opacity duration-300 ${updating ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
+                            <div className="relative flex flex-col gap-2" style={{ width: 128, height: 104 }}>
+                                <div className={`transition-opacity duration-300 ${updating ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
+                                    <Button
+                                        variant="contained"
+                                        disabled={updating}
+                                        color="success"
+                                        className='w-32 h-12'
+                                        onClick={() => {
+                                            setUpdating(true)
+                                            setTimeout(() => {
+                                                setShowProgress(true)
+                                                setUpdaterText(localization.updating[appState.config.language])
+                                                update()
+                                            }, 300)
+                                        }}>
+                                        <p className='text-md'>
+                                            <DownloadOutlined fontSize="small" />
+                                            {localization.update[appState.config.language]}
+                                        </p>
+                                    </Button>
+                                </div>
+                                <div className={`transition-opacity duration-300 ${updating ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
+                                    <Button
+                                        variant="contained"
+                                        disabled={updating}
+                                        className='w-32 h-12'
+                                        onClick={() => {
+                                            updateViewed = true;
+                                            setUpdaterVisible(false)
+                                        }}>
+                                        <Clear fontSize="small" />
+                                        <p className='text-xs'>{localization.close_menu[appState.config.language]}</p>
+                                    </Button>
+                                </div>
+                                
+                                <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 z-20 ${showProgress ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
+                                    <CircularProgress size={96} />
+                                </div>
+                            </div>
+                        </>   
+                        }
+                        
+                        {appState.is_linux && !appState.is_appimage && 
+                        <>
+                            <div className="flex flex-col flex-1 gap-2 text-center items-center">
+                                <p className="text-4xl text-center">{updaterText}</p>
+                                <p className='text-md'>{localization.not_appimage_warning[appState.config.language]}</p>
                                 <Button
                                     variant="contained"
                                     disabled={updating}
@@ -168,10 +195,8 @@ function App() {
                                 </Button>
                             </div>
                             
-                            <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 z-20 ${showProgress ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
-                                <CircularProgress size={96} />
-                            </div>
-                        </div>
+                        </>
+                        }
                     </div>
                 </div>
 

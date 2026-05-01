@@ -66,7 +66,7 @@ public class Program
             .SetIconFile("Resources/wwwroot/kikitan_logo.ico")
 #else
             .SetContextMenuEnabled(false)
-            .SetIconFile("wwwroot/kikitan_logo.ico")
+            .SetIconFile(Path.Combine(AppContext.BaseDirectory, "wwwroot", "kikitan_logo.ico"))
 #endif
             .SetSize(new Size(width, height))
             .Center()

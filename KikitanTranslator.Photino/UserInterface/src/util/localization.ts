@@ -29,6 +29,12 @@ export const localization = {
         cn: "您可以点击右上角的主题按钮来更改应用主题（点击时图标会随之变化！）",
         kr: "오른쪽 상단의 테마 버튼을 눌러 앱 테마를 변경할 수 있습니다 (클릭하면 아이콘이 변경됩니다!)"
     },
+    not_appimage_warning: {
+        en: "Kikitan is installed via your distribution's package manager. Please update through your package manager. You can install the AppImage version to receive updates without your distribution's package manager",
+        jp: "Kikitanはディストリビューションのパッケージマネージャーを通じてインストールされています。パッケージマネージャーを通じて更新してください。AppImageバージョンをインストールすると、ディストリビューションのパッケージマネージャーを使用せずに更新を受け取ることができます",
+        cn: "Kikitan是通过您的发行版的包管理器安装的。请通过包管理器进行更新。您可以安装AppImage版本以在不使用发行版的包管理器的情况下接收更新",
+        kr: "Kikitan은 배포판의 패키지 관리자를 통해 설치됩니다. 패키지 관리자를 통해 업데이트하세요. AppImage 버전을 설치하면 배포판의 패키지 관리자를 사용하지 않고도 업데이트를 받을 수 있습니다",
+    },
     default: {
         en: "Default",
         jp: "デフォルト",

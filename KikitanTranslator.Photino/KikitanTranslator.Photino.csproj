@@ -1,13 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
     <PropertyGroup>
-        <OutputType>WinExe</OutputType>
+        <OutputType Condition="'$(RuntimeIdentifier)' == 'linux-x64'">Exe</OutputType>
+        <OutputType Condition="'$(RuntimeIdentifier)' != 'linux-x64'">WinExe</OutputType>
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
         <ApplicationIcon>Resources/wwwroot/kikitan_logo.ico</ApplicationIcon>
-        
         <Version>2.0.0</Version>
         <PackageId>com.github.yusufozmen01.kikitan-translator</PackageId>
         <Title>Kikitan Translator</Title>
@@ -42,42 +41,45 @@
     </ItemGroup>
 
     <Target Name="NpmBuild" BeforeTargets="CopyDistToWwwroot" Condition="'$(Configuration)' == 'Release'">
-        <Exec Command="npm run build" WorkingDirectory="$(MSBuildProjectDirectory)\UserInterface" />
+        <Exec Command="npm run build" WorkingDirectory="$(MSBuildProjectDirectory)/UserInterface" />
     </Target>
 
     <Target Name="CopyDistToWwwroot" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
         <ItemGroup>
-            <DistFiles Include="$(MSBuildProjectDirectory)\UserInterface\dist\**\*" />
-            <ResourceFiles Include="$(MSBuildProjectDirectory)\Resources\wwwroot\**\*" />
+            <DistFiles Include="$(MSBuildProjectDirectory)/UserInterface/dist/**/*" />
+            <ResourceFiles Include="$(MSBuildProjectDirectory)/Resources/wwwroot/**/*" />
         </ItemGroup>
-        <Copy SourceFiles="@(DistFiles)" DestinationFiles="@(DistFiles->'$(OutputPath)wwwroot\%(RecursiveDir)%(Filename)%(Extension)')" />
-        <Copy SourceFiles="@(ResourceFiles)" DestinationFiles="@(ResourceFiles->'$(OutputPath)wwwroot\%(RecursiveDir)%(Filename)%(Extension)')" />
+        <Copy SourceFiles="@(DistFiles)" DestinationFiles="@(DistFiles->'$(OutputPath)wwwroot/%(RecursiveDir)%(Filename)%(Extension)')" />
+        <Copy SourceFiles="@(ResourceFiles)" DestinationFiles="@(ResourceFiles->'$(OutputPath)wwwroot/%(RecursiveDir)%(Filename)%(Extension)')" />
     </Target>
 
     <Target Name="BuildAndCopyOverlay"
             AfterTargets="CopyDistToWwwroot"
             Condition="'$(Configuration)' == 'Release' AND '$(RuntimeIdentifier)' == 'win-x64'">
-
         <MSBuild
-                Projects="$(MSBuildThisFileDirectory)..\KikitanTranslator.Overlay\KikitanTranslator.Overlay.csproj"
-                Targets="Restore;Build"
-                Properties="Configuration=$(Configuration);RuntimeIdentifier=win-x64;SelfContained=false" />
-
+            Projects="$(MSBuildThisFileDirectory)..\KikitanTranslator.Overlay\KikitanTranslator.Overlay.csproj"
+            Targets="Restore;Build"
+            Properties="Configuration=$(Configuration);RuntimeIdentifier=win-x64;SelfContained=false" />
         <ItemGroup>
             <OverlayFiles Include="$(MSBuildThisFileDirectory)..\KikitanTranslator.Overlay\bin\$(Configuration)\net10.0-windows\win-x64\**\*" />
         </ItemGroup>
-
         <Copy
-                SourceFiles="@(OverlayFiles)"
-                DestinationFolder="$(OutDir)" />
-
+            SourceFiles="@(OverlayFiles)"
+            DestinationFolder="$(OutDir)" />
     </Target>
 
     <Target Name="VelopackPack"
             AfterTargets="BuildAndCopyOverlay"
             Condition="'$(Configuration)' == 'Release' AND '$(RuntimeIdentifier)' == 'win-x64'">
         <RemoveDir Directories="$(OutDir)Release" />
-        <Exec Command="vpk pack --packId $(PackageId) --packVersion $(Version) --packDir &quot;$(MSBuildProjectDirectory)\bin\Release\net10.0\win-x64&quot; --mainExe KikitanTranslator.Photino.exe --icon &quot;$(MSBuildProjectDirectory)\Resources\wwwroot\kikitan_logo.ico&quot; --packTitle &quot;$(Title)&quot; -o &quot;$(OutDir)Release&quot; -f net9.0-x64-runtime,net9.0-x64-aspnetcore,webview2"  />
+        <Exec Command="vpk pack --packId $(PackageId) --packVersion $(Version) --packDir &quot;$(MSBuildProjectDirectory)/bin/Release/net9.0/win-x64&quot; --mainExe KikitanTranslator.Photino.exe --icon &quot;$(MSBuildProjectDirectory)/Resources/wwwroot/kikitan_logo.ico&quot; --packTitle &quot;$(Title)&quot; -o &quot;$(OutDir)Release&quot; -f net9.0-x64-runtime,net9.0-x64-aspnetcore,webview2" />
+    </Target>
+
+    <Target Name="VelopackPackLinux"
+            AfterTargets="CopyDistToWwwroot"
+            Condition="'$(Configuration)' == 'Release' AND '$(RuntimeIdentifier)' == 'linux-x64'">
+        <RemoveDir Directories="$(OutDir)Release" />
+        <Exec Command="vpk pack --packId $(PackageId) --packVersion $(Version) --packDir &quot;$(MSBuildProjectDirectory)/bin/Release/net9.0/linux-x64&quot; --mainExe KikitanTranslator.Photino --icon &quot;$(MSBuildProjectDirectory)/Resources/wwwroot/kikitan_logo.ico&quot; --packTitle &quot;$(Title)&quot; -o &quot;$(OutDir)Release&quot;" />
     </Target>
 
 </Project>

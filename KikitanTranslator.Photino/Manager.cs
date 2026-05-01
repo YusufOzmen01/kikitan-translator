@@ -34,6 +34,7 @@ public class AppState
     [JsonProperty("app_version")] public string AppVersion = "Developer Build";
     [JsonProperty("server_version")] public string ServerVersion = "Developer Build";
     [JsonProperty("is_linux")] public bool IsLinux;
+    [JsonProperty("is_appimage")] public bool IsAppimage;
 }
 
 public class RecognitionData
@@ -65,8 +66,8 @@ public class Manager
     private Loopback _loopback = new("Resources/wwwroot/silero_vad.onnx");
     private Microphone _mic = new("Resources/wwwroot/silero_vad.onnx");
     #else 
-    private Loopback _loopback = new("wwwroot/silero_vad.onnx");
-    private Microphone _mic = new("wwwroot/silero_vad.onnx");
+    private Loopback _loopback = new(Path.Combine(AppContext.BaseDirectory, "wwwroot", "silero_vad.onnx"));
+    private Microphone _mic = new(Path.Combine(AppContext.BaseDirectory, "wwwroot", "silero_vad.onnx"));
     #endif
     private AppState _appState = new () { Microphones = [] };
     private bool _running;
@@ -84,6 +85,7 @@ public class Manager
         _appState.AppVersion = VelopackLocator.Current.CurrentlyInstalledVersion?.ToString();
         #endif
         _appState.IsLinux = !RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+        _appState.IsAppimage = Environment.GetEnvironmentVariable("KIKITAN_NOT_APPIMAGE") == null;
         _connector = connector;
 
         Task.Run(async () =>
