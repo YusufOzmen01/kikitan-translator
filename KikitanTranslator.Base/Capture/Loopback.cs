@@ -12,8 +12,8 @@ public class Loopback : ICapture
     public event OnData? OnDataReceived;
 
     private bool _paused;
-    private readonly WasapiCapture _capture;
-    private readonly SileroVad _vad;
+    private WasapiCapture _capture;
+    private SileroVad _vad;
     private readonly WaveFormat _targetFormat = new(16000, 16, 1);
     
     private byte[] _resampledBuffer = new byte[16000 * 2 / 10];
@@ -23,12 +23,12 @@ public class Loopback : ICapture
 
     public Loopback(string sileroModelPath)
     {
-        _capture = new WasapiLoopbackCapture();
         _vad = new SileroVad(sileroModelPath);
     }
 
     public void Start()
     {
+        _capture = new WasapiLoopbackCapture();
         _capture.DataAvailable += OnDataAvailable;
         _capture.StartRecording();
         Log.Information("[LOOP] Capture has started");

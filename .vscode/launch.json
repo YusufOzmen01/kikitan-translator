@@ -10,9 +10,9 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/KikitanTranslator.Console/bin/Debug/net9.0/KikitanTranslator.Console.dll",
+            "program": "${workspaceFolder}/KikitanTranslator.Photino/bin/Debug/net9.0/KikitanTranslator.Photino.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/KikitanTranslator.Console",
+            "cwd": "${workspaceFolder}/KikitanTranslator.Photino",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
             "console": "internalConsole",
             "stopAtEntry": false

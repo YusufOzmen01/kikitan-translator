@@ -71,7 +71,7 @@ public class Manager
     private AppState _appState = new () { Microphones = [] };
     private bool _running;
 
-    private OverlayWriter writer = new();
+    private OverlayWriter _writer;
 
     private Connector _connector;
 
@@ -85,7 +85,7 @@ public class Manager
         #endif
         _appState.IsLinux = !RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
         _connector = connector;
-        
+
         Task.Run(async () =>
         {
             var mgr = new UpdateManager(new GithubSource("https://github.com/YusufOzmen01/kikitan-translator", null, false));
@@ -105,6 +105,8 @@ public class Manager
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !noUI)
         {
+            _writer = new();
+            
             if (!Path.Exists("KikitanTranslator.Overlay.exe"))
             {
                 Log.Warning("Kikitan Overlay doesn't exist! Perhaps a debug build?");
@@ -140,7 +142,7 @@ public class Manager
                     SendUpdateToUI();
                 }
 
-                if (!mics.Exists(m => m.Name == _appState.Config.Microphone))
+                if (_appState.Config.Microphone.Length != 0 && !mics.Exists(m => m.Name == _appState.Config.Microphone))
                 {
                     SendMicChanged();
                     RestartIfRunning();
@@ -185,7 +187,7 @@ public class Manager
         
         _microphoneKikitan.Start();
 
-        if (AppConfig.ConfigObject.DesktopTranslation)
+        if (AppConfig.ConfigObject.DesktopTranslation && !_appState.IsLinux)
         {
             IRecognizer rDesktop;
             
@@ -200,7 +202,7 @@ public class Manager
 
                 if (text.Length == 0) return;
             
-                writer.Write(new OverlayPipeData { Text = text, NoLanguageSpace = AppConfig.ConfigObject.TargetLanguage == "ja" || AppConfig.ConfigObject.TargetLanguage == "ko" || AppConfig.ConfigObject.TargetLanguage == "cn", Time = time < 5000 ? 5000 : time});
+                _writer.Write(new OverlayPipeData { Text = text, NoLanguageSpace = AppConfig.ConfigObject.TargetLanguage == "ja" || AppConfig.ConfigObject.TargetLanguage == "ko" || AppConfig.ConfigObject.TargetLanguage == "cn", Time = time < 5000 ? 5000 : time});
             }));
             
             _desktopKikitan?.Start();

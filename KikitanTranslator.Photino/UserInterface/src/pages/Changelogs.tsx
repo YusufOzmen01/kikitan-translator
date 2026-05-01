@@ -13,14 +13,20 @@ import {
     Close
 } from '@mui/icons-material';
 import {app_state} from "../util/constants";
+import { fetchURL } from "../util/photino";
 
 type ChangelogsProps = {
     closeCallback: () => void;
     state: app_state;
-    changelog: string;
 }
 
-export default function Changelogs({ closeCallback, state, changelog }: ChangelogsProps) {
+export default function Changelogs({ closeCallback, state }: ChangelogsProps) {
+    const [changelog, setChangelog] = React.useState("")
+
+    React.useEffect(() => {
+        fetchURL(`https://github.com/YusufOzmen01/velopack-test/releases/latest/download/CHANGELOG_${state.config.language}.md`).then(c => setChangelog(c))
+    }, [])
+
     return <>
         <Box sx={{ 
             width: '100%',
