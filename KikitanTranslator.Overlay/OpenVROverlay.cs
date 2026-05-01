@@ -15,7 +15,7 @@ public class OpenVROverlay : Application
     private List<ImageData> images;
 
     private float overlayDistance = -1.5f;
-    private float verticalOffset = -0.5f;
+    private float verticalOffset = -0.55f;
 
     public OpenVROverlay() : base(ApplicationType.Overlay)
     {
@@ -24,7 +24,7 @@ public class OpenVROverlay : Application
         overlay = new OVRSharp.Overlay("kikitan-overlay", "Kikitan Overlay");
 
         overlay.WidthInMeters = 0.8f;
-        overlay.Alpha = 1.0f;
+        overlay.Alpha = 0.8f;
         overlay.SetFlag(VROverlayFlags.IsPremultiplied, false);
         overlay.SetFlag(VROverlayFlags.SendVRSmoothScrollEvents, false);
 
