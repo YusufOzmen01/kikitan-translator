@@ -6,7 +6,6 @@ let stateCallback: ((state: app_state) => void) | null = null;
 let microphoneChangedCallback: (() => void) | null = null;
 let notificationCallback: ((msg: string, level: number) => void) | null = null;
 
-
 export function init() {
     // @ts-ignore
     if (window.external.receiveMessage == undefined) {
@@ -22,6 +21,12 @@ export function init() {
             microphoneChangedCallback?.();
 
             return;
+        } else if (response.method == "fetch") {
+            const resolve = pendingRequests.get(response.method);
+            resolve(response.data);
+            pendingRequests.delete(response.method);
+            
+            return
         }
         
         const data = JSON.parse(response.data);
@@ -52,6 +57,24 @@ export function setConfig(field: string, value: any) {
         method: "update_config",
         data: JSON.stringify({ field, value })
     }));
+}
+
+export async function fetchURL(url: string): Promise<string> {
+    const resp: string = await new Promise((resolve, _) => {
+        // @ts-ignore
+        window.external.sendMessage(JSON.stringify({
+            method: "fetch",
+            data: url
+        }));
+
+        pendingRequests.set("fetch", resolve)
+    });
+
+    if (resp.startsWith("ERR: ")) {
+        throw new Error(resp.split("ERR: ")[1])
+    }
+    
+    return resp;
 }
 
 export function manualTranslate(data: string) {

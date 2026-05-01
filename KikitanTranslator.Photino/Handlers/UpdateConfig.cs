@@ -92,6 +92,11 @@ public class UpdateConfig(Manager manager) : IHandler
                 AppConfig.ConfigObject.GroqApiKey = (string) d.Value;
                 
                 break;
+            case "last_version":
+                AppConfig.ConfigObject.LastVersion = (string) d.Value;
+                doNotRestart = true;
+                
+                break;
             default:
                 Log.Warning($"[CFG]  Received an unknown field {d.Field} with value {d.Value} while trying to update the config!");
                 

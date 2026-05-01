@@ -156,7 +156,7 @@ export default function SettingsPage({ closeCallback, state }: SettingsProps) {
                                     }
                                 }} className="w-96" value={state.config.translator} onChange={(e) => setConfig("translator", e.target.value)}>
                                     <MenuItem sx={{color: state.config.light_mode ? 'black' : 'white'}} value={0}>Google Translate ({localization.default[state.config.language]})</MenuItem>
-                                    <MenuItem sx={{color: state.config.light_mode ? 'black' : 'white'}} value={1}>Groq ({localization.requires_free_api_key[state.config.language]}, {localization.recommended[state.config.language]})</MenuItem>
+                                    <MenuItem sx={{color: state.config.light_mode ? 'black' : 'white'}} value={1}>Groq ({localization.requires_free_api_key[state.config.language]})</MenuItem>
                                 </Select>
 
                                 <p className={`mt-2 ${state.config.light_mode ? "text-black" : "text-slate-400"}`}>{localization.recognition_service[state.config.language]}</p>
@@ -215,8 +215,15 @@ export default function SettingsPage({ closeCallback, state }: SettingsProps) {
                                         <Button variant="contained"
                                                 color={state.config.groq_api_key.length == 0 ? "warning" : "primary"}
                                                 disabled={(state.config.translator != 1) && (state.config.recognizer != 1)} className="w-32 h-14"
+                                                sx={{
+                                                    "&.Mui-disabled": {
+                                                        borderColor: state.config.light_mode ? 'rgba(0, 0, 0, 0.4)' : 'rgba(148, 163, 184, 0.5)',
+                                                        color: state.config.light_mode ? 'rgba(0, 0, 0, 0.4)' : 'rgba(148, 163, 184, 0.5)',
+                                                    }
+                                                }}
                                                 onClick={async () => {
                                                     openURL("https://console.groq.com/keys")
+                                                    
                                                 }}><p className="text-sm">{localization.get_api_key[state.config.language]}</p></Button>
                                     </div>
                                 </div>

@@ -65,6 +65,8 @@ function App() {
 
                 updateViewed = state.config.update_waiting
             }
+            
+            setChangelogsVisible(state.config.last_version != state.app_version)
 
             setAppState(state)
             setStateUpdated(!stateUpdated)
@@ -181,7 +183,7 @@ function App() {
                         className={'transition-all z-30 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (changelogsVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
                         <div
                             className={`flex flex-col justify-between  w-10/12 h-5/6 outline outline-1 ${appState.config.light_mode ? "outline-slate-400" : "outline-slate-950"} rounded bg-white`}>
-                            <Changelogs state={appState} closeCallback={() => setChangelogsVisible(false)}/>
+                            <Changelogs state={appState} closeCallback={() => setConfig("last_version", appState.app_version)}/>
                         </div>
                     </div>
                 }

@@ -38,6 +38,21 @@ public class ConfigObject : INotifyPropertyChanged
             }
         }
     }
+    [JsonProperty("last_version")] private string _lastVersion = "en";
+
+    [JsonIgnore]
+    public string LastVersion
+    {
+        get => _lastVersion;
+        set
+        {
+            if (_lastVersion != value)
+            {
+                _lastVersion = value;
+                OnPropertyChanged();
+            }
+        }
+    }
     
     [JsonProperty("source_language")] private string _sourceLanguage = "en";
 

@@ -41,6 +41,7 @@ public class Program
         messageHandler.RegisterHandler("quit", new Quit());
         messageHandler.RegisterHandler("open_url", new OpenURL());
         messageHandler.RegisterHandler("update", new UpdateApp());
+        messageHandler.RegisterHandler("fetch", new Fetch());
 
         if (noUI)
         {

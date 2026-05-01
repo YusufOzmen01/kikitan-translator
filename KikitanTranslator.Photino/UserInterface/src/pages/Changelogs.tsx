@@ -9,14 +9,10 @@ import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 
 import {
-  info,
-  error
-} from '@tauri-apps/plugin-log';
-
-import {
     Close
 } from '@mui/icons-material';
 import {app_state} from "../util/constants";
+import {fetchURL} from "../util/photino.ts";
 
 type ChangelogsProps = {
     closeCallback: () => void;
@@ -26,14 +22,7 @@ type ChangelogsProps = {
 export default function Changelogs({ closeCallback, state }: ChangelogsProps) {
     const [changelog, setChangelog] = React.useState("")
     React.useEffect(() => {
-        info("[CHANGELOG] Fetching changelogs...")
-        fetch(`/changelogs/${state.config.language}.md`).then((res) => res.text()).then((text) => {
-            info("[CHANGELOG] Succesfully fetched changelogs!")
-            setChangelog(text)
-          })
-        .catch(e => {
-            error("[CHANGELOG] Error fetching changelogs: " + e)
-        })
+        fetchURL(`https://github.com/YusufOzmen01/velopack-test/releases/latest/download/CHANGELOG_${state.config.language}.md`).then((text) => setChangelog(text))
     }, [])
 
     return <>

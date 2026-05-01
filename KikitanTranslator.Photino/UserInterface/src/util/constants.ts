@@ -17,6 +17,7 @@ export type config = {
     desktop_translation: boolean;
     quickstart_viewed: boolean;
     groq_api_key: string;
+    last_version: string;
 }
 
 export type app_state = {
