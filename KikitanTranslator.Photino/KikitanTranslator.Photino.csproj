@@ -77,7 +77,7 @@
             AfterTargets="BuildAndCopyOverlay"
             Condition="'$(Configuration)' == 'Release' AND '$(RuntimeIdentifier)' == 'win-x64'">
         <RemoveDir Directories="$(OutDir)Release" />
-        <Exec Command="vpk pack --packId $(PackageId) --packVersion $(Version) --packDir &quot;$(MSBuildProjectDirectory)\bin\Release\net10.0\win-x64&quot; --mainExe KikitanTranslator.Photino.exe --icon &quot;$(MSBuildProjectDirectory)\Resources\wwwroot\kikitan_logo.ico&quot; --packTitle &quot;$(Title)&quot; -o &quot;$(OutDir)Release&quot;"  />
+        <Exec Command="vpk pack --packId $(PackageId) --packVersion $(Version) --packDir &quot;$(MSBuildProjectDirectory)\bin\Release\net10.0\win-x64&quot; --mainExe KikitanTranslator.Photino.exe --icon &quot;$(MSBuildProjectDirectory)\Resources\wwwroot\kikitan_logo.ico&quot; --packTitle &quot;$(Title)&quot; -o &quot;$(OutDir)Release&quot; -f net10.0-x64-runtime,net10.0-x64-aspnetcore,webview2"  />
     </Target>
 
 </Project>
