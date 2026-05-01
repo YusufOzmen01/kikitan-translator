@@ -107,29 +107,41 @@ export default function QuickstartMenu({ state }: { state: app_state }) {
                     </div>
                 </Box>
 
-                <div className={'absolute inset-0 transition-all space-y-2 flex flex-col items-center justify-center ease-in-out ' + (quickstartPage == 5 ? "opacity-100" : "opacity-0 pointer-events-none")}>
+                <div className={'absolute inset-0 transition-all flex justify-center ease-in-out ' + (quickstartPage == 5 ? "opacity-100" : "opacity-0 pointer-events-none")}>
+                    <div className='absolute mt-2 flex flex-col items-center'>
+                        <p className='text-xl bold text-center'>{localization.change_theme[state.config.language]}</p>
+                        {quickstartPage == 5 &&
+                            <video width={384} autoPlay loop className='mt-4'>
+                                <source src="/theme.mp4" type="video/mp4"></source>
+                            </video>
+                        }
+                        <p className='text-md mt-4 text-center'>{localization.change_theme_detail[state.config.language]}</p>
+                    </div>
+                </div>
+
+                <div className={'absolute inset-0 transition-all space-y-2 flex flex-col items-center justify-center ease-in-out ' + (quickstartPage == 6 ? "opacity-100" : "opacity-0 pointer-events-none")}>
                     <div className='mt-4 mb-4'>
                         <p className='text-xl mt-8 bold text-center'>{localization.thank_you[state.config.language]}</p>
                         <p className='text-lg mt-20 text-center'>{localization.thank_you_details[state.config.language]}</p>
                     </div>
-                    <Button disabled={quickstartPage != 5} className={'w-70'} variant='contained' startIcon={< GitHub />} onClick={async () => { openURL("https://github.com/YusufOzmen01/kikitan-translator") }}>{localization.open_repo[state.config.language]}</Button>
+                    <Button disabled={quickstartPage != 6} className={'w-70'} variant='contained' startIcon={< GitHub />} onClick={async () => { openURL("https://github.com/YusufOzmen01/kikitan-translator") }}>{localization.open_repo[state.config.language]}</Button>
                     <div className="flex gap-2">
                         <Button sx={{
                             backgroundColor: "#ffde06",
                             color: "black"
-                        }} disabled={quickstartPage != 5} variant="contained" className='w-52 h-9' onClick={() => { openURL("https://buymeacoffee.com/sergiomarquina") }}>
+                        }} disabled={quickstartPage != 6} variant="contained" className='w-52 h-9' onClick={() => { openURL("https://buymeacoffee.com/sergiomarquina") }}>
                             <img src="/buymeacoffeelogo.svg" width={36}></img>
                             <p className="mt-0.5">Buy Me a Coffee</p>
                         </Button>
 
                         <Button sx={{
                             backgroundColor: "#fc4d50"
-                        }} disabled={quickstartPage != 5} variant="contained" className='w-52' onClick={() => { openURL("https://booth.pm/en/items/6073050") }}>
+                        }} disabled={quickstartPage != 6} variant="contained" className='w-52' onClick={() => { openURL("https://booth.pm/en/items/6073050") }}>
                             <img src="/boothlogo.svg" width={24} className="mr-2"></img>
                             <p className="mt-0.5">Booth.pm</p>
                         </Button>
                     </div>
-                    <Button disabled={quickstartPage != 5} className={'w-48'} variant='contained' onClick={async () => {
+                    <Button disabled={quickstartPage != 6} className={'w-48'} variant='contained' onClick={async () => {
                         setConfig("quickstart_viewed", true)
                         setQuickstartPage(0)
                     }}>{localization.close_menu[state.config.language]}</Button>
@@ -142,12 +154,12 @@ export default function QuickstartMenu({ state }: { state: app_state }) {
                         borderColor: state.config.light_mode ? '#666666 !important' : '#4f4f4f !important'
                     }
                 }} variant='contained' disabled={quickstartPage == 0} onClick={() => { setQuickstartPage(quickstartPage - 1) }}>{localization.previous[state.config.language]}</Button>
-                {!(quickstartPage == 6) && <Button sx={{
+                {!(quickstartPage == 7) && <Button sx={{
                     '&.Mui-disabled': {
                         color: state.config.light_mode ? '#666666 !important' : '#4f4f4f !important',
                         borderColor: state.config.light_mode ? '#666666 !important' : '#4f4f4f !important'
                     }
-                }} className='ml-4' variant='contained' disabled={quickstartPage > 4} onClick={() => { setQuickstartPage(quickstartPage + 1) }}>{localization.next[state.config.language]}</Button>}
+                }} className='ml-4' variant='contained' disabled={quickstartPage > 5} onClick={() => { setQuickstartPage(quickstartPage + 1) }}>{localization.next[state.config.language]}</Button>}
             </div>
         </div>
     </>

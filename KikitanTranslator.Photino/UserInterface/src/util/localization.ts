@@ -17,6 +17,18 @@ export const localization = {
         cn: "API密钥",
         kr: "API 키",
     },
+    change_theme: {
+        en: "Change Theme",
+        jp: "テーマを変更",
+        cn: "更改主题",
+        kr: "테마 변경"
+    },
+    change_theme_detail: {
+        en: "You can change the theme of the app by pressing the theme button on top right (changes icons when you click on it!)",
+        jp: "右上にあるテーマボタンを押すと、アプリのテーマを変更できます（クリックするとアイコンが変わります！）",
+        cn: "您可以点击右上角的主题按钮来更改应用主题（点击时图标会随之变化！）",
+        kr: "오른쪽 상단의 테마 버튼을 눌러 앱 테마를 변경할 수 있습니다 (클릭하면 아이콘이 변경됩니다!)"
+    },
     default: {
         en: "Default",
         jp: "デフォルト",
