@@ -19,6 +19,8 @@ public class Program
 #if DEBUG
         string appUrl = "http://localhost:1420";
 #else
+        var exeDir = AppContext.BaseDirectory;
+        Directory.SetCurrentDirectory(exeDir);
         PhotinoServer.CreateStaticFileServer(args, out string baseUrl).RunAsync();
         string appUrl = $"{baseUrl}/index.html";
 #endif
