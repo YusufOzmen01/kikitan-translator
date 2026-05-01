@@ -5,7 +5,7 @@ namespace KikitanTranslator.Photino.Handlers;
 
 public class UpdateApp : IHandler
 {
-    public string? OnDataReceived(string data)
+    public async Task<string?> OnDataReceived(string data)
     {
         Task.Run(async () =>
         {

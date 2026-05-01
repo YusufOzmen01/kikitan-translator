@@ -2,7 +2,7 @@
 
 public class Quit : IHandler
 {
-    public string OnDataReceived(string data)
+    public async Task<string?>  OnDataReceived(string data)
     {
         Environment.Exit(0);
 

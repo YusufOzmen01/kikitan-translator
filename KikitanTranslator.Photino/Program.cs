@@ -65,6 +65,7 @@ public class Program
 #if DEBUG
             .SetIconFile("Resources/wwwroot/kikitan_logo.ico")
 #else
+            .SetContextMenuEnabled(false)
             .SetIconFile("wwwroot/kikitan_logo.ico")
 #endif
             .SetSize(new Size(width, height))
@@ -78,7 +79,7 @@ public class Program
                 messageHandler.HandleMessage(s, connector);
             })
             .Load(appUrl);
-
+        
         window.WaitForClose();
     }
 }

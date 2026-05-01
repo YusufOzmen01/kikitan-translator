@@ -2,19 +2,5 @@
 
 public class Fetch : IHandler
 {
-    public string? OnDataReceived(string data)
-    {
-        using var client = new HttpClient();
-
-        try
-        {
-            string resp = client.GetStringAsync(data).GetAwaiter().GetResult();
-
-            return resp;
-        }
-        catch (HttpRequestException e)
-        {
-            return $"ERR: {e}";
-        }
-    }
+    public async Task<string?> OnDataReceived(string data) => await new HttpClient().GetStringAsync(data);
 }

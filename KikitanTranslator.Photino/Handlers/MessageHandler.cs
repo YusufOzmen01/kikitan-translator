@@ -16,7 +16,7 @@ public class MessageHandler
 
     public void RegisterHandler(string methodName, IHandler handler) => _handlers.Add(methodName, handler);
 
-    public string? HandleMessage(string msg, Connector conn)
+    public async Task<string?> HandleMessage(string msg, Connector conn)
     {
         try
         {
@@ -32,7 +32,7 @@ public class MessageHandler
             {
                 if (handler.Key == m.Method)
                 {
-                    var d = handler.Value.OnDataReceived(m.Data);
+                    var d = await handler.Value.OnDataReceived(m.Data);
                     if (!string.IsNullOrEmpty(d)) conn.Send(JsonConvert.SerializeObject(new Message { Method = m.Method, Data = d }));
                     
                     break;

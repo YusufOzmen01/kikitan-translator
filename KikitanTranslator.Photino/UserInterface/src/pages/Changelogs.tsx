@@ -1,3 +1,4 @@
+// @ts-ignore
 import * as React from "react"
 
 import Box from '@mui/material/Box';
@@ -12,19 +13,14 @@ import {
     Close
 } from '@mui/icons-material';
 import {app_state} from "../util/constants";
-import {fetchURL} from "../util/photino.ts";
 
 type ChangelogsProps = {
     closeCallback: () => void;
     state: app_state;
+    changelog: string;
 }
 
-export default function Changelogs({ closeCallback, state }: ChangelogsProps) {
-    const [changelog, setChangelog] = React.useState("")
-    React.useEffect(() => {
-        fetchURL(`https://github.com/YusufOzmen01/velopack-test/releases/latest/download/CHANGELOG_${state.config.language}.md`).then((text) => setChangelog(text))
-    }, [])
-
+export default function Changelogs({ closeCallback, state, changelog }: ChangelogsProps) {
     return <>
         <Box sx={{ 
             width: '100%',

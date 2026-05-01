@@ -25,7 +25,15 @@ import {
 
 import Changelogs from './pages/Changelogs';
 import {localization} from './util/localization';
-import {controlKikitan, openURL, registerStateCallback, sendAppState, setConfig, update} from "./util/photino.ts";
+import {
+    controlKikitan,
+    fetchURL,
+    openURL,
+    registerStateCallback,
+    sendAppState,
+    setConfig,
+    update
+} from "./util/photino.ts";
 import QuickstartMenu from "./components/Quickstart.tsx";
 import SettingsPage from "./pages/Settings.tsx";
 import {app_state} from "./util/constants.ts";
@@ -48,14 +56,13 @@ function App() {
     const [appState, setAppState] = React.useState<app_state>({});
 
     const [loaded, setLoaded] = React.useState(false)
+    const [changelog, setChangelog] = React.useState("")
 
     React.useEffect(() => {
         setTimeout(() => setLoaded(true), 300);
 
         sendAppState()
         registerStateCallback(state => {
-            console.log(state)
-            
             if (!updateViewed) {
                 setUpdaterText(localization.new_update_available[state.config.language])
                 setUpdaterVisible(state.app_version != state.server_version)
@@ -70,6 +77,12 @@ function App() {
 
             setAppState(state)
             setStateUpdated(!stateUpdated)
+
+            if (changelog.length == 0) {
+                setChangelog("LOADING")
+                fetchURL(`https://github.com/YusufOzmen01/velopack-test/releases/latest/download/CHANGELOG_${state.config.language}.md`)
+                    .then(resp => setChangelog(resp))
+            }
         })
 
         if (localStorage.getItem("last_donation") == null) {
@@ -183,7 +196,10 @@ function App() {
                         className={'transition-all z-30 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (changelogsVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
                         <div
                             className={`flex flex-col justify-between  w-10/12 h-5/6 outline outline-1 ${appState.config.light_mode ? "outline-slate-400" : "outline-slate-950"} rounded bg-white`}>
-                            <Changelogs state={appState} closeCallback={() => setConfig("last_version", appState.app_version)}/>
+                            <Changelogs changelog={changelog} state={appState} closeCallback={() => {
+                                setConfig("last_version", appState.app_version)
+                                setChangelogsVisible(false)
+                            }}/>
                         </div>
                     </div>
                 }

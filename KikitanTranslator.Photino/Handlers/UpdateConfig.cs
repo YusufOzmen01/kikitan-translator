@@ -12,7 +12,7 @@ public class ConfigUpdate
 
 public class UpdateConfig(Manager manager) : IHandler
 {
-    public string OnDataReceived(string data)
+    public async Task<string?> OnDataReceived(string data)
     {
         bool doNotRestart = false;
         

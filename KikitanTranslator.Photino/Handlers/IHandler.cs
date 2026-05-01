@@ -2,5 +2,5 @@
 
 public interface IHandler
 {
-    public string? OnDataReceived(string data);
+    public Task<string?> OnDataReceived(string data);
 }

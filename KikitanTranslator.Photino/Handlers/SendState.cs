@@ -2,7 +2,7 @@
 
 public class SendState(Manager manager) : IHandler
 {
-    public string OnDataReceived(string data)
+    public async Task<string?> OnDataReceived(string data)
     {
         manager.SendUpdateToUI();
 

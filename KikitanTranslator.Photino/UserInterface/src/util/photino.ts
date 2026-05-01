@@ -10,10 +10,10 @@ export function init() {
     // @ts-ignore
     if (window.external.receiveMessage == undefined) {
         window.location.reload()
-        
+
         return;
     }
-    
+
     // @ts-ignore
     window.external.receiveMessage(message => {
         const response = JSON.parse(message);
@@ -25,10 +25,10 @@ export function init() {
             const resolve = pendingRequests.get(response.method);
             resolve(response.data);
             pendingRequests.delete(response.method);
-            
+
             return
         }
-        
+
         const data = JSON.parse(response.data);
         if (response.method == "recognition") {
             recognitionCallback?.(data.transcription, data.translation, data.final);
@@ -36,10 +36,9 @@ export function init() {
             return;
         } else if (response.method == "state") {
             stateCallback?.(data);
-            
+
             return;
-        }
-        else if (response.method == "notification") {
+        } else if (response.method == "notification") {
             notificationCallback?.(data.msg, data.level);
 
             return;
@@ -55,12 +54,12 @@ export function setConfig(field: string, value: any) {
     // @ts-ignore
     window.external.sendMessage(JSON.stringify({
         method: "update_config",
-        data: JSON.stringify({ field, value })
+        data: JSON.stringify({field, value})
     }));
 }
 
 export async function fetchURL(url: string): Promise<string> {
-    const resp: string = await new Promise((resolve, _) => {
+    return new Promise((resolve, _) => {
         // @ts-ignore
         window.external.sendMessage(JSON.stringify({
             method: "fetch",
@@ -69,12 +68,6 @@ export async function fetchURL(url: string): Promise<string> {
 
         pendingRequests.set("fetch", resolve)
     });
-
-    if (resp.startsWith("ERR: ")) {
-        throw new Error(resp.split("ERR: ")[1])
-    }
-    
-    return resp;
 }
 
 export function manualTranslate(data: string) {

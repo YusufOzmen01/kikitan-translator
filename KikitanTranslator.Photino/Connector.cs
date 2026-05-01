@@ -3,7 +3,7 @@ using Photino.NET;
 
 namespace KikitanTranslator.Photino;
 
-public delegate string? OnConnectorData(string data, Connector conn);
+public delegate Task<string?> OnConnectorData(string data, Connector conn);
 
 public class Connector
 {
@@ -33,8 +33,12 @@ public class Connector
 
     private void OnWebsocketMessage(string msg, IWebSocketConnection conn)
     {
-        var data = OnConnectorData?.Invoke(msg, this);
-        if (!string.IsNullOrEmpty(data)) conn.Send(data);
+        Task.Run(async () =>
+        {
+            var data = await OnConnectorData?.Invoke(msg, this)!;
+            
+            if (!string.IsNullOrEmpty(data)) await conn.Send(data);
+        });
     }
     
     private void SendToSockets(string data)
