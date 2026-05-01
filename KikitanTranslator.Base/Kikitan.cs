@@ -52,15 +52,12 @@ public class Kikitan : IDisposable
 
     private void OnRecognition(string text, bool final)
     {
-        if (!final)
+        foreach (var output in _outputs)
         {
-            foreach (var output in _outputs)
-            {
-                output.Send(text, "", final);
-            }
-
-            return;
+            output.Send(text, "", false);
         }
+
+        if (!final) return;
 
         var translated = AppConfig.ConfigObject.SpeechToTextOnly ? "" : _isLoopback ? _translator.Translate(text, AppConfig.ConfigObject.TargetLanguage, AppConfig.ConfigObject.SourceLanguage) : _translator.Translate(text, AppConfig.ConfigObject.SourceLanguage, AppConfig.ConfigObject.TargetLanguage);
         

@@ -76,9 +76,10 @@ export default function Kikitan({ state }: { state: app_state }) {
     React.useEffect(() => {
         // @ts-ignore
         registerRecognitionCallback((r, t, f) => {
-            setDetecting(!f);
-            setDetection(r);
+            if (r.length != 0) setDetection(r);
             if (t.length != 0) setTranslation(t);
+            
+            setDetecting(!f);
             
             if (f) {
                 var copy = messageHistory;

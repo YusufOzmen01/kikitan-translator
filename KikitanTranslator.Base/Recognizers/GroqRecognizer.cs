@@ -104,7 +104,10 @@ public class GroqRecognizer : IRecognizer
             {
                 _isCollectingSpeech = true;
                 _speechBuffer.Clear();
+                
+                OnRecognitionReceived?.Invoke("", false);
             }
+            
             _speechBuffer.AddRange(samples);
         }
         else if (_isCollectingSpeech)
@@ -112,6 +115,7 @@ public class GroqRecognizer : IRecognizer
             var audio = _speechBuffer.ToArray();
             _speechBuffer.Clear();
             _isCollectingSpeech = false;
+            OnRecognitionReceived?.Invoke("", true);
 
             if (audio.Length < 3840) return;
             TranscribeAsync(audio, _capture.GetSampleRate());
