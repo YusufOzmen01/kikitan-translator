@@ -140,7 +140,7 @@ export default function Kikitan({ state }: { state: app_state }) {
                                 sx={{
                                     color: state.config.light_mode
                                         ? "rgba(0, 0, 0, 0.87)"
-                                        : "#ffffff",
+                                        : "#ffffff"
                                 }}
                             >
                                 <CloseIcon />
@@ -455,21 +455,28 @@ export default function Kikitan({ state }: { state: app_state }) {
                 </div>
             </div>
             <div id="buttons" className="mt-2 mb-2 flex gap-2">
-                <Button
-                    variant="outlined"
-                    size="medium"
-                    disabled={state.status != 2}
-                    onClick={() => {
-                        if (!textInputVisible) {
-                            textInputRef.current?.focus();
-                            textInputRef.current?.select();
-                        }
-                        setTextInputVisible(!textInputVisible);
-                    }}
-                >
-                    <p>{localization.text[state.config.language]}</p>{" "}
-                    {<Keyboard className="ml-2" fontSize="small" />}
-                </Button>
+                <Tooltip title={localization.text[state.config.language]}>
+                    <Button
+                        variant="outlined"
+                        size="medium"
+                        disabled={state.status != 2}
+                        sx={{
+                            "&.Mui-disabled": {
+                                borderColor: state.config.light_mode ? 'rgba(0, 0, 0, 0.4)' : 'rgba(148, 163, 184, 0.5)',
+                                color: state.config.light_mode ? 'rgba(0, 0, 0, 0.4)' : 'rgba(148, 163, 184, 0.5)',
+                            }
+                        }}
+                        onClick={() => {
+                            if (!textInputVisible) {
+                                textInputRef.current?.focus();
+                                textInputRef.current?.select();
+                            }
+                            setTextInputVisible(!textInputVisible);
+                        }}
+                    >
+                        {<Keyboard fontSize="small" />}
+                    </Button>
+                </Tooltip>
                 <Button
                     variant="outlined"
                     size="medium"
@@ -485,7 +492,7 @@ export default function Kikitan({ state }: { state: app_state }) {
                         controlKikitan(state.status == 0)
                     }}
                 >
-                    <p>
+                    <p className="mr-2">
                         {state.status == 0 ? localization.start[state.config.language] : state.status == 2 ? localization.stop[state.config.language] : ""}
                     </p>
                     {state.status == 1 ? (<CircularProgress color="inherit" size={16} />) : state.status == 2 ? (<PauseIcon fontSize="small" />) : (<PlayArrowIcon fontSize="small" />)}
@@ -494,6 +501,12 @@ export default function Kikitan({ state }: { state: app_state }) {
                     <Button
                         variant="outlined"
                         size="medium"
+                        sx={{
+                            "&.Mui-disabled": {
+                                borderColor: state.config.light_mode ? 'rgba(0, 0, 0, 0.4)' : 'rgba(148, 163, 184, 0.5)',
+                                color: state.config.light_mode ? 'rgba(0, 0, 0, 0.4)' : 'rgba(148, 163, 184, 0.5)',
+                            }
+                        }}
                         disabled={messageHistory.length == 0}
                         onClick={() => setShowMessageHistory(true)}
                     >
@@ -505,7 +518,12 @@ export default function Kikitan({ state }: { state: app_state }) {
             <div id="social-links" className="align-middle">
                 <div className="justify-center flex mb-2">
                     <Tooltip title={state.is_linux ? localization.desktop_translation_warning[state.config.language] : ""}>
-                        <Switch value={state.config.desktop_translation} disabled={state.is_linux} onChange={e => setConfig("desktop_translation", e.target.checked)}></Switch>
+                        <Switch sx={{
+                            '& .MuiSwitch-track': {
+                                color: 'white',
+                                backgroundColor: 'gray'
+                            }
+                        }} value={state.config.desktop_translation} disabled={state.is_linux} onChange={e => setConfig("desktop_translation", e.target.checked)}></Switch>
                     </Tooltip>
                     <p className={`${state.config.desktop_translation ? "" : "opacity-50"} mb-2 mt-[0.4rem]`}>{state.config.desktop_translation ? localization.disable_desktop_capture[state.config.language] : localization.enable_desktop_capture[state.config.language]}</p>
                     

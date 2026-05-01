@@ -380,6 +380,12 @@ export const localization = {
         cn: "消息记录",
         kr: "메시지 기록",
     },
+    history: {
+        en: "History",
+        jp: "履歴",
+        cn: "历史",
+        kr: "기록",
+    },
     clear_history: {
         en: "Clear History",
         jp: "履歴を削除する",

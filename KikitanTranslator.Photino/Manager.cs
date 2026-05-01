@@ -222,6 +222,7 @@ public class Manager
     {
         if (_running)
         {
+            _appState.Status = 1;
             Stop();
 
             await Task.Delay(100);

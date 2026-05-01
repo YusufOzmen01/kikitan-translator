@@ -14,6 +14,8 @@ public class UpdateConfig(Manager manager) : IHandler
 {
     public string OnDataReceived(string data)
     {
+        bool doNotRestart = false;
+        
         var d = JsonConvert.DeserializeObject<ConfigUpdate>(data);
         if (d == null) return "";
 
@@ -21,6 +23,7 @@ public class UpdateConfig(Manager manager) : IHandler
         {
             case "language":
                 AppConfig.ConfigObject.Language = (string) d.Value;
+                doNotRestart = true;
                 
                 break;
             case "source_language":
@@ -33,6 +36,7 @@ public class UpdateConfig(Manager manager) : IHandler
                 break;
             case "light_mode":
                 AppConfig.ConfigObject.LightMode = (bool) d.Value;
+                doNotRestart = true;
                 
                 break;
             case "speech_to_text_only":
@@ -81,6 +85,7 @@ public class UpdateConfig(Manager manager) : IHandler
                 break;
             case "quickstart_viewed":
                 AppConfig.ConfigObject.QuickstartViewed = (bool) d.Value;
+                doNotRestart = true;
                 
                 break;
             case "groq_api_key":
@@ -93,7 +98,7 @@ public class UpdateConfig(Manager manager) : IHandler
                 break;
         }
         
-        manager.RestartIfRunning();
+        if (!doNotRestart) manager.RestartIfRunning();
 
         return "";
     }
