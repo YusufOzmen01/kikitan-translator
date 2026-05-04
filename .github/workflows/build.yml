@@ -59,17 +59,26 @@ jobs:
         run: |
           dotnet build -c Release -r linux-x64 KikitanTranslator.Photino/
 
-      - name: Extract AppImage
+      - name: Extract AppImage and zip release folder
         run: |
-          APPIMAGE="KikitanTranslator.Photino/bin/Release/net9.0/linux-x64/Release/com.github.yusufozmen01.kikitan-translator.AppImage"
+          RELEASE_DIR="KikitanTranslator.Photino/bin/Release/net9.0/linux-x64/Release"
+          APPIMAGE="$RELEASE_DIR/com.github.yusufozmen01.kikitan-translator.AppImage"
           chmod +x "$APPIMAGE"
           cp "$APPIMAGE" kikitan-translator.AppImage
+          zip -r kikitan-translator-linux-release.zip "$RELEASE_DIR"
 
       - name: Upload AppImage artifact
         uses: actions/upload-artifact@v4
         with:
           name: kikitan-translator-linux-AppImage
           path: kikitan-translator.AppImage
+          if-no-files-found: error
+
+      - name: Upload Linux release zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: kikitan-translator-linux-release
+          path: kikitan-translator-linux-release.zip
           if-no-files-found: error
 
   build-windows:
