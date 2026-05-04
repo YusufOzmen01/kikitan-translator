@@ -11,7 +11,13 @@ using Velopack.Sources;
 
 public class Program
 {
-    private static readonly int width = 900, height = 600;
+    private static int width = 900;
+    private static int height = 600;
+    private static int minWidth = 900;
+    private static int minHeight = 600;
+
+    private static double oldRatio;
+    private static bool windowInitialized;
 
     [STAThread]
     public static void Main(string[] args)
@@ -27,7 +33,7 @@ public class Program
         Console.OutputEncoding = System.Text.Encoding.UTF8;
         Logger.Initialize();
         AppConfig.Load();
-        
+
         VelopackApp.Build().Run();
 
         bool noUI = Array.Exists(args, e => e.Trim().Contains("--no-ui"));
@@ -63,14 +69,14 @@ public class Program
         var window = new PhotinoWindow()
             .SetTitle(windowTitle)
             .SetUseOsDefaultSize(false)
-            .SetMinSize(width, height)
+            .SetMinSize(minWidth, minHeight)
 #if DEBUG
             .SetIconFile("Resources/wwwroot/kikitan_logo.ico")
 #else
             .SetContextMenuEnabled(false)
             .SetIconFile(Path.Combine(AppContext.BaseDirectory, "wwwroot", "kikitan_logo.ico"))
 #endif
-            .SetSize(new Size(width, height))
+            .SetSize(new Size(minWidth, minHeight))
             .Center()
             .SetResizable(true)
             .SetLogVerbosity(0)
@@ -82,6 +88,33 @@ public class Program
             })
             .Load(appUrl);
         
+        window.WindowCreated += (_, _) =>
+        {
+            UpdateResolution(window);
+            
+            window.Center();
+            windowInitialized = true;
+        };
+        
+        window.WindowSizeChanged += (_, _) => {
+            if (windowInitialized) UpdateResolution(window);
+        };
+
+        window.WindowLocationChanged += (_, _) => {
+            if (windowInitialized) UpdateResolution(window);
+        };
+
         window.WaitForClose();
+    }
+
+    static void UpdateResolution(PhotinoWindow window)
+    {
+        double ratio = (double)window.ScreenDpi / 96;
+        if (Math.Abs(ratio - oldRatio) < 0.001) return;
+        
+        window.MinSize = new Point((int)(minWidth * ratio), (int)(minHeight * ratio));
+        window.Size = new Size((int)(width * ratio), (int)(height * ratio));
+
+        oldRatio = ratio;
     }
 }

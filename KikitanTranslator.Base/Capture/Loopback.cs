@@ -12,7 +12,7 @@ public class Loopback : ICapture
     public event OnData? OnDataReceived;
 
     private bool _paused;
-    private WasapiCapture _capture;
+    private WasapiCapture? _capture;
     private SileroVad _vad;
     private readonly WaveFormat _targetFormat = new(16000, 16, 1);
     
@@ -36,8 +36,11 @@ public class Loopback : ICapture
 
     public void Stop()
     {
+        if (_capture == null) return;
+        
         _capture.DataAvailable -= OnDataAvailable;
         _capture.StopRecording();
+        _capture = null;
         Log.Information("[LOOP] Capture has stopped");
     }
 
