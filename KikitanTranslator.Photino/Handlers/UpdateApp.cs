@@ -10,7 +10,7 @@ public class UpdateApp : IHandler
         Task.Run(async () =>
         {
             var mgr = new UpdateManager(new GithubSource("https://github.com/YusufOzmen01/kikitan-translator", null,
-                false));
+                true));
 
             var newVersion = await mgr.CheckForUpdatesAsync();
             Console.WriteLine(newVersion);
