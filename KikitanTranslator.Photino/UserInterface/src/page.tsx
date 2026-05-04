@@ -63,7 +63,6 @@ function App() {
         sendAppState()
         registerStateCallback(state => {
             if (!updateViewed) {
-                console.log(state)
                 setUpdaterText(localization.new_update_available[state.config.language])
                 setUpdaterVisible(state.server_version != null)
                 
