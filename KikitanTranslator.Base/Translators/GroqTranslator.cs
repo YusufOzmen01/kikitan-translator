@@ -34,8 +34,8 @@ public class GroqTranslator : ITranslator
                 top_p = 1,
                 messages = new[]
                 {
-                    new { role = "system", content = Constants.GROQ_PROMPT.Replace("LANG_SRC", AppConfig.ConfigObject.SourceLanguage).Replace("LANG_TARGET", AppConfig.ConfigObject.TargetLanguage) },
-                    new { role = "user",   content = $"{source} | {target} | {text}" }
+                    new { role = "system", content = Constants.GROQ_PROMPT.Replace("LANG_SRC", source).Replace("LANG_TARGET", target) },
+                    new { role = "user",   content = text }
                 }
             });
 

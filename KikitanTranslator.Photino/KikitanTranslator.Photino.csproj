@@ -7,7 +7,7 @@
         <Nullable>enable</Nullable>
         <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
         <ApplicationIcon>Resources/wwwroot/kikitan_logo.ico</ApplicationIcon>
-        <Version>2.0.0</Version>
+        <Version>2.0.0-alpha2</Version>
         <PackageId>com.github.yusufozmen01.kikitan-translator</PackageId>
         <Title>Kikitan Translator</Title>
     </PropertyGroup>

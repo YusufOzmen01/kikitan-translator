@@ -85,7 +85,7 @@ public class Manager
         _appState.AppVersion = VelopackLocator.Current.CurrentlyInstalledVersion?.ToString();
         #endif
         _appState.IsLinux = !RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-        _appState.IsAppimage = Environment.GetEnvironmentVariable("KIKITAN_NOT_APPIMAGE") == null;
+        _appState.IsAppimage = _appState.IsLinux && Environment.GetEnvironmentVariable("KIKITAN_NOT_APPIMAGE") == null;
         _connector = connector;
 
         Task.Run(async () =>

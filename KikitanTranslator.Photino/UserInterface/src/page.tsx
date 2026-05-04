@@ -64,7 +64,7 @@ function App() {
         registerStateCallback(state => {
             if (!updateViewed) {
                 setUpdaterText(localization.new_update_available[state.config.language])
-                setUpdaterVisible(state.app_version != state.server_version)
+                setUpdaterVisible(state.server_version != null)
                 
                 setAppVersion(state.app_version)
                 setNewVersion(state.server_version)
@@ -128,7 +128,7 @@ function App() {
                     <div
                         className={`flex flex-row items-center w-96 ${appState.is_linux && !appState.is_appimage ? "h-80" : "h-48"} outline outline-1 ${appState.config.light_mode ? "outline-white" : "outline-slate-950"} rounded ${appState.config.light_mode ? "bg-white" : "bg-slate-950"} px-4 gap-4`}>
                         
-                        {!appState.is_linux || appState.is_appimage && 
+                        {(!appState.is_linux || appState.is_appimage) && 
                         <>
                             <div className={`flex flex-col flex-1 transition-opacity duration-240 ${(updating && !showProgress) ? "opacity-0" : "opacity-100"}`}>
                                 <p className={`${showProgress ? "text-4xl" : "text-3xl"} text-center`}>{updaterText}</p>
@@ -176,7 +176,7 @@ function App() {
                         </>   
                         }
                         
-                        {appState.is_linux && !appState.is_appimage && 
+                        {(appState.is_linux && !appState.is_appimage) && 
                         <>
                             <div className="flex flex-col flex-1 gap-2 text-center items-center">
                                 <p className="text-4xl text-center">{updaterText}</p>

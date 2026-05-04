@@ -57,7 +57,7 @@ public class Kikitan : IDisposable
             output.Send(text, "", false);
         }
 
-        if (!final) return;
+        if (!final || text.Length == 0) return;
 
         var translated = AppConfig.ConfigObject.SpeechToTextOnly ? "" : _isLoopback ? _translator.Translate(text, AppConfig.ConfigObject.TargetLanguage, AppConfig.ConfigObject.SourceLanguage) : _translator.Translate(text, AppConfig.ConfigObject.SourceLanguage, AppConfig.ConfigObject.TargetLanguage);
         
