@@ -456,7 +456,7 @@ export default function Kikitan({ state }: { state: app_state }) {
                     </div>
                 </div>
             </div>
-            <div id="buttons" className="mt-2 mb-2 flex gap-2">
+            <div id="buttons" className="mt-2 flex gap-2">
                 <Tooltip title={localization.text[state.config.language]}>
                     <Button
                         variant="outlined"
@@ -518,9 +518,9 @@ export default function Kikitan({ state }: { state: app_state }) {
             </div>
 
             <div id="social-links" className="align-middle">
-                <div className="justify-center flex mb-2">
+                <div className="justify-center flex">
                     <Tooltip title={state.is_linux ? localization.desktop_translation_warning[state.config.language] : ""}>
-                        <div className="justify-center flex mb-2">
+                        <div className="justify-center flex">
                             <Switch sx={{
                             '& .MuiSwitch-track': {
                                 color: 'white',
