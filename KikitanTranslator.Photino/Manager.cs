@@ -32,7 +32,7 @@ public class AppState
     [JsonProperty("config")] public ConfigObject Config;
     [JsonProperty("status")] public int Status;
     [JsonProperty("app_version")] public string AppVersion = "Developer Build";
-    [JsonProperty("server_version")] public string ServerVersion = "Developer Build";
+    [JsonProperty("server_version")] public string ServerVersion;
     [JsonProperty("is_linux")] public bool IsLinux;
     [JsonProperty("is_appimage")] public bool IsAppimage;
 }

@@ -13,10 +13,12 @@ public class GroqTranslator : ITranslator
     private readonly HttpClient _httpClient = new();
 
     public string? Translate(string text, string source, string target)
-        => TranslateAsync(text, source, target).GetAwaiter().GetResult();
+        => TranslateAsync(text, source, target, 3).GetAwaiter().GetResult();
 
-    private async Task<string?> TranslateAsync(string text, string source, string target)
+    private async Task<string?> TranslateAsync(string text, string source, string target, int count)
     {
+        if (count == 0) return null;
+        
         var apiKey = AppConfig.ConfigObject.GroqApiKey;
         if (string.IsNullOrWhiteSpace(apiKey))
         {
@@ -48,8 +50,11 @@ public class GroqTranslator : ITranslator
             if (!response.IsSuccessStatusCode)
             {
                 var status = (int)response.StatusCode;
-                Log.Error($"[GROQ] Translation API error {status}");
-                return null;
+                Log.Error($"[GROQ] (Try {4-count}/3) Translation API error {status}: {await response.Content.ReadAsStringAsync()}");
+
+                await Task.Delay(1000);
+                
+                return await TranslateAsync(text, source, target, count-1);
             }
 
             using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
