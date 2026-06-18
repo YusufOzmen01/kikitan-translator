@@ -21,6 +21,8 @@ public class Gemini(ICapture capture) : IRecognizer
 
     private string currentInput = "";
     private string currentOutput = "";
+
+    private int _lastTranscription;
     
     public void Start(string language, IErrorHandler errorHandler)
     {
@@ -68,7 +70,7 @@ public class Gemini(ICapture capture) : IRecognizer
                         responseModalities = (string[])["TEXT"],
                         translationConfig = new
                         {
-                            targetLanguageCode = AppConfig.ConfigObject.TargetLanguage,
+                            targetLanguageCode = language == AppConfig.ConfigObject.SourceLanguage ? AppConfig.ConfigObject.TargetLanguage : AppConfig.ConfigObject.SourceLanguage,
                             echoTargetLanguage = false
                         }
                     }
@@ -106,6 +108,14 @@ public class Gemini(ICapture capture) : IRecognizer
 
                 if (data.serverContent?.outputTranscription != null)
                 {
+                    if (DateTime.Now.Millisecond - _lastTranscription > 5000)
+                    {
+                        currentInput = "";
+                        currentOutput = "";
+                    }
+
+                    _lastTranscription = DateTime.Now.Millisecond;
+                    
                     if (data.serverContent?.outputTranscription.text != null)
                     {
                         currentOutput += data.serverContent.outputTranscription.text;

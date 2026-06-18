@@ -204,7 +204,8 @@ public class Manager
             IRecognizer rDesktop;
             
             if (AppConfig.ConfigObject.Recognizer == 0) rDesktop = new Bing(_loopback);
-            else rDesktop = new GroqRecognizer(_loopback);
+            else if (AppConfig.ConfigObject.Recognizer == 1) rDesktop = new GroqRecognizer(_loopback);
+            else rDesktop = new Gemini(_loopback);
             
             _desktopKikitan = new Kikitan(rDesktop, _translator, new ErrorHandler(_connector), true);
             _desktopKikitan.AddOutput(new Custom((recognized, translated, final) =>
@@ -212,7 +213,7 @@ public class Manager
                 var text = AppConfig.ConfigObject.SpeechToTextOnly ? recognized : translated;
                 var time = text.Length * AppConfig.ConfigObject.ChatboxWaitPerCharMs;
 
-                if (text.Length == 0) return;
+                if (text.Trim().Length == 0) return;
             
                 _writer.Write(new OverlayPipeData { Text = text, NoLanguageSpace = AppConfig.ConfigObject.TargetLanguage == "ja" || AppConfig.ConfigObject.TargetLanguage == "ko" || AppConfig.ConfigObject.TargetLanguage == "cn", Time = time < 5000 ? 5000 : time});
             }));
