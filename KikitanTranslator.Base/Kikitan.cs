@@ -10,6 +10,7 @@ public class Kikitan : IDisposable
 {
     private IRecognizer _recognizer;
     private ITranslator _translator;
+    private IErrorHandler _errorHandler;
     private List<IOutput> _outputs = [];
 
     private List<string[]> _queue = [];
@@ -19,10 +20,11 @@ public class Kikitan : IDisposable
     
     public event OnRecognizerStatus? OnRecognizerStatusChanged;
 
-    public Kikitan(IRecognizer recognizer, ITranslator translator, bool loopback)
+    public Kikitan(IRecognizer recognizer, ITranslator translator, IErrorHandler errorHandler, bool loopback)
     {
         _recognizer = recognizer;
         _translator = translator;
+        _errorHandler = errorHandler;
 
         recognizer.OnRecognitionReceived += OnRecognition;
         recognizer.OnRecognizerStatusChanged += OnRecognizerStatus;
@@ -36,7 +38,7 @@ public class Kikitan : IDisposable
 
     public void Start()
     {
-        _recognizer.Start(_isLoopback ? AppConfig.ConfigObject.TargetLanguage : AppConfig.ConfigObject.SourceLanguage);
+        _recognizer.Start(_isLoopback ? AppConfig.ConfigObject.TargetLanguage : AppConfig.ConfigObject.SourceLanguage, _errorHandler);
         _running = true;
         
         Task.Run(QueueWorker);
@@ -52,6 +54,16 @@ public class Kikitan : IDisposable
 
     private void OnRecognition(string text, bool final)
     {
+        if (AppConfig.ConfigObject.Recognizer == 2)
+        {
+            foreach (var output in _outputs)
+            {
+                output.Send(text.Split("|")[0], text.Split("|")[1], final);
+            }
+
+            return;
+        }
+        
         foreach (var output in _outputs)
         {
             output.Send(text, "", false);

@@ -3,6 +3,7 @@ using System.IO.MemoryMappedFiles;
 using System.Runtime.InteropServices;
 using KikitanTranslator.Base;
 using KikitanTranslator.Base.Outputs;
+using KikitanTranslator.Base.Recognizers;
 using KikitanTranslator.Base.Translators;
 using KikitanTranslator.Capture;
 using KikitanTranslator.Photino.Handlers;
@@ -170,12 +171,14 @@ public class Manager
 
         IRecognizer rMic;
         if (AppConfig.ConfigObject.Recognizer == 0) rMic = new Bing(_mic);
-        else rMic = new GroqRecognizer(_mic);
+        else if (AppConfig.ConfigObject.Recognizer == 1) rMic = new GroqRecognizer(_mic);
+        else rMic = new Gemini(_mic);
 
         if (AppConfig.ConfigObject.Translator == 0) _translator = new GoogleTranslate();
-        else _translator = new GroqTranslator();
+        else if (AppConfig.ConfigObject.Translator == 1) _translator = new GroqTranslator();
+        else _translator = new GeminiStub();
 
-        _microphoneKikitan = new Kikitan(rMic, _translator, false);
+        _microphoneKikitan = new Kikitan(rMic, _translator, new ErrorHandler(_connector), false);
         _microphoneKikitan.AddOutput(new Custom(SendRecognitionData));
         if (AppConfig.ConfigObject.SendToChatbox)
             _microphoneKikitan.AddOutput(new OSC()); // TODO: Data out via OSC for other apps
@@ -196,7 +199,7 @@ public class Manager
             if (AppConfig.ConfigObject.Recognizer == 0) rDesktop = new Bing(_loopback);
             else rDesktop = new GroqRecognizer(_loopback);
             
-            _desktopKikitan = new Kikitan(rDesktop, _translator, true);
+            _desktopKikitan = new Kikitan(rDesktop, _translator, new ErrorHandler(_connector), true);
             _desktopKikitan.AddOutput(new Custom((recognized, translated, final) =>
             {
                 var text = AppConfig.ConfigObject.SpeechToTextOnly ? recognized : translated;

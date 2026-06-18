@@ -33,7 +33,7 @@ public class GroqRecognizer : IRecognizer
         _capture.OnDataReceived += OnDataReceived;
     }
 
-    public void Start(string language)
+    public void Start(string language, IErrorHandler errorHandler)
     {
         if (_status == RecognizerStatus.Running) return;
         _status = RecognizerStatus.Connecting;

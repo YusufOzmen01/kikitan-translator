@@ -14,9 +14,10 @@ public class OSC : IOutput
         try
         {
             OscChatbox.SetIsTyping(!final);
-            if (!final) return;
-
-            if (AppConfig.ConfigObject.TranslationOnly) OscChatbox.SendMessage(translated, true);
+            if (!final && !AppConfig.ConfigObject.SendWithoutWaitingForFinish) return;
+            
+            if (AppConfig.ConfigObject.SpeechToTextOnly) OscChatbox.SendMessage(recognized, true);
+            else if (AppConfig.ConfigObject.TranslationOnly) OscChatbox.SendMessage(translated, true);
             else OscChatbox.SendMessage($"{translated} ({recognized})", true);
         } catch (Exception e)
         {
