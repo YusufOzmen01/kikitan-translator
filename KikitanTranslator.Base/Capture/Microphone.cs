@@ -63,7 +63,7 @@ public class Microphone : ICapture
         }
         else
         {
-            device = _engine.CaptureDevices.First(d => d.IsDefault);
+            device = _engine.CaptureDevices.FirstOrDefault(d => d.IsDefault);
             if (device == null) device = _engine.CaptureDevices[0];
                     
             Log.Warning($"[MIC]  The selected mic ({AppConfig.ConfigObject.Microphone}) is not available. Switching to the system default ({device.Value.Name})");

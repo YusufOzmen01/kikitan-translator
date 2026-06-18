@@ -147,6 +147,13 @@ public class Manager
 
                 if (_appState.Config.Microphone.Length != 0 && !mics.Exists(m => m.Name == _appState.Config.Microphone))
                 {
+                    var device = engine.CaptureDevices.FirstOrDefault(d => d.IsDefault);
+                    if (device == null) device = engine.CaptureDevices[0];
+                    
+                    Log.Warning($"[MIC]  The selected mic ({AppConfig.ConfigObject.Microphone}) is not available. Switching to the system default ({device.Name})");
+                    
+                    AppConfig.ConfigObject.Microphone = device.Name;
+                    
                     SendMicChanged();
                     RestartIfRunning();
                 }
