@@ -291,7 +291,7 @@ export default function SettingsPage({ closeCallback, state }: SettingsProps) {
                 <CustomTabPanel className="flex" value={page} index={2}>
                     <FormGroup>
                         <Button variant="contained"
-                                onClick={() => openURL("LOGDIR")}>{localization.open_logs[state.config.language]}</Button>
+                                onClick={() => openURL("LOGFILES")}>{localization.open_logs[state.config.language]}</Button>
                         <FormControlLabel control={<Checkbox checked={state.config.send_user_data}
                                                              onChange={(e) => setConfig("send_user_data", e.target.checked)}/>}
                                           label={localization.enable_user_data[state.config.language]}/>

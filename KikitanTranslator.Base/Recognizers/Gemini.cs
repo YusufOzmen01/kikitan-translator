@@ -169,7 +169,7 @@ public class Gemini(ICapture capture) : IRecognizer
             {
                 audio = new
                 {
-                    data = FloatArrayToBase64(samples),
+                    data =  FloatArrayToBase64(speech ? samples : new float[1600]),
                     mimeType = "audio/pcm;rate=16000"
                 }
             }
