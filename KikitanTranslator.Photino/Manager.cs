@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using KikitanTranslator.Base;
 using KikitanTranslator.Base.Outputs;
+using KikitanTranslator.Base.Recognizers;
 using KikitanTranslator.Base.Translators;
 using KikitanTranslator.Capture;
 using KikitanTranslator.Photino.Handlers;
@@ -152,6 +153,13 @@ public class Manager
 
                 if (_appState.Config.Microphone.Length != 0 && !mics.Exists(m => m.Name == _appState.Config.Microphone))
                 {
+                    var device = engine.CaptureDevices.FirstOrDefault(d => d.IsDefault);
+                    if (device == null) device = engine.CaptureDevices[0];
+                    
+                    Log.Warning($"[MIC]  The selected mic ({AppConfig.ConfigObject.Microphone}) is not available. Switching to the system default ({device.Name})");
+                    
+                    AppConfig.ConfigObject.Microphone = device.Name;
+                    
                     SendMicChanged();
                     RestartIfRunning();
                 }
@@ -176,12 +184,14 @@ public class Manager
 
         IRecognizer rMic;
         if (AppConfig.ConfigObject.Recognizer == 0) rMic = new Bing(_mic);
-        else rMic = new GroqRecognizer(_mic);
+        else if (AppConfig.ConfigObject.Recognizer == 1) rMic = new GroqRecognizer(_mic);
+        else rMic = new Gemini(_mic);
 
         if (AppConfig.ConfigObject.Translator == 0) _translator = new GoogleTranslate();
-        else _translator = new GroqTranslator();
+        else if (AppConfig.ConfigObject.Translator == 1) _translator = new GroqTranslator();
+        else _translator = new GeminiStub();
 
-        _microphoneKikitan = new Kikitan(rMic, _translator, false);
+        _microphoneKikitan = new Kikitan(rMic, _translator, new ErrorHandler(_connector), false);
         _microphoneKikitan.AddOutput(new Custom(SendRecognitionData));
         if (AppConfig.ConfigObject.SendToChatbox)
             _microphoneKikitan.AddOutput(new OSC()); // TODO: Data out via OSC for other apps
@@ -200,15 +210,16 @@ public class Manager
             IRecognizer rDesktop;
             
             if (AppConfig.ConfigObject.Recognizer == 0) rDesktop = new Bing(_loopback);
-            else rDesktop = new GroqRecognizer(_loopback);
+            else if (AppConfig.ConfigObject.Recognizer == 1) rDesktop = new GroqRecognizer(_loopback);
+            else rDesktop = new Gemini(_loopback);
             
-            _desktopKikitan = new Kikitan(rDesktop, _translator, true);
+            _desktopKikitan = new Kikitan(rDesktop, _translator, new ErrorHandler(_connector), true);
             _desktopKikitan.AddOutput(new Custom((recognized, translated, final) =>
             {
                 var text = AppConfig.ConfigObject.SpeechToTextOnly ? recognized : translated;
                 var time = text.Length * AppConfig.ConfigObject.ChatboxWaitPerCharMs;
 
-                if (text.Length == 0) return;
+                if (text.Trim().Length == 0) return;
             
                 _writer.Write(new OverlayPipeData { Text = text, NoLanguageSpace = AppConfig.ConfigObject.TargetLanguage == "ja" || AppConfig.ConfigObject.TargetLanguage == "ko" || AppConfig.ConfigObject.TargetLanguage == "cn", Time = time < 5000 ? 5000 : time});
             }));

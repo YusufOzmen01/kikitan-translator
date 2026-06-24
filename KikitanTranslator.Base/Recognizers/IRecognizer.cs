@@ -1,4 +1,6 @@
-﻿namespace KikitanTranslator.Recognizers;
+﻿using KikitanTranslator.Utility;
+
+namespace KikitanTranslator.Recognizers;
 
 public enum RecognizerStatus
 {
@@ -12,7 +14,7 @@ public delegate void OnRecognizerStatus(RecognizerStatus status);
 
 public interface IRecognizer : IDisposable
 {
-    public void Start(string language);
+    public void Start(string language, IErrorHandler errorHandler);
     public void Stop();
     public RecognizerStatus Status();
     public event OnRecognition OnRecognitionReceived;   

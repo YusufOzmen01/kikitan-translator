@@ -55,6 +55,10 @@ public class UpdateConfig(Manager manager) : IHandler
                 AppConfig.ConfigObject.DisableWhenMuted = (bool) d.Value;
                 
                 break;
+            case "send_without_waiting_for_finish":
+                AppConfig.ConfigObject.SendWithoutWaitingForFinish = (bool) d.Value;
+                
+                break;
             case "chatbox_wait_per_char_ms":
                 AppConfig.ConfigObject.ChatboxWaitPerCharMs = Convert.ToInt32((long) d.Value);
                 
@@ -74,9 +78,15 @@ public class UpdateConfig(Manager manager) : IHandler
             case "recognizer":
                 AppConfig.ConfigObject.Recognizer = Convert.ToInt32((long) d.Value);
                 
+                if (AppConfig.ConfigObject.Recognizer == 2) AppConfig.ConfigObject.Translator = 2;
+                else if (AppConfig.ConfigObject.Translator == 2) AppConfig.ConfigObject.Translator = 0;
+                
                 break;
             case "translator":
                 AppConfig.ConfigObject.Translator = Convert.ToInt32((long) d.Value);
+                
+                if (AppConfig.ConfigObject.Translator == 2) AppConfig.ConfigObject.Recognizer = 2;
+                else if (AppConfig.ConfigObject.Recognizer == 2) AppConfig.ConfigObject.Recognizer = 0;
                 
                 break;
             case "desktop_translation":
@@ -90,6 +100,10 @@ public class UpdateConfig(Manager manager) : IHandler
                 break;
             case "groq_api_key":
                 AppConfig.ConfigObject.GroqApiKey = (string) d.Value;
+                
+                break;
+            case "gemini_api_key":
+                AppConfig.ConfigObject.GeminiApiKey = (string) d.Value;
                 
                 break;
             case "last_version":

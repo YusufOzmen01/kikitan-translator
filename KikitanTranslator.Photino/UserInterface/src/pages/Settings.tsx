@@ -114,6 +114,11 @@ export default function SettingsPage({ closeCallback, state }: SettingsProps) {
                                                                  onChange={(e) => setConfig("disable_when_muted", e.target.checked)}/>}
                                               label={localization.disable_kikitan_when_muted[state.config.language]}/>
                         </Tooltip>
+                        <Tooltip title={localization.send_to_chatbox_without_waiting_tooltip[state.config.language]}>
+                            <FormControlLabel control={<Checkbox checked={state.config.send_without_waiting_for_finish}
+                                                                 onChange={(e) => setConfig("send_without_waiting_for_finish", e.target.checked)}/>}
+                                              label={localization.send_to_chatbox_without_waiting[state.config.language]}/>
+                        </Tooltip>
                         <p className={`mt-2 ${state.config.light_mode ? "text-black" : "text-slate-400"}`}>{localization.chatbox_update_speed[state.config.language]}</p>
                         <Select sx={{
                             color: state.config.light_mode ? 'black' : 'white',
@@ -162,6 +167,7 @@ export default function SettingsPage({ closeCallback, state }: SettingsProps) {
                                 }} className="w-96" value={state.config.translator} onChange={(e) => setConfig("translator", e.target.value)}>
                                     <MenuItem sx={{color: state.config.light_mode ? 'black' : 'white'}} value={0}>Google Translate ({localization.default[state.config.language]})</MenuItem>
                                     <MenuItem sx={{color: state.config.light_mode ? 'black' : 'white'}} value={1}>Groq ({localization.requires_free_api_key[state.config.language]})</MenuItem>
+                                    <MenuItem sx={{color: state.config.light_mode ? 'black' : 'white'}} value={2}>Gemini ({localization.requires_free_api_key[state.config.language]})</MenuItem>
                                 </Select>
 
                                 <p className={`mt-2 ${state.config.light_mode ? "text-black" : "text-slate-400"}`}>{localization.recognition_service[state.config.language]}</p>
@@ -182,7 +188,7 @@ export default function SettingsPage({ closeCallback, state }: SettingsProps) {
                                 }} className="w-96" value={state.config.recognizer} onChange={(e) => setConfig("recognizer", e.target.value)}>
                                     <MenuItem sx={{color: state.config.light_mode ? 'black' : 'white'}} value={0}>Microsoft Bing ({localization.default[state.config.language]})</MenuItem>
                                     <MenuItem sx={{color: state.config.light_mode ? 'black' : 'white'}} value={1}>Groq ({localization.requires_free_api_key[state.config.language]})</MenuItem>
-
+                                    <MenuItem sx={{color: state.config.light_mode ? 'black' : 'white'}} value={2}>Gemini ({localization.requires_free_api_key[state.config.language]})</MenuItem>
                                 </Select>
                             </div>
                             <div id="api-keys">
@@ -232,6 +238,52 @@ export default function SettingsPage({ closeCallback, state }: SettingsProps) {
                                                 }}><p className="text-sm">{localization.get_api_key[state.config.language]}</p></Button>
                                     </div>
                                 </div>
+                                <div id="gemini-api-key">
+                                    <p className={`mt-2 ${state.config.light_mode ? "text-black" : "text-slate-400"}`}>Gemini {localization.api_key[state.config.language]}</p>
+                                    <div className="flex gap-2">
+                                        <TextField
+                                            sx={{
+                                                '& .MuiOutlinedInput-root.Mui-disabled': {
+                                                    '& .MuiOutlinedInput-notchedOutline': {
+                                                        borderColor: state.config.light_mode ? 'rgba(0, 0, 0, 0.4)' : 'rgba(148, 163, 184, 0.4)',
+                                                    },
+                                                },
+                                                '& .MuiInputBase-input.Mui-disabled': {
+                                                    WebkitTextFillColor: state.config.light_mode ? 'rgba(0, 0, 0, 0.5)' : 'rgba(148, 163, 184, 0.5)',
+                                                },
+                                            }}
+                                            slotProps={{
+                                                inputLabel: {
+                                                    style: {color: state.config.light_mode ? "black" : '#94A3B8'},
+                                                },
+                                                htmlInput: {
+                                                    style: {color: state.config.light_mode ? "black" : '#fff'}
+                                                }
+                                            }}
+                                            className="ml-2 mt-2 w-48"
+                                            value={state.config.gemini_api_key}
+                                            id="outlined-basic"
+                                            disabled={(state.config.translator != 2) && (state.config.recognizer != 2)}
+                                            variant="outlined"
+                                            type="password"
+                                            color={state.config.gemini_api_key.length == 0 ? "warning" : "primary"}
+                                            onChange={(e) => setConfig("gemini_api_key", e.target.value)}
+                                        />
+                                        <Button variant="contained"
+                                                color={state.config.gemini_api_key.length == 0 ? "warning" : "primary"}
+                                                disabled={(state.config.translator != 2) && (state.config.recognizer != 2)} className="w-32 h-14"
+                                                sx={{
+                                                    "&.Mui-disabled": {
+                                                        borderColor: state.config.light_mode ? 'rgba(0, 0, 0, 0.4)' : 'rgba(148, 163, 184, 0.5)',
+                                                        color: state.config.light_mode ? 'rgba(0, 0, 0, 0.4)' : 'rgba(148, 163, 184, 0.5)',
+                                                    }
+                                                }}
+                                                onClick={async () => {
+                                                    openURL("https://aistudio.google.com/api-keys")
+
+                                                }}><p className="text-sm">{localization.get_api_key[state.config.language]}</p></Button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </FormGroup>
@@ -239,7 +291,7 @@ export default function SettingsPage({ closeCallback, state }: SettingsProps) {
                 <CustomTabPanel className="flex" value={page} index={2}>
                     <FormGroup>
                         <Button variant="contained"
-                                onClick={() => openURL("LOGDIR")}>{localization.open_logs[state.config.language]}</Button>
+                                onClick={() => openURL("LOGFILES")}>{localization.open_logs[state.config.language]}</Button>
                         <FormControlLabel control={<Checkbox checked={state.config.send_user_data}
                                                              onChange={(e) => setConfig("send_user_data", e.target.checked)}/>}
                                           label={localization.enable_user_data[state.config.language]}/>

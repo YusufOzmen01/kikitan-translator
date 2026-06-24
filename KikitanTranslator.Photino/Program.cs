@@ -8,6 +8,7 @@ using Photino.NET.Server;
 using Serilog;
 using Velopack;
 using Velopack.Sources;
+using System.Globalization;
 
 public class Program
 {

@@ -23,6 +23,22 @@
         <Generator>ResXFileCodeGenerator</Generator>
         <LastGenOutput>languages.zh.Designer.cs</LastGenOutput>
       </EmbeddedResource>
+      <EmbeddedResource Update="ErrorMessages\messages.resx">
+        <Generator>PublicResXFileCodeGenerator</Generator>
+        <LastGenOutput>languages.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+      <EmbeddedResource Update="ErrorMessages\messages.ja.resx">
+        <Generator>PublicResXFileCodeGenerator</Generator>
+        <LastGenOutput>messages.ja.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+      <EmbeddedResource Update="ErrorMessages\messages.ko.resx">
+        <Generator>PublicResXFileCodeGenerator</Generator>
+        <LastGenOutput>messages.ko.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+      <EmbeddedResource Update="ErrorMessages\messages.zh.resx">
+        <Generator>PublicResXFileCodeGenerator</Generator>
+        <LastGenOutput>messages.zh.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
     </ItemGroup>
 
     <ItemGroup>
@@ -45,6 +61,26 @@
         <DesignTime>True</DesignTime>
         <AutoGen>True</AutoGen>
         <DependentUpon>languages.zh.resx</DependentUpon>
+      </Compile>
+      <Compile Update="ErrorMessages\messages.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>messages.resx</DependentUpon>
+      </Compile>
+      <Compile Update="ErrorMessages\messages.ja.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>messages.ja.resx</DependentUpon>
+      </Compile>
+      <Compile Update="ErrorMessages\messages.ko.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>messages.ko.resx</DependentUpon>
+      </Compile>
+      <Compile Update="ErrorMessages\messages.zh.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>messages.zh.resx</DependentUpon>
       </Compile>
     </ItemGroup>
 

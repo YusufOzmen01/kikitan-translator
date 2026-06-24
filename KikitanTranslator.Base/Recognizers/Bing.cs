@@ -17,7 +17,6 @@ public class Bing(ICapture capture) : IRecognizer
     public event OnRecognition? OnRecognitionReceived;
     public event OnRecognizerStatus? OnRecognizerStatusChanged;
 
-    private ICapture _capture = capture;
     private WebsocketClient _client;
 
     private RecognizerStatus _status;
@@ -39,12 +38,12 @@ public class Bing(ICapture capture) : IRecognizer
         _streamIdCounter = 1;
         _currentStreamTag = null;
         _bytesSend = 0;
-        _capture.Stop();
+        capture.Stop();
         
         Log.Information("[BING] Configuration has been resetted");
     }
     
-    public void Start(string language)
+    public void Start(string language, IErrorHandler errorHandler)
     {
         Log.Information("[BING] Starting Bing recognizer...");
         ChangeRecognizerStatus(RecognizerStatus.Connecting);
@@ -80,7 +79,7 @@ public class Bing(ICapture capture) : IRecognizer
                             bitspersample = "16",
                             channelcount = "1",
                             model = "",
-                            samplerate = _capture.GetSampleRate().ToString(),
+                            samplerate = capture.GetSampleRate().ToString(),
                             type = "Stream"
                         }
                     },
@@ -111,9 +110,9 @@ public class Bing(ICapture capture) : IRecognizer
             _client.Send(CreateBinaryMessage("audio", $"{_streamIdCounter}", _currentRequestId, CreateWavHeader(), "audio/x-wav"));
             Log.Verbose("[BING] Wav header has been sent");
 
-            _capture.OnDataReceived += OnAudioData;
+            capture.OnDataReceived += OnAudioData;
             
-            _capture.Start();
+            capture.Start();
             Log.Information("[BING] Bing recognizer has started");
         });
         
@@ -157,7 +156,7 @@ public class Bing(ICapture capture) : IRecognizer
             if (info.Type != DisconnectionType.ByServer) return;
             await Task.Delay(1000);
             
-            Start(_language);
+            Start(_language, errorHandler);
         });
 
         _client.Start();
@@ -165,9 +164,9 @@ public class Bing(ICapture capture) : IRecognizer
 
     public void Stop()
     {
-        _capture.Stop();
+        capture.Stop();
         _client.Stop(WebSocketCloseStatus.NormalClosure, "User request");
-        _capture.OnDataReceived -= OnAudioData;
+        capture.OnDataReceived -= OnAudioData;
         ChangeRecognizerStatus(RecognizerStatus.NotStarted);
          
         Log.Information("[BING] Bing recognizer has stopped");
@@ -207,14 +206,14 @@ public class Bing(ICapture capture) : IRecognizer
             Log.Verbose("[BING] Stream ID counter limit has been reached. Restarting Bing recognizer...");
             
             Stop();
-            Start(_language);
+            Start(_language, null);
 
             return;
         }
         
-        _capture.Pause();
+        capture.Pause();
 
-        var bps = _capture.GetSampleRate() * 2;
+        var bps = capture.GetSampleRate() * 2;
         var secondsSent = _bytesSend / bps;
         var offset100ns = Math.Floor((decimal)(secondsSent * 10_000_000));
 
@@ -251,7 +250,7 @@ public class Bing(ICapture capture) : IRecognizer
         Log.Verbose("[BING] Sent wav header");
         
         await Task.Delay(25);
-        _capture.Resume();
+        capture.Resume();
     }
 
     private void ChangeRecognizerStatus(RecognizerStatus status)
@@ -324,7 +323,7 @@ public class Bing(ICapture capture) : IRecognizer
         ushort channels = 1;
         ushort bitsPerSample = 16;
         ushort blockAlign = (ushort)(bitsPerSample / 8);
-        int sampleRate = (int)_capture.GetSampleRate();
+        int sampleRate = (int)capture.GetSampleRate();
         int byteRate = sampleRate * (bitsPerSample / 8);
         
         writer.Write("RIFF"u8.ToArray());

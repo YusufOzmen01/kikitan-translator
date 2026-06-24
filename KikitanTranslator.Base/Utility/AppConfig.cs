@@ -278,6 +278,22 @@ public class ConfigObject : INotifyPropertyChanged
         }
     }
     
+    [JsonProperty("send_without_waiting_for_finish")] private bool _sendWithoutWaitingForFinish = false;
+
+    [JsonIgnore]
+    public bool SendWithoutWaitingForFinish
+    {
+        get => _sendWithoutWaitingForFinish;
+        set
+        {
+            if (_sendWithoutWaitingForFinish != value)
+            {
+                _sendWithoutWaitingForFinish = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+    
     [JsonProperty("groq_api_key")] private string _groqApiKey = "";
 
     [JsonIgnore]
@@ -289,6 +305,22 @@ public class ConfigObject : INotifyPropertyChanged
             if (_groqApiKey != value)
             {
                 _groqApiKey = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+    
+    [JsonProperty("gemini_api_key")] private string _geminiApiKey = "";
+
+    [JsonIgnore]
+    public string GeminiApiKey
+    {
+        get => _geminiApiKey;
+        set
+        {
+            if (_geminiApiKey != value)
+            {
+                _geminiApiKey = value;
                 OnPropertyChanged();
             }
         }
