@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.IO.MemoryMappedFiles;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using KikitanTranslator.Base;
 using KikitanTranslator.Base.Outputs;
@@ -87,6 +88,11 @@ public class Manager
         _appState.IsLinux = !RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
         _appState.IsAppimage = _appState.IsLinux && Environment.GetEnvironmentVariable("KIKITAN_NOT_APPIMAGE") == null;
         _connector = connector;
+
+        if (_appState.IsLinux && (Environment.GetEnvironmentVariable("container") == "flatpak"))
+        {
+            _appState.AppVersion = Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion.Split("+")[0];
+        }
 
         Task.Run(async () =>
         {

@@ -80,6 +80,8 @@
             AfterTargets="CopyDistToWwwroot"
             Condition="'$(Configuration)' == 'Release' AND '$(RuntimeIdentifier)' == 'linux-x64'">
         <RemoveDir Directories="$(OutDir)Release" />
+        <RemoveDir Directories="$(OutDir)flatpak-build" />
+        <RemoveDir Directories="$(OutDir)flatpak-repo" />
         <Exec Command="vpk pack --packId $(PackageId) --packVersion $(Version) --packDir &quot;$(MSBuildProjectDirectory)/bin/Release/net9.0/linux-x64&quot; --mainExe KikitanTranslator.Photino --icon &quot;$(MSBuildProjectDirectory)/Resources/wwwroot/kikitan_logo.ico&quot; --packTitle &quot;$(Title)&quot; -o &quot;$(OutDir)Release&quot;" />
     </Target>
 
