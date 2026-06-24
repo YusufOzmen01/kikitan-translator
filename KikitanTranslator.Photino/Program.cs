@@ -8,7 +8,6 @@ using Photino.NET.Server;
 using Serilog;
 using Velopack;
 using Velopack.Sources;
-using System.Globalization;
 
 public class Program
 {
@@ -83,6 +82,12 @@ public class Program
             .Center()
             .SetResizable(true)
             .SetLogVerbosity(0)
+            .RegisterWebMessageReceivedHandler((sender, s) =>
+            {
+                connector.WindowHandle = (PhotinoWindow)sender!;
+
+                messageHandler.HandleMessage(s, connector);
+            })
             .Load(appUrl);
         
         window.WindowCreated += (_, _) =>
