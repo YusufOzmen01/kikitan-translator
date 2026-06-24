@@ -66,15 +66,17 @@ public class Program
 
         string windowTitle = "Kikitan Translator";
 
+        var iconFile = OperatingSystem.IsWindows() ? "kikitan_logo.ico" : "icon.png";
+
         var window = new PhotinoWindow()
             .SetTitle(windowTitle)
             .SetUseOsDefaultSize(false)
             .SetMinSize(minWidth, minHeight)
 #if DEBUG
-            .SetIconFile("Resources/wwwroot/kikitan_logo.ico")
+            .SetIconFile($"Resources/wwwroot/{iconFile}")
 #else
             .SetContextMenuEnabled(false)
-            .SetIconFile(Path.Combine(AppContext.BaseDirectory, "wwwroot", "kikitan_logo.ico"))
+            .SetIconFile(Path.Combine(AppContext.BaseDirectory, "wwwroot", iconFile))
 #endif
             .SetSize(new Size(minWidth, minHeight))
             .Center()

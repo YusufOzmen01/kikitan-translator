@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=Kikitan Translator
+Exec=KikitanTranslator.Photino
+Icon=com.github.yusufozmen01.kikitan-translator
+Type=Application
+Categories=Utility;AudioVideo;

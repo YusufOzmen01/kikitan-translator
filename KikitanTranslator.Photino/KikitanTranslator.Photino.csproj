@@ -2,6 +2,7 @@
     <PropertyGroup>
         <OutputType Condition="'$(RuntimeIdentifier)' == 'linux-x64'">Exe</OutputType>
         <OutputType Condition="'$(RuntimeIdentifier)' != 'linux-x64'">WinExe</OutputType>
+        <SelfContained Condition="'$(RuntimeIdentifier)' == 'linux-x64'">true</SelfContained>
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
@@ -80,6 +81,16 @@
             Condition="'$(Configuration)' == 'Release' AND '$(RuntimeIdentifier)' == 'linux-x64'">
         <RemoveDir Directories="$(OutDir)Release" />
         <Exec Command="vpk pack --packId $(PackageId) --packVersion $(Version) --packDir &quot;$(MSBuildProjectDirectory)/bin/Release/net9.0/linux-x64&quot; --mainExe KikitanTranslator.Photino --icon &quot;$(MSBuildProjectDirectory)/Resources/wwwroot/kikitan_logo.ico&quot; --packTitle &quot;$(Title)&quot; -o &quot;$(OutDir)Release&quot;" />
+    </Target>
+
+    <Target Name="FlatpakBundleLinux"
+            AfterTargets="VelopackPackLinux"
+            Condition="'$(Configuration)' == 'Release' AND '$(RuntimeIdentifier)' == 'linux-x64'">
+        <Message Importance="High" Text="Building and bundling Flatpak package..." />
+        
+        <Exec Command="flatpak-builder &quot;$(OutDir)flatpak-build&quot; &quot;$(MSBuildProjectDirectory)/flatpak/$(PackageId).json&quot; --repo=&quot;$(OutDir)flatpak-repo&quot;" />
+
+        <Exec Command="flatpak build-bundle &quot;$(OutDir)flatpak-repo&quot; &quot;$(OutDir)Release/$(PackageId)-$(Version).flatpak&quot; $(PackageId)" />
     </Target>
 
 </Project>
