@@ -1,0 +1,166 @@
+import * as React from "react"
+
+import {
+    GitHub,
+    Translate
+} from '@mui/icons-material';
+
+import Scroll from "./Scroll"
+import { localization } from "../util/localization";
+import { Box, Button, MenuItem, Select } from "@mui/material";
+import {openURL, setConfig} from "../util/photino.ts";
+import {app_state} from "../util/constants.ts";
+
+export default function QuickstartMenu({ state }: { state: app_state }) {
+    const [quickstartPage, setQuickstartPage] = React.useState(0)
+    return <>
+        <div className={`absolute z-10 flex flex-col justify-between w-11/12 h-5/6 outline outline-2 rounded  ${!state.config.light_mode ? "bg-slate-950 outline-slate-950" : "bg-white outline-white"}`}>
+            <div className='relative mt-2 ml-2 mr-2 h-64'>
+                <div className={`absolute inset-0 transition-all flex justify-center ease-in-out ${quickstartPage == 0 ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
+                    <div className='absolute mt-28 flex flex-col items-center'>
+                        <Scroll light_mode={state.config.light_mode}></Scroll>
+
+                        <div className='mt-16 absolute flex flex-row items-center'>
+                            <Translate className='mr-8 outline-2 ' />
+                            <Select sx={{
+                                color: state.config.light_mode ? 'black' : 'white',
+                                '& .MuiOutlinedInput-notchedOutline': {
+                                    borderColor: state.config.light_mode ? 'black' : 'white',
+                                },
+                                '&:hover .MuiOutlinedInput-notchedOutline': {
+                                    borderColor: state.config.light_mode ? 'black' : 'white',
+                                },
+                            }} variant='outlined' className="mt-auto mr-8" value={state.config.language} onChange={(e) => {
+                                setConfig("language", e.target.value)
+                            }}>
+
+                                <MenuItem value={"en"}>English</MenuItem>
+                                <MenuItem value={"jp"}>日本語</MenuItem>
+                                <MenuItem value={"cn"}>中文</MenuItem>
+                                <MenuItem value={"kr"}>한국어</MenuItem>
+                            </Select>
+                        </div>
+                    </div>
+                </div>
+
+                <div className={'absolute inset-0 transition-all flex justify-center ease-in-out ' + (quickstartPage == 1 ? "opacity-100" : "opacity-0 pointer-events-none")}>
+                    <div className='absolute mt-2 flex flex-col items-center'>
+                        <p className='text-xl bold text-center'>{localization.quickstart_osc[state.config.language]}</p>
+                        {quickstartPage == 1 &&
+                            <video width={480} autoPlay loop className='mt-4'>
+                                <source src="/OSC.mp4" type="video/mp4"></source>
+                            </video>
+                        }
+                    </div>
+                </div>
+
+                <div className={'absolute inset-0 transition-all flex justify-center ease-in-out ' + (quickstartPage == 2 ? "opacity-100" : "opacity-0 pointer-events-none")}>
+                    <div className='absolute mt-2 flex flex-col items-center'>
+                        <p className='text-xl bold text-center'>{localization.mode_selection[state.config.language]}</p>
+                        <img className='mt-4 w-[384px]' src={
+                            {
+                                en: "/images/en.png",
+                                jp: "/images/jp.png",
+                                cn: "/images/cn.png",
+                                kr: "/images/kr.png",
+                            }[state.config.language]
+                        } width={240} />
+                        <p className='text-md mt-4 text-center'>{localization.mode_selection_details[state.config.language]}</p>
+                    </div>
+                </div>
+                <div className={'absolute inset-0 transition-all flex justify-center ease-in-out ' + (quickstartPage == 3 ? "opacity-100" : "opacity-0 pointer-events-none")}>
+                    <div className='absolute mt-2 flex flex-col items-center'>
+                        <p className='text-xl bold text-center'>{localization.desktop_translation[state.config.language]}</p>
+                        <img className='mt-4 w-[384px]' src={
+                            {
+                                en: "/images/en2.png",
+                                jp: "/images/jp2.png",
+                                cn: "/images/cn2.png",
+                                kr: "/images/kr2.png",
+                            }[state.config.language]
+                        } width={240} />
+                        <p className='text-md mt-4 text-center'>{localization.desktop_translation_details[state.config.language]}</p>
+                    </div>
+                </div>
+
+                <Box sx={{
+                    width: '100%',
+                    '& .MuiSvgIcon-root': {
+                        color: state.config.light_mode ? 'black' : '#94A3B8'
+                    },
+                    '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: state.config.light_mode ? 'black' : '#94A3B8',
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: state.config.light_mode ? 'black' : '#94A3B8',
+                    },
+                    '& .MuiFormControlLabel-root.Mui-disabled .MuiFormControlLabel-label': {
+                        color: state.config.light_mode ? '#666666' : '#4f4f4f'
+                    }
+                }} >
+                    <div className={'absolute inset-0 transition-all space-y-2 flex flex-col items-center ease-in-out ' + (quickstartPage == 4 ? "opacity-100" : "opacity-0 pointer-events-none")}>
+                        <div className='absolute mt-2 flex flex-col items-center'>
+                            <p className='text-xl bold text-center'>{localization.settings[state.config.language]}</p>
+                            <img className='mt-4 w-[384px]' src="/images/settings.png" width={240} />
+                            <p className='text-md mt-4 text-center'>{localization.settings_details[state.config.language]}</p>
+                        </div>
+                    </div>
+                </Box>
+
+                <div className={'absolute inset-0 transition-all flex justify-center ease-in-out ' + (quickstartPage == 5 ? "opacity-100" : "opacity-0 pointer-events-none")}>
+                    <div className='absolute mt-2 flex flex-col items-center'>
+                        <p className='text-xl bold text-center'>{localization.change_theme[state.config.language]}</p>
+                        {quickstartPage == 5 &&
+                            <video width={384} autoPlay loop className='mt-4'>
+                                <source src="/theme.mp4" type="video/mp4"></source>
+                            </video>
+                        }
+                        <p className='text-md mt-4 text-center'>{localization.change_theme_detail[state.config.language]}</p>
+                    </div>
+                </div>
+
+                <div className={'absolute inset-0 transition-all space-y-2 flex flex-col items-center justify-center ease-in-out ' + (quickstartPage == 6 ? "opacity-100" : "opacity-0 pointer-events-none")}>
+                    <div className='mt-4 mb-4'>
+                        <p className='text-xl mt-8 bold text-center'>{localization.thank_you[state.config.language]}</p>
+                        <p className='text-lg mt-20 text-center'>{localization.thank_you_details[state.config.language]}</p>
+                    </div>
+                    <Button disabled={quickstartPage != 6} className={'w-70'} variant='contained' startIcon={< GitHub />} onClick={async () => { openURL("https://github.com/YusufOzmen01/kikitan-translator") }}>{localization.open_repo[state.config.language]}</Button>
+                    <div className="flex gap-2">
+                        <Button sx={{
+                            backgroundColor: "#ffde06",
+                            color: "black"
+                        }} disabled={quickstartPage != 6} variant="contained" className='w-52 h-9' onClick={() => { openURL("https://buymeacoffee.com/sergiomarquina") }}>
+                            <img src="/buymeacoffeelogo.svg" width={36}></img>
+                            <p className="mt-0.5">Buy Me a Coffee</p>
+                        </Button>
+
+                        <Button sx={{
+                            backgroundColor: "#fc4d50"
+                        }} disabled={quickstartPage != 6} variant="contained" className='w-52' onClick={() => { openURL("https://booth.pm/en/items/6073050") }}>
+                            <img src="/boothlogo.svg" width={24} className="mr-2"></img>
+                            <p className="mt-0.5">Booth.pm</p>
+                        </Button>
+                    </div>
+                    <Button disabled={quickstartPage != 6} className={'w-48'} variant='contained' onClick={async () => {
+                        setConfig("quickstart_viewed", true)
+                        setQuickstartPage(0)
+                    }}>{localization.close_menu[state.config.language]}</Button>
+                </div>
+            </div>
+            <div className='mb-2 flex justify-center space-x-4'>
+                <Button sx={{
+                    '&.Mui-disabled': {
+                        color: state.config.light_mode ? '#666666 !important' : '#4f4f4f !important',
+                        borderColor: state.config.light_mode ? '#666666 !important' : '#4f4f4f !important'
+                    }
+                }} variant='contained' disabled={quickstartPage == 0} onClick={() => { setQuickstartPage(quickstartPage - 1) }}>{localization.previous[state.config.language]}</Button>
+                {!(quickstartPage == 7) && <Button sx={{
+                    '&.Mui-disabled': {
+                        color: state.config.light_mode ? '#666666 !important' : '#4f4f4f !important',
+                        borderColor: state.config.light_mode ? '#666666 !important' : '#4f4f4f !important'
+                    }
+                }} className='ml-4' variant='contained' disabled={quickstartPage > 5} onClick={() => { setQuickstartPage(quickstartPage + 1) }}>{localization.next[state.config.language]}</Button>}
+            </div>
+        </div>
+    </>
+}

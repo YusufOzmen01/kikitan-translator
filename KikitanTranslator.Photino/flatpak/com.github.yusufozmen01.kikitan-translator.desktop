@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Kikitan Translator
+Comment=Realtime VRChat Translator
+Exec=KikitanTranslator.Photino
+StartupWMClass=KikitanTranslator.Photino
+Icon=com.github.yusufozmen01.kikitan-translator
+Type=Application
+Categories=Utility;AudioVideo;
