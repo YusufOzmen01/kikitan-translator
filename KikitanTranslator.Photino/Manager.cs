@@ -84,16 +84,11 @@ public class Manager
     {
         _appState.Config = AppConfig.ConfigObject;
         #if !DEBUG
-        _appState.AppVersion = VelopackLocator.Current.CurrentlyInstalledVersion?.ToString();
+        _appState.AppVersion = Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion.Split("+")[0];
         #endif
         _appState.IsLinux = !RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
         _appState.IsAppimage = _appState.IsLinux && Environment.GetEnvironmentVariable("KIKITAN_NOT_APPIMAGE") == null;
         _connector = connector;
-
-        if (_appState.IsLinux && (Environment.GetEnvironmentVariable("container") == "flatpak"))
-        {
-            _appState.AppVersion = Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion.Split("+")[0];
-        }
 
         Task.Run(async () =>
         {
