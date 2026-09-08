@@ -18,7 +18,7 @@ export default function QuickstartMenu({ state }: { state: app_state }) {
             <div className='relative mt-2 ml-2 mr-2 h-64'>
                 <div className={`absolute inset-0 transition-all flex justify-center ease-in-out ${quickstartPage == 0 ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
                     <div className='absolute mt-28 flex flex-col items-center'>
-                        <Scroll light_mode={state.config.light_mode}></Scroll>
+                        {quickstartPage == 0 && !state.config.quickstart_viewed && <Scroll light_mode={state.config.light_mode}></Scroll>}
 
                         <div className='mt-16 absolute flex flex-row items-center'>
                             <Translate className='mr-8 outline-2 ' />

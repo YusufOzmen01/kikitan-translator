@@ -91,7 +91,7 @@ function App() {
     return (
         <>
             {appState.config != undefined && <div
-                className={`relative transition-all duration-500 ${!loaded ? "opacity-0 pointer-events-none" : "opacity-100"} ${!appState.config.light_mode ? "bg-slate-950 text-white" : ""}`}>
+                className={`relative transition-all duration-500 ${!loaded ? "opacity-0 pointer-events-none" : "opacity-100"} ${!appState.config.light_mode ? "bg-slate-950 text-white" : ""} select-none`}>
                 <div
                     className={`transition-all z-20 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute` + (!appState.config.quickstart_viewed && appState.config.language != null ? " opacity-100" : " opacity-0 pointer-events-none")}>
                     <QuickstartMenu state={appState}></QuickstartMenu>
@@ -168,10 +168,12 @@ function App() {
                                         <p className='text-xs'>{localization.close[appState.config.language]}</p>
                                     </Button>
                                 </div>
-                                
-                                <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 z-20 ${showProgress ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
-                                    <CircularProgress size={96} />
-                                </div>
+
+                                {showProgress &&
+                                    <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 z-20`}>
+                                        <CircularProgress size={96} />
+                                    </div>
+                                }
                             </div>
                         </>   
                         }
