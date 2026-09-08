@@ -137,6 +137,12 @@ export const localization = {
         cn: "文本",
         kr: "텍스트",
     },
+    muted_in_game: {
+        en: "You are muted in game! If you want Kikitan to work, either disable the setting in settings, or unmute yourself!",
+        jp: "ゲーム内でミュートされています！Kikitanを動作させたい場合は、設定でその項目を無効にするか、自分のミュートを解除してください！",
+        cn: "你在游戏中被静音了！如果你想让 Kikitan 正常工作，请在设置中禁用该选项，或者取消自己的静音！",
+        kr: "게임 내에서 음소거되었습니다! Kikitan이 작동하게 하려면 설정에서 해당 옵션을 비활성화하거나 스스로 음소거를 해제하세요!",
+    },
     mode_selection: {
         en: "Mode Selection",
         jp: "モード選択",

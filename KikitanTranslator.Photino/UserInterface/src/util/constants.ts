@@ -30,6 +30,7 @@ export type app_state = {
     server_version: string;
     is_linux: boolean;
     is_appimage: boolean;
+    is_muted: boolean;
 }
 
 export const langSource = [

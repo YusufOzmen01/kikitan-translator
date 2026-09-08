@@ -70,7 +70,7 @@ export default function Kikitan({ state }: { state: app_state }) {
     
     const getStatusColor = (): "success" | "inherit" | "error" => {
         // @ts-ignore
-        return ["success", "inherit", "error"][state.status]
+        return state.is_muted ? "warning" : ["success", "inherit", "error"][state.status];
     }
     
     React.useEffect(() => {
@@ -479,26 +479,28 @@ export default function Kikitan({ state }: { state: app_state }) {
                         {<Keyboard fontSize="small" />}
                     </Button>
                 </Tooltip>
-                <Button
-                    variant="outlined"
-                    size="medium"
-                    color={getStatusColor()}
-                    disabled={state.status == 1}
-                    sx={{
-                        '&.Mui-disabled': {
-                            borderColor: state.config.light_mode ? 'rgba(0, 0, 0, 0.4)' : 'rgba(148, 163, 184, 0.5)',
-                            color: state.config.light_mode ? 'rgba(0, 0, 0, 0.4)' : 'rgba(148, 163, 184, 0.5)',
-                        },
-                    }}
-                    onClick={() => {
-                        controlKikitan(state.status == 0)
-                    }}
-                >
-                    <p className="mr-2">
-                        {state.status == 0 ? localization.start[state.config.language] : state.status == 2 ? localization.stop[state.config.language] : ""}
-                    </p>
-                    {state.status == 1 ? (<CircularProgress color="inherit" size={16} />) : state.status == 2 ? (<PauseIcon fontSize="small" />) : (<PlayArrowIcon fontSize="small" />)}
-                </Button>
+                <Tooltip title={state.is_muted ? localization.translation_disabled[state.config.language] : ""}>
+                    <Button
+                        variant="outlined"
+                        size="medium"
+                        color={getStatusColor()}
+                        disabled={state.status == 1}
+                        sx={{
+                            '&.Mui-disabled': {
+                                borderColor: state.config.light_mode ? 'rgba(0, 0, 0, 0.4)' : 'rgba(148, 163, 184, 0.5)',
+                                color: state.config.light_mode ? 'rgba(0, 0, 0, 0.4)' : 'rgba(148, 163, 184, 0.5)',
+                            },
+                        }}
+                        onClick={() => {
+                            controlKikitan(state.status == 0)
+                        }}
+                    >
+                        <p className="mr-2">
+                            {state.status == 0 ? localization.start[state.config.language] : state.status == 2 ? localization.stop[state.config.language] : ""}
+                        </p>
+                        {state.status == 1 ? (<CircularProgress color="inherit" size={16} />) : state.status == 2 ? (<PauseIcon fontSize="small" />) : (<PlayArrowIcon fontSize="small" />)}
+                    </Button>
+                </Tooltip>
                 <Tooltip title={localization.message_history[state.config.language]}>
                     <Button
                         variant="outlined"

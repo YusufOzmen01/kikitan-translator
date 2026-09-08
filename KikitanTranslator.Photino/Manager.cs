@@ -37,6 +37,7 @@ public class AppState
     [JsonProperty("server_version")] public string ServerVersion;
     [JsonProperty("is_linux")] public bool IsLinux;
     [JsonProperty("is_appimage")] public bool IsAppimage;
+    [JsonProperty("is_muted")] public bool IsMuted;
 }
 
 public class RecognitionData
@@ -44,18 +45,6 @@ public class RecognitionData
     [JsonProperty("transcription")] public string Transcription;
     [JsonProperty("translation")] public string Translation;
     [JsonProperty("final")] public bool Final;
-}
-
-[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-public struct OverlayState
-{
-    public bool NoLanguageSpace;
-    public int Time;
-
-    private const int TextMaxChars = 256;
-
-    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = TextMaxChars)]
-    public string Text;
 }
 
 public class Manager
@@ -124,6 +113,15 @@ public class Manager
                 proc.Start();
             }
         }
+
+        var oscWatcher = new OscWatcher();
+        oscWatcher.MuteStatusChanged += muted =>
+        {
+            _appState.IsMuted = muted;
+            
+            SendUpdateToUI();
+        };
+        oscWatcher.Start();;
         
         Task.Run(() =>
         {
@@ -190,7 +188,17 @@ public class Manager
         _microphoneKikitan = new Kikitan(rMic, _translator, new ErrorHandler(_connector), false);
         _microphoneKikitan.AddOutput(new Custom(SendRecognitionData));
         if (AppConfig.ConfigObject.SendToChatbox)
-            _microphoneKikitan.AddOutput(new OSC()); // TODO: Data out via OSC for other apps
+        {
+            var osc = new OSC();
+            
+            _microphoneKikitan.AddOutput(new Custom((m, r, f) =>
+            {
+                if (!_appState.IsMuted) osc.Send(m, r, f);
+            }));
+        }
+            
+        
+        // TODO: Data out via OSC for other apps
         
         _microphoneKikitan.OnRecognizerStatusChanged += s =>
         {
