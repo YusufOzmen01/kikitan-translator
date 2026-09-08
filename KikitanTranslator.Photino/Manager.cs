@@ -189,16 +189,19 @@ public class Manager
         _microphoneKikitan.AddOutput(new Custom(SendRecognitionData));
         if (AppConfig.ConfigObject.SendToChatbox)
         {
-            var osc = new OSC();
+            var osc = new Chatbox();
             
             _microphoneKikitan.AddOutput(new Custom((m, r, f) =>
             {
                 if (!_appState.IsMuted) osc.Send(m, r, f);
             }));
         }
-            
-        
-        // TODO: Data out via OSC for other apps
+
+
+        if (AppConfig.ConfigObject.SendUserData)
+        {
+            _microphoneKikitan.AddOutput(new OSC("/microphone"));
+        }
         
         _microphoneKikitan.OnRecognizerStatusChanged += s =>
         {
@@ -227,6 +230,11 @@ public class Manager
             
                 _writer.Write(new OverlayPipeData { Text = text, NoLanguageSpace = AppConfig.ConfigObject.TargetLanguage == "ja" || AppConfig.ConfigObject.TargetLanguage == "ko" || AppConfig.ConfigObject.TargetLanguage == "cn", Time = time < 5000 ? 5000 : time});
             }));
+            
+            if (AppConfig.ConfigObject.SendUserData)
+            {
+                _desktopKikitan.AddOutput(new OSC("/desktop"));
+            }
             
             _desktopKikitan?.Start();
         }

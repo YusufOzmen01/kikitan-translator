@@ -1,29 +1,26 @@
-﻿using BuildSoft.VRChat.Osc;
-using BuildSoft.VRChat.Osc.Chatbox;
-using KikitanTranslator.Utility;
-using Serilog;
+﻿using BuildSoft.OscCore;
 
 namespace KikitanTranslator.Base.Outputs;
 
 public class OSC : IOutput
 {
-    public OSC() => OscConnectionSettings.SendPort = AppConfig.ConfigObject.OscPort;
-    
-    public void Send(string recognized, string translated, bool final)
+    private OscClient? _client;
+    private string _baseAddress;
+
+    public OSC(string baseAddress)
     {
-        try
-        {
-            OscChatbox.SetIsTyping(!final);
-            if (!final && !AppConfig.ConfigObject.SendWithoutWaitingForFinish) return;
-            
-            if (AppConfig.ConfigObject.SpeechToTextOnly) OscChatbox.SendMessage(recognized, true);
-            else if (AppConfig.ConfigObject.TranslationOnly) OscChatbox.SendMessage(translated, true);
-            else OscChatbox.SendMessage($"{translated} ({recognized})", true);
-        } catch (Exception e)
-        {
-            Log.Error($"[OSC]  Error sending OSC message! Reason: {e}");
-        }
+        _client = new OscClient("127.0.0.1", 7272);
+        
+        _baseAddress = baseAddress;
     }
 
-    public bool IsDelayed() => true;
+
+    public void Send(string recognized, string translated, bool final)
+    {
+        _client?.Send($"{_baseAddress}/recognized", recognized);
+        _client?.Send($"{_baseAddress}/translated", translated);
+        _client?.Send($"{_baseAddress}/final", final);
+    }
+
+    public bool IsDelayed() => false;
 }
