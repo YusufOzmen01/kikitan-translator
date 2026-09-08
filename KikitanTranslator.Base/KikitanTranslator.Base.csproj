@@ -7,6 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="CurlThin" Version="0.0.7" />
       <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.24.4" />
       <PackageReference Include="NAudio" Version="2.3.0" />
       <PackageReference Include="NAudio.Wasapi" Version="2.3.0" />

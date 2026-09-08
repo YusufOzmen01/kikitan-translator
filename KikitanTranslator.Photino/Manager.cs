@@ -159,6 +159,7 @@ public class Manager
                     RestartIfRunning();
                 }
                 
+                
                 _appState.Microphones = mics.ToArray();
                 
                 mics.Clear();
