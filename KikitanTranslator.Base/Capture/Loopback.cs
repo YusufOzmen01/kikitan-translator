@@ -18,6 +18,9 @@ public class Loopback : ICapture
     
     private byte[] _resampledBuffer = new byte[16000 * 2 / 10];
     private readonly float[] _vadChunk = new float[480];
+    
+    private MediaFoundationResampler? _resampler;
+    private WaveFormat? _resamplerSourceFormat;
 
     public uint GetSampleRate() => 16000;
 
@@ -41,6 +44,11 @@ public class Loopback : ICapture
         _capture.DataAvailable -= OnDataAvailable;
         _capture.StopRecording();
         _capture = null;
+
+        _resampler?.Dispose();
+        _resampler = null;
+        _resamplerSourceFormat = null;
+
         Log.Information("[LOOP] Capture has stopped");
     }
 
@@ -54,12 +62,22 @@ public class Loopback : ICapture
         int estimatedBytes = (int)((long)e.BytesRecorded * _targetFormat.AverageBytesPerSecond / _capture.WaveFormat.AverageBytesPerSecond) + 1024;
         if (_resampledBuffer.Length < estimatedBytes)
             _resampledBuffer = new byte[estimatedBytes];
-
-        var raw = new RawSourceWaveStream(e.Buffer, 0, e.BytesRecorded, _capture.WaveFormat);
-        var resampler = new MediaFoundationResampler(new StereoToMonoProvider16(new SampleToWaveProvider16(raw.ToSampleProvider())), _targetFormat);
-        resampler.ResamplerQuality = 60;
         
-        int bytesRead = resampler.Read(_resampledBuffer, 0, estimatedBytes);
+        if (_resampler == null || _resamplerSourceFormat != _capture.WaveFormat)
+        {
+            _resampler?.Dispose();
+
+            var raw = new RawSourceWaveStream(e.Buffer, 0, e.BytesRecorded, _capture.WaveFormat);
+            _resampler = new MediaFoundationResampler(
+                new StereoToMonoProvider16(new SampleToWaveProvider16(raw.ToSampleProvider())),
+                _targetFormat)
+            {
+                ResamplerQuality = 60
+            };
+            _resamplerSourceFormat = _capture.WaveFormat;
+        }
+
+        int bytesRead = _resampler.Read(_resampledBuffer, 0, estimatedBytes);
 
         int sampleCount = bytesRead / 2;
         float[] samples = new float[sampleCount];
@@ -78,8 +96,7 @@ public class Loopback : ICapture
 
         for (int i = 0; i < chunkCount; i++)
         {
-            samples.AsSpan(i * 480, 480).CopyTo(_vadChunk);
-            speech |= _vad.SpeechDetection(_vadChunk);
+            speech |= _vad.SpeechDetection(samples.AsSpan(i * 480, 480));
             
             if (speech) break;
         }

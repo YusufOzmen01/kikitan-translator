@@ -49,20 +49,9 @@ static class Program
         if (Process.GetProcessesByName("vrserver").Length != 0) server.StartOpenVR(new OpenVROverlay());
         
         RECT rect;
-        IntPtr hWnd = FindWindow(null, "VRChat");
         if (Screen.PrimaryScreen != null)
         {
             Rectangle bounds = Screen.PrimaryScreen.Bounds;
-            if (hWnd != IntPtr.Zero && GetWindowRect(hWnd, out rect))
-            {
-                bounds = new Rectangle(
-                    rect.Left,
-                    rect.Top,
-                    rect.Right - rect.Left,
-                    rect.Bottom - rect.Top
-                );
-            }
-        
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             

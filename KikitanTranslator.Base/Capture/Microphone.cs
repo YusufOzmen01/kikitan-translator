@@ -127,11 +127,10 @@ public class Microphone : ICapture
     {
         if (_paused) return;
         _apmModifier?.Process(samples, samples.Length);
-        float[] sampleArray = samples.ToArray();
-        
-        bool part1 = _vad.SpeechDetection(sampleArray.Take(480).ToArray());
-        bool part2 = _vad.SpeechDetection(sampleArray.Skip(480).ToArray());
-        
+
+        bool part1 = _vad.SpeechDetection(samples.Slice(0, 480));
+        bool part2 = _vad.SpeechDetection(samples.Slice(480, 480));
+
         OnDataReceived?.Invoke(samples.ToArray(), part1 || part2);
     }
 }

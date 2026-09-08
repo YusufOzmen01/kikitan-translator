@@ -228,7 +228,9 @@ public class Manager
 
                 if (text.Trim().Length == 0) return;
             
-                _writer.Write(new OverlayPipeData { Text = text, NoLanguageSpace = AppConfig.ConfigObject.TargetLanguage == "ja" || AppConfig.ConfigObject.TargetLanguage == "ko" || AppConfig.ConfigObject.TargetLanguage == "cn", Time = time < 5000 ? 5000 : time});
+                _writer.Write(new OverlayPipeData { Text = text, NoLanguageSpace =
+                    (AppConfig.ConfigObject.SourceLanguage == "ja" || AppConfig.ConfigObject.SourceLanguage == "ko" ||
+                     AppConfig.ConfigObject.SourceLanguage == "cn"), Time = time < 5000 ? 5000 : time});
             }));
             
             if (AppConfig.ConfigObject.SendUserData)

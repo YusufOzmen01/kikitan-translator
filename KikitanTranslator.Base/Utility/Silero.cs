@@ -18,6 +18,12 @@ public sealed class SileroVad : IDisposable
 
     private readonly float[] _state = new float[_stateSize];
     private readonly float[] _context = new float[_contextSize];
+    
+    private readonly float[] _input = new float[_effectiveSize];
+    private readonly float[] _stateScratch = new float[_stateSize];
+    private readonly DenseTensor<float> _audioTensor;
+    private readonly DenseTensor<float> _stateTensor;
+    private readonly DenseTensor<long> _srTensor;
 
     private static readonly int[] _audioShape = { 1, _effectiveSize };
     private static readonly int[] _stateShape = { 2, 1, 128 };
@@ -28,9 +34,17 @@ public sealed class SileroVad : IDisposable
     public SileroVad(string path)
     {
         var options = new SessionOptions();
+        options.IntraOpNumThreads = 1;
+        options.InterOpNumThreads = 1;
+        options.ExecutionMode = ExecutionMode.ORT_SEQUENTIAL;
         options.AppendExecutionProvider_CPU();
 
         _session = new InferenceSession(path, options);
+
+        _audioTensor = new DenseTensor<float>(_input, _audioShape);
+        _stateTensor = new DenseTensor<float>(_stateScratch, _stateShape);
+        _srTensor = new DenseTensor<long>(new long[] { 16000L }, _srShape);
+
         ResetState();
     }
 
@@ -40,25 +54,23 @@ public sealed class SileroVad : IDisposable
         Array.Clear(_context, 0, _context.Length);
     }
 
-    public bool SpeechDetection(float[] samples)
+    public bool SpeechDetection(ReadOnlySpan<float> samples)
     {
-        var input = new float[_effectiveSize];
-        Array.Copy(_context, 0, input, 0, _contextSize);
+        Array.Copy(_context, 0, _input, 0, _contextSize);
 
-        var padded = new float[_chunkSize];
-        Array.Copy(samples, padded, _frameLength);
-        Array.Copy(padded, 0, input, _contextSize, _chunkSize);
-        Array.Copy(padded, _chunkSize - _contextSize, _context, 0, _contextSize);
+        Span<float> padded = stackalloc float[_chunkSize];
+        samples.Slice(0, _frameLength).CopyTo(padded);
+        padded.CopyTo(_input.AsSpan(_contextSize, _chunkSize));
 
-        var audioTensor = new DenseTensor<float>(input, _audioShape);
-        var stateTensor = new DenseTensor<float>(_state.AsSpan().ToArray(), _stateShape);
-        var srTensor    = new DenseTensor<long>(new long[] { 16000L }, _srShape);
+        padded.Slice(_chunkSize - _contextSize, _contextSize).CopyTo(_context);
+        
+        Array.Copy(_state, _stateScratch, _state.Length);
 
         var inputs = new[]
         {
-            NamedOnnxValue.CreateFromTensor("input", audioTensor),
-            NamedOnnxValue.CreateFromTensor("state", stateTensor),
-            NamedOnnxValue.CreateFromTensor("sr",    srTensor),
+            NamedOnnxValue.CreateFromTensor("input", _audioTensor),
+            NamedOnnxValue.CreateFromTensor("state", _stateTensor),
+            NamedOnnxValue.CreateFromTensor("sr",    _srTensor),
         };
 
         using var results = _session.Run(inputs);

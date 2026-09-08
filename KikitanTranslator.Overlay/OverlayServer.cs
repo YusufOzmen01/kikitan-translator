@@ -89,14 +89,14 @@ public class OverlayServer
 
         string currentText = text;
 
-        while ((MeasureWidth(currentText, font, paint) > maxTextWidth || MeasureHeight( font) > maxTextHeight)
+        while ((MeasureWidthWithFallback(currentText, font.Size, paint) > maxTextWidth || MeasureHeightWithFallback(currentText, font.Size, paint) > maxTextHeight)
                && font.Size > minTextSize)
         {
             font.Size -= 1f;
         }
 
 
-        if (MeasureWidth(currentText, font, paint) > maxTextWidth || MeasureHeight(font) > maxTextHeight)
+        if (MeasureWidthWithFallback(currentText, font.Size, paint) > maxTextWidth || MeasureHeightWithFallback(currentText, font.Size, paint) > maxTextHeight)
         {
             IEnumerable<string> tokens = noSpaceLanguage
                 ? currentText.Select(c => c.ToString())
@@ -108,7 +108,7 @@ public class OverlayServer
             foreach (var word in tokens)
             {
                 string candidate = newLine + word + (noSpaceLanguage ? "" : " ");
-                if (MeasureWidth(candidate, font, paint) > maxTextWidth)
+                if (MeasureWidthWithFallback(candidate, font.Size, paint) > maxTextWidth)
                 {
                     lines.Add(newLine.TrimEnd());
                     newLine = "";
@@ -127,11 +127,11 @@ public class OverlayServer
                 lines = lines.Take(maxLines).ToList();
             }
             
-            string longestLine = lines.OrderByDescending(l => MeasureWidth(l, font, paint)).First();
+            string longestLine = lines.OrderByDescending(l => MeasureWidthWithFallback(l, font.Size, paint)).First();
             while (font.Size > minTextSize)
             {
                 float blockHeight = font.Size * 1.2f * lines.Count;
-                if (MeasureWidth(longestLine, font, paint) <= maxTextWidth && blockHeight <= maxTextHeight)
+                if (MeasureWidthWithFallback(longestLine, font.Size, paint) <= maxTextWidth && blockHeight <= maxTextHeight)
                     break;
                 font.Size -= 1f;
             }
@@ -201,12 +201,53 @@ public class OverlayServer
         }
     }
 
-    private float MeasureWidth(string t, SKFont font, SKPaint paint) => font.MeasureText(t, paint);
-
-    private float MeasureHeight(SKFont font)
+    private float MeasureWidthWithFallback(string text, float fontSize, SKPaint paint)
     {
-        font.GetFontMetrics(out var metrics);
+        var fontManager = SKFontManager.Default;
+        var style = new SKFontStyle(
+            paint.FakeBoldText ? SKFontStyleWeight.Bold : SKFontStyleWeight.Normal,
+            SKFontStyleWidth.Normal,
+            SKFontStyleSlant.Upright);
 
-        return Math.Abs(metrics.Ascent) + Math.Abs(metrics.Descent);
+        float totalWidth = 0f;
+        foreach (var c in text)
+        {
+            var typeface = fontManager.MatchCharacter(null, style, null, c)
+                           ?? SKTypeface.FromFamilyName("Arial Unicode MS");
+
+            using var measurePaint = paint.Clone();
+            measurePaint.Typeface = typeface;
+            measurePaint.TextSize = fontSize;
+            measurePaint.TextAlign = SKTextAlign.Left;
+
+            totalWidth += measurePaint.MeasureText(c.ToString());
+        }
+        return totalWidth;
+    }
+
+    private float MeasureHeightWithFallback(string text, float fontSize, SKPaint paint)
+    {
+        var fontManager = SKFontManager.Default;
+        var style = new SKFontStyle(
+            paint.FakeBoldText ? SKFontStyleWeight.Bold : SKFontStyleWeight.Normal,
+            SKFontStyleWidth.Normal,
+            SKFontStyleSlant.Upright);
+
+        float maxAscent = 0f, maxDescent = 0f;
+        var seen = new HashSet<SKTypeface>();
+
+        foreach (var c in text)
+        {
+            var typeface = fontManager.MatchCharacter(null, style, null, c)
+                           ?? SKTypeface.FromFamilyName("Arial Unicode MS");
+            if (!seen.Add(typeface)) continue;
+
+            using var f = new SKFont(typeface, fontSize);
+            f.GetFontMetrics(out var m);
+            maxAscent = Math.Max(maxAscent, Math.Abs(m.Ascent));
+            maxDescent = Math.Max(maxDescent, Math.Abs(m.Descent));
+        }
+
+        return maxAscent + maxDescent;
     }
 }
