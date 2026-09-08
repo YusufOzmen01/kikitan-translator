@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+        <xsd:element name="root" msdata:IsDataSet="true">
+            
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+
+    <data name="lang_ar" xml:space="preserve"><value>阿拉伯语</value></data>
+    <data name="lang_bg" xml:space="preserve"><value>保加利亚语</value></data>
+    <data name="lang_bn" xml:space="preserve"><value>孟加拉语</value></data>
+    <data name="lang_ca" xml:space="preserve"><value>加泰罗尼亚语</value></data>
+    <data name="lang_cs" xml:space="preserve"><value>捷克语</value></data>
+    <data name="lang_da" xml:space="preserve"><value>丹麦语</value></data>
+    <data name="lang_de" xml:space="preserve"><value>德语</value></data>
+    <data name="lang_el" xml:space="preserve"><value>希腊语</value></data>
+    <data name="lang_en" xml:space="preserve"><value>英语</value></data>
+    <data name="lang_es" xml:space="preserve"><value>西班牙语</value></data>
+    <data name="lang_et" xml:space="preserve"><value>爱沙尼亚语</value></data>
+    <data name="lang_fa" xml:space="preserve"><value>波斯语</value></data>
+    <data name="lang_fi" xml:space="preserve"><value>芬兰语</value></data>
+    <data name="lang_fr" xml:space="preserve"><value>法语</value></data>
+    <data name="lang_gu" xml:space="preserve"><value>古吉拉特语</value></data>
+    <data name="lang_hi" xml:space="preserve"><value>印地语</value></data>
+    <data name="lang_hr" xml:space="preserve"><value>克罗地亚语</value></data>
+    <data name="lang_hu" xml:space="preserve"><value>匈牙利语</value></data>
+    <data name="lang_hy" xml:space="preserve"><value>亚美尼亚语</value></data>
+    <data name="lang_id" xml:space="preserve"><value>印尼语</value></data>
+    <data name="lang_is" xml:space="preserve"><value>冰岛语</value></data>
+    <data name="lang_it" xml:space="preserve"><value>意大利语</value></data>
+    <data name="lang_ja" xml:space="preserve"><value>日语</value></data>
+    <data name="lang_kk" xml:space="preserve"><value>哈萨克语</value></data>
+    <data name="lang_km" xml:space="preserve"><value>高棉语</value></data>
+    <data name="lang_ko" xml:space="preserve"><value>韩语</value></data>
+    <data name="lang_lo" xml:space="preserve"><value>老挝语</value></data>
+    <data name="lang_lt" xml:space="preserve"><value>立陶宛语</value></data>
+    <data name="lang_lv" xml:space="preserve"><value>拉脱维亚语</value></data>
+    <data name="lang_mk" xml:space="preserve"><value>马其顿语</value></data>
+    <data name="lang_mn" xml:space="preserve"><value>蒙古语</value></data>
+    <data name="lang_mr" xml:space="preserve"><value>马拉地语</value></data>
+    <data name="lang_ne" xml:space="preserve"><value>尼泊尔语</value></data>
+    <data name="lang_nl" xml:space="preserve"><value>荷兰语</value></data>
+    <data name="lang_no" xml:space="preserve"><value>挪威语</value></data>
+    <data name="lang_or" xml:space="preserve"><value>奥里亚语</value></data>
+    <data name="lang_pa" xml:space="preserve"><value>旁遮普语</value></data>
+    <data name="lang_pl" xml:space="preserve"><value>波兰语</value></data>
+    <data name="lang_pt" xml:space="preserve"><value>葡萄牙语</value></data>
+    <data name="lang_ro" xml:space="preserve"><value>罗马尼亚语</value></data>
+    <data name="lang_ru" xml:space="preserve"><value>俄语</value></data>
+    <data name="lang_si" xml:space="preserve"><value>僧伽罗语</value></data>
+    <data name="lang_sk" xml:space="preserve"><value>斯洛伐克语</value></data>
+    <data name="lang_sl" xml:space="preserve"><value>斯洛文尼亚语</value></data>
+    <data name="lang_sv" xml:space="preserve"><value>瑞典语</value></data>
+    <data name="lang_ta" xml:space="preserve"><value>泰米尔语</value></data>
+    <data name="lang_te" xml:space="preserve"><value>泰卢固语</value></data>
+    <data name="lang_th" xml:space="preserve"><value>泰语</value></data>
+    <data name="lang_tr" xml:space="preserve"><value>土耳其语</value></data>
+    <data name="lang_uk" xml:space="preserve"><value>乌克兰语</value></data>
+    <data name="lang_ur" xml:space="preserve"><value>乌尔都语</value></data>
+    <data name="lang_uz" xml:space="preserve"><value>乌兹别克语</value></data>
+    <data name="lang_vi" xml:space="preserve"><value>越南语</value></data>
+    <data name="lang_zh" xml:space="preserve"><value>中文</value></data>
+</root>

@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+        <xsd:element name="root" msdata:IsDataSet="true">
+            
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+
+    <data name="lang_ar" xml:space="preserve"><value>Arabic</value></data>
+    <data name="lang_bg" xml:space="preserve"><value>Bulgarian</value></data>
+    <data name="lang_bn" xml:space="preserve"><value>Bengali</value></data>
+    <data name="lang_ca" xml:space="preserve"><value>Catalan</value></data>
+    <data name="lang_cs" xml:space="preserve"><value>Czech</value></data>
+    <data name="lang_da" xml:space="preserve"><value>Danish</value></data>
+    <data name="lang_de" xml:space="preserve"><value>German</value></data>
+    <data name="lang_el" xml:space="preserve"><value>Greek</value></data>
+    <data name="lang_en" xml:space="preserve"><value>English</value></data>
+    <data name="lang_es" xml:space="preserve"><value>Spanish</value></data>
+    <data name="lang_et" xml:space="preserve"><value>Estonian</value></data>
+    <data name="lang_fa" xml:space="preserve"><value>Persian</value></data>
+    <data name="lang_fi" xml:space="preserve"><value>Finnish</value></data>
+    <data name="lang_fr" xml:space="preserve"><value>French</value></data>
+    <data name="lang_gu" xml:space="preserve"><value>Gujarati</value></data>
+    <data name="lang_hi" xml:space="preserve"><value>Hindi</value></data>
+    <data name="lang_hr" xml:space="preserve"><value>Croatian</value></data>
+    <data name="lang_hu" xml:space="preserve"><value>Hungarian</value></data>
+    <data name="lang_hy" xml:space="preserve"><value>Armenian</value></data>
+    <data name="lang_id" xml:space="preserve"><value>Indonesian</value></data>
+    <data name="lang_is" xml:space="preserve"><value>Icelandic</value></data>
+    <data name="lang_it" xml:space="preserve"><value>Italian</value></data>
+    <data name="lang_ja" xml:space="preserve"><value>Japanese</value></data>
+    <data name="lang_kk" xml:space="preserve"><value>Kazakh</value></data>
+    <data name="lang_km" xml:space="preserve"><value>Khmer</value></data>
+    <data name="lang_ko" xml:space="preserve"><value>Korean</value></data>
+    <data name="lang_lo" xml:space="preserve"><value>Lao</value></data>
+    <data name="lang_lt" xml:space="preserve"><value>Lithuanian</value></data>
+    <data name="lang_lv" xml:space="preserve"><value>Latvian</value></data>
+    <data name="lang_mk" xml:space="preserve"><value>Macedonian</value></data>
+    <data name="lang_mn" xml:space="preserve"><value>Mongolian</value></data>
+    <data name="lang_mr" xml:space="preserve"><value>Marathi</value></data>
+    <data name="lang_ne" xml:space="preserve"><value>Nepali</value></data>
+    <data name="lang_nl" xml:space="preserve"><value>Dutch</value></data>
+    <data name="lang_no" xml:space="preserve"><value>Norwegian</value></data>
+    <data name="lang_or" xml:space="preserve"><value>Odia</value></data>
+    <data name="lang_pa" xml:space="preserve"><value>Punjabi</value></data>
+    <data name="lang_pl" xml:space="preserve"><value>Polish</value></data>
+    <data name="lang_pt" xml:space="preserve"><value>Portuguese</value></data>
+    <data name="lang_ro" xml:space="preserve"><value>Romanian</value></data>
+    <data name="lang_ru" xml:space="preserve"><value>Russian</value></data>
+    <data name="lang_si" xml:space="preserve"><value>Sinhala</value></data>
+    <data name="lang_sk" xml:space="preserve"><value>Slovak</value></data>
+    <data name="lang_sl" xml:space="preserve"><value>Slovenian</value></data>
+    <data name="lang_sv" xml:space="preserve"><value>Swedish</value></data>
+    <data name="lang_ta" xml:space="preserve"><value>Tamil</value></data>
+    <data name="lang_te" xml:space="preserve"><value>Telugu</value></data>
+    <data name="lang_th" xml:space="preserve"><value>Thai</value></data>
+    <data name="lang_tr" xml:space="preserve"><value>Turkish</value></data>
+    <data name="lang_uk" xml:space="preserve"><value>Ukrainian</value></data>
+    <data name="lang_ur" xml:space="preserve"><value>Urdu</value></data>
+    <data name="lang_uz" xml:space="preserve"><value>Uzbek</value></data>
+    <data name="lang_vi" xml:space="preserve"><value>Vietnamese</value></data>
+    <data name="lang_zh" xml:space="preserve"><value>Chinese</value></data>
+</root>
