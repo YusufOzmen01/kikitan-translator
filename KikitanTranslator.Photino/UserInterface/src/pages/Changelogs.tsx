@@ -24,7 +24,7 @@ export default function Changelogs({ closeCallback, state }: ChangelogsProps) {
     const [changelog, setChangelog] = React.useState("")
 
     React.useEffect(() => {
-        fetchURL(`https://github.com/YusufOzmen01/velopack-test/releases/latest/download/CHANGELOG_${state.config.language}.md`).then(c => setChangelog(c))
+        fetchURL(`https://github.com/YusufOzmen01/kikitan-translator/releases/latest/download/CHANGELOG_${state.config.language}.md`).then(c => setChangelog(c))
     }, [])
 
     return <>

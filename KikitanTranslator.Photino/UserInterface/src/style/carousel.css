@@ -1,10 +1,10 @@
 @import url("https://fonts.googleapis.com/css2?family=Satoshi:wght@100;400;500&display=swap");
 
 :root {
-  --ch: 5vw; /* Carousel height. */
+  --ch: 4vw; /* Carousel height. */
   --tt: 1500ms; /* Transition time */
   --pt: 0ms; /* Pause time */
-  --at: calc((var(--tt) + var(--pt)) * 5); /* Total animation time */
+  --at: calc((var(--tt)) * 4); /* Total animation time */
 }
 
 .carousel-container {
@@ -27,24 +27,20 @@
     margin-top: 0;
   }
   3%,
-  17% {
+  25% {
     margin-top: calc(var(--ch) * -1);
   }
-  20%,
-  34% {
+  28%,
+  50% {
     margin-top: calc(var(--ch) * -2);
   }
-  37%,
-  51% {
+  53%,
+  75% {
     margin-top: calc(var(--ch) * -3);
   }
-  54%,
-  68% {
-    margin-top: calc(var(--ch) * -4);
-  }
-  71%,
+  78%,
   100% {
-    margin-top: calc(var(--ch) * -5);
+    margin-top: calc(var(--ch) * -4);
   }
 }
 

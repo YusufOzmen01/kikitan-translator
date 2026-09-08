@@ -216,11 +216,11 @@ export const localization = {
         cn: "打开代码仓库",
         kr: "저장소 열기",
     },
-    close_menu: {
-        en: "Close Menu",
-        jp: "メニューを閉じる",
-        cn: "关闭菜单",
-        kr: "메뉴 닫기",
+    close: {
+        en: "Close",
+        jp: "近い",
+        cn: "关闭",
+        kr: "닫다",
     },
     translation: {
         en: "Translation",

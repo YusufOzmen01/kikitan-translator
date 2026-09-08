@@ -280,7 +280,7 @@ export default function Kikitan({ state }: { state: app_state }) {
                                     setTextInputValue("");
                                 }}
                             >
-                                {localization.close_menu[state.config.language]}
+                                {localization.close[state.config.language]}
                             </Button>
                         </div>
                     </div>

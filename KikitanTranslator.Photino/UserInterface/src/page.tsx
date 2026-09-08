@@ -118,7 +118,7 @@ function App() {
                             </Button>
                             <Button variant="contained" className='w-48' onClick={() => {
                                 setDonateVisible(false)
-                            }}><p className='text-xs'>{localization.close_menu[appState.config.language]}</p></Button>
+                            }}><p className='text-xs'>{localization.close[appState.config.language]}</p></Button>
                         </div>
                     </div>
                 </div>
@@ -165,7 +165,7 @@ function App() {
                                             setUpdaterVisible(false)
                                         }}>
                                         <Clear fontSize="small" />
-                                        <p className='text-xs'>{localization.close_menu[appState.config.language]}</p>
+                                        <p className='text-xs'>{localization.close[appState.config.language]}</p>
                                     </Button>
                                 </div>
                                 
@@ -190,7 +190,7 @@ function App() {
                                         setUpdaterVisible(false)
                                     }}>
                                     <Clear fontSize="small" />
-                                    <p className='text-xs'>{localization.close_menu[appState.config.language]}</p>
+                                    <p className='text-xs'>{localization.close[appState.config.language]}</p>
                                 </Button>
                             </div>
                             

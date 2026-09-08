@@ -120,7 +120,7 @@ export default function QuickstartMenu({ state }: { state: app_state }) {
                 </div>
 
                 <div className={'absolute inset-0 transition-all space-y-2 flex flex-col items-center justify-center ease-in-out ' + (quickstartPage == 6 ? "opacity-100" : "opacity-0 pointer-events-none")}>
-                    <div className='mt-4 mb-4'>
+                    <div className='mt-8 mb-4 ml-4 mr-4'>
                         <p className='text-xl mt-8 bold text-center'>{localization.thank_you[state.config.language]}</p>
                         <p className='text-lg mt-20 text-center'>{localization.thank_you_details[state.config.language]}</p>
                     </div>
@@ -141,10 +141,6 @@ export default function QuickstartMenu({ state }: { state: app_state }) {
                             <p className="mt-0.5">Booth.pm</p>
                         </Button>
                     </div>
-                    <Button disabled={quickstartPage != 6} className={'w-48'} variant='contained' onClick={async () => {
-                        setConfig("quickstart_viewed", true)
-                        setQuickstartPage(0)
-                    }}>{localization.close_menu[state.config.language]}</Button>
                 </div>
             </div>
             <div className='mb-2 flex justify-center space-x-4'>
@@ -159,7 +155,13 @@ export default function QuickstartMenu({ state }: { state: app_state }) {
                         color: state.config.light_mode ? '#666666 !important' : '#4f4f4f !important',
                         borderColor: state.config.light_mode ? '#666666 !important' : '#4f4f4f !important'
                     }
-                }} className='ml-4' variant='contained' disabled={quickstartPage > 5} onClick={() => { setQuickstartPage(quickstartPage + 1) }}>{localization.next[state.config.language]}</Button>}
+                }} className='ml-4' variant='contained' onClick={() => { 
+                    if (quickstartPage >= 6) {
+                        setConfig("quickstart_viewed", true)
+                        setQuickstartPage(0)
+                    }
+                    else setQuickstartPage(quickstartPage + 1) 
+                }}>{quickstartPage >= 6 ? localization.close[state.config.language] : localization.next[state.config.language]}</Button>}
             </div>
         </div>
     </>
