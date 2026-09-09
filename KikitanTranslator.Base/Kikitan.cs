@@ -71,13 +71,22 @@ public class Kikitan : IDisposable
 
         if (!final || text.Length == 0) return;
 
-        var translated = AppConfig.ConfigObject.SpeechToTextOnly ? "" : _isLoopback ? _translator.Translate(text, AppConfig.ConfigObject.TargetLanguage, AppConfig.ConfigObject.SourceLanguage) : _translator.Translate(text, AppConfig.ConfigObject.SourceLanguage, AppConfig.ConfigObject.TargetLanguage);
-        
-        if (translated != null)
+        try
         {
-            _queue.Add([text, translated]);
+            var translated = AppConfig.ConfigObject.SpeechToTextOnly ? "" : _isLoopback ? _translator.Translate(text, AppConfig.ConfigObject.TargetLanguage, AppConfig.ConfigObject.SourceLanguage) : _translator.Translate(text, AppConfig.ConfigObject.SourceLanguage, AppConfig.ConfigObject.TargetLanguage);
+        
+            if (translated != null)
+            {
+                _queue.Add([text, translated]);
             
-            foreach (var output in _outputs.Where(v => !v.IsDelayed())) output.Send(text, translated, true);
+                foreach (var output in _outputs.Where(v => !v.IsDelayed())) output.Send(text, translated, true);
+            }
+        }
+        catch (Exception e)
+        {
+            Log.Error($"[KKTN] Error while translating: {e.Message}");
+            
+            _errorHandler.OnError($"Error while translating: {e.Message}");
         }
     }
 

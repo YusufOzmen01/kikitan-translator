@@ -65,7 +65,24 @@ export default function Kikitan({ state }: { state: app_state }) {
     }>({ open: false, message: "", severity: "info" });
 
     const showNotification = (message: string, severity: "success" | "error" | "warning" | "info" = "info") => {
-        setNotification({ open: true, message, severity });
+        switch (message) {
+            case "GROQ_NO_API_KEY":
+                setNotification({ open: true, message: localization.no_api_key_configured_for_groq[state.config.language], severity });
+                break;
+            case "GROQ_INVALID_API_KEY":
+                setNotification({ open: true, message: localization.invalid_api_key_groq[state.config.language], severity });
+                break;
+            case "GEMINI_NO_API_KEY":
+                setNotification({ open: true, message: localization.no_api_key_configured_for_gemini[state.config.language], severity });
+                break;
+            case "GEMINI_INVALID_API_KEY":
+                setNotification({ open: true, message: localization.invalid_api_key_gemini[state.config.language], severity });
+                break;
+            default:
+                setNotification({ open: true, message, severity });
+                
+                break;
+        }
     };
     
     const getStatusColor = (): "success" | "inherit" | "error" => {

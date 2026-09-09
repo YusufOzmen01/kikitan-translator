@@ -111,8 +111,15 @@ public class Bing(ICapture capture) : IRecognizer
             Log.Verbose("[BING] Wav header has been sent");
 
             capture.OnDataReceived += OnAudioData;
+
+            if (!capture.Start())
+            {
+                Log.Error("[BING] Unable to start capture!");
+                Stop();
+
+                return;
+            }
             
-            capture.Start();
             Log.Information("[BING] Bing recognizer has started");
         });
         

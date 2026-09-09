@@ -7,7 +7,7 @@ public interface ICapture
     public event OnData OnDataReceived;
     public uint GetSampleRate();
     
-    public void Start();
+    public bool Start();
     public void Stop();
     public void Pause();
     public void Resume();

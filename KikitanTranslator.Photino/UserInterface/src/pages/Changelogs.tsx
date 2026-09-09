@@ -6,9 +6,6 @@ import { IconButton } from "@mui/material";
 
 import { localization } from "../util/localization";
 
-import Markdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
-
 import {
     Close
 } from '@mui/icons-material';
@@ -24,7 +21,7 @@ export default function Changelogs({ closeCallback, state }: ChangelogsProps) {
     const [changelog, setChangelog] = React.useState("")
 
     React.useEffect(() => {
-        fetchURL(`https://github.com/YusufOzmen01/kikitan-translator/releases/latest/download/CHANGELOG_${state.config.language}.md`).then(c => setChangelog(c))
+        fetchURL(`https://github.com/YusufOzmen01/kikitan-translator/releases/latest/download/CHANGELOG_${state.config.language}.html`).then(c => setChangelog(c))
     }, [])
 
     return <>
@@ -39,7 +36,7 @@ export default function Changelogs({ closeCallback, state }: ChangelogsProps) {
             '&:hover .MuiOutlinedInput-notchedOutline': {
                 borderColor: state.config.light_mode ? 'black' : 'white',
             },
-        }} className={`h-screen ${state.config.light_mode ? "" : "bg-slate-950 text-white"}`}>
+        }} className={`h-full select-text ${state.config.light_mode ? "" : "bg-slate-950 text-white"}`}>
             <Box className={`flex`} sx={{ borderBottom: 1, borderColor: 'divider' }}>
                 <IconButton className="ml-2 mr-2" onClick={() => { closeCallback() }}>
                     <Close />
@@ -48,7 +45,7 @@ export default function Changelogs({ closeCallback, state }: ChangelogsProps) {
                 <h1 className="ml-2 mt-[5px] text-xl font-semibold">{localization.changelogs[state.config.language]}</h1>
             </Box>
 
-            <Markdown remarkPlugins={[remarkGfm]} className="list-disc list-inside text-sm mt-4 ml-8 w-11/12 max-h-80 whitespace-pre text-wrap overflow-hidden">{changelog}</Markdown>
+            <div className="list-disc list-inside text-sm mt-4 ml-8 w-11/12 max-h-80 whitespace-pre text-wrap overflow-hidden overflow-y-auto" dangerouslySetInnerHTML={{__html: changelog}}></div>
         </Box>
     </>
 }

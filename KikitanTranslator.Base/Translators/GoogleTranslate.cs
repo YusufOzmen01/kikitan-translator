@@ -32,8 +32,8 @@ public class GoogleTranslate : ITranslator
     
     private CurlNative.Easy.DataHandler? _writeCallback;
     private static readonly string CaBundlePath =
-        Path.Combine(AppContext.BaseDirectory, "curl-ca-bundle.crt");
-
+        Path.Combine(AppContext.BaseDirectory, "cacert.pem");
+    
     public string? Translate(string text, string source, string target)
     {
         string finalUrl =

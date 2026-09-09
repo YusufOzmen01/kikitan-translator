@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.IO.MemoryMappedFiles;
+using System.Net;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using KikitanTranslator.Base;
@@ -53,14 +54,10 @@ public class Manager
     private Kikitan? _desktopKikitan;
 
     private ITranslator _translator;
-    #if DEBUG
-    private Loopback _loopback = new("Resources/wwwroot/silero_vad.onnx");
-    private Microphone _mic = new("Resources/wwwroot/silero_vad.onnx");
-    #else 
-    private Loopback _loopback = new(Path.Combine(AppContext.BaseDirectory, "wwwroot", "silero_vad.onnx"));
-    private Microphone _mic = new(Path.Combine(AppContext.BaseDirectory, "wwwroot", "silero_vad.onnx"));
-    #endif
+    private Loopback _loopback;
+    private Microphone _mic;
     private AppState _appState = new () { Microphones = [] };
+    private IErrorHandler _errorHandler;
     private bool _running;
 
     private OverlayWriter _writer;
@@ -72,9 +69,18 @@ public class Manager
     public Manager(bool noUI, Connector connector)
     {
         _appState.Config = AppConfig.ConfigObject;
-        #if !DEBUG
+
+        _errorHandler = new ErrorHandler(connector);
+        
+        #if DEBUG
+        _loopback = new("Resources/wwwroot/silero_vad.onnx");
+        _mic = new("Resources/wwwroot/silero_vad.onnx", _errorHandler);
+        #else
         _appState.AppVersion = Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion.Split("+")[0];
+        _loopback = new(Path.Combine(AppContext.BaseDirectory, "wwwroot", "silero_vad.onnx"));
+        _mic = new(Path.Combine(AppContext.BaseDirectory, "wwwroot", "silero_vad.onnx", _errorHandler));
         #endif
+        
         _appState.IsLinux = !RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
         _appState.IsAppimage = _appState.IsLinux && Environment.GetEnvironmentVariable("KIKITAN_NOT_APPIMAGE") == null;
         _connector = connector;
@@ -182,7 +188,30 @@ public class Manager
         else rMic = new Gemini(_mic);
 
         if (AppConfig.ConfigObject.Translator == 0) _translator = new GoogleTranslate();
-        else if (AppConfig.ConfigObject.Translator == 1) _translator = new GroqTranslator();
+        else if (AppConfig.ConfigObject.Translator == 1)
+        {
+            if (string.IsNullOrEmpty(AppConfig.ConfigObject.GroqApiKey))
+            {
+                Log.Error("[GROQ] No API key is configured!");
+                _errorHandler.OnError("GROQ_NO_API_KEY");
+
+                return;
+            }
+        
+            var client = new HttpClient();
+            client.DefaultRequestHeaders.Add("Authorization", $"Bearer {AppConfig.ConfigObject.GroqApiKey}");
+            var request = new HttpRequestMessage(HttpMethod.Post, "https://api.groq.com/openai/v1/audio/transcriptions");
+
+            if (client.Send(request).StatusCode == HttpStatusCode.Unauthorized)
+            {
+                Log.Error("[GROQ] Invalid Groq API key!");
+                _errorHandler.OnError("GROQ_INVALID_API_KEY");
+
+                return;
+            }
+            
+            _translator = new GroqTranslator();
+        }
         else _translator = new GeminiStub();
 
         _microphoneKikitan = new Kikitan(rMic, _translator, new ErrorHandler(_connector), false);

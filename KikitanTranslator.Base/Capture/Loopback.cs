@@ -29,12 +29,14 @@ public class Loopback : ICapture
         _vad = new SileroVad(sileroModelPath);
     }
 
-    public void Start()
+    public bool Start()
     {
         _capture = new WasapiLoopbackCapture();
         _capture.DataAvailable += OnDataAvailable;
         _capture.StartRecording();
         Log.Information("[LOOP] Capture has started");
+
+        return true;
     }
 
     public void Stop()

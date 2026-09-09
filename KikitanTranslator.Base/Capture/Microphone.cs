@@ -18,14 +18,16 @@ public class Microphone : ICapture
     private MiniAudioEngine _engine;
     private WebRtcApmModifier? _apmModifier;
     private AudioCaptureDevice? _captureDevice;
+    private IErrorHandler _errorHandler;
     private SileroVad _vad;
     
     public uint GetSampleRate() => 16000;
 
-    public Microphone(string sileroModelPath)
+    public Microphone(string sileroModelPath, IErrorHandler errorHandler)
     {
         _engine = new MiniAudioEngine(backendPriority:[MiniAudioBackend.Wasapi, MiniAudioBackend.Oss]);
         _vad = new(sileroModelPath);
+        _errorHandler = errorHandler;
     }
 
     public DeviceInfo[] GetCaptureDevices()
@@ -35,7 +37,7 @@ public class Microphone : ICapture
         return _engine.CaptureDevices;
     }
 
-    public void Start()
+    public bool Start()
     {
         _engine.UpdateAudioDevicesInfo();
         if (_captureDevice != null) Stop();
@@ -86,15 +88,28 @@ public class Microphone : ICapture
             );
         } catch (Exception e)
         {
-            Log.Error($"[MIC]  Error initializing capture: {e}. Restarting with default mic");
-
+            _errorHandler.OnError($"[MIC]  Error initializing capture: {e}");
             AppConfig.ConfigObject.Microphone = "";
+            
+            if (!device.Value.IsDefault)
+            {
+                Log.Error($"[MIC]  Error initializing capture: {e}. Restarting with default mic");
+                
+                Start();
+            }
+            else
+            {
+                Log.Error($"[MIC]  Unable to start capture: {e.Message}");
+                
+                Stop();
 
-            Start();
-            return;
+                return false;
+            }
         }
         
         Log.Information("[MIC]  Capture has started");
+        
+        return true;
     }
 
     public void Stop()

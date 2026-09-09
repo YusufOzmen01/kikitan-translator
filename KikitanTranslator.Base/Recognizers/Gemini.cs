@@ -30,10 +30,10 @@ public class Gemini(ICapture capture) : IRecognizer
         
         Log.Information("[GEMI] Starting Gemini live translator...");
         
-        if (String.IsNullOrEmpty(AppConfig.ConfigObject.GeminiApiKey))
+        if (string.IsNullOrEmpty(AppConfig.ConfigObject.GeminiApiKey))
         {
             Log.Error("[GEMI] No API key is defined!");
-            errorHandler.OnError(Resources.ErrorMessages.messages.NoApiKey);
+            errorHandler.OnError("GEMINI_NO_API_KEY");
             
             ChangeRecognizerStatus(RecognizerStatus.NotStarted);
 
@@ -43,7 +43,7 @@ public class Gemini(ICapture capture) : IRecognizer
         if (!ValidateKey().GetAwaiter().GetResult())
         {
             Log.Error("[GEMI] Invalid API key!");
-            errorHandler.OnError(Resources.ErrorMessages.messages.ApiKeyInvalidGemini);
+            errorHandler.OnError("GEMINI_INVALID_API_KEY");
             
             return;
         }
@@ -91,7 +91,14 @@ public class Gemini(ICapture capture) : IRecognizer
             if (_status != RecognizerStatus.Running)
             {
                 capture.OnDataReceived += OnAudioData;
-                capture.Start();
+                
+                if (!capture.Start())
+                {
+                    Log.Error("[GEMI] Unable to start capture!");
+                    Stop();
+
+                    return;
+                }
             
                 ChangeRecognizerStatus(RecognizerStatus.Running);
                 Log.Information("[GEMI] Gemini recognizer has started");

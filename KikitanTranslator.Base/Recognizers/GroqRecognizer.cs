@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Headers;
+﻿using System.Net;
+using System.Net.Http.Headers;
 using System.Text.Json;
 using KikitanTranslator.Capture;
 using KikitanTranslator.Utility;
@@ -35,12 +36,38 @@ public class GroqRecognizer : IRecognizer
 
     public void Start(string language, IErrorHandler errorHandler)
     {
+        if (string.IsNullOrEmpty(AppConfig.ConfigObject.GroqApiKey))
+        {
+            Log.Error("[GROQ] No API key is configured!");
+            errorHandler.OnError("GROQ_NO_API_KEY");
+
+            return;
+        }
+        
+        var client = new HttpClient();
+        client.DefaultRequestHeaders.Add("Authorization", $"Bearer {AppConfig.ConfigObject.GroqApiKey}");
+        var request = new HttpRequestMessage(HttpMethod.Post, "https://api.groq.com/openai/v1/audio/transcriptions");
+
+        if (client.Send(request).StatusCode == HttpStatusCode.Unauthorized)
+        {
+            Log.Error("[GROQ] Invalid Groq API key!");
+            errorHandler.OnError("GROQ_INVALID_API_KEY");
+
+            return;
+        }
+        
         if (_status == RecognizerStatus.Running) return;
         _status = RecognizerStatus.Connecting;
         
         _speechBuffer.Clear();
         _isCollectingSpeech = false;
-        _capture.Start();
+        if (!_capture.Start())
+        {
+            Log.Error("[GROQ] Unable to start capture!");
+            Stop();
+
+            return;
+        }
 
         _language = language;
 
@@ -154,6 +181,7 @@ public class GroqRecognizer : IRecognizer
             if (!response.IsSuccessStatusCode)
             {
                 Log.Error($"[GROQ] Whisper API error {(int)response.StatusCode}: {await response.Content.ReadAsStringAsync()}");
+                
                 return;
             }
 

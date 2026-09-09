@@ -505,6 +505,18 @@ export const localization = {
         cn: "您提供的Groq API密钥无效。请检查API密钥后重试。",
         kr: "입력한 Groq API 키가 유효하지 않습니다. API 키를 확인한 후 다시 시도해 주세요.",
     },
+    no_api_key_configured_for_gemini: {
+        en: "No API key configured for Gemini. Please go to settings to configure the API key.",
+        jp: "GeminiのAPIキーが設定されていません。設定画面でAPIキーを設定してください。",
+        cn: "未配置Gemini的API密钥。请前往设置页面配置API密钥。",
+        kr: "Gemini API 키가 설정되지 않았습니다. 설정 화면에서 API 키를 구성해 주세요.",
+    },
+    invalid_api_key_gemini: {
+        en: "The API key you provided for Gemini is invalid. Please check your API key and try again.",
+        jp: "Geminiに入力されたAPIキーが無効です。APIキーをご確認の上、再度お試しください。",
+        cn: "您提供的Gemini API密钥无效。请检查API密钥后重试。",
+        kr: "입력한 Gemini API 키가 유효하지 않습니다. API 키를 확인한 후 다시 시도해 주세요.",
+    },
     limit_reached: {
         en: "You have reached the limit for this service (likely due to free tier limitations). Please switch to a different translator or recognizer or wait until the limit resets.",
         jp: "このサービスの利用制限に達しました（無料プランの制限によるものと思われます）。別の翻訳機または認識サービスに切り替えるか、制限がリセットされるまでお待ちください。",
