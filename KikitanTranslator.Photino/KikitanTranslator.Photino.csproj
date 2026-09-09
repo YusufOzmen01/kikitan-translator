@@ -9,7 +9,7 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
         <ApplicationIcon>Resources/wwwroot/kikitan_logo.ico</ApplicationIcon>
-        <Version>2.0.0</Version>
+        <Version>2.0.1</Version>
         <PackageId>KikitanTranslator</PackageId>
         <Title>Kikitan Translator</Title>
     </PropertyGroup>
@@ -82,7 +82,7 @@
             AfterTargets="BuildAndCopyOverlay"
             Condition="'$(Configuration)' == 'Release' AND '$(RuntimeIdentifier)' == 'win-x64'">
         <RemoveDir Directories="$(OutDir)Release" />
-        <Exec Command="vpk pack --packId $(PackageId) --packVersion $(Version) --packDir &quot;$(MSBuildProjectDirectory)/bin/Release/net9.0/win-x64&quot; --mainExe KikitanTranslator.Photino.exe --icon &quot;$(MSBuildProjectDirectory)/Resources/wwwroot/kikitan_logo.ico&quot; --packTitle &quot;$(Title)&quot; -o &quot;$(OutDir)Release&quot; -f net9.0-x64-runtime,net9.0-x64-aspnetcore,webview2" />
+        <Exec Command="vpk pack --packId $(PackageId) --packVersion $(Version) --packDir &quot;$(MSBuildProjectDirectory)/bin/Release/net9.0/win-x64&quot; --mainExe KikitanTranslator.Photino.exe --icon &quot;$(MSBuildProjectDirectory)/Resources/wwwroot/kikitan_logo.ico&quot; --packTitle &quot;$(Title)&quot; -o &quot;$(OutDir)Release&quot; -f net9.0-x64-runtime,net9.0-x64-aspnetcore,net9.0-x64-desktop,webview2" />
     </Target>
 
     <Target Name="VelopackPackLinux"

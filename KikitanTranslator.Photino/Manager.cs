@@ -78,7 +78,7 @@ public class Manager
         #else
         _appState.AppVersion = Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion.Split("+")[0];
         _loopback = new(Path.Combine(AppContext.BaseDirectory, "wwwroot", "silero_vad.onnx"));
-        _mic = new(Path.Combine(AppContext.BaseDirectory, "wwwroot", "silero_vad.onnx", _errorHandler));
+        _mic = new(Path.Combine(AppContext.BaseDirectory, "wwwroot", "silero_vad.onnx"), _errorHandler);
         #endif
         
         _appState.IsLinux = !RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
