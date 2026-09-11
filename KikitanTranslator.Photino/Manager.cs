@@ -216,17 +216,10 @@ public class Manager
 
         _microphoneKikitan = new Kikitan(rMic, _translator, new ErrorHandler(_connector), false);
         _microphoneKikitan.AddOutput(new Custom(SendRecognitionData));
-        if (AppConfig.ConfigObject.SendToChatbox)
-        {
-            var osc = new Chatbox();
-            
-            _microphoneKikitan.AddOutput(new Custom((m, r, f) =>
-            {
-                if (!_appState.IsMuted) osc.Send(m, r, f);
-            }));
-        }
-
-
+        if (AppConfig.ConfigObject.SendToChatbox) _microphoneKikitan.AddOutput(new Custom(new Chatbox().Send));
+        
+        // TODO: fix muted system
+        
         if (AppConfig.ConfigObject.SendUserData)
         {
             _microphoneKikitan.AddOutput(new OSC("/microphone"));

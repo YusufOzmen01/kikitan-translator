@@ -547,6 +547,12 @@ export const localization = {
         cn: "WebSpeech无法用于桌面翻译！如需使用，请更改语音识别服务！",
         kr: "WebSpeech는 데스크톱 번역에 사용할 수 없습니다! 사용하려면 음성 인식 서비스를 변경해 주세요!",
     },
+    translation_disabled_muted: {
+        en: "Kikitan is disabled because you are muted in game. If what you say does not appear in the game, consider disabing \"Disable Kikitan while muted\" setting in settings!",
+        jp: "ゲーム内でミュートされているため、Kikitanは無効になっています。発言がゲーム内に表示されない場合は、設定の「ミュート中はKikitanを無効化」オプションを無効にすることをご検討ください！",
+        cn: "由于您在游戏中被静音，Kikitan已被禁用。如果您说的话没有显示在游戏中，请考虑在设置中禁用“静音时禁用Kikitan”选项！",
+        kr: "게임 내에서 음소거 상태이기 때문에 Kikitan이 비활성화되어 있습니다. 말한 내용이 게임에 표시되지 않는다면, 설정에서 \"음소거 중 Kikitan 비활성화\" 옵션을 꺼보세요!"
+    },
     translation_disabled: {
         en: "Translation is disabled. You can enable it by switching from Speech-to-Text mode to Translation mode.",
         jp: "翻訳が無効になっています。音声テキスト変換モードから翻訳モードに切り替えると有効になります。",

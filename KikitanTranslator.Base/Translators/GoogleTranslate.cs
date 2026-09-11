@@ -1,8 +1,5 @@
 ﻿using System.Net;
-using System.Runtime.InteropServices;
-using CurlThin;
-using CurlThin.Enums;
-using CurlThin.SafeHandles;
+using KikitanTranslator.Utility;
 using Newtonsoft.Json;
 using Serilog;
 
@@ -13,113 +10,82 @@ internal class Sentence
     [JsonProperty("trans")] public string Translation;
 }
 
-internal class Response
+internal class Response : IDisposable
 {
     [JsonProperty("sentences")] public Sentence[] Sentences;
-}
 
-internal static class CurlImpersonateNative
-{
-    private const string LIBCURL = "libcurl";
 
-    [DllImport(LIBCURL, EntryPoint = "curl_easy_impersonate")]
-    public static extern CURLcode Impersonate(SafeEasyHandle handle, string target, int defaultHeaders);
+    public void Dispose()
+    {
+        
+    }
 }
 
 public class GoogleTranslate : ITranslator
 {
-    private const string ImpersonateTarget = "chrome136";
-    
-    private CurlNative.Easy.DataHandler? _writeCallback;
-    private static readonly string CaBundlePath =
-        Path.Combine(AppContext.BaseDirectory, "cacert.pem");
-    
+    private CurlImpersonate _curlImpersonate = new();
+
     public string? Translate(string text, string source, string target)
     {
-        string finalUrl =
-            $"https://translate.googleapis.com/translate_a/single?client=gtx&sl={source}&tl={target}&dt=t&dt=bd&dj=1&q={Uri.EscapeDataString(text)}";
+        HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"https://translate.googleapis.com/translate_a/single?client=gtx&sl={source}&tl={target}&dt=t&dt=bd&dj=1&q={Uri.EscapeDataString(text)}");
+        request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
 
-        var global = CurlNative.Init();
-        var easy = CurlNative.Easy.Init();
-        var responseBody = new List<byte>();
-
-        try
+        using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
         {
-            var impersonateResult = CurlImpersonateNative.Impersonate(easy, ImpersonateTarget, 1);
-            if (impersonateResult != CURLcode.OK)
-            {
-                Log.Error($"[GT]   curl_easy_impersonate failed: {impersonateResult}");
-                return null;
-            }
-
-            CurlNative.Easy.SetOpt(easy, CURLoption.URL, finalUrl);
-
-            if (File.Exists(CaBundlePath))
-            {
-                CurlNative.Easy.SetOpt(easy, CURLoption.CAINFO, CaBundlePath);
-            }
-            else
-            {
-                Log.Error($"[GT]   CA bundle not found at {CaBundlePath}");
-            }
+            if (response.StatusCode != HttpStatusCode.OK) return TranslateWithCurlImpersonate(text, source, target);
             
-            CurlNative.Easy.SetOpt(easy, CURLoption.ACCEPT_ENCODING, "");
-
-            _writeCallback = (data, size, nmemb, _) =>
+            using(Stream stream = response.GetResponseStream())
+            using (StreamReader reader = new StreamReader(stream))
+            using (Response? resp = JsonConvert.DeserializeObject<Response>(reader.ReadToEnd()))
             {
-                var length = (int)size * (int)nmemb;
-                var chunk = new byte[length];
-                Marshal.Copy(data, chunk, 0, length);
-                responseBody.AddRange(chunk);
-                return (UIntPtr)length;
-            };
-            CurlNative.Easy.SetOpt(easy, CURLoption.WRITEFUNCTION, _writeCallback);
-            
+                if (resp == null)
+                {
+                    Log.Error($"[GT]   Response deserialization returned null");
+                    
+                    return null;
+                }
 
-            var result = CurlNative.Easy.Perform(easy);
-            GC.KeepAlive(_writeCallback);
+                var final = "";
+                foreach (var sentence in resp.Sentences)
+                {
+                    final += $" {Uri.UnescapeDataString(sentence.Translation)}";
+                }
 
-            if (result != CURLcode.OK)
-            {
-                Log.Error($"[GT]   curl perform failed: {result}");
-                return null;
-            }
-
-            CurlNative.Easy.GetInfo(easy, CURLINFO.RESPONSE_CODE, out int statusCode);
-            if (statusCode != (int)HttpStatusCode.OK)
-            {
-                Log.Error($"[GT]   Google Translate returned {statusCode}");
-                return null;
-            }
-
-            string json = System.Text.Encoding.UTF8.GetString(responseBody.ToArray());
-            Response? resp = JsonConvert.DeserializeObject<Response>(json);
-
-            if (resp == null)
-            {
-                Log.Error("[GT]   Response deserialization returned null");
-                return null;
-            }
-
-            var final = "";
-            foreach (var sentence in resp.Sentences)
-            {
-                final += $" {Uri.UnescapeDataString(sentence.Translation)}";
-            }
-
-            return final.Trim();
-        }
-        finally
-        {
-            easy.Dispose();
-            if (global == CURLcode.OK)
-            {
-                CurlNative.Cleanup();
+                return final.Trim();
             }
         }
     }
+    
+    
+    private string? TranslateWithCurlImpersonate(string text, string source, string target)
+    {
+        string? resp = _curlImpersonate.DoGet( $"https://translate.googleapis.com/translate_a/single?client=gtx&sl={source}&tl={target}&dt=t&dt=bd&dj=1&q={Uri.EscapeDataString(text)}");
+        if (resp == null)
+        {
+            Log.Error($"[GT]   Google Translate failed (via curl_impersonate)!");
 
+            return null;
+        }
+
+        Response? r = JsonConvert.DeserializeObject<Response>(resp);
+        if (r == null)
+        {
+            Log.Error($"[GT]   Response deserialization returned null");
+                    
+            return null;
+        }
+
+        var final = "";
+        foreach (var sentence in r.Sentences)
+        {
+            final += $" {Uri.UnescapeDataString(sentence.Translation)}";
+        }
+
+        return final.Trim();
+    }
+    
     public void Dispose()
     {
+        
     }
 }

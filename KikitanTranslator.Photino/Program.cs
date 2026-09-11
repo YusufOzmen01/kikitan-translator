@@ -30,13 +30,16 @@ public class Program
         PhotinoServer.CreateStaticFileServer(args, out string baseUrl).RunAsync();
         string appUrl = $"{baseUrl}/index.html";
 #endif
+        bool noUI = Array.Exists(args, e => e.Trim().Contains("--no-ui"));
+        bool debug = Array.Exists(args, e => e.Trim().Contains("--debug"));
+        
         Console.OutputEncoding = System.Text.Encoding.UTF8;
-        Logger.Initialize();
+        Logger.Initialize(debug);
         AppConfig.Load();
 
         VelopackApp.Build().Run();
 
-        bool noUI = Array.Exists(args, e => e.Trim().Contains("--no-ui"));
+        
 
         var connector = new Connector();
         var manager = new Manager(noUI, connector);
