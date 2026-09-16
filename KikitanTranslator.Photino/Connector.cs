@@ -16,7 +16,7 @@ public class Connector
 
     public void StartWebsocket()
     {
-        _websocketServer = new WebSocketServer("ws://0.0.0.0:18378");
+        _websocketServer = new WebSocketServer("ws://127.0.0.1:18378");
         _websocketServer.Start(socket =>
         {
             socket.OnOpen = () => _sockets.Add(socket);

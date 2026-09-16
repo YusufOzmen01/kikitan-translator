@@ -61,10 +61,15 @@ public class Program
             Log.Information("[APP] No UI requested, starting the websocket");
             connector.StartWebsocket();
 
-            Task.Run(() =>
+            var tcs = new TaskCompletionSource();
+            
+            Console.CancelKeyPress += (sender, e) =>
             {
-                while (true) Task.Delay(1000);
-            }).GetAwaiter().GetResult();
+                e.Cancel = true; 
+                tcs.TrySetResult();
+            };
+
+            tcs.Task.GetAwaiter().GetResult();
         }
 
         string windowTitle = "Kikitan Translator";

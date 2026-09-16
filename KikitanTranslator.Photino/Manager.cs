@@ -60,7 +60,7 @@ public class Manager
     private IErrorHandler _errorHandler;
     private bool _running;
 
-    private OverlayWriter _writer;
+    private OverlayWriter? _writer;
 
     private Connector _connector;
 
@@ -129,7 +129,7 @@ public class Manager
         };
         oscWatcher.Start();;
         
-        Task.Run(() =>
+        Task.Run(async () =>
         {
             var engine = new MiniAudioEngine(backendPriority: [MiniAudioBackend.Wasapi, MiniAudioBackend.Oss]);
 
@@ -168,7 +168,7 @@ public class Manager
                 
                 mics.Clear();
 
-                Task.Delay(500);
+                await Task.Delay(500);
             }
         });
     }
@@ -215,7 +215,7 @@ public class Manager
         else _translator = new GeminiStub();
 
         _microphoneKikitan = new Kikitan(rMic, _translator, new ErrorHandler(_connector), false);
-        _microphoneKikitan.AddOutput(new Custom(SendRecognitionData));
+        _microphoneKikitan.AddOutput(new Custom(SendRecognitionData, false));
         if (AppConfig.ConfigObject.SendToChatbox)
         {
             var chatbox = new Chatbox();
@@ -225,7 +225,7 @@ public class Manager
                 if (AppConfig.ConfigObject.DisableWhenMuted && _appState.IsMuted) return;
                 
                 chatbox.Send(r, t, f);
-            }));
+            }, true));
         }
         
         if (AppConfig.ConfigObject.SendUserData)
@@ -251,17 +251,20 @@ public class Manager
             else rDesktop = new Gemini(_loopback);
             
             _desktopKikitan = new Kikitan(rDesktop, _translator, new ErrorHandler(_connector), true);
-            _desktopKikitan.AddOutput(new Custom((recognized, translated, final) =>
+            if (_writer != null)
             {
-                var text = AppConfig.ConfigObject.SpeechToTextOnly ? recognized : translated;
-                var time = text.Length * AppConfig.ConfigObject.ChatboxWaitPerCharMs;
+                _desktopKikitan.AddOutput(new Custom((recognized, translated, final) =>
+                {
+                    var text = AppConfig.ConfigObject.SpeechToTextOnly ? recognized : translated;
+                    var time = text.Length * AppConfig.ConfigObject.ChatboxWaitPerCharMs;
 
-                if (text.Trim().Length == 0) return;
+                    if (text.Trim().Length == 0) return;
             
-                _writer.Write(new OverlayPipeData { Text = text, NoLanguageSpace =
-                    (AppConfig.ConfigObject.SourceLanguage == "ja" || AppConfig.ConfigObject.SourceLanguage == "ko" ||
-                     AppConfig.ConfigObject.SourceLanguage == "cn"), Time = time < 5000 ? 5000 : time});
-            }));
+                    _writer.Write(new OverlayPipeData { Text = text, NoLanguageSpace =
+                        (AppConfig.ConfigObject.SourceLanguage == "ja" || AppConfig.ConfigObject.SourceLanguage == "ko" ||
+                         AppConfig.ConfigObject.SourceLanguage == "cn"), Time = time < 5000 ? 5000 : time});
+                }, false));
+            }
             
             if (AppConfig.ConfigObject.SendUserData)
             {
@@ -287,14 +290,15 @@ public class Manager
 
     public async void RestartIfRunning()
     {
+        // Double checking _running is not really sensible but idc honestly, this works
         if (_running)
         {
             _appState.Status = 1;
             Stop();
 
             await Task.Delay(100);
-
-            Start();
+            
+            if (_running) Start();
         }
         
         SendUpdateToUI();

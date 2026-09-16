@@ -14,6 +14,7 @@ public class Kikitan : IDisposable
     private List<IOutput> _outputs = [];
 
     private List<string[]> _queue = [];
+    private readonly object _queueLock = new object();
 
     private bool _running;
     private bool _isLoopback;
@@ -28,7 +29,7 @@ public class Kikitan : IDisposable
 
         recognizer.OnRecognitionReceived += OnRecognition;
         recognizer.OnRecognizerStatusChanged += OnRecognizerStatus;
-
+        
         _isLoopback = loopback;
         
         Log.Information("[KKTN] Kikitan is starting up");
@@ -77,7 +78,10 @@ public class Kikitan : IDisposable
         
             if (translated != null)
             {
-                _queue.Add([text, translated]);
+                lock (_queueLock)
+                {
+                    _queue.Add([text, translated]);
+                }
             
                 foreach (var output in _outputs.Where(v => !v.IsDelayed())) output.Send(text, translated, true);
             }
@@ -103,15 +107,22 @@ public class Kikitan : IDisposable
                 continue;
             }
 
-            var texts = _queue.First();
-            _queue.RemoveAt(0);
+            var textDelayTime = 0;
+
+            lock (_queueLock)
+            {
+                var texts = _queue.First();
+                _queue.RemoveAt(0);
             
-            Log.Verbose("[KKTN] Processing new delayed translation");
+                Log.Verbose("[KKTN] Processing new delayed translation");
             
-            foreach (var output in _outputs.Where(v => v.IsDelayed())) output.Send(texts[0], texts[1], true);
-            Log.Verbose($"[KKTN] Waiting {texts[1].Length * AppConfig.ConfigObject.ChatboxWaitPerCharMs}ms...");
+                foreach (var output in _outputs.Where(v => v.IsDelayed())) output.Send(texts[0], texts[1], true);
+                Log.Verbose($"[KKTN] Waiting {texts[1].Length * AppConfig.ConfigObject.ChatboxWaitPerCharMs}ms...");
+
+                textDelayTime = texts[1].Length * AppConfig.ConfigObject.ChatboxWaitPerCharMs;
+            }
             
-            await Task.Delay(texts[1].Length * AppConfig.ConfigObject.ChatboxWaitPerCharMs);
+            await Task.Delay(textDelayTime);
         }
     }
 
