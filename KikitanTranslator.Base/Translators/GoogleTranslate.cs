@@ -27,6 +27,7 @@ public class GoogleTranslate : ITranslator
 
     public string? Translate(string text, string source, string target)
     {
+        Log.Debug($"[GT]   Translation requested: chars={text.Length}, source={source}, target={target}");
         HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"https://translate.googleapis.com/translate_a/single?client=gtx&sl={source}&tl={target}&dt=t&dt=bd&dj=1&q={Uri.EscapeDataString(text)}");
         request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
 
@@ -68,6 +69,7 @@ public class GoogleTranslate : ITranslator
     
     private string? TranslateWithCurlImpersonate(string text, string source, string target)
     {
+        Log.Debug($"[GT]   Trying curl fallback: chars={text.Length}, source={source}, target={target}");
         string? resp = _curlImpersonate.DoGet( $"https://translate.googleapis.com/translate_a/single?client=gtx&sl={source}&tl={target}&dt=t&dt=bd&dj=1&q={Uri.EscapeDataString(text)}");
         if (resp == null)
         {

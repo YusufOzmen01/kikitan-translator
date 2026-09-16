@@ -36,6 +36,7 @@ public class GroqRecognizer : IRecognizer
 
     public void Start(string language, IErrorHandler errorHandler)
     {
+        Log.Information($"[GROQ] Start requested: capture={_capture.GetType().Name}, language={language}, status={_status}");
         if (string.IsNullOrEmpty(AppConfig.ConfigObject.GroqApiKey))
         {
             Log.Error("[GROQ] No API key is configured!");
@@ -144,13 +145,20 @@ public class GroqRecognizer : IRecognizer
             _isCollectingSpeech = false;
             OnRecognitionReceived?.Invoke("", true);
 
-            if (audio.Length < 3840) return;
+            if (audio.Length < 3840)
+            {
+                Log.Debug($"[GROQ] Speech discarded: samples={audio.Length}, minimumSamples=3840, capture={_capture.GetType().Name}");
+                return;
+            }
             TranscribeAsync(audio, _capture.GetSampleRate());
         }
     }
 
     private async Task TranscribeAsync(float[] samples, uint sampleRate)
     {
+        var requestId = Guid.NewGuid().ToString("N");
+        var requestTimer = System.Diagnostics.Stopwatch.StartNew();
+        Log.Debug($"[GROQ] Transcription started: request={requestId}, samples={samples.Length}, sampleRate={sampleRate}, capture={_capture.GetType().Name}");
         var apiKey = AppConfig.ConfigObject.GroqApiKey;
         if (string.IsNullOrWhiteSpace(apiKey))
         {
@@ -177,6 +185,7 @@ public class GroqRecognizer : IRecognizer
             request.Content = content;
 
             var response = await _httpClient.SendAsync(request);
+            Log.Debug($"[GROQ] Transcription response: request={requestId}, status={(int)response.StatusCode}, elapsedMs={requestTimer.ElapsedMilliseconds}");
 
             if (!response.IsSuccessStatusCode)
             {
@@ -188,12 +197,13 @@ public class GroqRecognizer : IRecognizer
             using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
             var transcript = doc.RootElement.TryGetProperty("text", out var textProp) ? textProp.GetString()?.Trim() : null;
 
+            Log.Debug($"[GROQ] Transcription parsed: request={requestId}, chars={transcript?.Length}, elapsedMs={requestTimer.ElapsedMilliseconds}");
             if (string.IsNullOrWhiteSpace(transcript)) return;
             OnRecognitionReceived?.Invoke(transcript, true);
         }
         catch (Exception ex)
         {
-            Log.Error($"[GROQ] Transcription error: {ex.Message}");
+            Log.Error(ex, $"[GROQ] Transcription failed: request={requestId}, elapsedMs={requestTimer.ElapsedMilliseconds}");
         }
     }
 

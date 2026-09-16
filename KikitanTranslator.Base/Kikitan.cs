@@ -32,7 +32,7 @@ public class Kikitan : IDisposable
         
         _isLoopback = loopback;
         
-        Log.Information("[KKTN] Kikitan is starting up");
+        Log.Information($"[KKTN] Kikitan is starting up: desktop={_isLoopback}, recognizer={_recognizer.GetType().Name}, translator={_translator.GetType().Name}");
     }
 
     public void AddOutput(IOutput output) => _outputs.Add(output);
@@ -41,6 +41,7 @@ public class Kikitan : IDisposable
     {
         _recognizer.Start(_isLoopback ? AppConfig.ConfigObject.TargetLanguage : AppConfig.ConfigObject.SourceLanguage, _errorHandler);
         _running = true;
+        Log.Information($"[KKTN] Recognizer start result: desktop={_isLoopback}, status={_recognizer.Status()}");
         
         Task.Run(QueueWorker);
     }
@@ -55,6 +56,7 @@ public class Kikitan : IDisposable
 
     private void OnRecognition(string text, bool final)
     {
+        if (final) Log.Debug($"[KKTN] Final recognition received: desktop={_isLoopback}, chars={text.Length}, running={_running}");
         if (AppConfig.ConfigObject.Recognizer == 2)
         {
             foreach (var output in _outputs)
@@ -74,13 +76,18 @@ public class Kikitan : IDisposable
 
         try
         {
+            var translationTimer = System.Diagnostics.Stopwatch.StartNew();
+            Log.Debug($"[KKTN] Translation started: desktop={_isLoopback}, translator={_translator.GetType().Name}, chars={text.Length}, transcriptionOnly={AppConfig.ConfigObject.SpeechToTextOnly}");
             var translated = AppConfig.ConfigObject.SpeechToTextOnly ? "" : _isLoopback ? _translator.Translate(text, AppConfig.ConfigObject.TargetLanguage, AppConfig.ConfigObject.SourceLanguage) : _translator.Translate(text, AppConfig.ConfigObject.SourceLanguage, AppConfig.ConfigObject.TargetLanguage);
         
+            Log.Debug($"[KKTN] Translation completed: desktop={_isLoopback}, elapsedMs={translationTimer.ElapsedMilliseconds}, resultChars={translated?.Length}, hasResult={translated != null}");
+            if (translated == null) Log.Warning($"[KKTN] No translation result; final output skipped: desktop={_isLoopback}");
             if (translated != null)
             {
                 lock (_queueLock)
                 {
                     _queue.Add([text, translated]);
+                    Log.Debug($"[KKTN] Translation queued: desktop={_isLoopback}, depth={_queue.Count}");
                 }
             
                 foreach (var output in _outputs.Where(v => !v.IsDelayed())) output.Send(text, translated, true);
@@ -88,7 +95,7 @@ public class Kikitan : IDisposable
         }
         catch (Exception e)
         {
-            Log.Error($"[KKTN] Error while translating: {e.Message}");
+            Log.Error(e, $"[KKTN] Translation/output processing failed: desktop={_isLoopback}");
             
             _errorHandler.OnError($"Error while translating: {e.Message}");
         }
@@ -114,7 +121,7 @@ public class Kikitan : IDisposable
                 var texts = _queue.First();
                 _queue.RemoveAt(0);
             
-                Log.Verbose("[KKTN] Processing new delayed translation");
+                Log.Debug($"[KKTN] Processing delayed output: desktop={_isLoopback}, remaining={_queue.Count}, sourceChars={texts[0].Length}, translationChars={texts[1].Length}");
             
                 foreach (var output in _outputs.Where(v => v.IsDelayed())) output.Send(texts[0], texts[1], true);
                 Log.Verbose($"[KKTN] Waiting {texts[1].Length * AppConfig.ConfigObject.ChatboxWaitPerCharMs}ms...");

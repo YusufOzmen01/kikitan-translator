@@ -18,6 +18,7 @@ public class UpdateConfig(Manager manager) : IHandler
         
         var d = JsonConvert.DeserializeObject<ConfigUpdate>(data);
         if (d == null) return "";
+        Log.Information($"[CFG]  Configuration update requested: field={d.Field}");
 
         switch (d.Field)
         {

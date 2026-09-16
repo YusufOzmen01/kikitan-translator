@@ -19,6 +19,7 @@ public class Chatbox : IOutput
             if (AppConfig.ConfigObject.SpeechToTextOnly) OscChatbox.SendMessage(recognized, true);
             else if (AppConfig.ConfigObject.TranslationOnly) OscChatbox.SendMessage(translated, true);
             else OscChatbox.SendMessage($"{translated} ({recognized})", true);
+            Log.Debug($"[OSC]  Chatbox send completed: port={AppConfig.ConfigObject.OscPort}, final={final}, sourceChars={recognized.Length}, translationChars={translated.Length}");
         } catch (Exception e)
         {
             Log.Error($"[OSC]  Error sending OSC message! Reason: {e}");

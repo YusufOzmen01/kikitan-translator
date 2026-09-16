@@ -17,7 +17,14 @@ public class GroqTranslator : ITranslator
 
     private async Task<string?> TranslateAsync(string text, string source, string target, int count)
     {
-        if (count == 0) return null;
+        if (count == 0)
+        {
+            Log.Warning("[GROQ] Translation attempts exhausted; no result returned");
+            return null;
+        }
+        var requestId = Guid.NewGuid().ToString("N");
+        var requestTimer = System.Diagnostics.Stopwatch.StartNew();
+        Log.Debug($"[GROQ] Translation attempt started: request={requestId}, attempt={4-count}/3, chars={text.Length}, source={source}, target={target}");
         
         var apiKey = AppConfig.ConfigObject.GroqApiKey;
         if (string.IsNullOrWhiteSpace(apiKey))
@@ -46,6 +53,7 @@ public class GroqTranslator : ITranslator
             request.Content = new StringContent(body, Encoding.UTF8, "application/json");
 
             var response = await _httpClient.SendAsync(request);
+            Log.Debug($"[GROQ] Translation response: request={requestId}, attempt={4-count}/3, status={(int)response.StatusCode}, elapsedMs={requestTimer.ElapsedMilliseconds}");
 
             if (!response.IsSuccessStatusCode)
             {
@@ -67,7 +75,7 @@ public class GroqTranslator : ITranslator
         }
         catch (Exception ex)
         {
-            Log.Error($"[GROQ] Translation error: {ex.Message}");
+            Log.Error(ex, $"[GROQ] Translation failed: request={requestId}, attempt={4-count}/3, elapsedMs={requestTimer.ElapsedMilliseconds}");
             return null;
         }
     }

@@ -31,16 +31,13 @@ public class Program
         string appUrl = $"{baseUrl}/index.html";
 #endif
         bool noUI = Array.Exists(args, e => e.Trim().Contains("--no-ui"));
-        bool debug = Array.Exists(args, e => e.Trim().Contains("--debug"));
         
         Console.OutputEncoding = System.Text.Encoding.UTF8;
-        Logger.Initialize(debug);
+        Logger.Initialize();
         AppConfig.Load();
 
         VelopackApp.Build().Run();
-
         
-
         var connector = new Connector();
         var manager = new Manager(noUI, connector);
         var messageHandler = new MessageHandler();

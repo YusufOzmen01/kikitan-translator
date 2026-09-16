@@ -28,7 +28,7 @@ public class Gemini(ICapture capture) : IRecognizer
     {
         Resources.ErrorMessages.messages.Culture = new CultureInfo(AppConfig.ConfigObject.Language == "jp" ? "ja" : AppConfig.ConfigObject.Language);
         
-        Log.Information("[GEMI] Starting Gemini live translator...");
+        Log.Information($"[GEMI] Starting live translator: capture={capture.GetType().Name}, language={language}, status={_status}");
         
         if (string.IsNullOrEmpty(AppConfig.ConfigObject.GeminiApiKey))
         {
@@ -53,6 +53,7 @@ public class Gemini(ICapture capture) : IRecognizer
         
         _client.ReconnectionHappened.Subscribe(async info =>
         {
+            Log.Information($"[GEMI] Connection event: type={info.Type}, status={_status}, capture={capture.GetType().Name}");
             if (_status == RecognizerStatus.Connecting || _status == RecognizerStatus.Running) return;
             
             Log.Verbose("[GEMI] Websocket connection established");
@@ -138,7 +139,10 @@ public class Gemini(ICapture capture) : IRecognizer
                 }
                     
             }
-            catch { }
+            catch (Exception e)
+            {
+                Log.Warning($"[GEMI] Transcription message handling failed: type={e.GetType().Name}, hresult=0x{e.HResult:X8}, stack={e.StackTrace}, capture={capture.GetType().Name}");
+            }
         });
         
         _client.DisconnectionHappened.Subscribe(async info =>
@@ -164,6 +168,7 @@ public class Gemini(ICapture capture) : IRecognizer
     
     private void ChangeRecognizerStatus(RecognizerStatus status)
     {
+        Log.Information($"[GEMI] Status changed: {_status} -> {status}, capture={capture.GetType().Name}");
         _status = status;
         OnRecognizerStatusChanged?.Invoke(status);
     }
@@ -215,6 +220,7 @@ public class Gemini(ICapture capture) : IRecognizer
             }
             catch (HttpRequestException e)
             {
+                Log.Warning($"[GEMI] API-key validation request failed: status={e.StatusCode}, hresult=0x{e.HResult:X8}");
                 return false;
             }
         }

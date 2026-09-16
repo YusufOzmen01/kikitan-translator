@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.IO.MemoryMappedFiles;
 using System.Net;
 using System.Reflection;
@@ -175,6 +175,8 @@ public class Manager
 
     public void Start()
     {
+        Log.Information($"[APP] Start requested: running={_running}, recognizer={AppConfig.ConfigObject.Recognizer}, translator={AppConfig.ConfigObject.Translator}, desktop={AppConfig.ConfigObject.DesktopTranslation}, chatbox={AppConfig.ConfigObject.SendToChatbox}");
+
         if (_running)
         {
             RestartIfRunning();
@@ -222,7 +224,11 @@ public class Manager
             
             _microphoneKikitan.AddOutput(new Custom((r, t, f) =>
             {
-                if (AppConfig.ConfigObject.DisableWhenMuted && _appState.IsMuted) return;
+                if (AppConfig.ConfigObject.DisableWhenMuted && _appState.IsMuted)
+                {
+                    if (f) Log.Debug("[OSC]  Final chatbox output skipped: VRChat microphone is muted");
+                    return;
+                }
                 
                 chatbox.Send(r, t, f);
             }, true));
@@ -251,6 +257,7 @@ public class Manager
             else rDesktop = new Gemini(_loopback);
             
             _desktopKikitan = new Kikitan(rDesktop, _translator, new ErrorHandler(_connector), true);
+            Log.Information($"[APP] Desktop pipeline starting: recognizer={rDesktop.GetType().Name}, overlayAvailable={_writer != null}");
             if (_writer != null)
             {
                 _desktopKikitan.AddOutput(new Custom((recognized, translated, final) =>
@@ -259,6 +266,7 @@ public class Manager
                     var time = text.Length * AppConfig.ConfigObject.ChatboxWaitPerCharMs;
 
                     if (text.Trim().Length == 0) return;
+                    Log.Debug($"[LOOP] Writing overlay output: chars={text.Length}, final={final}, durationMs={Math.Max(5000, time)}");
             
                     _writer.Write(new OverlayPipeData { Text = text, NoLanguageSpace =
                         (AppConfig.ConfigObject.SourceLanguage == "ja" || AppConfig.ConfigObject.SourceLanguage == "ko" ||
@@ -275,11 +283,13 @@ public class Manager
         }
         
         _running = true;
+        Log.Information($"[APP] Startup complete.");
         SendUpdateToUI();
     }
 
     public void Stop()
     {
+        Log.Information($"[APP] Stopping...");
         _microphoneKikitan?.Dispose();
         _desktopKikitan?.Dispose();
 
@@ -290,6 +300,7 @@ public class Manager
 
     public async void RestartIfRunning()
     {
+        Log.Information($"[APP] Restart requested: running={_running}");
         // Double checking _running is not really sensible but idc honestly, this works
         if (_running)
         {
@@ -298,7 +309,8 @@ public class Manager
 
             await Task.Delay(100);
             
-            if (_running) Start();
+            Log.Information($"[APP] Restart delay completed: running={_running}, willRestart={_running}");
+            if (!_running) Start();
         }
         
         SendUpdateToUI();

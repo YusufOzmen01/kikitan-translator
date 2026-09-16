@@ -52,7 +52,7 @@ public class Bing : IRecognizer
     
     public void Start(string language, IErrorHandler errorHandler)
     {
-        Log.Information("[BING] Starting Bing recognizer...");
+        Log.Information($"[BING] Starting recognizer: capture={_capture.GetType().Name}, language={language}, status={_status}");
         ChangeRecognizerStatus(RecognizerStatus.Connecting);
         
         _language = language;
@@ -69,10 +69,11 @@ public class Bing : IRecognizer
         
         _client.ReconnectionHappened.Subscribe(async info =>
         {
+            Log.Information($"[BING] Connection event: type={info.Type}, status={_status}, capture={_capture.GetType().Name}");
             if (_status == RecognizerStatus.Running) return;
             
             Reset();
-            Log.Verbose("[BING] Websocket connection established");
+            Log.Information($"[BING] Connection setup started: connection={_connectionId}, request={_currentRequestId}");
             await Task.Delay(100);
             
             var configPayload = new
@@ -141,6 +142,7 @@ public class Bing : IRecognizer
                     
                     break;
                 case "turn.end":
+                    Log.Debug($"[BING] Turn ended: connection={_connectionId}, request={_currentRequestId}, stream={_streamIdCounter}, audioBytesSent={_bytesSend}");
                     RestartTurn();
                     
                     break;
@@ -166,6 +168,7 @@ public class Bing : IRecognizer
             ChangeRecognizerStatus(RecognizerStatus.NotStarted);
 
             if (info.Type != DisconnectionType.ByServer) return;
+            Log.Information($"[BING] Server disconnect; restart scheduled in 1000ms: connection={_connectionId}, capture={_capture.GetType().Name}");
             await Task.Delay(1000);
             
             Start(_language, errorHandler);
@@ -266,6 +269,7 @@ public class Bing : IRecognizer
 
     private void ChangeRecognizerStatus(RecognizerStatus status)
     {
+        Log.Information($"[BING] Status changed: {_status} -> {status}, connection={_connectionId}, capture={_capture.GetType().Name}");
         _status = status;
         OnRecognizerStatusChanged?.Invoke(status);
     }

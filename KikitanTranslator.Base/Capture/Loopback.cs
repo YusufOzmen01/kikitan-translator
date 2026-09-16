@@ -41,7 +41,11 @@ public class Loopback : ICapture
         {
             if (_session != null)
             {
-                if (_session.Cancellation.IsCancellationRequested) return false;
+                if (_session.Cancellation.IsCancellationRequested)
+                {
+                    Log.Warning("[LOOP] Start rejected: previous capture session is still stopping");
+                    return false;
+                }
                 session = _session;
             }
             else
@@ -79,7 +83,7 @@ public class Loopback : ICapture
             }
         }
         
-        Log.Information("[LOOP] Capture started");
+        Log.Debug("[LOOP] Waiting for capture startup result");
 
         return session.Started.Task.GetAwaiter().GetResult();
     }
@@ -91,6 +95,7 @@ public class Loopback : ICapture
         {
             session = _session;
             if (session == null) return;
+            Log.Information("[LOOP] Stop requested; signalling capture cancellation");
             session.Cancellation.Cancel();
         }
     }
@@ -103,6 +108,7 @@ public class Loopback : ICapture
         lock (_lifecycleLock)
         {
             if (_session == null || _session.Paused == paused) return;
+            Log.Debug($"[LOOP] Pause state changed: paused={paused}");
             _session.Paused = paused;
             Interlocked.Increment(ref _session.FrameGeneration);
         }
@@ -155,6 +161,7 @@ public class Loopback : ICapture
             if (session.Process.HasExited)
                 throw new InvalidOperationException("VRChat exited before capture could start.");
 
+            Log.Debug("[LOOP] Initializing audio client: sampleRate=16000, channels=1, bitsPerSample=16");
             client.Initialize(AudioClientShareMode.Shared,
                 AudioClientStreamFlags.Loopback | AudioClientStreamFlags.EventCallback |
                 AudioClientStreamFlags.AutoConvertPcm | AudioClientStreamFlags.SrcDefaultQuality,
@@ -281,6 +288,7 @@ public class Loopback : ICapture
 
     private static AudioClient ActivateProcess(int processId, CancellationToken token)
     {
+        Log.Debug($"[LOOP] Process audio activation started: pid={processId}");
         var completion = new ActivationCompletion();
         IActivateAudioInterfaceAsyncOperation? operation = null;
         try
@@ -315,6 +323,7 @@ public class Loopback : ICapture
 
             try
             {
+                Log.Debug($"[LOOP] Process audio activation completed: pid={processId}");
                 return new AudioClient((IAudioClient)activated);
             }
             catch
