@@ -79,7 +79,7 @@ public class Loopback : ICapture
             }
         }
         
-        Log.Error("[LOOP] Capture started");
+        Log.Information("[LOOP] Capture started");
 
         return session.Started.Task.GetAwaiter().GetResult();
     }
