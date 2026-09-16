@@ -30,29 +30,38 @@ public class GoogleTranslate : ITranslator
         HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"https://translate.googleapis.com/translate_a/single?client=gtx&sl={source}&tl={target}&dt=t&dt=bd&dj=1&q={Uri.EscapeDataString(text)}");
         request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
 
-        using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+        try
         {
-            if (response.StatusCode != HttpStatusCode.OK) return TranslateWithCurlImpersonate(text, source, target);
-            
-            using(Stream stream = response.GetResponseStream())
-            using (StreamReader reader = new StreamReader(stream))
-            using (Response? resp = JsonConvert.DeserializeObject<Response>(reader.ReadToEnd()))
+            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
             {
-                if (resp == null)
-                {
-                    Log.Error($"[GT]   Response deserialization returned null");
-                    
-                    return null;
-                }
+                if (response.StatusCode != HttpStatusCode.OK) return TranslateWithCurlImpersonate(text, source, target);
 
-                var final = "";
-                foreach (var sentence in resp.Sentences)
+                using (Stream stream = response.GetResponseStream())
+                using (StreamReader reader = new StreamReader(stream))
+                using (Response? resp = JsonConvert.DeserializeObject<Response>(reader.ReadToEnd()))
                 {
-                    final += $" {Uri.UnescapeDataString(sentence.Translation)}";
-                }
+                    if (resp == null)
+                    {
+                        Log.Error($"[GT]   Response deserialization returned null");
 
-                return final.Trim();
+                        return null;
+                    }
+
+                    var final = "";
+                    foreach (var sentence in resp.Sentences)
+                    {
+                        final += $" {Uri.UnescapeDataString(sentence.Translation)}";
+                    }
+
+                    return final.Trim();
+                }
             }
+        }
+        catch (Exception e)
+        {
+            Log.Error($"[GT]  Exception while translation via regular Google Translate API: {e}");
+            
+            return TranslateWithCurlImpersonate(text, source, target);
         }
     }
     

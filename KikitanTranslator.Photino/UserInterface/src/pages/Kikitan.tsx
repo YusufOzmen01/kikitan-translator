@@ -496,7 +496,7 @@ export default function Kikitan({ state }: { state: app_state }) {
                         {<Keyboard fontSize="small" />}
                     </Button>
                 </Tooltip>
-                <Tooltip title={state.is_muted ? localization.translation_disabled_muted[state.config.language] : ""}>
+                <Tooltip title={state.is_muted && state.config.disable_when_muted ? localization.translation_disabled_muted[state.config.language] : ""}>
                     <Button
                         variant="outlined"
                         size="medium"
